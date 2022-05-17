@@ -3,8 +3,9 @@ const { ethers } = require("hardhat");
 
 describe("Option", function ()
 {
-    let owner;
-    let account1;
+    let owner
+      , account1
+      , account2;
 
     beforeEach
     (
@@ -15,6 +16,7 @@ describe("Option", function ()
 
             owner    = accounts[0];
             account1 = accounts[1];
+            account2 = accounts[2];
 
             const Option = await ethers.getContractFactory("Option");
             optionCTR = await Option.deploy();
@@ -24,16 +26,18 @@ describe("Option", function ()
 
     describe("sayHello", function ()
     {
-        it("says hello", async function ()
+        it("creates an option", async function ()
         {
-            expect(await optionCTR.connect(owner).sayHello()).to.equal("Hello World");
+            await optionCTR.connect(account1).createOption();
+
+            expect (await optionCTR.connect(account1).getBuyer()).to.equal(account1.address);
         });
 
-        it("won't say hello", async function ()
+        it("creates collateral", async function ()
         {
-            await expect(
-                optionCTR.connect(account1).sayHello()
-            ).to.be.revertedWith("Not an owner");
+            await optionCTR.connect(account2).createCollateral();
+
+            expect (await optionCTR.connect(account2).getSeller()).to.equal(account2.address);
         });
     });
 })
