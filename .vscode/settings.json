@@ -1,0 +1,11 @@
+{
+    "editor.renderWhitespace"           : "all",
+    "editor.renderControlCharacters"    : false,
+    "editor.autoIndent"                 : "full",
+    "editor.detectIndentation"          : false,
+    "editor.insertSpaces"               : true,
+
+    "files.autoSave"                    : "onFocusChange",
+    "files.trimFinalNewlines"           : true,
+    "files.trimTrailingWhitespace"      : true,
+}
