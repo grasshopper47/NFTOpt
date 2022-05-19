@@ -18,6 +18,7 @@ contract NFTOpt {
         OptionState state;
     }
 
+    uint32 private optionID;
     mapping(uint => Option) public options;
 
     function createOptionRequest(address _nftContract, uint _nftId, uint _premium, uint _strikePrice, bool _isEuropean)
@@ -27,28 +28,28 @@ contract NFTOpt {
 
     }
 
-    function cancelOptionRequest(uint _optionId)
+    function cancelOptionRequest(uint32 _optionId)
     external
     payable
     {
 
     }
 
-    function createOption(uint _optionId)
+    function createOption(uint32 _optionId)
     external
     payable
     {
 
     }
 
-    function cancelOption(uint _optionId)
+    function cancelOption(uint32 _optionId)
     external
     payable
     {
 
     }
 
-    function exerciseOption(uint _optionId)
+    function exerciseOption(uint32 _optionId)
     external
     payable
     {
