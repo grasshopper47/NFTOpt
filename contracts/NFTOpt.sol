@@ -3,32 +3,42 @@ pragma solidity ^0.8.0;
 
 contract NFTOpt {
 
-    enum OptionState { REQUEST, OPEN, CLOSED }
+    enum OptionState  { REQUEST, OPEN, CLOSED }
+    enum OptionFlavor { EUROPEAN, AMERICAN }
 
     struct Option {
-        address     buyer;
-        address     seller;
-        address     nftContract;
-        uint        nftId;
-        uint        startDate;
-        uint        expirationInterval;
-        uint        premium;
-        uint        strikePrice;
-        bool        isEuropean; // false = isAmerican
-        OptionState state;
+        address      buyer;
+        address      seller;
+        address      nftContract;
+        uint         nftId;
+        uint         startDate;
+        uint         expirationInterval;
+        uint         premium;
+        uint         strikePrice;
+        OptionFlavor flavor;
+        OptionState  state;
     }
 
-    uint32 private optionID;
+    uint32  private optionID;
+    uint256 private collateralAmount;
+
     mapping(uint => Option) public options;
 
-    function createOptionRequest(address _nftContract, uint _nftId, uint _premium, uint _strikePrice, bool _isEuropean)
+    function publishOptionRequest
+    (
+        address _nftContract
+    ,   uint _nftId
+    ,   uint _premium
+    ,   uint _strikePrice
+    ,   OptionFlavor _flavor
+    )
     external
     payable
     {
 
     }
 
-    function cancelOptionRequest(uint32 _optionId)
+    function withdrawOptionRequest(uint32 _optionId)
     external
     payable
     {
