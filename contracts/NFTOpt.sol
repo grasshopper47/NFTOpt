@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.14;
 
 contract NFTOpt {
+
+    /// @notice Address do not have permission to execute action
+    error INVALID_ADDRESS(address providedAddress);
+
+    /// @notice Invalid option ID
+    error INVALID_OPTION_ID(uint32 providedId);
 
     enum OptionState  { REQUEST, OPEN, CLOSED }
     enum OptionFlavor { EUROPEAN, AMERICAN }
@@ -63,6 +69,9 @@ contract NFTOpt {
     external
     payable
     {
-
+        // send underlying (NFT) from buyer to seller
+        // send collateral from escrow to buyer
+        // update Option state to CLOSED
+        // emit event EXERCISED
     }
 }
