@@ -8,6 +8,7 @@ describe("NFTOpt Tests", function () {
     let buyer: SignerWithAddress;
     let seller: SignerWithAddress;
     let NFTOptCTR: Contract;
+    let NFTCTR: Contract;
 
     beforeEach("deploy contract", async () => {
         const accounts = await ethers.getSigners();
@@ -19,6 +20,12 @@ describe("NFTOpt Tests", function () {
         const NFTOpt = await ethers.getContractFactory("NFTOpt");
         NFTOptCTR = await NFTOpt.deploy();
         await NFTOptCTR.deployed();
+
+        // Deploy dummy NFT contract
+        const NFT = await ethers.getContractFactory("ERC721");
+        NFTCTR = await NFT.deploy("Foo","BAR");
+        await NFTCTR.deployed();
+
     });
 
     describe("createOptionRequest", function () {
