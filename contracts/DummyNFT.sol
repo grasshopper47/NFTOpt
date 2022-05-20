@@ -2,10 +2,9 @@
 pragma solidity ^0.8.14;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
-contract DummyNFT is Ownable, ERC721, ERC721Enumerable {
+contract DummyNFT is Ownable, ERC721Enumerable {
 
     address private _owner;
 
@@ -31,28 +30,6 @@ contract DummyNFT is Ownable, ERC721, ERC721Enumerable {
             _safeMint(_to, supply + i);
         }
     }
-
-    function supportsInterface(bytes4 interfaceId)
-    public
-    view
-    override(ERC721, ERC721Enumerable)
-    returns (bool)
-    {
-        return
-            interfaceId == type(IERC721).interfaceId ||
-            interfaceId == type(IERC721Metadata).interfaceId ||
-            super.supportsInterface(interfaceId);
-    }
-
-    function _beforeTokenTransfer
-    (
-        address from,
-        address to,
-        uint256 tokenId
-    )
-    internal
-    override(ERC721, ERC721Enumerable)
-    { }
 
     function ownerOf(uint256 tokenId)
     public

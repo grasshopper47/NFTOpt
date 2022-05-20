@@ -86,7 +86,7 @@ describe("NFTOpt Tests", function () {
             ).to.be.revertedWith("Provided NFT contract address must implement ERC-721 interface");
         });
 
-        it("should fail when NFT Token ID is under different ownership than the caller's ", async function () {
+        it("should fail when NFT Token ID is under different ownership than the caller's", async function () {
             await expect(
                 NFTOptCTR.connect(buyer)
                          .publishOptionRequest(NFTDummyCTR.address,25,0,0,0)
