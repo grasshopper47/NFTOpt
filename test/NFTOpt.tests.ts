@@ -21,11 +21,10 @@ describe("NFTOpt Tests", function () {
         NFTOptCTR = await NFTOpt.deploy();
         await NFTOptCTR.deployed();
 
-        // Deploy dummy NFT contract
-        const NFT = await ethers.getContractFactory("ERC721");
-        NFTCTR = await NFT.deploy("Foo","BAR");
+        // Deploy dummy NFT contract and mint 20 nfts to buyer
+        const NFT = await ethers.getContractFactory("DummyNFT");
+        NFTCTR = await NFT.deploy("Foo","BAR", buyer.address);
         await NFTCTR.deployed();
-
     });
 
     describe("createOptionRequest", function () {
