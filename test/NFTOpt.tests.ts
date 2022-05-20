@@ -1,6 +1,6 @@
+import {Contract} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
-import {Contract} from "ethers";
 import {ethers} from "hardhat";
 
 describe("NFTOpt Tests", function () {
@@ -22,36 +22,51 @@ describe("NFTOpt Tests", function () {
         await NFTOptCTR.deployed();
 
         // Deploy dummy NFT contract
-        const NFT = await ethers.getContractFactory("ERC721");
-        NFTCTR = await NFT.deploy("Foo","BAR");
+        const NFT = await ethers.getContractFactory("DummyNFT");
+        NFTCTR = await NFT.deploy("Foo", 'BAR', buyer.address);
         await NFTCTR.deployed();
-
+        console.log(await NFTCTR.balanceOf(buyer.address).toNumber);
     });
 
-    describe("createOptionRequest", function () {
-    });
-
-    describe("cancelOptionRequest", function () {
-
-    });
-
-    describe("createOption", function () {
-    });
-
-    describe("cancelOption", function () {
-    });
-
-    describe("exerciseOption", async function () {
-
-        // Create dummies options
-        let optionAmericanId = await NFTOptCTR.connect(buyer).createOptionRequest(0)
-        let optionEuropeanId = await NFTOptCTR.connect(buyer).createOptionRequest(0)
-
-        // Fulfil options requests
-        await NFTOptCTR.connect(seller).createOption(optionAmericanId)
-        await NFTOptCTR.connect(seller).createOption(optionEuropeanId)
+    // describe("add", function () {
+    //
+    //     it("should revert when invalid animal is provided", async function () {
+    //         await expect(
+    //             NFTCTR.connect(owner).add("", 5)
+    //         ).to.be.revertedWith("Invalid animal");
+    //     });
+    //
+    // });
+    //
+    // describe("createOptionRequest", function () {
+    // });
+    //
+    // describe("cancelOptionRequest", function () {
+    //
+    // });
+    //
+    // describe("createOption", function () {
+    // });
+    //
+    // describe("cancelOption", function () {
+    // });
+    //
+    describe("exerciseOption", function () {
 
         it("should revert with non-existent optionID", async function () {
+
+            let  balance = await NFTCTR.connect(buyer).balanceOf(buyer.address);
+            console.log(balance.toString());
+
+            // // Create dummies options
+            // let optionAmericanId = NFTOptCTR.connect(buyer).createOptionRequest(0)
+            // let optionEuropeanId = NFTOptCTR.connect(buyer).createOptionRequest(0)
+            //
+            // // Fulfil options requests
+            // NFTOptCTR.connect(seller).createOption(optionAmericanId)
+            // NFTOptCTR.connect(seller).createOption(optionEuropeanId)
+
+
             expect(
                 NFTOptCTR.connect(buyer).exerciseOption(9999)
             ).to.be.reverted("INVALID_OPTION_ID");
