@@ -20,7 +20,7 @@ import type {
   TypedEvent,
   TypedListener,
   OnEvent,
-} from "./common";
+} from "../common";
 
 export interface NFTOptInterface extends utils.Interface {
   functions: {

@@ -1,12 +1,14 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { NFTOpt } from "../typechain-types";
+import { NFTOpt, DummyNFT } from "../typechain-types";
 
 describe("NFTOpt Tests", function () {
+
   let buyer: SignerWithAddress;
   let seller: SignerWithAddress;
   let NFTOptCTR: NFTOpt;
+  let NFTCTR: DummyNFT;
 
   interface Option {
     buyer: string;
@@ -33,6 +35,11 @@ describe("NFTOpt Tests", function () {
     const NFTOpt = await ethers.getContractFactory("NFTOpt");
     NFTOptCTR = await NFTOpt.deploy();
     await NFTOptCTR.deployed();
+
+    // Deploy dummy NFT contract and mint 20 nfts to buyer
+    const NFT = await ethers.getContractFactory("DummyNFT");
+    NFTCTR = await NFT.deploy("NFT_NAME","NFT_SYMBOL", buyer.address);
+    await NFTCTR.deployed();
   });
 
   describe("createOptionRequest", function () {
