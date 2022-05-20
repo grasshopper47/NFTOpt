@@ -43,7 +43,7 @@ contract NFTOpt {
         return address(this).balance;
     }
 
-    function _detect_if_contract_is_NFT(address _token)
+    function _detect_if_contract_implements_ERC721(address _token)
     internal
     returns (bool)
     {
@@ -88,7 +88,7 @@ contract NFTOpt {
 
         require
         (
-            _detect_if_contract_is_NFT(_nftContract)
+            _detect_if_contract_implements_ERC721(_nftContract)
         ,   "Provided NFT contract address must implement ERC-721 interface"
         );
 
