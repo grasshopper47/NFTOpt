@@ -13,7 +13,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -30,7 +34,7 @@ export interface NFTOptInterface extends utils.Interface {
     "getBalance()": FunctionFragment;
     "optionID()": FunctionFragment;
     "options(uint256)": FunctionFragment;
-    "publishOptionRequest(address,uint32,uint256,uint256,uint32,uint8)": FunctionFragment;
+    "publishOptionRequest(address,uint32,uint256,uint32,uint8)": FunctionFragment;
     "withdrawOptionRequest(uint32)": FunctionFragment;
   };
 
@@ -69,14 +73,7 @@ export interface NFTOptInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "publishOptionRequest",
-    values: [
-      string,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish
-    ]
+    values: [string, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "withdrawOptionRequest",
@@ -107,8 +104,36 @@ export interface NFTOptInterface extends utils.Interface {
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "Fallback(address,uint256)": EventFragment;
+    "Received(address,uint256)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "Fallback"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Received"): EventFragment;
 }
+
+export interface FallbackEventObject {
+  arg0: string;
+  arg1: BigNumber;
+}
+export type FallbackEvent = TypedEvent<
+  [string, BigNumber],
+  FallbackEventObject
+>;
+
+export type FallbackEventFilter = TypedEventFilter<FallbackEvent>;
+
+export interface ReceivedEventObject {
+  arg0: string;
+  arg1: BigNumber;
+}
+export type ReceivedEvent = TypedEvent<
+  [string, BigNumber],
+  ReceivedEventObject
+>;
+
+export type ReceivedEventFilter = TypedEventFilter<ReceivedEvent>;
 
 export interface NFTOpt extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -188,7 +213,6 @@ export interface NFTOpt extends BaseContract {
     publishOptionRequest(
       _nftContract: string,
       _nftId: BigNumberish,
-      _premium: BigNumberish,
       _strikePrice: BigNumberish,
       _interval: BigNumberish,
       _flavor: BigNumberish,
@@ -252,7 +276,6 @@ export interface NFTOpt extends BaseContract {
   publishOptionRequest(
     _nftContract: string,
     _nftId: BigNumberish,
-    _premium: BigNumberish,
     _strikePrice: BigNumberish,
     _interval: BigNumberish,
     _flavor: BigNumberish,
@@ -316,7 +339,6 @@ export interface NFTOpt extends BaseContract {
     publishOptionRequest(
       _nftContract: string,
       _nftId: BigNumberish,
-      _premium: BigNumberish,
       _strikePrice: BigNumberish,
       _interval: BigNumberish,
       _flavor: BigNumberish,
@@ -329,7 +351,13 @@ export interface NFTOpt extends BaseContract {
     ): Promise<void>;
   };
 
-  filters: {};
+  filters: {
+    "Fallback(address,uint256)"(arg0?: null, arg1?: null): FallbackEventFilter;
+    Fallback(arg0?: null, arg1?: null): FallbackEventFilter;
+
+    "Received(address,uint256)"(arg0?: null, arg1?: null): ReceivedEventFilter;
+    Received(arg0?: null, arg1?: null): ReceivedEventFilter;
+  };
 
   estimateGas: {
     cancelOption(
@@ -356,7 +384,6 @@ export interface NFTOpt extends BaseContract {
     publishOptionRequest(
       _nftContract: string,
       _nftId: BigNumberish,
-      _premium: BigNumberish,
       _strikePrice: BigNumberish,
       _interval: BigNumberish,
       _flavor: BigNumberish,
@@ -397,7 +424,6 @@ export interface NFTOpt extends BaseContract {
     publishOptionRequest(
       _nftContract: string,
       _nftId: BigNumberish,
-      _premium: BigNumberish,
       _strikePrice: BigNumberish,
       _interval: BigNumberish,
       _flavor: BigNumberish,

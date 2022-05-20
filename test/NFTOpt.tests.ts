@@ -1,9 +1,12 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
+import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
 import { NFTOpt, DummyNFT } from "../typechain-types";
 
 describe("NFTOpt Tests", function () {
+
+    const address0 : string = "0x0000000000000000000000000000000000000000";
 
     let buyer: SignerWithAddress;
     let seller: SignerWithAddress;
@@ -17,13 +20,13 @@ describe("NFTOpt Tests", function () {
         nftId: number;
         startDate: number;
         interval: number;
-        premium: any;
-        strikePrice: any;
+        premium: BigNumber;
+        strikePrice: BigNumber;
         flavor: number;
         state: number;
     }
 
-    let dummyOption: Option;
+    let dummyOptionRequest: Option;
 
     beforeEach("deploy contract", async () => {
         const accounts = await ethers.getSigners();
@@ -41,112 +44,110 @@ describe("NFTOpt Tests", function () {
         NFTDummyCTR = await NFT.deploy("NFT_NAME","NFT_SYMBOL", buyer.address);
         await NFTDummyCTR.deployed();
 
-        dummyOption =
+        dummyOptionRequest =
         {
             buyer       : buyer.address
-        ,   seller      : "0x0000000000000000000000000000000000000000"
+        ,   seller      : address0
         ,   nftContract : NFTDummyCTR.address
         ,   nftId       : 101
         ,   startDate   : 0
         ,   interval    : 7
-        ,   premium     : ethers.BigNumber.from(1)
-        ,   strikePrice : ethers.BigNumber.from(50)
+        ,   premium     : ethers.utils.parseEther("1")
+        ,   strikePrice : ethers.utils.parseEther("50")
         ,   flavor      : 0
-        ,   state       : 0
+        ,   state       : 0 // = REQUEST
         }
     });
 
     describe("publishOptionRequest", function () {
         it("should test that method can be called", async function () {
-            expect(NFTOptCTR.connect(buyer).publishOptionRequest(buyer.address,0,0,0,0,0)).to.not.throw;
+            expect(NFTOptCTR.connect(buyer)
+                            .publishOptionRequest(buyer.address,0,0,0,0)).to.not.throw;
         });
 
-        it("should fail when called with address(0) as NFT Contract", async function () {
+        it("should fail when called with address(0) as NFT Contract Address", async function () {
             await expect(
                 NFTOptCTR.connect(buyer)
-                         .publishOptionRequest("0x0000000000000000000000000000000000000000",0,0,0,0,0)
-            ).to.be.revertedWith("NFT token contract must be a valid address");
+                         .publishOptionRequest(address0,0,0,0,0)
+            ).to.be.revertedWith("NFT contract must be a valid address");
         });
 
-        it("should fail when called with 0 as NFT token id", async function () {
+        it("should fail when called with 0 as NFT Token ID", async function () {
             await expect(
                 NFTOptCTR.connect(buyer)
-                         .publishOptionRequest(NFTDummyCTR.address,0,0,0,0,0)
+                         .publishOptionRequest(buyer.address,0,0,0,0)
             ).to.be.revertedWith("NFT token ID must be > 0");
         });
 
-        it("should fail when called with 0 as premium", async function () {
+        it("should fail when called with an invalid (non ERC-721 compliant) NFT Contract", async function () {
             await expect(
                 NFTOptCTR.connect(buyer)
-                         .publishOptionRequest(NFTDummyCTR.address,1,0,0,0,0)
+                         .publishOptionRequest(buyer.address,1,0,0,0)
+            ).to.be.revertedWith("Provided NFT contract address must implement ERC-721 interface");
+        });
+
+        it("should fail when NFT Token ID is under different ownership than the caller's ", async function () {
+            await expect(
+                NFTOptCTR.connect(buyer)
+                         .publishOptionRequest(NFTDummyCTR.address,25,0,0,0)
+            ).to.be.revertedWith("Ownership of specified NFT token is under a different wallet than the caller's");
+        });
+
+        it("should fail when called without a premium (transaction value)", async function () {
+            await expect(
+                NFTOptCTR.connect(buyer)
+                         .publishOptionRequest(NFTDummyCTR.address,1,0,0,0)
             ).to.be.revertedWith("Premium must be > 0");
         });
 
-        it("should fail when caller is missing required funds for premium", async function () {
-            let balance = (await buyer.getBalance()).add(1);
+        it("should fail when called with 0 as Strike Price", async function () {
             await expect(
                 NFTOptCTR.connect(buyer)
-                         .publishOptionRequest(NFTDummyCTR.address, 1, balance, 0,0,0)
-            ).to.be.revertedWith("Caller is missing required funds to supply premium amount");
-        });
-
-        it("should fail when called with 0 as strike price", async function () {
-            await expect(
-                NFTOptCTR.connect(buyer)
-                         .publishOptionRequest(NFTDummyCTR.address,1,1,0,0,0)
+                         .publishOptionRequest(NFTDummyCTR.address,1,0,0,0,{ value: 1 })
             ).to.be.revertedWith("Strike price must be > 0");
         });
 
-        it("should fail when called with 0 as interval", async function () {
+        it("should fail when called with 0 as Interval", async function () {
             await expect(
                 NFTOptCTR.connect(buyer)
-                         .publishOptionRequest(NFTDummyCTR.address,1,1,1,0,0)
+                         .publishOptionRequest(NFTDummyCTR.address,1,1,0,0,{ value: 1 })
             ).to.be.revertedWith("Expiration interval must be > 0");
         });
 
         it("should succeed when called with valid values", async function () {
 
-            let balance_ctr = (await NFTOptCTR.getBalance());
-            let balance = (await buyer.getBalance());
+            expect( await NFTOptCTR.getBalance() ).to.equal(0);
+            expect( await NFTOptCTR.optionID() ).to.equal(0);
 
-            expect(
-                NFTOptCTR.connect(buyer)
+            await expect(
+               NFTOptCTR.connect(buyer)
                          .publishOptionRequest
                          (
-                             dummyOption.nftContract
-                         ,   dummyOption.nftId
-                         ,   dummyOption.premium
-                         ,   dummyOption.strikePrice
-                         ,   dummyOption.interval
-                         ,   dummyOption.flavor
+                             dummyOptionRequest.nftContract
+                         ,   dummyOptionRequest.nftId
+                         ,   dummyOptionRequest.strikePrice
+                         ,   dummyOptionRequest.interval
+                         ,   dummyOptionRequest.flavor
+                         ,  { value: dummyOptionRequest.premium }
                          )
             ).to.not.be.reverted;
 
-            let balance2_ctr = (await NFTOptCTR.getBalance());
-            let balance2 = (await buyer.getBalance());
-
-            console.log(balance);
-            console.log(balance2);
-            console.log(balance_ctr);
-            console.log(balance2_ctr);
-
+            expect( await NFTOptCTR.getBalance() ).to.equal(dummyOptionRequest.premium);
             expect( await NFTOptCTR.optionID() ).to.equal(1);
 
-            // expect(balance2.eq(balance.sub(dummyOption.premium))).to.equal(1);
-            // expect(balance2_ctr.eq(balance2_ctr.add(dummyOption.premium))).to.equal(1);
+            // check details of the option data
+            const option = await NFTOptCTR.options(1);
 
-            let option = await NFTOptCTR.options(1);
-
-            expect(option.buyer).to.equal(dummyOption.buyer);
-            expect(option.seller).to.equal(dummyOption.seller);
-            expect(option.nftContract).to.equal(dummyOption.nftContract);
-            expect(option.nftId).to.equal(dummyOption.nftId);
-            expect(option.startDate).to.equal(dummyOption.startDate);
-            expect(option.interval).to.equal(dummyOption.interval);
-            expect(option.premium).to.equal(dummyOption.premium);
-            expect(option.strikePrice).to.equal(dummyOption.strikePrice);
-            expect(option.flavor).to.equal(dummyOption.flavor);
-            expect(option.state).to.equal(dummyOption.state);
+            expect(option.buyer).to.equal(dummyOptionRequest.buyer);
+            expect(option.seller).to.equal(dummyOptionRequest.seller);
+            expect(option.nftContract).to.equal(dummyOptionRequest.nftContract);
+            expect(option.nftId).to.equal(dummyOptionRequest.nftId);
+            expect(option.startDate).to.equal(dummyOptionRequest.startDate);
+            expect(option.interval).to.equal(dummyOptionRequest.interval);
+            expect(option.premium).to.equal(dummyOptionRequest.premium);
+            expect(option.strikePrice).to.equal(dummyOptionRequest.strikePrice);
+            expect(option.flavor).to.equal(dummyOptionRequest.flavor);
+            expect(option.state).to.equal(dummyOptionRequest.state);
         });
      });
 
