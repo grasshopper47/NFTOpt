@@ -4,18 +4,33 @@ import { Contract } from "ethers";
 import { ethers } from "hardhat";
 
 describe("NFTOpt Tests", function () {
-    let owner: SignerWithAddress;
     let buyer: SignerWithAddress;
     let seller: SignerWithAddress;
     let NFTOptCTR: Contract;
 
+    interface Option
+    {
+        buyer: string
+        seller: string
+        nftContract: string
+        nftId: number
+        startDate: number
+        interval: number
+        premium: any
+        strikePrice: any
+        flavor: number
+        state: number
+    };
+
+    let dummyOption : Option;
+
     beforeEach("deploy contract", async () => {
         const accounts = await ethers.getSigners();
 
-        owner  = accounts[0];
-        buyer  = accounts[1];
-        seller = accounts[2];
+        buyer  = accounts[0];
+        seller = accounts[1];
 
+        // Deploy APP contract
         const NFTOpt = await ethers.getContractFactory("NFTOpt");
         NFTOptCTR = await NFTOpt.deploy();
         await NFTOptCTR.deployed();
