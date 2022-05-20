@@ -149,6 +149,21 @@ describe("NFTOpt Tests", function () {
             expect(option.flavor).to.equal(dummyOptionRequest.flavor);
             expect(option.state).to.equal(dummyOptionRequest.state);
         });
+
+        it("should emit NewRequest event when succeeded", async function () {
+            await expect(
+               NFTOptCTR.connect(buyer)
+                         .publishOptionRequest
+                         (
+                             dummyOptionRequest.nftContract
+                         ,   dummyOptionRequest.nftId
+                         ,   dummyOptionRequest.strikePrice
+                         ,   dummyOptionRequest.interval
+                         ,   dummyOptionRequest.flavor
+                         ,  { value: dummyOptionRequest.premium }
+                         )
+            ).to.emit(NFTOptCTR, "NewRequest").withArgs(buyer.address, 1);
+        });
      });
 
     describe("withdrawOptionRequest", function () {
