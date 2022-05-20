@@ -106,10 +106,12 @@ export interface NFTOptInterface extends utils.Interface {
 
   events: {
     "Fallback(address,uint256)": EventFragment;
+    "NewRequest(address,uint256)": EventFragment;
     "Received(address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Fallback"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NewRequest"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Received"): EventFragment;
 }
 
@@ -123,6 +125,17 @@ export type FallbackEvent = TypedEvent<
 >;
 
 export type FallbackEventFilter = TypedEventFilter<FallbackEvent>;
+
+export interface NewRequestEventObject {
+  arg0: string;
+  arg1: BigNumber;
+}
+export type NewRequestEvent = TypedEvent<
+  [string, BigNumber],
+  NewRequestEventObject
+>;
+
+export type NewRequestEventFilter = TypedEventFilter<NewRequestEvent>;
 
 export interface ReceivedEventObject {
   arg0: string;
@@ -354,6 +367,12 @@ export interface NFTOpt extends BaseContract {
   filters: {
     "Fallback(address,uint256)"(arg0?: null, arg1?: null): FallbackEventFilter;
     Fallback(arg0?: null, arg1?: null): FallbackEventFilter;
+
+    "NewRequest(address,uint256)"(
+      arg0?: null,
+      arg1?: null
+    ): NewRequestEventFilter;
+    NewRequest(arg0?: null, arg1?: null): NewRequestEventFilter;
 
     "Received(address,uint256)"(arg0?: null, arg1?: null): ReceivedEventFilter;
     Received(arg0?: null, arg1?: null): ReceivedEventFilter;

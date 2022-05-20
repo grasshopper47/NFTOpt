@@ -25,6 +25,7 @@ contract NFTOpt {
     uint                    public optionID;
     mapping(uint => Option) public options;
 
+    event NewRequest(address, uint);
     event Received(address, uint);
     event Fallback(address, uint);
 
@@ -116,6 +117,8 @@ contract NFTOpt {
         ,   flavor      : OptionFlavor(_flavor)
         ,   state       : OptionState.REQUEST
         });
+
+        emit NewRequest(msg.sender, optionID);
     }
 
     function withdrawOptionRequest(uint32 _optionId)
