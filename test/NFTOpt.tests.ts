@@ -8,7 +8,7 @@ describe("NFTOpt Tests", function () {
     let buyer: SignerWithAddress;
     let seller: SignerWithAddress;
     let NFTOptCTR: NFTOpt;
-    let NFTCTR: DummyNFT;
+    let NFTDummyCTR: DummyNFT;
 
     interface Option {
         buyer: string;
@@ -38,8 +38,8 @@ describe("NFTOpt Tests", function () {
 
         // Deploy dummy NFT contract and mint 20 nfts to buyer
         const NFT = await ethers.getContractFactory("DummyNFT");
-        NFTCTR = await NFT.deploy("NFT_NAME","NFT_SYMBOL", buyer.address);
-        await NFTCTR.deployed();
+        NFTDummyCTR = await NFT.deploy("NFT_NAME","NFT_SYMBOL", buyer.address);
+        await NFTDummyCTR.deployed();
     });
 
     describe("createOptionRequest", function () {
