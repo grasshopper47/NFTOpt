@@ -70,8 +70,8 @@ describe("NFTOpt Tests", function () {
         ,   state       : 0 // = REQUEST
         }
 
-        publishDummyOptionRequest = async () => {
-            return await expect(
+        publishDummyOptionRequest = () => {
+            return expect(
                 NFTOptCTR.connect(buyer).publishOptionRequest(
                     dummyOptionRequest.nftContract
                 ,   dummyOptionRequest.nftId
@@ -283,12 +283,15 @@ describe("NFTOpt Tests", function () {
 
             const updatedOption = await NFTOptCTR.connect(seller).options(1);
 
-            // // Check that the option was updated correctly
+            // Check that the option startDate was updated
             expect(updatedOption.startDate).to.not.equal(0);
+
+            // // Check that the option seller address was updated
             expect(updatedOption.seller).to.equal(seller.address);
+
+            // Check that the option state was updated to Open
             expect(updatedOption.state).to.equal(OptionState.Open);
 
-            // Check that the seller received the premium
             // Check that the seller's new balance is equal with the initial balance - gas used in transaction + premium - strikePrice
             const gasUsed = (await transaction.wait()).gasUsed;
             const gasPrice = transaction.gasPrice;
@@ -297,9 +300,9 @@ describe("NFTOpt Tests", function () {
             expect(
                 await seller.getBalance())
             .to.equal(
-                initialSellerBalance.sub(dummyOptionRequest.strikePrice)
+                initialSellerBalance.sub(gasUsedInTransaction)
                                     .add(updatedOption.premium)
-                                    .sub(gasUsedInTransaction)
+                                    .sub(dummyOptionRequest.strikePrice)
             );
         });
 
