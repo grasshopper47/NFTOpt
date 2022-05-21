@@ -146,12 +146,12 @@ contract NFTOpt {
         require(getBalance() >= option.premium                   , "Not enough funds to pay the premium to the seller");
         require(msg.value == option.strikePrice                  , "Wrong strike price provided");
 
+        (bool success,) = msg.sender.call{value: option.premium}("");
+        require(success, "Transaction failed");
+
         option.seller = msg.sender;
         option.startDate = block.timestamp;
         option.state = OptionState.OPEN;
-
-        (bool success,) = msg.sender.call{value: option.premium}("");
-        require(success, "Transaction failed");
 
         emit Filled(msg.sender, _optionId);
     }
