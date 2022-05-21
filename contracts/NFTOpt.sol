@@ -160,7 +160,7 @@ contract NFTOpt {
     external
     payable
     {
-        Option storage option = options[_optionId];
+        Option memory option = options[_optionId];
 
         require(option.buyer != address(0)         , "Option with the specified id does not exist");
         require(option.seller == address(0)        , "Option is already fulfilled by a seller");
@@ -175,9 +175,11 @@ contract NFTOpt {
             revert FUNDS_TRANSFER_FAILED();
         }
 
-        option.seller    = payable(msg.sender);
-        option.startDate = block.timestamp;
-        option.state     = OptionState.OPEN;
+        Option storage o = options[_optionId];
+
+        o.seller    = payable(msg.sender);
+        o.startDate = block.timestamp;
+        o.state     = OptionState.OPEN;
 
         emit Filled(msg.sender, _optionId);
     }
@@ -220,7 +222,7 @@ contract NFTOpt {
 
         if (nftContract.getApproved(currentOption.nftId) != address(this))
         {
-            revert  NFT_NOT_APPROVED({nftAddress : currentOption.nftContract, nftId : currentOption.nftId});
+            revert NFT_NOT_APPROVED({nftAddress : currentOption.nftContract, nftId : currentOption.nftId});
         }
 
         /// @dev Check for time restrictions
