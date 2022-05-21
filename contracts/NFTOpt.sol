@@ -14,8 +14,8 @@ contract NFTOpt {
         address      seller;
         address      nftContract;
         uint32       nftId;
-        uint32       startDate;
         uint32       interval;
+        uint         startDate;
         uint         premium;
         uint         strikePrice;
         OptionFlavor flavor;
@@ -28,6 +28,7 @@ contract NFTOpt {
     event NewRequest(address, uint);
     event Received(address, uint);
     event Fallback(address, uint);
+    event Filled(address, uint);
 
     receive() external payable
     {
@@ -125,14 +126,32 @@ contract NFTOpt {
     external
     payable
     {
-
+        // TODO: update this with the correct implementation (wrote this here only for testing)
+        options[_optionId].state = OptionState.CLOSED;
     }
 
     function createOption(uint32 _optionId)
     external
     payable
     {
+        Option storage option = options[_optionId];
 
+        require(option.buyer != address(0)                       , "Option with the specified id does not exist");
+        require(option.seller == address(0)                      , "Option is already fulfilled by a seller");
+        require(option.state == OptionState.REQUEST              , "Option is not in the request state");
+        require(option.buyer != msg.sender                       , "Seller is the same as buyer");
+        require(address(msg.sender).balance >= option.strikePrice, "Seller does not have enough balance");
+        require(getBalance() >= option.premium                   , "Not enough funds to pay the premium to the seller");
+        require(msg.value == option.strikePrice                  , "Wrong strike price provided");
+
+        option.seller = msg.sender;
+        option.startDate = block.timestamp;
+        option.state = OptionState.OPEN;
+
+        (bool success,) = msg.sender.call{value: option.premium}("");
+        require(success, "Transaction failed");
+
+        emit Filled(msg.sender, _optionId);
     }
 
     function cancelOption(uint32 _optionId)

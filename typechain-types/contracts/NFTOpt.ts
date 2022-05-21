@@ -106,11 +106,13 @@ export interface NFTOptInterface extends utils.Interface {
 
   events: {
     "Fallback(address,uint256)": EventFragment;
+    "Filled(address,uint256)": EventFragment;
     "NewRequest(address,uint256)": EventFragment;
     "Received(address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Fallback"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Filled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewRequest"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Received"): EventFragment;
 }
@@ -125,6 +127,14 @@ export type FallbackEvent = TypedEvent<
 >;
 
 export type FallbackEventFilter = TypedEventFilter<FallbackEvent>;
+
+export interface FilledEventObject {
+  arg0: string;
+  arg1: BigNumber;
+}
+export type FilledEvent = TypedEvent<[string, BigNumber], FilledEventObject>;
+
+export type FilledEventFilter = TypedEventFilter<FilledEvent>;
 
 export interface NewRequestEventObject {
   arg0: string;
@@ -204,7 +214,7 @@ export interface NFTOpt extends BaseContract {
         string,
         number,
         number,
-        number,
+        BigNumber,
         BigNumber,
         BigNumber,
         number,
@@ -214,8 +224,8 @@ export interface NFTOpt extends BaseContract {
         seller: string;
         nftContract: string;
         nftId: number;
-        startDate: number;
         interval: number;
+        startDate: BigNumber;
         premium: BigNumber;
         strikePrice: BigNumber;
         flavor: number;
@@ -267,7 +277,7 @@ export interface NFTOpt extends BaseContract {
       string,
       number,
       number,
-      number,
+      BigNumber,
       BigNumber,
       BigNumber,
       number,
@@ -277,8 +287,8 @@ export interface NFTOpt extends BaseContract {
       seller: string;
       nftContract: string;
       nftId: number;
-      startDate: number;
       interval: number;
+      startDate: BigNumber;
       premium: BigNumber;
       strikePrice: BigNumber;
       flavor: number;
@@ -330,7 +340,7 @@ export interface NFTOpt extends BaseContract {
         string,
         number,
         number,
-        number,
+        BigNumber,
         BigNumber,
         BigNumber,
         number,
@@ -340,8 +350,8 @@ export interface NFTOpt extends BaseContract {
         seller: string;
         nftContract: string;
         nftId: number;
-        startDate: number;
         interval: number;
+        startDate: BigNumber;
         premium: BigNumber;
         strikePrice: BigNumber;
         flavor: number;
@@ -367,6 +377,9 @@ export interface NFTOpt extends BaseContract {
   filters: {
     "Fallback(address,uint256)"(arg0?: null, arg1?: null): FallbackEventFilter;
     Fallback(arg0?: null, arg1?: null): FallbackEventFilter;
+
+    "Filled(address,uint256)"(arg0?: null, arg1?: null): FilledEventFilter;
+    Filled(arg0?: null, arg1?: null): FilledEventFilter;
 
     "NewRequest(address,uint256)"(
       arg0?: null,

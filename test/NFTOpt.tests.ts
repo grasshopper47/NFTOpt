@@ -1,6 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { BigNumber } from "ethers";
+import { BigNumber, ContractTransaction } from "ethers";
 import { ethers } from "hardhat";
 import { NFTOpt, DummyNFT } from "../typechain-types";
 
@@ -26,7 +26,19 @@ describe("NFTOpt Tests", function () {
         state: number;
     }
 
+    const OptionState = {
+        Request: 0,
+        Open: 1,
+        Closed: 2,
+    }
+
+    const OptionFlavor = {
+        European: 0,
+        American: 1,
+    }
+
     let dummyOptionRequest: Option;
+    let publishDummyOptionRequest: () => Promise<void>;
 
     beforeEach("deploy contract", async () => {
         const accounts = await ethers.getSigners();
@@ -56,6 +68,19 @@ describe("NFTOpt Tests", function () {
         ,   strikePrice : ethers.utils.parseEther("50")
         ,   flavor      : 0
         ,   state       : 0 // = REQUEST
+        }
+
+        publishDummyOptionRequest = () => {
+            return expect(
+                NFTOptCTR.connect(buyer).publishOptionRequest(
+                    dummyOptionRequest.nftContract
+                ,   dummyOptionRequest.nftId
+                ,   dummyOptionRequest.strikePrice
+                ,   dummyOptionRequest.interval
+                ,   dummyOptionRequest.flavor
+                ,  { value: dummyOptionRequest.premium }
+                )
+            ).to.not.be.reverted;
         }
     });
 
@@ -175,6 +200,118 @@ describe("NFTOpt Tests", function () {
     describe("createOption", function () {
         it("should test that method can be called", async function () {
             expect(NFTOptCTR.connect(buyer).createOption(0)).to.not.throw;
+        });
+
+        it("should fail when the option with the specified id does not exist", async function () {
+            await expect(
+                NFTOptCTR.connect(seller).createOption(0)
+            ).to.be.revertedWith("Option with the specified id does not exist");
+        });
+
+        it("should fail when the option is already fulfilled by a seller", async function () {
+            await publishDummyOptionRequest();
+
+            await expect(
+                NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice})
+            ).to.not.reverted;
+
+            await expect(
+                NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice})
+            ).to.be.revertedWith("Option is already fulfilled by a seller");
+        });
+
+        it("should fail when the option is not in the request state", async function () {
+            await publishDummyOptionRequest();
+
+            await expect(
+                NFTOptCTR.connect(buyer).withdrawOptionRequest(1)
+            ).to.not.be.reverted;
+
+            await expect(
+                NFTOptCTR.connect(seller).createOption(1)
+            ).to.be.revertedWith("Option is not in the request state");
+        });
+
+        it("should fail when the option seller is the same as the option buyer", async function () {
+            await publishDummyOptionRequest();
+
+            await expect(
+                NFTOptCTR.connect(buyer).createOption(1)
+            ).to.be.revertedWith("Seller is the same as buyer");
+        });
+
+        it("should fail when the option seller does not have enough balance", async function () {
+            const balanceGreaterThanSeller = (await seller.getBalance()).add(1);
+
+            await expect(
+                NFTOptCTR.connect(buyer).publishOptionRequest(
+                    dummyOptionRequest.nftContract,
+                    dummyOptionRequest.nftId,
+                    balanceGreaterThanSeller,
+                    dummyOptionRequest.interval,
+                    dummyOptionRequest.flavor,
+                    {value: dummyOptionRequest.premium}
+                )
+            ).to.not.be.reverted;
+
+            await expect(
+                NFTOptCTR.connect(seller).createOption(1)
+            ).to.be.revertedWith("Seller does not have enough balance");
+        });
+
+        it("should fail when the wrong strike price is provided by the seller", async function () {
+            await publishDummyOptionRequest();
+
+            await expect(
+                NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice.sub(1)})
+            ).to.be.revertedWith("Wrong strike price provided");
+        });
+
+        it("should succeed when called with valid values", async function () {
+            const initialSellerBalance = await seller.getBalance();
+
+            expect(await NFTOptCTR.getBalance()).to.equal(0);
+
+            await publishDummyOptionRequest();
+
+            expect(await NFTOptCTR.getBalance()).to.equal(dummyOptionRequest.premium);
+
+            const transaction = (await expect(NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice})).to.not.be.reverted) as unknown as ContractTransaction;
+
+            // Check that the collateral was paid
+            expect(await NFTOptCTR.getBalance()).to.equal(dummyOptionRequest.strikePrice);
+
+            const updatedOption = await NFTOptCTR.connect(seller).options(1);
+
+            // Check that the option startDate was updated
+            expect(updatedOption.startDate).to.not.equal(0);
+
+            // // Check that the option seller address was updated
+            expect(updatedOption.seller).to.equal(seller.address);
+
+            // Check that the option state was updated to Open
+            expect(updatedOption.state).to.equal(OptionState.Open);
+
+            // Check that the seller's new balance is equal with the initial balance - gas used in transaction + premium - strikePrice
+            const gasUsed = (await transaction.wait()).gasUsed;
+            const gasPrice = transaction.gasPrice;
+            const gasUsedInTransaction = gasUsed.mul(gasPrice ?? 0);
+
+            expect(
+                await seller.getBalance())
+            .to.equal(
+                initialSellerBalance.sub(gasUsedInTransaction)
+                                    .add(updatedOption.premium)
+                                    .sub(dummyOptionRequest.strikePrice)
+            );
+        });
+
+        it("should emit Filled event when succeeded", async function () {
+            await publishDummyOptionRequest();
+
+            await expect(
+                NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice})
+            ).to.emit(NFTOptCTR, "Filled").withArgs(seller.address, 1);
         });
     });
 
