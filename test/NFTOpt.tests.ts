@@ -36,6 +36,7 @@ describe("NFTOpt Tests", function () {
     }
 
     let dummyOptionRequest: Option;
+    let publishDummyOptionRequest: () => Promise<void>;
 
     beforeEach("deploy contract", async () => {
         const accounts = await ethers.getSigners();
@@ -62,9 +63,20 @@ describe("NFTOpt Tests", function () {
         ,   startDate   : 0
         ,   interval    : 7
         ,   premium     : ethers.utils.parseEther("1")
-        ,   strikePrice : ethers.utils.parseEther("50")
+        ,   strikePrice : ethers.utils.parseEther("5")
         ,   flavor      : 0
         ,   state       : 0
+        }
+
+        publishDummyOptionRequest = async () => {
+            return await expect(NFTOptCTR.connect(buyer).publishOptionRequest(
+                dummyOptionRequest.nftContract,
+                dummyOptionRequest.nftId,
+                dummyOptionRequest.strikePrice,
+                dummyOptionRequest.interval,
+                dummyOptionRequest.flavor,
+                {value: dummyOptionRequest.premium}
+            )).to.not.be.reverted;
         }
     });
 
@@ -88,130 +100,111 @@ describe("NFTOpt Tests", function () {
         it("should fail when the option with the specified id does not exist", async function () {
             await expect(
                 NFTOptCTR.connect(seller).createOption(0)
-              ).to.be.revertedWith("Option with the specified id does not exist");
+            ).to.be.revertedWith("Option with the specified id does not exist");
         });
 
         it("should fail when the option is already fulfilled by a seller", async function () {
-            await NFTOptCTR.connect(buyer).publishOptionRequest(
-                dummyOptionRequest.nftContract,
-                dummyOptionRequest.nftId,
-                dummyOptionRequest.strikePrice,
-                dummyOptionRequest.interval,
-                dummyOptionRequest.flavor,
-                {value: dummyOptionRequest.premium}
-            )
-
-            await NFTOptCTR.connect(seller).createOption(1);
+            await publishDummyOptionRequest();
 
             await expect(
-                NFTOptCTR.connect(seller).createOption(1)
-              ).to.be.revertedWith("Option is already fulfilled by a seller");
+                NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice})
+            ).to.not.reverted;
 
+            await expect(
+                NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice})
+            ).to.be.revertedWith("Option is already fulfilled by a seller");
         });
 
         it("should fail when the option is not in the request state", async function () {
-            await NFTOptCTR.connect(buyer).publishOptionRequest(
-                dummyOptionRequest.nftContract,
-                dummyOptionRequest.nftId,
-                dummyOptionRequest.strikePrice,
-                dummyOptionRequest.interval,
-                dummyOptionRequest.flavor,
-                {value: dummyOptionRequest.premium}
-            )
+            await publishDummyOptionRequest();
 
-            await NFTOptCTR.connect(buyer).cancelOption(1);
+            await expect(
+                NFTOptCTR.connect(buyer).withdrawOptionRequest(1)
+            ).to.not.be.reverted;
 
             await expect(
                 NFTOptCTR.connect(seller).createOption(1)
-              ).to.be.revertedWith("Option is not in the request state");
+            ).to.be.revertedWith("Option is not in the request state");
         });
 
         it("should fail when the option seller is the same as the option buyer", async function () {
-            await NFTOptCTR.connect(buyer).publishOptionRequest(
-                dummyOptionRequest.nftContract,
-                dummyOptionRequest.nftId,
-                dummyOptionRequest.strikePrice,
-                dummyOptionRequest.interval,
-                dummyOptionRequest.flavor,
-                {value: dummyOptionRequest.premium}
-            );
+            await publishDummyOptionRequest();
 
             await expect(
                 NFTOptCTR.connect(buyer).createOption(1)
-              ).to.be.revertedWith("Seller is the same as buyer");
+            ).to.be.revertedWith("Seller is the same as buyer");
         });
 
         it("should fail when the option seller does not have enough balance", async function () {
             const balanceGreaterThanSeller = (await seller.getBalance()).add(1);
 
-            await NFTOptCTR.connect(buyer).publishOptionRequest(
-                dummyOptionRequest.nftContract,
-                dummyOptionRequest.nftId,
-                balanceGreaterThanSeller,
-                dummyOptionRequest.interval,
-                dummyOptionRequest.flavor,
-                {value: dummyOptionRequest.premium}
-            );
+            await expect(
+                NFTOptCTR.connect(buyer).publishOptionRequest(
+                    dummyOptionRequest.nftContract,
+                    dummyOptionRequest.nftId,
+                    balanceGreaterThanSeller,
+                    dummyOptionRequest.interval,
+                    dummyOptionRequest.flavor,
+                    {value: dummyOptionRequest.premium}
+                )
+            ).to.not.be.reverted;
 
             await expect(
                 NFTOptCTR.connect(seller).createOption(1)
-              ).to.be.revertedWith("Seller does not have enough balance");
-        })
+            ).to.be.revertedWith("Seller does not have enough balance");
+        });
+
+        it("should fail when the wrong strike price is provided by the seller", async function () {
+            await publishDummyOptionRequest();
+
+            await expect(
+                NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice.sub(1)})
+            ).to.be.revertedWith("Wrong strike price provided");
+        });
 
         it("should succeed when called with valid values", async function () {
             const initialSellerBalance = await seller.getBalance();
 
-            const totalBalanceBefore = await NFTOptCTR.getBalance();
-            expect(totalBalanceBefore).to.equal(0);
+            expect(await NFTOptCTR.getBalance()).to.equal(0);
 
-            // Publish option request
-            await NFTOptCTR.connect(buyer).publishOptionRequest(
-                dummyOptionRequest.nftContract
-                ,   dummyOptionRequest.nftId
-                ,   dummyOptionRequest.strikePrice
-                ,   dummyOptionRequest.interval
-                ,   dummyOptionRequest.flavor
-                ,  { value: dummyOptionRequest.premium }
-            );
+            await publishDummyOptionRequest();
 
-            // Create option request
-            const transaction = (await expect(NFTOptCTR.connect(seller).createOption(1)).to.not.be.reverted) as unknown as ContractTransaction;
+            expect(await NFTOptCTR.getBalance()).to.equal(dummyOptionRequest.premium);
 
-            // Check that the remaining balance after is 0
-            expect((await NFTOptCTR.getBalance()).eq(0));
+            const transaction = (await expect(NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice})).to.not.be.reverted) as unknown as ContractTransaction;
 
-            // Check that the option was updated correctly
-            const option = await NFTOptCTR.connect(seller).options(1);
+            // Check that the collateral was paid
+            expect(await NFTOptCTR.getBalance()).to.equal(dummyOptionRequest.strikePrice);
 
-            expect(option.startDate).to.not.equal(0);
-            expect(option.seller).to.equal(seller.address);
-            expect(option.state).to.equal(OptionState.Open);
+            const updatedOption = await NFTOptCTR.connect(seller).options(1);
+
+            // // Check that the option was updated correctly
+            expect(updatedOption.startDate).to.not.equal(0);
+            expect(updatedOption.seller).to.equal(seller.address);
+            expect(updatedOption.state).to.equal(OptionState.Open);
 
             // Check that the seller received the premium
-            // Check that the seller's new balance is equal with the initial balance - gas used in transaction + premium
+            // Check that the seller's new balance is equal with the initial balance - gas used in transaction + premium - strikePrice
             const gasUsed = (await transaction.wait()).gasUsed;
             const gasPrice = transaction.gasPrice;
             const gasUsedInTransaction = gasUsed.mul(gasPrice ?? 0);
 
-            expect((await seller.getBalance()).eq(initialSellerBalance.add(option.premium).sub(gasUsedInTransaction)));
+            expect(
+                await seller.getBalance())
+            .to.equal(
+                initialSellerBalance.sub(dummyOptionRequest.strikePrice)
+                                    .add(updatedOption.premium)
+                                    .sub(gasUsedInTransaction)
+            );
         });
 
         it("should emit Filled event when succeeded", async function () {
-            await NFTOptCTR.connect(buyer).publishOptionRequest(
-                dummyOptionRequest.nftContract
-                ,   dummyOptionRequest.nftId
-                ,   dummyOptionRequest.strikePrice
-                ,   dummyOptionRequest.interval
-                ,   dummyOptionRequest.flavor
-                ,  { value: dummyOptionRequest.premium }
-            );
+            await publishDummyOptionRequest();
 
             await expect(
-                NFTOptCTR.connect(seller).createOption(1)
+                NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice})
             ).to.emit(NFTOptCTR, "Filled").withArgs(seller.address, 1);
         });
-
-
     });
 
     describe("cancelOption", function () {

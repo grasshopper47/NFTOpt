@@ -61,36 +61,39 @@ contract NFTOpt {
     external
     payable
     {
-
+        // TODO: update this with the correct implementation (wrote this here only for testing)
+        options[_optionId].state = OptionState.CLOSED;
     }
 
     function createOption(uint32 _optionId)
     external
     payable
     {
-        require(options[_optionId].buyer != address(0), "Option with the specified id does not exist");
-        require(options[_optionId].seller == address(0), "Option is already fulfilled by a seller");
-        require(options[_optionId].state == OptionState.REQUEST, "Option is not in the request state");
-        require(options[_optionId].buyer != msg.sender, "Seller is the same as buyer");
-        require(address(msg.sender).balance >= options[_optionId].strikePrice, "Seller does not have enough balance");
-        require(getBalance() <= options[_optionId].premium, "Not enough funds to pay the premium to the seller");
+        Option memory option = options[_optionId];
+        require(option.buyer != address(0), "Option with the specified id does not exist");
+        require(option.seller == address(0), "Option is already fulfilled by a seller");
+        require(option.state == OptionState.REQUEST, "Option is not in the request state");
+        require(option.buyer != msg.sender, "Seller is the same as buyer");
+        require(address(msg.sender).balance >= option.strikePrice, "Seller does not have enough balance");
+        require(getBalance() >= option.premium, "Not enough funds to pay the premium to the seller");
+        require(msg.value == option.strikePrice, "Wrong strike price provided");
 
-        options[_optionId].seller = msg.sender;
-        options[_optionId].startDate = block.timestamp;
-        options[_optionId].state = OptionState.OPEN;
+        option.seller = msg.sender;
+        option.startDate = block.timestamp;
+        option.state = OptionState.OPEN;
+
+        options[_optionId] = option;
+
+        (bool success,) = msg.sender.call{value: option.premium}("");
+        require(success, "Transaction failed");
 
         emit Filled(msg.sender, _optionId);
-
-        (bool success,) = msg.sender.call{value: options[_optionId].premium}("");
-        require(success, "Transaction failed");
     }
 
     function cancelOption(uint32 _optionId)
     external
     payable
     {
-        // TODO: update this with the correct implementation (wrote this here only for testing)
-        options[_optionId].state = OptionState.CLOSED;
 
     }
 
