@@ -1,0 +1,28 @@
+@import "src/styles/variables.scss";
+
+.root {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100px;
+    padding: 0 44px;
+    font-size: 20px;
+    color: $text-primary;
+}
+
+.link {
+    margin-left: 30px;
+    text-decoration: none;
+    color: $text-primary;
+}
+
+.logo {
+    font-weight: 900;
+    font-size: 30px;
+    margin-left: 0;
+}
+
+
+.active {
+    font-weight: bold;
+}
