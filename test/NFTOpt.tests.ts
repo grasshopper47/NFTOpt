@@ -218,25 +218,6 @@ describe("NFTOpt Tests", function () {
             ).to.be.revertedWith("Seller is the same as buyer");
         });
 
-        it("should fail when the option seller does not have enough balance", async function () {
-            const balanceGreaterThanSeller = (await seller.getBalance()).add(1);
-
-            await expect(
-                NFTOptCTR.connect(buyer).publishOptionRequest(
-                    dummyOptionRequest.nftContract,
-                    dummyOptionRequest.nftId,
-                    balanceGreaterThanSeller,
-                    dummyOptionRequest.interval,
-                    dummyOptionRequest.flavor,
-                    {value: dummyOptionRequest.premium}
-                )
-            ).to.not.be.reverted;
-
-            await expect(
-                NFTOptCTR.connect(seller).createOption(1)
-            ).to.be.revertedWith("Seller does not have enough balance");
-        });
-
         it("should fail when the wrong strike price is provided by the seller", async function () {
             await publishDummyOptionRequest();
 
