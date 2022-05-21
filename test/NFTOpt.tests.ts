@@ -129,7 +129,7 @@ describe("NFTOpt Tests", function () {
             await expect(
                 NFTOptCTR.connect(buyer)
                     .publishOptionRequest(NFTDummyCTR.address, _nftID, 0, 0, 0)
-            ).to.be.revertedWith("Ownership of specified NFT token is under a different wallet than the caller's");
+            ).to.be.revertedWith("NOT_NFT_OWNER");
         });
 
         it("should fail when called without a premium (transaction value)", async function () {
@@ -348,7 +348,7 @@ describe("NFTOpt Tests", function () {
             let tx = await (await NFTDummyCTR.connect(buyer).transferFrom(buyer.address, seller.address, option.nftId)).wait()
 
             await expect(NFTOptCTR.connect(buyer).exerciseOption(2)).to.be
-                .revertedWith("Ownership of specified NFT token is under a different wallet than the caller's")
+                .revertedWith("NOT_NFT_OWNER")
         });
 
         it("should revert with non-open options", async function () {

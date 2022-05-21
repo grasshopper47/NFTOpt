@@ -26,6 +26,9 @@ contract NFTOpt {
     /// @notice Insufficient funds in escrow to withdrawal
     error INSUFFICIENT_FUNDS();
 
+    /// @notice Address is not owner of the NFT
+    error NOT_NFT_OWNER(address presumableOwnerAddress);
+
     enum OptionState  {REQUEST, OPEN, CLOSED}
     enum OptionFlavor {EUROPEAN, AMERICAN}
 
@@ -115,11 +118,9 @@ contract NFTOpt {
         , "Provided NFT contract address must implement ERC-721 interface"
         );
 
-        require
-        (
-            IERC721(_nftContract).ownerOf(_nftId) == msg.sender
-        ,   "Ownership of specified NFT token is under a different wallet than the caller's"
-        );
+        if(IERC721(_nftContract).ownerOf(_nftId) != msg.sender){
+           revert NOT_NFT_OWNER(msg.sender);
+        }
 
         require(msg.value > 0, "Premium must be > 0");
         require(_strikePrice > 0, "Strike price must be > 0");
@@ -203,8 +204,9 @@ contract NFTOpt {
         // Check for NFT access and ownership
         IERC721 nftContract = IERC721(currentOption.nftContract);
 
-        require(nftContract.ownerOf(currentOption.nftId) == msg.sender,
-            "Ownership of specified NFT token is under a different wallet than the caller's");
+        if(nftContract.ownerOf(currentOption.nftId) != msg.sender){
+           revert NOT_NFT_OWNER(msg.sender);
+        }
 
         if (nftContract.getApproved(currentOption.nftId) != address(this)) {
             revert  NFT_NOT_APPROVED({nftAddress : currentOption.nftContract, nftId : currentOption.nftId});
