@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.14;
 
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "contracts/DummyNFT.sol";
+/**
+ * @dev OpenZeppelin's interface of EIP-721 https://eips.ethereum.org/EIPS/eip-721.
+ */
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract NFTOpt {
 
@@ -96,7 +98,7 @@ contract NFTOpt {
 
         require
         (
-            DummyNFT(_nftContract).ownerOf(_nftId) == msg.sender
+            IERC721(_nftContract).ownerOf(_nftId) == msg.sender
         ,   "Ownership of specified NFT token is under a different wallet than the caller's"
         );
 
