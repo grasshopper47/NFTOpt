@@ -13,7 +13,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -27,6 +31,8 @@ export interface NFTOptInterface extends utils.Interface {
     "cancelOption(uint32)": FunctionFragment;
     "createOption(uint32)": FunctionFragment;
     "exerciseOption(uint32)": FunctionFragment;
+    "getBalance()": FunctionFragment;
+    "optionID()": FunctionFragment;
     "options(uint256)": FunctionFragment;
     "publishOptionRequest(address,uint256,uint256,uint256,uint8)": FunctionFragment;
     "withdrawOptionRequest(uint32)": FunctionFragment;
@@ -37,6 +43,8 @@ export interface NFTOptInterface extends utils.Interface {
       | "cancelOption"
       | "createOption"
       | "exerciseOption"
+      | "getBalance"
+      | "optionID"
       | "options"
       | "publishOptionRequest"
       | "withdrawOptionRequest"
@@ -54,6 +62,11 @@ export interface NFTOptInterface extends utils.Interface {
     functionFragment: "exerciseOption",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "getBalance",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "optionID", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "options",
     values: [BigNumberish]
@@ -79,6 +92,8 @@ export interface NFTOptInterface extends utils.Interface {
     functionFragment: "exerciseOption",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getBalance", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "optionID", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "options", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "publishOptionRequest",
@@ -89,8 +104,20 @@ export interface NFTOptInterface extends utils.Interface {
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "Filled(address,uint256)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "Filled"): EventFragment;
 }
+
+export interface FilledEventObject {
+  arg0: string;
+  arg1: BigNumber;
+}
+export type FilledEvent = TypedEvent<[string, BigNumber], FilledEventObject>;
+
+export type FilledEventFilter = TypedEventFilter<FilledEvent>;
 
 export interface NFTOpt extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -134,6 +161,10 @@ export interface NFTOpt extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    getBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    optionID(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     options(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -155,7 +186,7 @@ export interface NFTOpt extends BaseContract {
         nftContract: string;
         nftId: BigNumber;
         startDate: BigNumber;
-        expirationInterval: BigNumber;
+        interval: BigNumber;
         premium: BigNumber;
         strikePrice: BigNumber;
         flavor: number;
@@ -166,8 +197,8 @@ export interface NFTOpt extends BaseContract {
     publishOptionRequest(
       _nftContract: string,
       _nftId: BigNumberish,
-      _premium: BigNumberish,
       _strikePrice: BigNumberish,
+      _interval: BigNumberish,
       _flavor: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -193,6 +224,10 @@ export interface NFTOpt extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  getBalance(overrides?: CallOverrides): Promise<BigNumber>;
+
+  optionID(overrides?: CallOverrides): Promise<BigNumber>;
+
   options(
     arg0: BigNumberish,
     overrides?: CallOverrides
@@ -214,7 +249,7 @@ export interface NFTOpt extends BaseContract {
       nftContract: string;
       nftId: BigNumber;
       startDate: BigNumber;
-      expirationInterval: BigNumber;
+      interval: BigNumber;
       premium: BigNumber;
       strikePrice: BigNumber;
       flavor: number;
@@ -225,8 +260,8 @@ export interface NFTOpt extends BaseContract {
   publishOptionRequest(
     _nftContract: string,
     _nftId: BigNumberish,
-    _premium: BigNumberish,
     _strikePrice: BigNumberish,
+    _interval: BigNumberish,
     _flavor: BigNumberish,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -252,6 +287,10 @@ export interface NFTOpt extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
+
+    optionID(overrides?: CallOverrides): Promise<BigNumber>;
+
     options(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -273,7 +312,7 @@ export interface NFTOpt extends BaseContract {
         nftContract: string;
         nftId: BigNumber;
         startDate: BigNumber;
-        expirationInterval: BigNumber;
+        interval: BigNumber;
         premium: BigNumber;
         strikePrice: BigNumber;
         flavor: number;
@@ -284,8 +323,8 @@ export interface NFTOpt extends BaseContract {
     publishOptionRequest(
       _nftContract: string,
       _nftId: BigNumberish,
-      _premium: BigNumberish,
       _strikePrice: BigNumberish,
+      _interval: BigNumberish,
       _flavor: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -296,7 +335,10 @@ export interface NFTOpt extends BaseContract {
     ): Promise<void>;
   };
 
-  filters: {};
+  filters: {
+    "Filled(address,uint256)"(arg0?: null, arg1?: null): FilledEventFilter;
+    Filled(arg0?: null, arg1?: null): FilledEventFilter;
+  };
 
   estimateGas: {
     cancelOption(
@@ -314,13 +356,17 @@ export interface NFTOpt extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
+
+    optionID(overrides?: CallOverrides): Promise<BigNumber>;
+
     options(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     publishOptionRequest(
       _nftContract: string,
       _nftId: BigNumberish,
-      _premium: BigNumberish,
       _strikePrice: BigNumberish,
+      _interval: BigNumberish,
       _flavor: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -347,6 +393,10 @@ export interface NFTOpt extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    getBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    optionID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     options(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -355,8 +405,8 @@ export interface NFTOpt extends BaseContract {
     publishOptionRequest(
       _nftContract: string,
       _nftId: BigNumberish,
-      _premium: BigNumberish,
       _strikePrice: BigNumberish,
+      _interval: BigNumberish,
       _flavor: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
