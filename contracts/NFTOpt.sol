@@ -17,15 +17,15 @@ contract NFTOpt {
         address      nftContract;
         uint32       nftId;
         uint32       interval;
-        uint         startDate;
-        uint         premium;
-        uint         strikePrice;
+        uint256      startDate;
+        uint256      premium;
+        uint256      strikePrice;
         OptionFlavor flavor;
         OptionState  state;
     }
 
-    uint                    public optionID;
-    mapping(uint => Option) public options;
+    uint256                    public optionID;
+    mapping(uint256 => Option) public options;
 
     event NewRequest(address, uint);
     event Received(address, uint);
@@ -80,7 +80,7 @@ contract NFTOpt {
     (
         address      _nftContract
     ,   uint32       _nftId
-    ,   uint         _strikePrice
+    ,   uint256      _strikePrice
     ,   uint32       _interval
     ,   OptionFlavor _flavor
     )
