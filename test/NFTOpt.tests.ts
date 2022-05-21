@@ -66,8 +66,8 @@ describe("NFTOpt Tests", function () {
         ,   interval    : 7
         ,   premium     : ethers.utils.parseEther("1")
         ,   strikePrice : ethers.utils.parseEther("50")
-        ,   flavor      : 0
-        ,   state       : 0 // = REQUEST
+        ,   flavor      : OptionFlavor.European
+        ,   state       : OptionState.Request
         }
 
         publishDummyOptionRequest = () => {
