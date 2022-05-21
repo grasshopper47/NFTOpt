@@ -308,7 +308,7 @@ describe("NFTOpt Tests", function () {
                     , dummyOptionRequest.nftId
                     , dummyOptionRequest.strikePrice
                     , dummyOptionRequest.interval
-                    , 1  // American
+                    , OptionFlavor.American
                     , {value: dummyOptionRequest.premium}
                 );
 
