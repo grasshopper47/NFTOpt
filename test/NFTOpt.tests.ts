@@ -38,7 +38,19 @@ describe("NFTOpt Tests", function () {
     }
 
     let dummyOptionRequest: Option;
-    let publishDummyOptionRequest: () => Promise<void>;
+
+    let publishDummyOptionRequest = async () => {
+        return expect(
+            NFTOptCTR.connect(buyer).publishOptionRequest(
+                dummyOptionRequest.nftContract
+            ,   dummyOptionRequest.nftId
+            ,   dummyOptionRequest.strikePrice
+            ,   dummyOptionRequest.interval
+            ,   dummyOptionRequest.flavor
+            ,  { value: dummyOptionRequest.premium }
+            )
+        ).to.not.be.reverted;
+    }
 
     beforeEach("deploy contract", async () => {
         const accounts = await ethers.getSigners();
@@ -53,7 +65,7 @@ describe("NFTOpt Tests", function () {
 
         // Deploy dummy NFT contract and mint 20 nfts to buyer
         const NFT = await ethers.getContractFactory("DummyNFT");
-        NFTDummyCTR = await NFT.deploy("NFT_NAME","NFT_SYMBOL", buyer.address);
+        NFTDummyCTR = await NFT.deploy(buyer.address);
         await NFTDummyCTR.deployed();
 
         dummyOptionRequest =
@@ -68,19 +80,6 @@ describe("NFTOpt Tests", function () {
         ,   strikePrice : ethers.utils.parseEther("50")
         ,   flavor      : OptionFlavor.European
         ,   state       : OptionState.Request
-        }
-
-        publishDummyOptionRequest = () => {
-            return expect(
-                NFTOptCTR.connect(buyer).publishOptionRequest(
-                    dummyOptionRequest.nftContract
-                ,   dummyOptionRequest.nftId
-                ,   dummyOptionRequest.strikePrice
-                ,   dummyOptionRequest.interval
-                ,   dummyOptionRequest.flavor
-                ,  { value: dummyOptionRequest.premium }
-                )
-            ).to.not.be.reverted;
         }
     });
 
@@ -149,7 +148,7 @@ describe("NFTOpt Tests", function () {
             expect( await NFTOptCTR.getBalance() ).to.equal(dummyOptionRequest.premium);
             expect( await NFTOptCTR.optionID() ).to.equal(1);
 
-            // check details of the option data
+            // Check that details of the option data match those sent
             const option = await NFTOptCTR.options(1);
 
             expect(option.buyer).to.equal(dummyOptionRequest.buyer);
@@ -165,18 +164,8 @@ describe("NFTOpt Tests", function () {
         });
 
         it("should emit NewRequest event when succeeded", async function () {
-            await expect(
-               NFTOptCTR.connect(buyer)
-                         .publishOptionRequest
-                         (
-                             dummyOptionRequest.nftContract
-                         ,   dummyOptionRequest.nftId
-                         ,   dummyOptionRequest.strikePrice
-                         ,   dummyOptionRequest.interval
-                         ,   dummyOptionRequest.flavor
-                         ,  { value: dummyOptionRequest.premium }
-                         )
-            ).to.emit(NFTOptCTR, "NewRequest").withArgs(buyer.address, 1);
+            expect( await publishDummyOptionRequest() )
+            .to.emit(NFTOptCTR, "NewRequest").withArgs(buyer.address, 1);
         });
      });
 
@@ -229,25 +218,6 @@ describe("NFTOpt Tests", function () {
             ).to.be.revertedWith("Seller is the same as buyer");
         });
 
-        it("should fail when the option seller does not have enough balance", async function () {
-            const balanceGreaterThanSeller = (await seller.getBalance()).add(1);
-
-            await expect(
-                NFTOptCTR.connect(buyer).publishOptionRequest(
-                    dummyOptionRequest.nftContract,
-                    dummyOptionRequest.nftId,
-                    balanceGreaterThanSeller,
-                    dummyOptionRequest.interval,
-                    dummyOptionRequest.flavor,
-                    {value: dummyOptionRequest.premium}
-                )
-            ).to.not.be.reverted;
-
-            await expect(
-                NFTOptCTR.connect(seller).createOption(1)
-            ).to.be.revertedWith("Seller does not have enough balance");
-        });
-
         it("should fail when the wrong strike price is provided by the seller", async function () {
             await publishDummyOptionRequest();
 
@@ -265,6 +235,7 @@ describe("NFTOpt Tests", function () {
 
             expect(await NFTOptCTR.getBalance()).to.equal(dummyOptionRequest.premium);
 
+            // Seller responds to request and creates an option
             const transaction = (await expect(NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice})).to.not.be.reverted) as unknown as ContractTransaction;
 
             // Check that the collateral was paid
@@ -275,7 +246,7 @@ describe("NFTOpt Tests", function () {
             // Check that the option startDate was updated
             expect(updatedOption.startDate).to.not.equal(0);
 
-            // // Check that the option seller address was updated
+            // Check that the option seller address was updated
             expect(updatedOption.seller).to.equal(seller.address);
 
             // Check that the option state was updated to Open
@@ -286,12 +257,11 @@ describe("NFTOpt Tests", function () {
             const gasPrice = transaction.gasPrice;
             const gasUsedInTransaction = gasUsed.mul(gasPrice ?? 0);
 
-            expect(
-                await seller.getBalance())
+            expect(await seller.getBalance())
             .to.equal(
-                initialSellerBalance.sub(gasUsedInTransaction)
-                                    .add(updatedOption.premium)
+                initialSellerBalance.add(updatedOption.premium)
                                     .sub(dummyOptionRequest.strikePrice)
+                                    .sub(gasUsedInTransaction)
             );
         });
 
