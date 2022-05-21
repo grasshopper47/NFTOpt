@@ -26,6 +26,9 @@ contract NFTOpt {
     /// @notice Insufficient funds in escrow to withdrawal
     error INSUFFICIENT_FUNDS();
 
+    /// @notice Failed to transfer funds from escrow to msg.sender
+    error FUNDS_TRANSFER_FAILED();
+
     /// @notice Address is not owner of the NFT
     error NOT_NFT_OWNER(address presumableOwnerAddress);
 
@@ -48,9 +51,9 @@ contract NFTOpt {
     uint256                    public optionID;
     mapping(uint256 => Option) public options;
 
-    event NewRequest(address, uint);
     event Received(address, uint);
     event Fallback(address, uint);
+    event NewRequest(address, uint);
     event Exercised(uint);
     event Filled(address, uint);
 
@@ -118,7 +121,7 @@ contract NFTOpt {
         ,   "Provided NFT contract address must implement ERC-721 interface"
         );
 
-        if(IERC721(_nftContract).ownerOf(_nftId) != msg.sender)
+        if (IERC721(_nftContract).ownerOf(_nftId) != msg.sender)
         {
             revert NOT_NFT_OWNER(msg.sender);
         }
