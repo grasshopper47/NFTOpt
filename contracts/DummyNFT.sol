@@ -12,8 +12,6 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract DummyNFT is ERC721("NFT_Dummy", "A Collection of NFTs"), Ownable {
 
-    address private _owner;
-
     constructor (address _buyer)
     {
         for (uint i = 1; i != 21; ++i) {_safeMint(_buyer, i);}

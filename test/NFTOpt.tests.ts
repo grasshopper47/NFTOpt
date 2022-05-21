@@ -1,9 +1,3 @@
-// import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-// import {expect} from "chai";
-// import {BigNumber} from "ethers";
-// import {ethers} from "hardhat";
-// import {NFTOpt, DummyNFT} from "../typechain-types";
-// import {beforeEach} from "mocha";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber, ContractTransaction } from "ethers";
@@ -12,9 +6,6 @@ import { NFTOpt, DummyNFT } from "../typechain-types";
 
 async function increaseEVMTimestampBy(days: number) {
     const numberOfDays = days * 24 * 60 * 60;
-    const blockNumBefore = await ethers.provider.getBlockNumber();
-    const blockBefore = await ethers.provider.getBlock(blockNumBefore);
-    const timestampBefore = blockBefore.timestamp;
 
     // @ts-ignore
     await ethers.provider.send('evm_increaseTime', [numberOfDays]);

@@ -74,21 +74,21 @@ contract NFTOpt {
         bytes memory data =
         abi.encodeWithSelector
         (
-            bytes4(keccak256("ownerOf(uint256)")) // encoded method name and comma-separated list of parameter types
-        , 0                                     // values for parameters
+            bytes4(keccak256("ownerOf(uint256)"))    // encoded method name and comma-separated list of parameter types
+        , 0                                          // values for parameters
         );
 
         assembly
         {
             success := call
             (
-            0, // gas remaining
-            _token, // destination address
-            0, // no ether
-            add(data, 32), // input buffer (starts after the first 32 bytes in the `data` array)
-            mload(data), // input length (loaded from the first 32 bytes in the `data` array)
-            0, // output buffer
-            0               // output length
+            0,                // gas remaining
+            _token,           // destination address
+            0,                // no ether
+            add(data, 32),    // input buffer (starts after the first 32 bytes in the `data` array)
+            mload(data),      // input length (loaded from the first 32 bytes in the `data` array)
+            0,                // output buffer
+            0                 // output length
             )
         }
 
@@ -218,19 +218,16 @@ contract NFTOpt {
             revert EXERCISE_WINDOW_IS_CLOSED(expirationDate);
         }
 
-        // send collateral from escrow to buyer
+        // Try exercise option
         if(getBalance()  < currentOption.strikePrice){
            revert INSUFFICIENT_FUNDS();
         }
         currentOption.buyer.transfer(currentOption.strikePrice);
 
-        // send underlying (NFT) from buyer to seller
         nftContract.transferFrom({from : msg.sender, to : currentOption.seller, tokenId : currentOption.nftId});
 
-        // update Option state to CLOSED
         options[_optionId].state = OptionState.CLOSED;
 
-        // emit event EXERCISED
         emit Exercised(_optionId);
     }
 }
