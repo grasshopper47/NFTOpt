@@ -188,7 +188,7 @@ describe("NFTOpt Tests", function () {
 
         it("should revert with non-existent optionID", async function () {
 
-            let balance = await NFTCTR.connect(buyer).balanceOf(buyer.address);
+            let balance = await NFTDummyCTR.connect(buyer).balanceOf(buyer.address);
             console.log(balance.toString());
 
             // // Create dummies options
