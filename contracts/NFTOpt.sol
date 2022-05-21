@@ -170,7 +170,10 @@ contract NFTOpt {
         require(msg.value == option.strikePrice    , "Wrong strike price provided");
 
         (bool success,) = msg.sender.call{value: option.premium}("");
-        require(success, "Transaction failed");
+        if (!success)
+        {
+            revert FUNDS_TRANSFER_FAILED();
+        }
 
         option.seller    = payable(msg.sender);
         option.startDate = block.timestamp;
@@ -237,7 +240,10 @@ contract NFTOpt {
         }
 
         (bool success,) = msg.sender.call{value: currentOption.strikePrice}("");
-        require(success, "Transaction failed");
+        if (!success)
+        {
+            revert FUNDS_TRANSFER_FAILED();
+        }
 
         nftContract.transferFrom({from : msg.sender, to : currentOption.seller, tokenId : currentOption.nftId});
 
