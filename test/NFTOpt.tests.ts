@@ -144,18 +144,7 @@ describe("NFTOpt Tests", function () {
             expect( await NFTOptCTR.getBalance() ).to.equal(0);
             expect( await NFTOptCTR.optionID() ).to.equal(0);
 
-            await expect(
-               NFTOptCTR.connect(buyer)
-                         .publishOptionRequest
-                         (
-                             dummyOptionRequest.nftContract
-                         ,   dummyOptionRequest.nftId
-                         ,   dummyOptionRequest.strikePrice
-                         ,   dummyOptionRequest.interval
-                         ,   dummyOptionRequest.flavor
-                         ,  { value: dummyOptionRequest.premium }
-                         )
-            ).to.not.be.reverted;
+            await publishDummyOptionRequest();
 
             expect( await NFTOptCTR.getBalance() ).to.equal(dummyOptionRequest.premium);
             expect( await NFTOptCTR.optionID() ).to.equal(1);
