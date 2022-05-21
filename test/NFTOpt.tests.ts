@@ -1,61 +1,76 @@
-import {Contract} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import {ethers} from "hardhat";
+import {NFTOpt, DummyNFT} from "../typechain-types";
 
 describe("NFTOpt Tests", function () {
-    let owner: SignerWithAddress;
+
     let buyer: SignerWithAddress;
     let seller: SignerWithAddress;
-    let NFTOptCTR: Contract;
-    let NFTCTR: Contract;
+    let NFTOptCTR: NFTOpt;
+    let NFTCTR: DummyNFT;
+
+    interface Option {
+        buyer: string;
+        seller: string;
+        nftContract: string;
+        nftId: number;
+        startDate: number;
+        interval: number;
+        premium: any;
+        strikePrice: any;
+        flavor: number;
+        state: number;
+    }
+
+    let dummyOption: Option;
 
     beforeEach("deploy contract", async () => {
         const accounts = await ethers.getSigners();
 
-        owner = accounts[0];
-        buyer = accounts[1];
-        seller = accounts[2];
+        buyer = accounts[0];
+        seller = accounts[1];
 
+        // Deploy APP contract
         const NFTOpt = await ethers.getContractFactory("NFTOpt");
         NFTOptCTR = await NFTOpt.deploy();
         await NFTOptCTR.deployed();
 
-        // Deploy dummy NFT contract
+        // Deploy dummy NFT contract and mint 20 nfts to buyer
         const NFT = await ethers.getContractFactory("DummyNFT");
-        NFTCTR = await NFT.deploy("Foo", 'BAR', buyer.address);
+        NFTCTR = await NFT.deploy("NFT_NAME", "NFT_SYMBOL", buyer.address);
         await NFTCTR.deployed();
-        console.log(await NFTCTR.balanceOf(buyer.address).toNumber);
     });
 
-    // describe("add", function () {
-    //
-    //     it("should revert when invalid animal is provided", async function () {
-    //         await expect(
-    //             NFTCTR.connect(owner).add("", 5)
-    //         ).to.be.revertedWith("Invalid animal");
-    //     });
-    //
-    // });
-    //
-    // describe("createOptionRequest", function () {
-    // });
-    //
-    // describe("cancelOptionRequest", function () {
-    //
-    // });
-    //
-    // describe("createOption", function () {
-    // });
-    //
-    // describe("cancelOption", function () {
-    // });
-    //
+    describe("createOptionRequest", function () {
+        it("should test that method can be called", async function () {
+            expect(NFTOptCTR.connect(buyer).publishOptionRequest(buyer.address, 0, 0, 0, 0)).to.not.throw;
+        });
+    });
+
+    describe("withdrawOptionRequest", function () {
+        it("should test that method can be called", async function () {
+            expect(NFTOptCTR.connect(buyer).withdrawOptionRequest(0)).to.not.throw;
+        })
+    });
+
+    describe("createOption", function () {
+        it("should test that method can be called", async function () {
+            expect(NFTOptCTR.connect(buyer).createOption(0)).to.not.throw;
+        });
+    });
+
+    describe("cancelOption", function () {
+        it("should test that method can be called", async function () {
+            expect(NFTOptCTR.connect(buyer).cancelOption(0)).to.not.throw;
+        });
+    });
+
     describe("exerciseOption", function () {
 
         it("should revert with non-existent optionID", async function () {
 
-            let  balance = await NFTCTR.connect(buyer).balanceOf(buyer.address);
+            let balance = await NFTCTR.connect(buyer).balanceOf(buyer.address);
             console.log(balance.toString());
 
             // // Create dummies options
@@ -74,16 +89,9 @@ describe("NFTOpt Tests", function () {
 
         it("only option buyer can execute", async function () {
             await expect(
-                NFTOptCTR.connect(owner).exerciseOption(0)
+                NFTOptCTR.connect(buyer).exerciseOption(0)
             ).to.be.reverted("INVALID_ADDRESS");
         });
-
-        // TODO: may drop given this should be addressed in createOption phase
-        // it("seller is not burn account", async function () {
-        //     expect(
-        //         NFTOptCTR.connect(buyer).createOptionRequest(0)
-        //     ).to.not.throw;
-        // });
 
         it("european option should not be exercised before the expiration day", async function () {
             expect(
@@ -108,19 +116,16 @@ describe("NFTOpt Tests", function () {
                 NFTOptCTR.connect(buyer).exerciseOption(0)
             ).to.not.throw;
         });
-
         it("Upon exercise, BUYER must have  increased his ETH balance by STRIKE_PRICE", async function () {
             expect(
                 NFTOptCTR.connect(buyer).exerciseOption(0)
             ).to.not.throw;
         });
-
         it("Upon exercise, SELLER must have ownership of NFT_ID", async function () {
             expect(
                 NFTOptCTR.connect(buyer).exerciseOption(0)
             ).to.not.throw;
         });
-
         // Close option and try exercise
         it("should revert with non-open options", async function () {
             expect(
@@ -128,4 +133,5 @@ describe("NFTOpt Tests", function () {
             ).to.not.throw;
         });
     });
+
 });
