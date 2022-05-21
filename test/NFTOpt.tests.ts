@@ -38,7 +38,19 @@ describe("NFTOpt Tests", function () {
     }
 
     let dummyOptionRequest: Option;
-    let publishDummyOptionRequest: () => Promise<void>;
+
+    let publishDummyOptionRequest = async () => {
+        return expect(
+            NFTOptCTR.connect(buyer).publishOptionRequest(
+                dummyOptionRequest.nftContract
+            ,   dummyOptionRequest.nftId
+            ,   dummyOptionRequest.strikePrice
+            ,   dummyOptionRequest.interval
+            ,   dummyOptionRequest.flavor
+            ,  { value: dummyOptionRequest.premium }
+            )
+        ).to.not.be.reverted;
+    }
 
     beforeEach("deploy contract", async () => {
         const accounts = await ethers.getSigners();
@@ -53,7 +65,7 @@ describe("NFTOpt Tests", function () {
 
         // Deploy dummy NFT contract and mint 20 nfts to buyer
         const NFT = await ethers.getContractFactory("DummyNFT");
-        NFTDummyCTR = await NFT.deploy("NFT_NAME","NFT_SYMBOL", buyer.address);
+        NFTDummyCTR = await NFT.deploy(buyer.address);
         await NFTDummyCTR.deployed();
 
         dummyOptionRequest =
@@ -68,19 +80,6 @@ describe("NFTOpt Tests", function () {
         ,   strikePrice : ethers.utils.parseEther("50")
         ,   flavor      : OptionFlavor.European
         ,   state       : OptionState.Request
-        }
-
-        publishDummyOptionRequest = () => {
-            return expect(
-                NFTOptCTR.connect(buyer).publishOptionRequest(
-                    dummyOptionRequest.nftContract
-                ,   dummyOptionRequest.nftId
-                ,   dummyOptionRequest.strikePrice
-                ,   dummyOptionRequest.interval
-                ,   dummyOptionRequest.flavor
-                ,  { value: dummyOptionRequest.premium }
-                )
-            ).to.not.be.reverted;
         }
     });
 
@@ -165,18 +164,8 @@ describe("NFTOpt Tests", function () {
         });
 
         it("should emit NewRequest event when succeeded", async function () {
-            await expect(
-               NFTOptCTR.connect(buyer)
-                         .publishOptionRequest
-                         (
-                             dummyOptionRequest.nftContract
-                         ,   dummyOptionRequest.nftId
-                         ,   dummyOptionRequest.strikePrice
-                         ,   dummyOptionRequest.interval
-                         ,   dummyOptionRequest.flavor
-                         ,  { value: dummyOptionRequest.premium }
-                         )
-            ).to.emit(NFTOptCTR, "NewRequest").withArgs(buyer.address, 1);
+            expect( await publishDummyOptionRequest() )
+            .to.emit(NFTOptCTR, "NewRequest").withArgs(buyer.address, 1);
         });
      });
 
