@@ -135,13 +135,14 @@ contract NFTOpt {
     payable
     {
         Option storage option = options[_optionId];
-        require(option.buyer != address(0), "Option with the specified id does not exist");
-        require(option.seller == address(0), "Option is already fulfilled by a seller");
-        require(option.state == OptionState.REQUEST, "Option is not in the request state");
-        require(option.buyer != msg.sender, "Seller is the same as buyer");
+
+        require(option.buyer != address(0)                       , "Option with the specified id does not exist");
+        require(option.seller == address(0)                      , "Option is already fulfilled by a seller");
+        require(option.state == OptionState.REQUEST              , "Option is not in the request state");
+        require(option.buyer != msg.sender                       , "Seller is the same as buyer");
         require(address(msg.sender).balance >= option.strikePrice, "Seller does not have enough balance");
-        require(getBalance() >= option.premium, "Not enough funds to pay the premium to the seller");
-        require(msg.value == option.strikePrice, "Wrong strike price provided");
+        require(getBalance() >= option.premium                   , "Not enough funds to pay the premium to the seller");
+        require(msg.value == option.strikePrice                  , "Wrong strike price provided");
 
         option.seller = msg.sender;
         option.startDate = block.timestamp;
