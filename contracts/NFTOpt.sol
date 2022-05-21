@@ -77,21 +77,21 @@ contract NFTOpt {
         bytes memory data =
         abi.encodeWithSelector
         (
-            bytes4(keccak256("ownerOf(uint256)"))    // encoded method name and comma-separated list of parameter types
-        , 0                                          // values for parameters
+            bytes4(keccak256("ownerOf(uint256)"))   // encoded method name and comma-separated list of parameter types
+        ,   0                                       // values for parameters
         );
 
         assembly
         {
             success := call
             (
-            0,                // gas remaining
-            _token,           // destination address
-            0,                // no ether
-            add(data, 32),    // input buffer (starts after the first 32 bytes in the `data` array)
-            mload(data),      // input length (loaded from the first 32 bytes in the `data` array)
-            0,                // output buffer
-            0                 // output length
+                0,                // gas remaining
+                _token,           // destination address
+                0,                // no ether
+                add(data, 32),    // input buffer (starts after the first 32 bytes in the `data` array)
+                mload(data),      // input length (loaded from the first 32 bytes in the `data` array)
+                0,                // output buffer
+                0                 // output length
             )
         }
 
@@ -110,35 +110,36 @@ contract NFTOpt {
     payable
     {
         require(_nftContract != address(0), "NFT contract must be a valid address");
-        require(_nftId > 0, "NFT token ID must be > 0");
+        require(_nftId > 0                , "NFT token ID must be > 0");
 
         require
         (
             _detect_if_contract_implements_ERC721(_nftContract)
-        , "Provided NFT contract address must implement ERC-721 interface"
+        ,   "Provided NFT contract address must implement ERC-721 interface"
         );
 
-        if(IERC721(_nftContract).ownerOf(_nftId) != msg.sender){
-           revert NOT_NFT_OWNER(msg.sender);
+        if(IERC721(_nftContract).ownerOf(_nftId) != msg.sender)
+        {
+            revert NOT_NFT_OWNER(msg.sender);
         }
 
-        require(msg.value > 0, "Premium must be > 0");
+        require(msg.value > 0   , "Premium must be > 0");
         require(_strikePrice > 0, "Strike price must be > 0");
-        require(_interval > 0, "Expiration interval must be > 0");
+        require(_interval > 0   , "Expiration interval must be > 0");
 
         options[++optionID] =
         Option
         ({
-        buyer : payable(msg.sender)
-        , seller : payable(address(0))
-        , nftContract : _nftContract
-        , nftId : _nftId
-        , startDate : 0
-        , interval : _interval
-        , premium : msg.value
-        , strikePrice : _strikePrice
-        , flavor : OptionFlavor(_flavor)
-        , state : OptionState.REQUEST
+            buyer       : payable(msg.sender)
+        ,   seller      : payable(address(0))
+        ,   nftContract : _nftContract
+        ,   nftId       : _nftId
+        ,   startDate   : 0
+        ,   interval    : _interval
+        ,   premium     : msg.value
+        ,   strikePrice : _strikePrice
+        ,   flavor      : OptionFlavor(_flavor)
+        ,   state       : OptionState.REQUEST
         });
 
         emit NewRequest(msg.sender, optionID);
@@ -168,9 +169,9 @@ contract NFTOpt {
         (bool success,) = msg.sender.call{value: option.premium}("");
         require(success, "Transaction failed");
 
-        option.seller = payable(msg.sender);
+        option.seller    = payable(msg.sender);
         option.startDate = block.timestamp;
-        option.state = OptionState.OPEN;
+        option.state     = OptionState.OPEN;
 
         emit Filled(msg.sender, _optionId);
     }
@@ -188,42 +189,50 @@ contract NFTOpt {
     {
         Option memory currentOption = options[_optionId];
 
-        if (currentOption.buyer == address(0)) {
+        if (currentOption.buyer == address(0))
+        {
             revert INVALID_OPTION_ID({providedId : _optionId});
         }
 
-        if (currentOption.state != OptionState.OPEN) {
+        if (currentOption.state != OptionState.OPEN)
+        {
             revert INVALID_OPTION_STATE(currentOption.state, OptionState.OPEN);
         }
 
-        if (currentOption.buyer != msg.sender
-        ) {
+        if (currentOption.buyer != msg.sender)
+        {
             revert NOT_AUTHORIZED({providedAddress : msg.sender});
         }
 
-        // Check for NFT access and ownership
+        /// @dev Check for NFT access and ownership
         IERC721 nftContract = IERC721(currentOption.nftContract);
 
-        if(nftContract.ownerOf(currentOption.nftId) != msg.sender){
-           revert NOT_NFT_OWNER(msg.sender);
+        if (nftContract.ownerOf(currentOption.nftId) != msg.sender)
+        {
+            revert NOT_NFT_OWNER(msg.sender);
         }
 
-        if (nftContract.getApproved(currentOption.nftId) != address(this)) {
+        if (nftContract.getApproved(currentOption.nftId) != address(this))
+        {
             revert  NFT_NOT_APPROVED({nftAddress : currentOption.nftContract, nftId : currentOption.nftId});
         }
 
-        //  Check for time restrictions
+        /// @dev Check for time restrictions
         uint256 expirationDate = currentOption.startDate + currentOption.interval;
-        if (block.timestamp > expirationDate ||
+        if
+        (
+            block.timestamp > expirationDate ||
             (currentOption.flavor == OptionFlavor.EUROPEAN && (expirationDate - 1 days) > block.timestamp)
-        ) {
+        )
+        {
             revert EXERCISE_WINDOW_IS_CLOSED(expirationDate);
         }
 
-        // Try exercise option
-        if(getBalance()  < currentOption.strikePrice){
-           revert INSUFFICIENT_FUNDS();
+        if (getBalance() < currentOption.strikePrice)
+        {
+            revert INSUFFICIENT_FUNDS();
         }
+
         currentOption.buyer.transfer(currentOption.strikePrice);
 
         nftContract.transferFrom({from : msg.sender, to : currentOption.seller, tokenId : currentOption.nftId});
