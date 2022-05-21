@@ -23,6 +23,6 @@
     "clean": "npx hardhat clean",
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
-    "all": "npx hardhat clean && npx hardhat compile && npx hardhat test"
+    "compile_test": "npx hardhat clean && npx hardhat compile && npx hardhat test"
   }
 }

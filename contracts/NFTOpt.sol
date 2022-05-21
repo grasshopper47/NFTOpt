@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.14;
 
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "contracts/DummyNFT.sol";
+/**
+ * @dev OpenZeppelin's interface of EIP-721 https://eips.ethereum.org/EIPS/eip-721.
+ */
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract NFTOpt {
 
@@ -28,25 +30,26 @@ contract NFTOpt {
     enum OptionFlavor {EUROPEAN, AMERICAN}
 
     struct Option {
-        address payable buyer;
-        address payable seller;
-        address nftContract;
-        uint32 nftId;
-        uint256 startDate;
-        uint32 interval;
-        uint premium;
-        uint strikePrice;
+        address payable      buyer;
+        address payable      seller;
+        address              nftContract;
+        uint32               nftId;
+        uint32               interval;
+        uint256              startDate;
+        uint256              premium;
+        uint256              strikePrice;
         OptionFlavor flavor;
         OptionState state;
     }
 
-    uint                    public optionID;
-    mapping(uint => Option) public options;
+    uint256                    public optionID;
+    mapping(uint256 => Option) public options;
 
     event NewRequest(address, uint);
     event Received(address, uint);
     event Fallback(address, uint);
     event Exercised(uint);
+    event Filled(address, uint);
 
     receive() external payable
     {
@@ -94,11 +97,11 @@ contract NFTOpt {
 
     function publishOptionRequest
     (
-        address _nftContract
-    , uint32 _nftId
-    , uint _strikePrice
-    , uint32 _interval
-    , OptionFlavor _flavor
+        address      _nftContract
+    ,   uint32       _nftId
+    ,   uint256      _strikePrice
+    ,   uint32       _interval
+    ,   OptionFlavor _flavor
     )
     external
     payable
@@ -114,8 +117,8 @@ contract NFTOpt {
 
         require
         (
-            DummyNFT(_nftContract).ownerOf(_nftId) == msg.sender
-        , "Ownership of specified NFT token is under a different wallet than the caller's"
+            IERC721(_nftContract).ownerOf(_nftId) == msg.sender
+        ,   "Ownership of specified NFT token is under a different wallet than the caller's"
         );
 
         require(msg.value > 0, "Premium must be > 0");
@@ -144,19 +147,31 @@ contract NFTOpt {
     external
     payable
     {
-
+        // TODO: update this with the correct implementation (wrote this here only for testing)
+        options[_optionId].state = OptionState.CLOSED;
     }
 
     function createOption(uint32 _optionId)
     external
     payable
     {
-        // TODO: Substitute for real implementation
-        Option storage currentOption = options[_optionId];
-        currentOption.seller = payable(msg.sender);
-        currentOption.state = OptionState.OPEN;
-        currentOption.startDate = block.timestamp;
-        currentOption.interval = 7 days;
+        Option storage option = options[_optionId];
+
+        require(option.buyer != address(0)         , "Option with the specified id does not exist");
+        require(option.seller == address(0)        , "Option is already fulfilled by a seller");
+        require(option.state == OptionState.REQUEST, "Option is not in the request state");
+        require(option.buyer != msg.sender         , "Seller is the same as buyer");
+        require(getBalance() >= option.premium     , "Not enough funds to pay the premium to the seller");
+        require(msg.value == option.strikePrice    , "Wrong strike price provided");
+
+        (bool success,) = msg.sender.call{value: option.premium}("");
+        require(success, "Transaction failed");
+
+        option.seller = payable(msg.sender);
+        option.startDate = block.timestamp;
+        option.state = OptionState.OPEN;
+
+        emit Filled(msg.sender, _optionId);
     }
 
     function cancelOption(uint32 _optionId)
@@ -186,7 +201,7 @@ contract NFTOpt {
         }
 
         // Check for NFT access and ownership
-        DummyNFT nftContract = DummyNFT(currentOption.nftContract);
+        IERC721 nftContract = IERC721(currentOption.nftContract);
 
         require(nftContract.ownerOf(currentOption.nftId) == msg.sender,
             "Ownership of specified NFT token is under a different wallet than the caller's");

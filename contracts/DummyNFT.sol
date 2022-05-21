@@ -1,30 +1,21 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.14;
 
+/**
+ * @dev An authorization implementation for our smart contract, to restrict access to some functions.
+ */
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+/**
+ * @dev OpenZeppelin's implementation of EIP-721 https://eips.ethereum.org/EIPS/eip-721.
+ */
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract DummyNFT is Ownable, ERC721Enumerable {
+contract DummyNFT is ERC721("NFT_Dummy", "A Collection of NFTs"), Ownable {
 
-    constructor
-    (
-        string memory _name,
-        string memory _symbol,
-        address _buyerId
-    )
-    ERC721(_name, _symbol)
+    address private _owner;
+
+    constructor (address _buyer)
     {
-        mint(_buyerId, 20);
-    }
-
-    function mint(address _to, uint _mintAmount)
-    public
-    payable
-    {
-        uint supply = totalSupply();
-        for (uint i = 1; i <= _mintAmount; i++)
-        {
-            _safeMint(_to, supply + i);
-        }
+        for (uint i = 1; i != 21; ++i) {_safeMint(_buyer, i);}
     }
 }
