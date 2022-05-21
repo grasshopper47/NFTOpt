@@ -42,8 +42,10 @@ contract NFTOpt {
     external
     payable
     {
-
+        require (options[_optionId].buyer == msg.sender , "Only buyer can withdraw option request");
+        options[_optionId].state = OptionState.CLOSED;
     }
+
 
     function createOption(uint32 _optionId)
     external
