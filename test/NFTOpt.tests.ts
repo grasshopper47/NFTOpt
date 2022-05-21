@@ -242,7 +242,7 @@ describe("NFTOpt Tests", function () {
 
             // Seller responds to request and creates an option
             let tx = NFTOptCTR.connect(seller)
-                              .createOption(1, {value: dummyOptionRequest.strikePrice})
+                              .createOption(1, {value: dummyOptionRequest.strikePrice});
 
             expect(tx).to.not.be.reverted;
 
@@ -272,8 +272,7 @@ describe("NFTOpt Tests", function () {
             expect(await seller.getBalance())
             .to.equal(initialSellerBalance.add(updatedOption.premium)
                                           .sub(dummyOptionRequest.strikePrice)
-                                          .sub(gasUsedInTransaction)
-            );
+                                          .sub(gasUsedInTransaction));
         });
 
         it("should emit Filled event when succeeded", async function () {
