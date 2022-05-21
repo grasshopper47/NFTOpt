@@ -34,7 +34,7 @@ export interface NFTOptInterface extends utils.Interface {
     "getBalance()": FunctionFragment;
     "optionID()": FunctionFragment;
     "options(uint256)": FunctionFragment;
-    "publishOptionRequest(address,uint256,uint256,uint256,uint8)": FunctionFragment;
+    "publishOptionRequest(address,uint32,uint256,uint32,uint8)": FunctionFragment;
     "withdrawOptionRequest(uint32)": FunctionFragment;
   };
 
@@ -105,11 +105,28 @@ export interface NFTOptInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "Fallback(address,uint256)": EventFragment;
     "Filled(address,uint256)": EventFragment;
+    "NewRequest(address,uint256)": EventFragment;
+    "Received(address,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Fallback"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Filled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NewRequest"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Received"): EventFragment;
 }
+
+export interface FallbackEventObject {
+  arg0: string;
+  arg1: BigNumber;
+}
+export type FallbackEvent = TypedEvent<
+  [string, BigNumber],
+  FallbackEventObject
+>;
+
+export type FallbackEventFilter = TypedEventFilter<FallbackEvent>;
 
 export interface FilledEventObject {
   arg0: string;
@@ -118,6 +135,28 @@ export interface FilledEventObject {
 export type FilledEvent = TypedEvent<[string, BigNumber], FilledEventObject>;
 
 export type FilledEventFilter = TypedEventFilter<FilledEvent>;
+
+export interface NewRequestEventObject {
+  arg0: string;
+  arg1: BigNumber;
+}
+export type NewRequestEvent = TypedEvent<
+  [string, BigNumber],
+  NewRequestEventObject
+>;
+
+export type NewRequestEventFilter = TypedEventFilter<NewRequestEvent>;
+
+export interface ReceivedEventObject {
+  arg0: string;
+  arg1: BigNumber;
+}
+export type ReceivedEvent = TypedEvent<
+  [string, BigNumber],
+  ReceivedEventObject
+>;
+
+export type ReceivedEventFilter = TypedEventFilter<ReceivedEvent>;
 
 export interface NFTOpt extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -173,8 +212,8 @@ export interface NFTOpt extends BaseContract {
         string,
         string,
         string,
-        BigNumber,
-        BigNumber,
+        number,
+        number,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -184,9 +223,9 @@ export interface NFTOpt extends BaseContract {
         buyer: string;
         seller: string;
         nftContract: string;
-        nftId: BigNumber;
+        nftId: number;
+        interval: number;
         startDate: BigNumber;
-        interval: BigNumber;
         premium: BigNumber;
         strikePrice: BigNumber;
         flavor: number;
@@ -236,8 +275,8 @@ export interface NFTOpt extends BaseContract {
       string,
       string,
       string,
-      BigNumber,
-      BigNumber,
+      number,
+      number,
       BigNumber,
       BigNumber,
       BigNumber,
@@ -247,9 +286,9 @@ export interface NFTOpt extends BaseContract {
       buyer: string;
       seller: string;
       nftContract: string;
-      nftId: BigNumber;
+      nftId: number;
+      interval: number;
       startDate: BigNumber;
-      interval: BigNumber;
       premium: BigNumber;
       strikePrice: BigNumber;
       flavor: number;
@@ -299,8 +338,8 @@ export interface NFTOpt extends BaseContract {
         string,
         string,
         string,
-        BigNumber,
-        BigNumber,
+        number,
+        number,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -310,9 +349,9 @@ export interface NFTOpt extends BaseContract {
         buyer: string;
         seller: string;
         nftContract: string;
-        nftId: BigNumber;
+        nftId: number;
+        interval: number;
         startDate: BigNumber;
-        interval: BigNumber;
         premium: BigNumber;
         strikePrice: BigNumber;
         flavor: number;
@@ -336,8 +375,20 @@ export interface NFTOpt extends BaseContract {
   };
 
   filters: {
+    "Fallback(address,uint256)"(arg0?: null, arg1?: null): FallbackEventFilter;
+    Fallback(arg0?: null, arg1?: null): FallbackEventFilter;
+
     "Filled(address,uint256)"(arg0?: null, arg1?: null): FilledEventFilter;
     Filled(arg0?: null, arg1?: null): FilledEventFilter;
+
+    "NewRequest(address,uint256)"(
+      arg0?: null,
+      arg1?: null
+    ): NewRequestEventFilter;
+    NewRequest(arg0?: null, arg1?: null): NewRequestEventFilter;
+
+    "Received(address,uint256)"(arg0?: null, arg1?: null): ReceivedEventFilter;
+    Received(arg0?: null, arg1?: null): ReceivedEventFilter;
   };
 
   estimateGas: {
