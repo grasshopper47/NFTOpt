@@ -233,7 +233,8 @@ contract NFTOpt {
             revert INSUFFICIENT_FUNDS();
         }
 
-        currentOption.buyer.transfer(currentOption.strikePrice);
+        (bool success,) = msg.sender.call{value: currentOption.strikePrice}("");
+        require(success, "Transaction failed");
 
         nftContract.transferFrom({from : msg.sender, to : currentOption.seller, tokenId : currentOption.nftId});
 
