@@ -105,15 +105,24 @@ export interface NFTOptInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "Exercised(uint256)": EventFragment;
     "Fallback(address,uint256)": EventFragment;
     "NewRequest(address,uint256)": EventFragment;
     "Received(address,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Exercised"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Fallback"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewRequest"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Received"): EventFragment;
 }
+
+export interface ExercisedEventObject {
+  arg0: BigNumber;
+}
+export type ExercisedEvent = TypedEvent<[BigNumber], ExercisedEventObject>;
+
+export type ExercisedEventFilter = TypedEventFilter<ExercisedEvent>;
 
 export interface FallbackEventObject {
   arg0: string;
@@ -203,7 +212,7 @@ export interface NFTOpt extends BaseContract {
         string,
         string,
         number,
-        number,
+        BigNumber,
         number,
         BigNumber,
         BigNumber,
@@ -214,7 +223,7 @@ export interface NFTOpt extends BaseContract {
         seller: string;
         nftContract: string;
         nftId: number;
-        startDate: number;
+        startDate: BigNumber;
         interval: number;
         premium: BigNumber;
         strikePrice: BigNumber;
@@ -266,7 +275,7 @@ export interface NFTOpt extends BaseContract {
       string,
       string,
       number,
-      number,
+      BigNumber,
       number,
       BigNumber,
       BigNumber,
@@ -277,7 +286,7 @@ export interface NFTOpt extends BaseContract {
       seller: string;
       nftContract: string;
       nftId: number;
-      startDate: number;
+      startDate: BigNumber;
       interval: number;
       premium: BigNumber;
       strikePrice: BigNumber;
@@ -329,7 +338,7 @@ export interface NFTOpt extends BaseContract {
         string,
         string,
         number,
-        number,
+        BigNumber,
         number,
         BigNumber,
         BigNumber,
@@ -340,7 +349,7 @@ export interface NFTOpt extends BaseContract {
         seller: string;
         nftContract: string;
         nftId: number;
-        startDate: number;
+        startDate: BigNumber;
         interval: number;
         premium: BigNumber;
         strikePrice: BigNumber;
@@ -365,6 +374,9 @@ export interface NFTOpt extends BaseContract {
   };
 
   filters: {
+    "Exercised(uint256)"(arg0?: null): ExercisedEventFilter;
+    Exercised(arg0?: null): ExercisedEventFilter;
+
     "Fallback(address,uint256)"(arg0?: null, arg1?: null): FallbackEventFilter;
     Fallback(arg0?: null, arg1?: null): FallbackEventFilter;
 

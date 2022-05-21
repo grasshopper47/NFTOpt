@@ -6,8 +6,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
 contract DummyNFT is Ownable, ERC721Enumerable {
 
-    address private _owner;
-
     constructor
     (
         string memory _name,
@@ -16,7 +14,6 @@ contract DummyNFT is Ownable, ERC721Enumerable {
     )
     ERC721(_name, _symbol)
     {
-        _owner = _buyerId;
         mint(_buyerId, 20);
     }
 
@@ -29,16 +26,5 @@ contract DummyNFT is Ownable, ERC721Enumerable {
         {
             _safeMint(_to, supply + i);
         }
-    }
-
-    function ownerOf(uint256 tokenId)
-    public
-    view
-    override(ERC721, IERC721)
-    returns (address)
-    {
-        if (tokenId == 25) { return address(this); }
-
-        return _owner;
     }
 }
