@@ -148,7 +148,7 @@ describe("NFTOpt Tests", function () {
             expect( await NFTOptCTR.getBalance() ).to.equal(dummyOptionRequest.premium);
             expect( await NFTOptCTR.optionID() ).to.equal(1);
 
-            // check details of the option data
+            // Check that details of the option data match those sent
             const option = await NFTOptCTR.options(1);
 
             expect(option.buyer).to.equal(dummyOptionRequest.buyer);
@@ -235,6 +235,7 @@ describe("NFTOpt Tests", function () {
 
             expect(await NFTOptCTR.getBalance()).to.equal(dummyOptionRequest.premium);
 
+            // Seller responds to request and creates an option
             const transaction = (await expect(NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice})).to.not.be.reverted) as unknown as ContractTransaction;
 
             // Check that the collateral was paid
@@ -245,7 +246,7 @@ describe("NFTOpt Tests", function () {
             // Check that the option startDate was updated
             expect(updatedOption.startDate).to.not.equal(0);
 
-            // // Check that the option seller address was updated
+            // Check that the option seller address was updated
             expect(updatedOption.seller).to.equal(seller.address);
 
             // Check that the option state was updated to Open
@@ -256,12 +257,11 @@ describe("NFTOpt Tests", function () {
             const gasPrice = transaction.gasPrice;
             const gasUsedInTransaction = gasUsed.mul(gasPrice ?? 0);
 
-            expect(
-                await seller.getBalance())
+            expect(await seller.getBalance())
             .to.equal(
-                initialSellerBalance.sub(gasUsedInTransaction)
-                                    .add(updatedOption.premium)
+                initialSellerBalance.add(updatedOption.premium)
                                     .sub(dummyOptionRequest.strikePrice)
+                                    .sub(gasUsedInTransaction)
             );
         });
 
