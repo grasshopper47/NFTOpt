@@ -177,10 +177,18 @@ describe("NFTOpt Tests", function () {
 
     describe("withdrawOptionRequest", function () {
         it("should test that method can be called", async function () {
-            expect(NFTOptCTR.connect(buyer)
-                            .withdrawOptionRequest(0))
-            .to.not.throw;
-        })
+            expect(
+                NFTOptCTR.connect(buyer).withdrawOptionRequest(0)
+            ).to.not.throw;
+        });
+
+        it("should fail when caller is not the buyer", async function () {
+            expect(
+                NFTOptCTR.connect(seller).withdrawOptionRequest(0)
+            ).to.not.throw;
+        });
+
+
     });
 
     describe("createOption", function () {

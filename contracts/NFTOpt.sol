@@ -152,7 +152,7 @@ contract NFTOpt {
     external
     payable
     {
-        // TODO: update this with the correct implementation (wrote this here only for testing)
+        require (options[_optionId].buyer == msg.sender , "Only buyer can withdraw option request");
         options[_optionId].state = OptionState.CLOSED;
     }
 
