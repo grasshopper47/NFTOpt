@@ -292,14 +292,14 @@ describe("NFTOpt Tests", function () {
             expect(NFTOptCTR.connect(buyer).cancelOption(0)).to.not.throw;
         });
 
-        it("should test that option exists", async function () {
+        it("should test that the option exists", async function () {
 
             expect(
                 NFTOptCTR.connect(buyer).cancelOption(0)
                 ).to.be.revertedWith("The Option does not exist");
         });
 
-        it("should revert when option does not have a start date i.e. published: REQUEST state", async function () {
+        it("should revert when the option does not have a start date i.e. published: REQUEST state", async function () {
 
             await NFTOptCTR.connect(buyer).publishOptionRequest
             (
@@ -335,12 +335,12 @@ describe("NFTOpt Tests", function () {
                 1, {value: dummyOptionRequest.strikePrice}
                 );
 
-            // exercise
+            // exercised
             await NFTDummyCTR.connect(buyer).approve(
                 NFTOptCTR.address, dummyOptionRequest.nftId
                 );
             await NFTOptCTR.connect(buyer).exerciseOption(1);
-            var exercisedOption = await NFTOptCTR.connect(buyer).options(1);
+            let exercisedOption = await NFTOptCTR.connect(buyer).options(1);
             expect(exercisedOption.state).equals(OptionState.Closed);
 
             expect(
@@ -353,8 +353,6 @@ describe("NFTOpt Tests", function () {
                 ).to.be.revertedWith("The Option is not open");
         });
 
-        // TODO:
-        // 1. cancel only filled or expired contracts
         it("should test seller is permitted to cancel only expired filled option", async function () {
 
             await NFTOptCTR.connect(buyer).publishOptionRequest
@@ -388,41 +386,94 @@ describe("NFTOpt Tests", function () {
 
         });
 
-        // TODO: should test buyer can cancel at any time
-        // it("test seller can cancel an expired filled option", async function () {
+        it("should test buyer can cancel filled option at any time", async function () {
 
-        //     await NFTOptCTR.connect(buyer).publishOptionRequest
-        //     (
-        //         dummyOptionRequest.nftContract
-        //     ,   dummyOptionRequest.nftId
-        //     ,   dummyOptionRequest.strikePrice
-        //     ,   dummyOptionRequest.interval
-        //     ,   OptionFlavor.American
-        //     ,   {value: dummyOptionRequest.premium}
-        //     );
+            await NFTOptCTR.connect(buyer).publishOptionRequest
+            (
+                dummyOptionRequest.nftContract
+            ,   dummyOptionRequest.nftId
+            ,   dummyOptionRequest.strikePrice
+            ,   dummyOptionRequest.interval
+            ,   OptionFlavor.American
+            ,   {value: dummyOptionRequest.premium}
+            );
 
+            // filled
+            await NFTOptCTR.connect(seller).createOption(
+                1, {value: dummyOptionRequest.strikePrice}
+                );
 
-        //     // filled
-        //     await NFTOptCTR.connect(seller).createOption(
-        //         1, {value: dummyOptionRequest.strikePrice}
-        //         );
+            var randomAccount = (await ethers.getSigners())[3];
+            expect(
+                NFTOptCTR.connect(randomAccount).cancelOption(1)
+                ).to.be.revertedWith("Only Buyer or Seller can cancel");
 
-        //     expect(
-        //         NFTOptCTR.connect(seller).cancelOption(1)
-        //         ).to.be.revertedWith("Only Buyer can cancel");
+            // Fast-foward EVM by 2 days; before expiry
+            await increaseEVMTimestampBy(2);
 
-        //     // Fast-foward EVM by 8 days
-        //     await increaseEVMTimestampBy(2);
+            expect(
+                NFTOptCTR.connect(buyer).cancelOption(1)
+                ).to.not.throw;
 
-        //     // Fast-foward EVM by 8 days
-        //     await increaseEVMTimestampBy(6);
-        // });
+        });
 
-        // TODO: tests
-        // 2. transfer money
-        // 3. closed state
-        // 4. emit state
+        it("should test the collateral (in contract) is transferred back to the seller", async function () {
 
+            await NFTOptCTR.connect(buyer).publishOptionRequest
+            (
+                dummyOptionRequest.nftContract
+            ,   dummyOptionRequest.nftId
+            ,   dummyOptionRequest.strikePrice
+            ,   dummyOptionRequest.interval
+            ,   OptionFlavor.American
+            ,   {value: dummyOptionRequest.premium}
+            );
+
+            await NFTOptCTR.connect(seller).createOption(
+                1, {value: dummyOptionRequest.strikePrice}
+                );
+
+            const initialBuyerBalance = await buyer.getBalance();
+            const initialSellerBalance = await seller.getBalance();
+
+            // buyer cancels option
+            let tx = NFTOptCTR.connect(buyer).cancelOption(1);
+            expect(tx).to.not.be.reverted;
+
+            let transaction = await tx;
+            let transactionReceipt = await transaction.wait();
+
+            // calculate gas costs
+            const gasUsed = transactionReceipt.gasUsed;
+            const gasPrice = transaction.gasPrice;
+            const gasUsedInTransaction = gasUsed.mul(gasPrice ?? 0);
+
+            const updatedOption = await NFTOptCTR.connect(seller).options(1);
+            // Check buyer incurs cancellation transaction costs
+            expect(await buyer.getBalance())
+            .to.equal(initialBuyerBalance.sub(gasUsedInTransaction));
+
+            // Check seller receives collateral
+            expect(await seller.getBalance())
+            .to.equal(initialSellerBalance.add(dummyOptionRequest.strikePrice));
+
+        });
+
+        it("should emit Canceled event when succeeded", async function () {
+            await publishDummyOptionRequest();
+
+            await NFTOptCTR.connect(seller).createOption(
+                1, {value: dummyOptionRequest.strikePrice}
+                );
+
+            await expect(NFTOptCTR.connect(buyer).cancelOption(1))
+                  .to.emit(NFTOptCTR, "Canceled")
+                  .withArgs(buyer.address, 1);
+
+            let cancelledOption = await NFTOptCTR.connect(buyer).options(1);
+            expect(cancelledOption.state).equals(OptionState.Closed)
+
+        });
 
     });
 

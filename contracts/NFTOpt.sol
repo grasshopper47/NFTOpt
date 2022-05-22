@@ -186,9 +186,10 @@ contract NFTOpt {
 
     event Canceled(address, uint _optionId);  // TODO: move to top
 
-    // TODO: check if _optionId can be interpolated into error string;
+    // TODO:
     // nice we have custom errors! (Thanks Luis -- are these easy to test though?)
     // https://blog.soliditylang.org/2021/04/21/custom-errors/
+    // implement in code
     function cancelOption(uint _optionId)
     external
     payable
@@ -224,8 +225,11 @@ contract NFTOpt {
         }
 
         // transfer collateral from escrow to seller; update Option state to CLOSED
-
-        payable(option.seller).transfer(option.strikePrice);  // should throw on failiure
+        (bool success,) = option.seller.call{value: option.strikePrice}("");
+        if (!success)
+        {
+            revert FUNDS_TRANSFER_FAILED();
+        }
 
         options[_optionId].state = OptionState.CLOSED;
         emit Canceled(msg.sender, _optionId);
