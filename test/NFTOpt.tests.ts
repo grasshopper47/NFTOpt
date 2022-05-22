@@ -1,8 +1,54 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
-import {BigNumber, ContractTransaction} from "ethers";
+import {BigNumber} from "ethers";
 import {ethers} from "hardhat";
 import {NFTOpt, DummyNFT} from "../typechain-types";
+
+const address0: string = "0x0000000000000000000000000000000000000000";
+
+let buyer: SignerWithAddress;
+let seller: SignerWithAddress;
+let NFTOptCTR: NFTOpt;
+let NFTDummyCTR: DummyNFT;
+
+interface Option {
+    buyer: string;
+    seller: string;
+    nftContract: string;
+    nftId: number;
+    startDate: number;
+    interval: number;
+    premium: BigNumber;
+    strikePrice: BigNumber;
+    flavor: number;
+    state: number;
+}
+
+const OptionState = {
+    Request: 0,
+    Open: 1,
+    Closed: 2,
+};
+
+const OptionFlavor = {
+    European: 0,
+    American: 1,
+};
+
+let dummyOptionRequest: Option;
+
+let publishDummyOptionRequest = async () => {
+    return expect(
+        NFTOptCTR.connect(buyer).publishOptionRequest(
+            dummyOptionRequest.nftContract,
+            dummyOptionRequest.nftId,
+            dummyOptionRequest.strikePrice,
+            dummyOptionRequest.interval,
+            dummyOptionRequest.flavor,
+            {value: dummyOptionRequest.premium}
+        )
+    ).to.not.be.reverted;
+};
 
 async function increaseEVMTimestampBy(days: number) {
     const numberOfDays = days * 24 * 60 * 60;
@@ -15,52 +61,6 @@ async function increaseEVMTimestampBy(days: number) {
 }
 
 describe("NFTOpt Tests", function () {
-    const address0: string = "0x0000000000000000000000000000000000000000";
-
-    let buyer: SignerWithAddress;
-    let seller: SignerWithAddress;
-    let NFTOptCTR: NFTOpt;
-    let NFTDummyCTR: DummyNFT;
-
-    interface Option {
-        buyer: string;
-        seller: string;
-        nftContract: string;
-        nftId: number;
-        startDate: number;
-        interval: number;
-        premium: BigNumber;
-        strikePrice: BigNumber;
-        flavor: number;
-        state: number;
-    }
-
-    const OptionState = {
-        Request: 0,
-        Open: 1,
-        Closed: 2,
-    };
-
-    const OptionFlavor = {
-        European: 0,
-        American: 1,
-    };
-
-    let dummyOptionRequest: Option;
-
-    let publishDummyOptionRequest = async () => {
-        return expect(
-            NFTOptCTR.connect(buyer).publishOptionRequest(
-                dummyOptionRequest.nftContract,
-                dummyOptionRequest.nftId,
-                dummyOptionRequest.strikePrice,
-                dummyOptionRequest.interval,
-                dummyOptionRequest.flavor,
-                {value: dummyOptionRequest.premium}
-            )
-        ).to.not.be.reverted;
-    };
-
     beforeEach("deploy contract", async () => {
         const accounts = await ethers.getSigners();
 
@@ -115,7 +115,9 @@ describe("NFTOpt Tests", function () {
             let _nftID = 3;
             await NFTDummyCTR.connect(buyer).transferFrom(buyer.address, seller.address, _nftID);
 
-            expect(await NFTDummyCTR.ownerOf(_nftID)).to.be.equal(seller.address);
+            let owner = await NFTDummyCTR.ownerOf(_nftID);
+
+            expect(owner).to.be.equal(seller.address);
 
             await expect(NFTOptCTR.connect(buyer).publishOptionRequest(NFTDummyCTR.address, _nftID, 0, 0, 0)).to.be.revertedWith(
                 "NOT_NFT_OWNER"
@@ -325,7 +327,7 @@ describe("NFTOpt Tests", function () {
             // Approve contract and try again
             await NFTDummyCTR.connect(buyer).approve(NFTOptCTR.address, dummyOptionRequest.nftId);
 
-            expect(NFTOptCTR.connect(buyer.address).exerciseOption(1)).to.not.be.reverted;
+            await expect(NFTOptCTR.connect(buyer).exerciseOption(1)).to.not.be.reverted;
         });
 
         it("european option should not be exercised before the expiration day", async function () {

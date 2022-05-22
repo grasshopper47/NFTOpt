@@ -27,7 +27,7 @@
     "chai": "^4.3.6",
     "eslint": "^8.16.0",
     "eslint-config-standard": "^17.0.0",
-    "ethereum-waffle": "^4.0.0-alpha.25",
+    "ethereum-waffle": "^3.4.4",
     "ethers": "^5.6.7",
     "hardhat": "^2.9.5",
     "prettier": "^2.6.2",
