@@ -184,10 +184,51 @@ contract NFTOpt {
         emit Filled(msg.sender, _optionId);
     }
 
-    function cancelOption(uint32 _optionId)
+    event Canceled(address, uint _optionId);  // TODO: move to top
+
+    // TODO: check if _optionId can be interpolated into error string;
+    // nice we have custom errors! (Thanks Luis -- are these easy to test though?)
+    // https://blog.soliditylang.org/2021/04/21/custom-errors/
+    function cancelOption(uint _optionId)
     external
     payable
     {
+        Option memory option = options[_optionId];
+
+        if
+        (
+            option.buyer       == address(0) &&
+            option.seller      == address(0) &&
+            option.nftContract == address(0) &&
+            option.nftId       == 0          &&
+            option.interval    == 0          &&
+            option.startDate   == 0          &&
+            option.premium     == 0          &&
+            option.strikePrice == 0
+        )
+        {
+            revert("The Option does not exist");
+        }
+
+        // cancel only filled or expired contracts
+        require(option.startDate != 0 && option.state == OptionState.OPEN, "The Option is not open");
+
+        uint expirationDate = option.startDate + option.interval;
+        if (expirationDate > block.timestamp)
+        {
+            require(msg.sender == option.buyer, "Only Buyer can cancel");
+        }
+        else
+        {
+            require(msg.sender == option.buyer || msg.sender == option.seller, "Only Buyer or Seller can cancel");
+        }
+
+        // transfer collateral from escrow to seller; update Option state to CLOSED
+
+        payable(option.seller).transfer(option.strikePrice);  // should throw on failiure
+
+        options[_optionId].state = OptionState.CLOSED;
+        emit Canceled(msg.sender, _optionId);
 
     }
 
