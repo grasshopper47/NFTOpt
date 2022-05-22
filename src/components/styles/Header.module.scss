@@ -1,0 +1,47 @@
+@import "src/styles/variables.scss";
+
+.root {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100px;
+    padding: 0 44px;
+    font-size: 20px;
+    color: $text-primary;
+}
+
+.link {
+    margin-left: 30px;
+    text-decoration: none;
+    color: $text-primary;
+}
+
+button.connectBtn {
+    margin-left: 30px;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 500;
+
+    p {
+        margin: 0;
+    }
+
+    &Small {
+        p {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            max-width: 100px;
+        }
+    }
+}
+
+.logo {
+    font-weight: 900;
+    font-size: 30px;
+    margin-left: 0;
+}
+
+
+.active {
+    font-weight: bold;
+}
