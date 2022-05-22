@@ -156,6 +156,7 @@ contract NFTOpt {
         options[_optionId].state = OptionState.CLOSED;
     }
 
+
     function createOption(uint32 _optionId)
     external
     payable
