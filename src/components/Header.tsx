@@ -1,8 +1,11 @@
-import React from "react";
+import React, {useState} from "react";
 import {useRouter} from "next/router";
 import Link from "next/link";
 import classes from "./styles/Header.module.scss";
 import clsx from "clsx";
+import Button from "@mui/material/Button";
+import {getEthereumObject} from "../utils";
+import {ethers} from "ethers";
 
 type Route = {
     href: string;
@@ -24,10 +27,15 @@ const routes: Route[] = [
     },
 ];
 
-function Header() {
-    const router = useRouter();
+type HeaderProps = {
+    account: string;
+    onConnectAccount: () => void;
+};
 
-    console.log(classes.link);
+function Header(props: HeaderProps) {
+    const {account, onConnectAccount} = props;
+
+    const router = useRouter();
 
     return (
         <div className={classes.root}>
@@ -40,6 +48,13 @@ function Header() {
                         <a className={clsx(classes.link, router.pathname == route.href && classes.active)}>{route.name}</a>
                     </Link>
                 ))}
+                <Button
+                    className={clsx(classes.connectBtn, account && classes.connectBtnSmall)}
+                    variant="contained"
+                    onClick={onConnectAccount}
+                >
+                    <p>{account ?? "Connect wallet"}</p>
+                </Button>
             </div>
         </div>
     );

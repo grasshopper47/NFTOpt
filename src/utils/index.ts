@@ -15,20 +15,12 @@ export const networkName = networks[networkId];
 export const getEthereumObject = () => {
     const {ethereum} = window;
 
-    if (!ethereum) {
-        return null;
-    }
-
-    if (ethereum.networkVersion != networkId) {
-        alert(`Please switch to the ${networkName} network`)
-        return null
-    }
-
-    return ethereum
+    return ethereum ?? null;
 }
 
 export const setupEthereumEventListeners = (ethereum) => {
     const provider = new ethers.providers.Web3Provider(ethereum, "any");
+
     provider.on("network", (newNetwork, oldNetwork) => {
         if (oldNetwork) {
             window.location.reload();
@@ -42,14 +34,6 @@ export const setupEthereumEventListeners = (ethereum) => {
     return ethereum
 }
 
-export const connectWallet = async () => {
-    const { ethereum } = window;
-    if (!ethereum) return null
-
-    await ethereum.request({ method: "eth_requestAccounts" });
-    location.reload()
-}
-
 export const getCurrentAccount = async () => {
     const { ethereum } = window;
 
@@ -58,8 +42,20 @@ export const getCurrentAccount = async () => {
     if (!accounts || accounts?.length === 0) {
         return null
     }
-    const account = accounts[0]
-    return account
+
+    const account = accounts[0];
+
+    return account;
+}
+
+export const connectWallet = async (setAccountCallback: (account: string) => void) => {
+    const ethereum = getEthereumObject();
+
+    if (ethereum) {
+        ethereum.request({method: "eth_requestAccounts"}).then((res) => setAccountCallback(res[0]));
+    } else {
+        alert("Please install MetaMask extension");
+    }
 }
 
 export const getSignedContract = (address, abi) => {
@@ -68,5 +64,6 @@ export const getSignedContract = (address, abi) => {
     const provider = new ethers.providers.Web3Provider(ethereum, "any");
 
     const signer = provider.getSigner();
+
     return new ethers.Contract(address, abi, signer);
 }

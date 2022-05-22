@@ -1,16 +1,19 @@
 import React, {useState, useEffect} from "react";
 import {AppProps} from "next/app";
 import "./_app.scss";
-import {AccountContext} from "../providers/contexts";
-import {networkName, getCurrentAccount, getEthereumObject, getSignedContract, setupEthereumEventListeners} from "../utils";
-import optionsSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
+import {AccountContext, ContractsContext} from "../providers/contexts";
+import {networkName, getCurrentAccount, getEthereumObject, getSignedContract, setupEthereumEventListeners, connectWallet} from "../utils";
+import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
 import addresses from "../../addresses.json";
+import Header from "../components/Header";
 
-const optionsContractAddr = addresses[networkName].camp;
+const NFTOptContractAddr = addresses[networkName].NFTOpt;
 
 export default function App({Component, pageProps}: AppProps) {
     const [account, setAccount] = useState(null);
-    const [contract, setContract] = useState(null);
+    const [contracts, setContracts] = useState({
+        nftOpt: null,
+    });
 
     const load = async () => {
         const ethereum = getEthereumObject();
@@ -20,24 +23,27 @@ export default function App({Component, pageProps}: AppProps) {
 
         setupEthereumEventListeners(ethereum);
 
-        const optionsContract = getSignedContract(optionsContractAddr, optionsSolContract.abi);
+        const NFTOptContract = getSignedContract(NFTOptContractAddr, NFTOptSolContract.abi);
 
-        if (!optionsContract) {
+        if (!NFTOptContract) {
             return null;
         }
 
         const currentAccount = await getCurrentAccount();
-        setContract(optionsContract);
+        setContracts({nftOpt: NFTOptContract});
         setAccount(currentAccount);
     };
 
-    // useEffect(() => {
-    //     load();
-    // }, []);
+    useEffect(() => {
+        load();
+    }, []);
 
     return (
         <AccountContext.Provider value={account}>
-            <Component {...pageProps} />
+            <ContractsContext.Provider value={contracts}>
+                <Header account={account} onConnectAccount={connectWallet.bind(null, setAccount)} />
+                <Component {...pageProps} />
+            </ContractsContext.Provider>
         </AccountContext.Provider>
     );
 }

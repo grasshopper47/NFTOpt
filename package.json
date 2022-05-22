@@ -1,6 +1,8 @@
 {
   "name": "hardhat-project",
   "dependencies": {
+    "@emotion/react": "^11.9.0",
+    "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.8.0",
     "@mui/material": "^5.8.0",
     "@openzeppelin/contracts": "^4.6.0",
@@ -35,6 +37,8 @@
     "clean": "npx hardhat clean",
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
+    "node": "npx hardhat node",
+    "deploy": "npx hardhat run scripts/deploy.ts --network localhost",
     "next:dev": "next dev",
     "next:build": "next build",
     "next:start": "next start"

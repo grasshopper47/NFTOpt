@@ -1,5 +1,5 @@
 {
     "localhost": {
-        "options": "todo address"
+        "NFTOpt": "Your NFTOpt contract address deployed on localhost"
     }
 }
