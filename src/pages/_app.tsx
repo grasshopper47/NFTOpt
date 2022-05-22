@@ -6,6 +6,8 @@ import {networkName, getCurrentAccount, getEthereumObject, getSignedContract, se
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
 import addresses from "../../addresses.json";
 import Header from "../components/Header";
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
 
 const NFTOptContractAddr = addresses[networkName].NFTOpt;
 
@@ -41,8 +43,10 @@ export default function App({Component, pageProps}: AppProps) {
     return (
         <AccountContext.Provider value={account}>
             <ContractsContext.Provider value={contracts}>
-                <Header account={account} onConnectAccount={connectWallet.bind(null, setAccount)} />
-                <Component {...pageProps} />
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <Header account={account} onConnectAccount={connectWallet.bind(null, setAccount)} />
+                    <Component {...pageProps} />
+                </LocalizationProvider>
             </ContractsContext.Provider>
         </AccountContext.Provider>
     );

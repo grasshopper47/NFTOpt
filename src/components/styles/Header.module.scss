@@ -14,6 +14,7 @@
     margin-left: 30px;
     text-decoration: none;
     color: $text-primary;
+    font-weight: 500;
 }
 
 button.connectBtn {
@@ -21,6 +22,11 @@ button.connectBtn {
     border-radius: 40px;
     font-size: 14px;
     font-weight: 500;
+
+    background: $color-primary;
+    &:hover {
+        background: $color-primary;
+    }
 
     p {
         margin: 0;
