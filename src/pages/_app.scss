@@ -16,6 +16,8 @@ body, #__next, .main-content-layout {
     height: 100%;
     overflow: hidden;
     margin: 0;
+    background: $background-surface-0;
+    color: $text-primary;
 }
 
 .main-content-wrapper {

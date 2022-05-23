@@ -16,6 +16,13 @@
     .field, :global(.MuiTextField-root) {
         margin-top: 20px;
     }
+
+    :global(.MuiInputBase-root) {
+        color: $text-primary;
+        svg {
+            color: $text-primary;
+        }
+    }
 }
 
 .field {
@@ -36,6 +43,9 @@
     }
     :global(.MuiRadio-colorPrimary) {
         color: $color-secondary;
+    }
+    :global(.MuiInputAdornment-root) p {
+        color: $text-primary;
     }
 }
 
@@ -84,5 +94,18 @@
     background: $color-primary;
     &:hover {
         background: $color-primary;
+    }
+}
+
+[data-theme="dark"] {
+    .form {
+        fieldset {
+            border-color: $text-primary;
+        }
+        &:hover {
+            fieldset {
+                border-color: $text-primary !important;
+            }
+        }
     }
 }

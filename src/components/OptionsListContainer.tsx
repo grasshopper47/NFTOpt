@@ -4,6 +4,7 @@ import {Option, OptionState, OptionWithNFTDetails} from "../utils/declarations";
 import OptionDetailsPreview from "./OptionDetailsPreview";
 import OptionListItemPreview from "./OptionListItemPreview";
 import classes from "./styles/OptionsListContainer.module.scss";
+import {useAccount} from "../providers/contexts";
 
 type OptionsListContainerProps = {
     title: string;
@@ -33,6 +34,8 @@ const optionStateTabs: OptionStateTab[] = [
 function OptionsListContainer(props: OptionsListContainerProps) {
     const {options, title} = props;
 
+    const account = useAccount();
+
     const [activeTabIndex, setActiveTabIndex] = useState(0);
     const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
     const [selectedOptionForPreview, setSelectedOptionForPreview] = useState<OptionWithNFTDetails | null>(null);
@@ -61,6 +64,7 @@ function OptionsListContainer(props: OptionsListContainerProps) {
                 <div className={classes.containerItem}>
                     <OptionDetailsPreview
                         key={`option-details-preview-${selectedOptionForPreview.id}`}
+                        currentAccount={account}
                         option={selectedOptionForPreview}
                         onSelectOption={setSelectedOptionForPreview}
                     />

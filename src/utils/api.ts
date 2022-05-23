@@ -97,7 +97,11 @@ export const fetchAssetsForAddress = async (account: string, setAssetsCallback: 
     setAssetsCallback(assets);
 };
 
-export const fetchNFTDetails = async (nftContract: string, nftTokenId: string, setAssetCallback: (asset: NFTAsset) => void) => {
+export const fetchNFTDetails = async (
+    nftContract: string,
+    nftTokenId: string,
+    setAssetCallback: (asset: NFTAsset) => void
+) => {
     let asset: NFTAsset | null = null;
 
     await fetch(`https://api.opensea.io/api/v1/asset/${nftContract}/${nftTokenId}/`)
@@ -122,3 +126,7 @@ export const fetchNFTDetails = async (nftContract: string, nftTokenId: string, s
 
     setAssetCallback(asset);
 };
+
+export function getAccountDisplayValue(account: string) {
+    return account.slice(0, 6) + "..." + account.slice(-4);
+}

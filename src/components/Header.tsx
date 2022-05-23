@@ -4,6 +4,8 @@ import Link from "next/link";
 import classes from "./styles/Header.module.scss";
 import clsx from "clsx";
 import Button from "@mui/material/Button";
+import ThemeSwitch from "./ThemeSwitch";
+import {getAccountDisplayValue} from "../utils/api";
 
 type Route = {
     href: string;
@@ -35,10 +37,6 @@ function Header(props: HeaderProps) {
 
     const router = useRouter();
 
-    const getAccountDisplayValue = (account: string) => {
-        return account.slice(0, 6) + "..." + account.slice(-4);
-    };
-
     return (
         <div className={classes.root}>
             <Link key="route-link-main" href="/">
@@ -48,10 +46,13 @@ function Header(props: HeaderProps) {
                 {account
                     ? routes.map((route) => (
                           <Link key={`route-link-${route.href}`} href={route.href}>
-                              <a className={clsx(classes.link, router.pathname == route.href && classes.active)}>{route.name}</a>
+                              <a className={clsx(classes.link, router.pathname == route.href && classes.active)}>
+                                  {route.name}
+                              </a>
                           </Link>
                       ))
                     : null}
+                <ThemeSwitch />
                 <Button
                     className={clsx(classes.connectBtn, account && classes.connectBtnSmall)}
                     variant="contained"

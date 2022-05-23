@@ -21,6 +21,7 @@ import {NFTAsset, OptionFlavor} from "../utils/declarations";
 import classes from "./styles/CreateOption.module.scss";
 import {DesktopDatePicker} from "@mui/lab";
 import {isBefore} from "date-fns";
+import {ethers} from "ethers";
 
 type FormState = {
     asset?: NFTAsset;
@@ -98,16 +99,14 @@ function CreateOption() {
         );
     };
 
-    // console.log(formState.asset.tokenId);
-
     const handlePublishOption = () => {
         nftOpt.publishOptionRequest(
             formState.asset.address,
             formState.asset.tokenId,
-            formState.strikePrice,
-            formState.interval.getTime(),
+            ethers.utils.parseEther(`${formState.strikePrice.toString()} ether`),
+            10 * 86400, // 10 days in seconds
             formState.flavor,
-            {value: formState.premium * 1e18} // TODO: how to send correct data?
+            {value: ethers.utils.parseEther(`${formState.premium.toString()} ether`), gasLimit: 100000} // TODO Stefana: gas limit?
         );
     };
 
@@ -136,6 +135,7 @@ function CreateOption() {
                         onChange={handleChangeFieldNumber.bind(this, "premium")}
                         endAdornment={<InputAdornment position="end">ETH</InputAdornment>}
                     />
+                    {/* TODO Stefana: make this able to receive floating numbers */}
                     <OutlinedInput
                         key={`input-strike-price`}
                         placeholder="Strike price"
@@ -144,6 +144,7 @@ function CreateOption() {
                         onChange={handleChangeFieldNumber.bind(this, "strikePrice")}
                         endAdornment={<InputAdornment position="end">ETH</InputAdornment>}
                     />
+                    {/* TODO Stefana: replace this with a number selector */}
                     <DesktopDatePicker
                         inputFormat="MM/dd/yyyy"
                         className={classes.field}
