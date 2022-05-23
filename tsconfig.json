@@ -23,8 +23,7 @@
     "include": [
         "./scripts",
         "./test",
-        "./typechain-types",
-        "NFTOpt.tests.ts"
+        "./typechain-types"
     ],
     "files": [
         "./hardhat.config.ts"
