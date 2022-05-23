@@ -1,17 +1,18 @@
 import { expect } from "chai";
 import {
-    address0,
-    buyer,
-    contractInitializer,
-    dummyOptionRequest,
-    increaseEVMTimestampBy,
-    NFTDummyCTR,
-    NFTOptCTR,
-    OptionFlavor,
-    OptionState,
-    publishDummyOptionRequest,
+    buyer,  // connect accounts
     seller,
     nonParticipant,
+
+    dummyOptionRequest,  // hardhat contract mocks
+    NFTDummyCTR,
+    NFTOptCTR,
+
+    contractInitializer,  // test helper functions
+    increaseEVMTimestampBy,
+    publishDummyOptionRequest,
+
+    OptionState,
 } from "./utils";
 
 describe("NFTOpt Tests", function () {
@@ -28,18 +29,18 @@ describe("NFTOpt Tests", function () {
             );
         });
 
-        it("should revert when the option does not have a start date i.e. published: REQUEST state", async function () {
+        it("should revert when the option does not have a start date (not filled) i.e. published: REQUEST state", async function () {
             await publishDummyOptionRequest();
 
             var publishedOption = await NFTOptCTR.connect(buyer).options(1);
-            expect(publishedOption.state).equals(OptionState.Request);
+            expect(publishedOption.state).to.equal(OptionState.Request);
 
             await expect(NFTOptCTR.connect(buyer).cancelOption(1)).to.be.revertedWith(
                 "The Option is not open"
             );
         });
 
-        it("should revert when option is NOT in OPEN state i.e. published: REQUEST or exercised/cancelled: CLOSED states", async function () {
+        it("should revert when option is NOT in OPEN state i.e. published: REQUEST or '_exercised_'/cancelled: CLOSED states", async function () {
             await publishDummyOptionRequest();
 
             // filled
@@ -56,13 +57,26 @@ describe("NFTOpt Tests", function () {
                 .withArgs(1);
 
             let exercisedOption = await NFTOptCTR.connect(buyer).options(1);
-            expect(exercisedOption.state).equals(OptionState.Closed);
+            expect(exercisedOption.state).to.equal(OptionState.Closed);
 
             await expect(NFTOptCTR.connect(buyer).cancelOption(1)).to.be.revertedWith(
                 "The Option is not open"
             );
+        });
+
+        it("should revert when option is NOT in OPEN state i.e. published: REQUEST or exercised/'_cancelled_': CLOSED states", async function () {
+            await publishDummyOptionRequest();
+
+            // filled
+            await expect(NFTOptCTR.connect(seller).createOption(1, { value: dummyOptionRequest.strikePrice }))
+                .to.emit(NFTOptCTR, "Filled")
+                .withArgs(seller.address, 1);
 
             // already canceled
+            await expect(NFTOptCTR.connect(buyer).cancelOption(1))
+                .to.emit(NFTOptCTR, "Canceled")
+                .withArgs(buyer.address, 1);
+
             await expect(NFTOptCTR.connect(buyer).cancelOption(1)).to.be.revertedWith(
                 "The Option is not open"
             );
@@ -79,12 +93,16 @@ describe("NFTOpt Tests", function () {
             // Fast-foward EVM by 2 days
             await increaseEVMTimestampBy(2);
 
-            await expect(NFTOptCTR.connect(seller).cancelOption(1)).to.be.revertedWith("Only Buyer can cancel");
+            await expect(NFTOptCTR.connect(seller).cancelOption(1)).to.be.revertedWith(
+                "Only Buyer can cancel"
+            );
 
-            // Fast-foward EVM by 8 days
+            // Fast-foward EVM by 8 days; post expiry (7)
             await increaseEVMTimestampBy(8);
 
-            await expect(NFTOptCTR.connect(nonParticipant).cancelOption(1)).to.be.revertedWith("Only Buyer or Seller can cancel");
+            await expect(NFTOptCTR.connect(nonParticipant).cancelOption(1)).to.be.revertedWith(
+                "Only Buyer or Seller can cancel"
+            );
 
             await expect(NFTOptCTR.connect(seller).cancelOption(1))
                 .to.emit(NFTOptCTR, "Canceled")
@@ -151,12 +169,13 @@ describe("NFTOpt Tests", function () {
                 .to.emit(NFTOptCTR, "Filled")
                 .withArgs(seller.address, 1);
 
+            // canceled
             await expect(NFTOptCTR.connect(buyer).cancelOption(1))
                 .to.emit(NFTOptCTR, "Canceled")
                 .withArgs(buyer.address, 1);
 
             let cancelledOption = await NFTOptCTR.connect(buyer).options(1);
-            expect(cancelledOption.state).equals(OptionState.Closed)
+            expect(cancelledOption.state).to.equal(OptionState.Closed)
         });
 
     });
