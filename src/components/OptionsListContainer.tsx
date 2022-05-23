@@ -43,6 +43,9 @@ function OptionsListContainer(props: OptionsListContainerProps) {
 
     useEffect(() => {
         setFilteredOptions(options.filter((option) => option.state === optionStateTabs[activeTabIndex].optionState));
+        if (selectedOptionForPreview) {
+            setSelectedOptionForPreview(null);
+        }
     }, [activeTabIndex, options]);
 
     return (
@@ -64,13 +67,17 @@ function OptionsListContainer(props: OptionsListContainerProps) {
                 </div>
             ) : (
                 <div className={classes.containerGrid}>
-                    {filteredOptions.map((option, index) => (
-                        <OptionListItemPreview
-                            key={`option-preview-${activeTabIndex}-${index}`}
-                            option={option}
-                            onSelectOptionForPreview={setSelectedOptionForPreview}
-                        />
-                    ))}
+                    {filteredOptions.length ? (
+                        filteredOptions.map((option, index) => (
+                            <OptionListItemPreview
+                                key={`option-preview-${activeTabIndex}-${index}`}
+                                option={option}
+                                onSelectOptionForPreview={setSelectedOptionForPreview}
+                            />
+                        ))
+                    ) : (
+                        <Typography className={classes.noOptions}>No Options</Typography>
+                    )}
                 </div>
             )}
         </div>

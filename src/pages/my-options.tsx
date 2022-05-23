@@ -20,11 +20,7 @@ function MyOptions() {
 
     return (
         <Layout>
-            <OptionsListContainer
-                key={`my-options-list`}
-                title={"Explore NFT Options"}
-                options={currentAccountOptions}
-            />
+            <OptionsListContainer key={`my-options-list`} title={"Your NFT Options"} options={currentAccountOptions} />
         </Layout>
     );
 }
