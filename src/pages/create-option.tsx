@@ -5,7 +5,6 @@ import {
     FormLabel,
     InputAdornment,
     MenuItem,
-    OutlinedInput,
     Radio,
     RadioGroup,
     Select,
@@ -19,15 +18,14 @@ import {useAccount, useContracts} from "../providers/contexts";
 import {fetchAssetsForAddress} from "../utils/api";
 import {NFTAsset, OptionFlavor} from "../utils/declarations";
 import classes from "./styles/CreateOption.module.scss";
-import {DesktopDatePicker} from "@mui/lab";
-import {isBefore} from "date-fns";
 import {ethers} from "ethers";
+import {dummyNFT} from "../utils/dummyData";
 
 type FormState = {
     asset?: NFTAsset;
-    strikePrice?: number;
-    premium?: number;
-    interval?: Date;
+    strikePrice?: string;
+    premium?: string;
+    interval?: number;
     flavor?: OptionFlavor;
 };
 
@@ -35,10 +33,10 @@ function CreateOption() {
     const account = useAccount();
     const {nftOpt} = useContracts();
 
-    const [assets, setAssets] = useState<NFTAsset[]>([]);
-
+    // TODO Stefana: cleanup dummy data
+    const [assets, setAssets] = useState<NFTAsset[]>([dummyNFT]);
     const [formState, setFormState] = useState<FormState>({
-        asset: null,
+        asset: dummyNFT,
         strikePrice: null,
         premium: null,
         interval: null,
@@ -49,7 +47,7 @@ function CreateOption() {
         if (!account) {
             return;
         }
-        fetchAssetsForAddress(account, setAssets);
+        // fetchAssetsForAddress(account, setAssets);
     }, [account]);
 
     const handleSelectAsset = (asset: NFTAsset) => {
@@ -59,20 +57,10 @@ function CreateOption() {
         }));
     };
 
-    const handleChangeFieldNumber = (field: keyof FormState, event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeFieldString = (field: keyof FormState, event: React.ChangeEvent<HTMLInputElement>) => {
         setFormState((prev) => ({
             ...prev,
-            [field]: event.target.value ? parseInt(event.target.value) : null,
-        }));
-    };
-
-    const handleChangeDate = (value: Date) => {
-        if (isBefore(value, new Date())) {
-            return;
-        }
-        setFormState((prev) => ({
-            ...prev,
-            interval: value,
+            [field]: parseFloat(event.target.value) < 0 ? "0" : event.target.value,
         }));
     };
 
@@ -90,23 +78,33 @@ function CreateOption() {
 
         return (
             !missingFormFields &&
-            formState.premium !== 0 &&
+            parseFloat(formState.premium) !== 0 &&
             formState.premium != null &&
-            formState.strikePrice !== 0 &&
+            parseFloat(formState.strikePrice) !== 0 &&
             formState.strikePrice != null &&
-            formState.interval &&
-            !isBefore(formState.interval, new Date())
+            formState.interval
         );
     };
 
+    const handleChangeInterval = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setFormState((prev) => ({
+            ...prev,
+            interval: Math.max(1, Math.min(parseInt(event.target.value), 30)),
+        }));
+    };
+
     const handlePublishOption = () => {
+        const ethToWei = 1000000000000000000;
+        const strikePriceWei = parseFloat(formState.strikePrice) * ethToWei;
+        const premiumWei = parseFloat(formState.premium) * ethToWei;
+
         nftOpt.publishOptionRequest(
             formState.asset.address,
             formState.asset.tokenId,
-            ethers.utils.parseEther(`${formState.strikePrice.toString()} ether`),
-            10 * 86400, // 10 days in seconds
+            ethers.utils.parseEther(strikePriceWei.toString()),
+            formState.interval * 24 * 3600, // days in seconds
             formState.flavor,
-            {value: ethers.utils.parseEther(`${formState.premium.toString()} ether`), gasLimit: 100000} // TODO Stefana: gas limit?
+            {value: ethers.utils.parseEther(premiumWei.toString()), gasLimit: 100000}
         );
     };
 
@@ -127,30 +125,44 @@ function CreateOption() {
                             </MenuItem>
                         ))}
                     </Select>
-                    <OutlinedInput
+                    <TextField
                         key={`input-premium`}
+                        InputProps={{
+                            endAdornment: <InputAdornment position="end">ETH</InputAdornment>,
+                        }}
                         placeholder="Premium"
                         className={classes.field}
                         value={formState.premium}
-                        onChange={handleChangeFieldNumber.bind(this, "premium")}
-                        endAdornment={<InputAdornment position="end">ETH</InputAdornment>}
+                        onChange={handleChangeFieldString.bind(this, "premium")}
                     />
-                    {/* TODO Stefana: make this able to receive floating numbers */}
-                    <OutlinedInput
+                    <TextField
                         key={`input-strike-price`}
+                        InputProps={{
+                            endAdornment: <InputAdornment position="end">ETH</InputAdornment>,
+                        }}
                         placeholder="Strike price"
                         className={classes.field}
                         value={formState.strikePrice}
-                        onChange={handleChangeFieldNumber.bind(this, "strikePrice")}
-                        endAdornment={<InputAdornment position="end">ETH</InputAdornment>}
+                        onChange={handleChangeFieldString.bind(this, "strikePrice")}
                     />
-                    {/* TODO Stefana: replace this with a number selector */}
-                    <DesktopDatePicker
-                        inputFormat="MM/dd/yyyy"
+                    <TextField
+                        key={`input-interval`}
+                        InputProps={{
+                            inputProps: {
+                                min: 1,
+                                max: 30,
+                            },
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    {formState.interval === 1 ? "day" : "days"}
+                                </InputAdornment>
+                            ),
+                        }}
+                        type="number"
+                        placeholder="Expire in how many days"
                         className={classes.field}
                         value={formState.interval}
-                        onChange={handleChangeDate}
-                        renderInput={(params) => <TextField {...params} />}
+                        onChange={handleChangeInterval}
                     />
                     <FormControl className={classes.field}>
                         <FormLabel id="demo-radio-buttons-group-label">Option Flavor</FormLabel>

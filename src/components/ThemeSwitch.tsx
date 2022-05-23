@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {IconButton} from "@mui/material";
 import Sun from "@mui/icons-material/WbSunnyRounded";
 import Moon from "@mui/icons-material/Brightness3Rounded";
@@ -7,9 +7,13 @@ import classes from "./styles/ThemeSwitch.module.scss";
 type ThemeState = "white" | "dark";
 
 function ThemeSwitch() {
-    const [themeState, setThemeState] = useState<ThemeState>(
-        /* (localStorage.getItem("theme") as ThemeState) ??  */ "white"
-    );
+    const [themeState, setThemeState] = useState<ThemeState>("white");
+
+    useEffect(() => {
+        const theme: ThemeState = (localStorage.getItem("theme") as ThemeState) ?? "white";
+        setThemeState(theme);
+        document.documentElement.setAttribute("data-theme", theme);
+    }, []);
 
     const handleSwitchTheme = () => {
         let theme: ThemeState = "white";

@@ -13,8 +13,6 @@ import {
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
 import addresses from "../../addresses.json";
 import Header from "../components/Header";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
 
 const NFTOptContractAddr = addresses[networkName].NFTOpt;
 
@@ -50,10 +48,8 @@ export default function App({Component, pageProps}: AppProps) {
     return (
         <AccountContext.Provider value={account}>
             <ContractsContext.Provider value={contracts}>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <Header account={account} onConnectAccount={connectWallet.bind(null, setAccount)} />
-                    <Component {...pageProps} />
-                </LocalizationProvider>
+                <Header account={account} onConnectAccount={connectWallet.bind(null, setAccount)} />
+                <Component {...pageProps} />
             </ContractsContext.Provider>
         </AccountContext.Provider>
     );

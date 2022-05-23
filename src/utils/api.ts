@@ -84,7 +84,6 @@ export const fetchAssetsForAddress = async (account: string, setAssetsCallback: 
                     tokenId: asset.token_id,
                     address: asset.asset_contract.address,
                     name: asset.name,
-                    // image: asset.image_url,
                     image: asset.image_preview_url,
                     url: asset.permalink,
                 });
@@ -115,7 +114,6 @@ export const fetchNFTDetails = async (
                 tokenId: nftTokenId,
                 address: nftContract,
                 name: res.name,
-                // image: res.image_url,
                 image: res.image_preview_url,
                 url: res.permalink,
             };

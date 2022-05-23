@@ -3,6 +3,7 @@ import {Typography} from "@mui/material";
 import {useEffect, useState} from "react";
 import {fetchNFTDetails} from "../utils/api";
 import {NFTAsset, Option, OptionWithNFTDetails} from "../utils/declarations";
+import {dummyNFT} from "../utils/dummyData";
 import classes from "./styles/OptionListItemPreview.module.scss";
 
 type OptionListItemPreviewProps = {
@@ -34,7 +35,9 @@ function OptionListItemPreview(props: OptionListItemPreviewProps) {
         if (!option.nftContract || !option.nftId) {
             return;
         }
-        fetchNFTDetails(option.nftContract, option.nftId, handleAddAssetToOption);
+        // TODO Stefana: move this from here
+        handleAddAssetToOption(dummyNFT);
+        // fetchNFTDetails(option.nftContract, option.nftId, handleAddAssetToOption);
     }, [option.nftContract, option.nftId]);
 
     if (!optionWithNFTDetails?.asset) {
