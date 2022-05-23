@@ -1,0 +1,10 @@
+@import "src/styles/variables.scss";
+
+.goBackBtn {
+    border-radius: 6px;
+    border: 2px solid $text-tertiary;
+    color: $text-secondary;
+    width: 36px;
+    height: 36px;
+    margin-right: 30px;
+}

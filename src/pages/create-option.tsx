@@ -16,7 +16,7 @@ import clsx from "clsx";
 import React, {useEffect, useState} from "react";
 import Layout from "../components/Layout";
 import {useAccount, useContracts} from "../providers/contexts";
-import {fetchAssetsForAddress} from "../utils";
+import {fetchAssetsForAddress} from "../utils/api";
 import {NFTAsset, OptionFlavor} from "../utils/declarations";
 import classes from "./styles/CreateOption.module.scss";
 import {DesktopDatePicker} from "@mui/lab";
@@ -84,7 +84,8 @@ function CreateOption() {
 
     const checkFormIsValid = () => {
         const missingFormFields =
-            Object.values(formState).filter((x) => x != null).length !== Object.keys(formState).filter((x) => x != null).length;
+            Object.values(formState).filter((x) => x != null).length !==
+            Object.keys(formState).filter((x) => x != null).length;
 
         return (
             !missingFormFields &&
@@ -106,7 +107,7 @@ function CreateOption() {
             formState.strikePrice,
             formState.interval.getTime(),
             formState.flavor,
-            {value: formState.premium}
+            {value: formState.premium * 1e18} // TODO: how to send correct data?
         );
     };
 
@@ -118,7 +119,11 @@ function CreateOption() {
                     <Select value={formState.asset?.id} placeholder="Select your NFT">
                         <Typography>Select your NFT</Typography>
                         {assets.map((asset) => (
-                            <MenuItem key={`asset-${asset.id}`} value={asset.id} onClick={handleSelectAsset.bind(null, asset)}>
+                            <MenuItem
+                                key={`asset-${asset.id}`}
+                                value={asset.id}
+                                onClick={handleSelectAsset.bind(null, asset)}
+                            >
                                 {asset.name}
                             </MenuItem>
                         ))}
@@ -166,7 +171,12 @@ function CreateOption() {
                         </RadioGroup>
                     </FormControl>
 
-                    <Button className={classes.submitBtn} variant="contained" onClick={handlePublishOption} disabled={!checkFormIsValid()}>
+                    <Button
+                        className={classes.submitBtn}
+                        variant="contained"
+                        onClick={handlePublishOption}
+                        disabled={!checkFormIsValid()}
+                    >
                         Publish Option
                     </Button>
                 </div>

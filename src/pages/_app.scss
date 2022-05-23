@@ -20,9 +20,20 @@ body, #__next, .main-content-layout {
 
 .main-content-wrapper {
     margin: 44px;
-    height: calc(100% - 190px);
+    margin-bottom: 0px;
+    height: calc(100% - 160px);
 }
 
 button.MuiButton-root {
     text-transform: none;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    -webkit-appearance: none;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(200, 200, 200, 0.5);
+    border-radius: 15px;
 }

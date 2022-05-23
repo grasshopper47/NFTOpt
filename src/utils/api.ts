@@ -96,3 +96,29 @@ export const fetchAssetsForAddress = async (account: string, setAssetsCallback: 
 
     setAssetsCallback(assets);
 };
+
+export const fetchNFTDetails = async (nftContract: string, nftTokenId: string, setAssetCallback: (asset: NFTAsset) => void) => {
+    let asset: NFTAsset | null = null;
+
+    await fetch(`https://api.opensea.io/api/v1/asset/${nftContract}/${nftTokenId}/`)
+        .then((res) => res.json())
+        .then((res) => {
+            if (!res) {
+                return;
+            }
+            asset = {
+                id: res.id,
+                tokenId: nftTokenId,
+                address: nftContract,
+                name: res.name,
+                // image: res.image_url,
+                image: res.image_preview_url,
+                url: res.permalink,
+            };
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+
+    setAssetCallback(asset);
+};
