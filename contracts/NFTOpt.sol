@@ -56,6 +56,7 @@ contract NFTOpt {
     event NewRequest(address, uint);
     event Exercised(uint);
     event Filled(address, uint);
+    event Canceled(address, uint);
 
     receive() external payable
     {
@@ -184,12 +185,6 @@ contract NFTOpt {
         emit Filled(msg.sender, _optionId);
     }
 
-    event Canceled(address, uint _optionId);  // TODO: move to top
-
-    // TODO:
-    // nice we have custom errors! (Thanks Luis -- are these easy to test though?)
-    // https://blog.soliditylang.org/2021/04/21/custom-errors/
-    // implement in code
     function cancelOption(uint _optionId)
     external
     payable
@@ -211,7 +206,6 @@ contract NFTOpt {
             revert("The Option does not exist");
         }
 
-        // cancel only filled or expired contracts
         require(option.startDate != 0 && option.state == OptionState.OPEN, "The Option is not open");
 
         uint expirationDate = option.startDate + option.interval;
@@ -224,7 +218,6 @@ contract NFTOpt {
             require(msg.sender == option.buyer || msg.sender == option.seller, "Only Buyer or Seller can cancel");
         }
 
-        // transfer collateral from escrow to seller; update Option state to CLOSED
         (bool success,) = option.seller.call{value: option.strikePrice}("");
         if (!success)
         {
@@ -233,7 +226,6 @@ contract NFTOpt {
 
         options[_optionId].state = OptionState.CLOSED;
         emit Canceled(msg.sender, _optionId);
-
     }
 
     function exerciseOption(uint32 _optionId)
