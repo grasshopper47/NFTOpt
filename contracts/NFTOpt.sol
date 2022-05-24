@@ -113,14 +113,13 @@ contract NFTOpt {
     external
     payable
     {
-        require(_nftContract != address(0), "NFT contract must be a valid address");
-        require(_nftId > 0                , "NFT token ID must be > 0");
+        require
+        (
+            _detect_if_contract_implements_ERC721(_nftContract)
+        ,   "Provided NFT contract address must implement ERC-721 interface"
+        );
 
-        // require
-        // (
-        //     _detect_if_contract_implements_ERC721(_nftContract)
-        // ,   "Provided NFT contract address must implement ERC-721 interface"
-        // );
+        require(_nftId > 0, "NFT token ID must be > 0");
 
         if (IERC721(_nftContract).ownerOf(_nftId) != msg.sender)
         {
