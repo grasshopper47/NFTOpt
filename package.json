@@ -7,6 +7,7 @@
         "@mui/material": "^5.8.0",
         "@openzeppelin/contracts": "^4.6.0",
         "clsx": "^1.1.1",
+        "date-fns": "^2.28.0",
         "next": "^12.1.6",
         "react": "^18.1.0",
         "react-dom": "^18.1.0",
@@ -36,10 +37,15 @@
     "scripts": {
         "clean": "npx hardhat clean",
         "compile": "npx hardhat compile",
-        "test": "npx hardhat test",
+        "test:publishOptionRequest": "npx hardhat test test/publishOptionRequest.ts",
+        "test:withdrawOptionRequest": "npx hardhat test test/withdrawOptionRequest.ts",
+        "test:createOption": "npx hardhat test test/createOption.ts",
+        "test:exerciseOption": "npx hardhat test test/exerciseOption.ts",
+        "test:cancelOption": "npx hardhat test test/cancelOption.ts",
+        "test:all": "npx hardhat test",
         "node": "npx hardhat node",
         "deploy": "npx hardhat run scripts/deploy.ts --network localhost",
-        "next:dev": "next dev",
+        "next:dev": "next dev -p 3003",
         "next:build": "next build",
         "next:start": "next start"
     }
