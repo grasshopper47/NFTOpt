@@ -94,17 +94,13 @@ function CreateOption() {
     };
 
     const handlePublishOption = () => {
-        const ethToWei = 1000000000000000000;
-        const strikePriceWei = parseFloat(formState.strikePrice) * ethToWei;
-        const premiumWei = parseFloat(formState.premium) * ethToWei;
-
         nftOpt.publishOptionRequest(
             formState.asset.address,
             formState.asset.tokenId,
-            ethers.utils.parseEther(strikePriceWei.toString()),
+            ethers.utils.parseEther(`${parseFloat(formState.strikePrice)} ether`),
             formState.interval * 24 * 3600, // days in seconds
             formState.flavor,
-            {value: ethers.utils.parseEther(premiumWei.toString()), gasLimit: 100000}
+            {value: ethers.utils.parseEther(`${parseFloat(formState.premium)} ether`), gasLimit: 100000}
         );
     };
 
