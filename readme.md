@@ -1,46 +1,54 @@
-.
-
-**_Prepare_** the project by running
+**_Prepare_** the project
 
 `npm install`
 
-.
+<br />
+<br />
 
-**_Generate_** the types required by TypeScript by running
+**_Generate_** the types required by TypeScript
 
 `npm run clean && npm run compile`
 
-.
+<br />
+<br />
 
-**_Run tests_** through HardHat by calling
+**_Run tests_** through HardHat
 
 `npm run tests`
 
-.
+<br />
+<br />
 
-**_Start local node_** by calling
+**_Start local node_**
 
 `npm run node`
 
 This will open a new console session with a live ETH node under HardHat management
+<br />
 Closing the console will terminate the process
 
-.
+<br />
+<br />
 
-**_Deploy smart contracts_** on local node by calling
+**_Deploy smart contracts_** on local node
+
 `npm run deploy`
 
-When succesfull, copy the value of _NFTOpt contract address_ and paste it in _addresses.json_
+When successful, copy the value of _NFTOpt contract address_ and paste it in _addresses.json_
 
-.
+<br />
+<br />
 
-**_Start frontend_** by calling
+**_Start frontend_**
 
 `npm run next:dev`
 
 You can edit the React components and work on other front-end related code without rebuilding, it auto-refreshes on save.
 
-.
+<br />
+<br />
+<br />
+<br />
 
 ---
 
