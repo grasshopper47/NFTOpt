@@ -1,14 +1,14 @@
 import { expect } from "chai";
 import {
     buyer,
+    seller,
     contractInitializer,
-    dummyOptionRequest,
     increaseEVMTimestampBy,
     NFTDummyCTR,
     NFTOptCTR,
-    OptionFlavor,
+    dummyOptionRequest,
     publishDummyOptionRequest,
-    seller,
+    OptionFlavor,
 } from "./utils";
 
 let optionAmerican: any;
@@ -52,19 +52,19 @@ describe("NFTOpt Tests", function () {
             optionEuropean = await NFTOptCTR.options(2);
         });
 
-        it("should revert with non-existent optionID", async function () {
+        it("reverts with non-existent optionID", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .exerciseOption(9999))
                 .to.be.revertedWith("INVALID_OPTION_ID");
         });
 
-        it("should revert when msg.sender isn't the buyer", async function () {
+        it("reverts when msg.sender isn't the buyer", async function () {
             await expect(NFTOptCTR.connect(seller)
                 .exerciseOption(1))
                 .to.be.revertedWith("NOT_AUTHORIZED");
         });
 
-        it("should revert when buyer isn't the owner of option NFT after option is in effect", async function () {
+        it("reverts when buyer isn't the owner of option NFT after option is in effect", async function () {
             // Transfer NFT from buyer to seller
             await NFTDummyCTR.connect(buyer).transferFrom(buyer.address, seller.address, optionAmerican.nftId);
 
@@ -74,19 +74,19 @@ describe("NFTOpt Tests", function () {
                 .to.be.revertedWith("NOT_NFT_OWNER");
         });
 
-        it("should revert when option state is not OPEN", async function () {
+        it("reverts when option state is not OPEN", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .exerciseOption(3))
                 .to.be.revertedWith("INVALID_OPTION_STATE");
         });
 
-        it("should fail when contract address is not approved to transfer NFT", async function () {
+        it("fails when contract address is not approved to transfer NFT", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .exerciseOption(1))
                 .to.be.revertedWith("NFT_NOT_APPROVED");
         });
 
-        it("should succeed when contract address is approved to transfer NFT", async function () {
+        it("succeeds when contract address is approved to transfer NFT", async function () {
             // Approve contract to transfer NFT
             await NFTDummyCTR.connect(buyer).approve(NFTOptCTR.address, dummyOptionRequest.nftId);
 
@@ -97,7 +97,7 @@ describe("NFTOpt Tests", function () {
                 .withArgs(1);
         });
 
-        it("should fail when european option is exercised before the expiration day", async function () {
+        it("fails when european option is exercised before the expiration day", async function () {
             // Approve contract to transfer NFT
             await NFTDummyCTR.connect(buyer).approve(NFTOptCTR.address, optionEuropean.nftId);
 
@@ -107,7 +107,7 @@ describe("NFTOpt Tests", function () {
                 .to.be.revertedWith("EXERCISE_WINDOW_IS_CLOSED");
         });
 
-        it("should succed when european option is exercised on expiration day", async function () {
+        it("succeeds when european option is exercised on expiration day", async function () {
             // Approve contract to transfer NFT
             await NFTDummyCTR.connect(buyer).approve(NFTOptCTR.address, optionEuropean.nftId);
 
@@ -121,7 +121,7 @@ describe("NFTOpt Tests", function () {
                 .withArgs(2);
         });
 
-        it("should succed when american option is exercised on expiration day", async function () {
+        it("succeeds when american option is exercised on expiration day", async function () {
             // Approve contract to transfer NFT
             await NFTDummyCTR.connect(buyer).approve(NFTOptCTR.address, optionAmerican.nftId);
 
@@ -135,7 +135,7 @@ describe("NFTOpt Tests", function () {
                 .withArgs(1);
         });
 
-        it("should succeed when exercised and buyer's ETH balance has increased by STRIKE_PRICE", async function () {
+        it("succeeds when exercised and buyer's ETH balance has increased by STRIKE_PRICE", async function () {
             // Approve contract to transfer NFT
             await NFTDummyCTR.connect(buyer).approve(NFTOptCTR.address, optionAmerican.nftId);
 
@@ -165,7 +165,7 @@ describe("NFTOpt Tests", function () {
             expect(buyerBalance0).to.be.equal(buyerBalance1);
         });
 
-        it("should succeed when exercised and seller has ownership of NFT transfered ", async function () {
+        it("succeeds when exercised and seller has ownership of NFT transfered ", async function () {
             const id = 1;
 
             // Load option

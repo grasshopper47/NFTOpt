@@ -1,16 +1,12 @@
 import { expect } from "chai";
 import {
-    address0,
     buyer,
+    seller,
+    NFTOptCTR,
     contractInitializer,
     dummyOptionRequest,
-    increaseEVMTimestampBy,
-    NFTDummyCTR,
-    NFTOptCTR,
-    OptionFlavor,
-    OptionState,
     publishDummyOptionRequest,
-    seller,
+    OptionState,
 } from "./utils";
 
 describe("NFTOpt Tests", function () {
@@ -19,13 +15,13 @@ describe("NFTOpt Tests", function () {
     });
 
     describe("createOption", function () {
-        it("should fail when the option with the specified id does not exist", async function () {
+        it("fails when the option with the specified id does not exist", async function () {
             await expect(NFTOptCTR.connect(seller)
                 .createOption(0))
                 .to.be.revertedWith("Option with the specified id does not exist");
         });
 
-        it("should fail when the option is already fulfilled by a seller", async function () {
+        it("fails when the option is already fulfilled by a seller", async function () {
             await publishDummyOptionRequest();
 
             await expect(NFTOptCTR.connect(seller)
@@ -37,7 +33,7 @@ describe("NFTOpt Tests", function () {
                 .to.be.revertedWith("Option is already fulfilled by a seller");
         });
 
-        it("should fail when the option is not in the request state", async function () {
+        it("fails when the option is not in the request state", async function () {
             await publishDummyOptionRequest();
 
             await expect(NFTOptCTR.connect(buyer)
@@ -49,7 +45,7 @@ describe("NFTOpt Tests", function () {
                 .to.be.revertedWith("Option is not in the request state");
         });
 
-        it("should fail when the option seller is the same as the option buyer", async function () {
+        it("fails when the option seller is the same as the option buyer", async function () {
             await publishDummyOptionRequest();
 
             await expect(NFTOptCTR.connect(buyer)
@@ -57,7 +53,7 @@ describe("NFTOpt Tests", function () {
                 .to.be.revertedWith("Seller is the same as buyer");
         });
 
-        it("should fail when the wrong strike price is provided by the seller", async function () {
+        it("fails when the wrong strike price is provided by the seller", async function () {
             await publishDummyOptionRequest();
 
             await expect(NFTOptCTR.connect(seller)
@@ -65,7 +61,7 @@ describe("NFTOpt Tests", function () {
                 .to.be.revertedWith("Wrong strike price provided");
         });
 
-        it("should succeed when called with valid values", async function () {
+        it("succeeds when called with valid values", async function () {
             let contractBalance = await NFTOptCTR.getBalance();
 
             expect(contractBalance).to.equal(0);
@@ -116,7 +112,7 @@ describe("NFTOpt Tests", function () {
             expect(sellerBalance0).to.equal(sellerBalance1);
         });
 
-        it("should emit Filled event when succeeded", async function () {
+        it("emits 'Filled' event when succeeded", async function () {
             await publishDummyOptionRequest();
 
             await expect(NFTOptCTR.connect(seller)

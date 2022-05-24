@@ -1,16 +1,13 @@
 import { expect } from "chai";
 import {
-    address0,
+    address_empty,
     buyer,
+    seller,
     contractInitializer,
-    dummyOptionRequest,
-    increaseEVMTimestampBy,
     NFTDummyCTR,
     NFTOptCTR,
-    OptionFlavor,
-    OptionState,
+    dummyOptionRequest,
     publishDummyOptionRequest,
-    seller,
 } from "./utils";
 
 describe("NFTOpt Tests", function () {
@@ -19,25 +16,25 @@ describe("NFTOpt Tests", function () {
     });
 
     describe("publishOptionRequest", function () {
-        it("should fail when called with address(0) as NFT Contract Address", async function () {
+        it("fails when called with address(0) as NFT Contract Address", async function () {
             await expect(NFTOptCTR.connect(buyer)
-                .publishOptionRequest(address0, 0, 0, 0, 0))
+                .publishOptionRequest(address_empty, 0, 0, 0, 0))
                 .to.be.revertedWith("NFT contract must be a valid address");
         });
 
-        it("should fail when called with 0 as NFT Token ID", async function () {
+        it("fails when called with 0 as NFT Token ID", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .publishOptionRequest(buyer.address, 0, 0, 0, 0))
                 .to.be.revertedWith("NFT token ID must be > 0");
         });
 
-        it("should fail when called with an invalid (non ERC-721 compliant) NFT Contract", async function () {
+        it("fails when called with an invalid (non ERC-721 compliant) NFT Contract", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .publishOptionRequest(buyer.address, 1, 0, 0, 0))
                 .to.be.revertedWith("Provided NFT contract address must implement ERC-721 interface");
         });
 
-        it("should fail when NFT Token ID is under different ownership than the caller's", async function () {
+        it("fails when NFT Token ID is under different ownership than the caller's", async function () {
             // Send NFT ID 3 to seller
             let _nftID = 3;
             await NFTDummyCTR.connect(buyer).transferFrom(buyer.address, seller.address, _nftID);
@@ -51,25 +48,25 @@ describe("NFTOpt Tests", function () {
                 .to.be.revertedWith("NOT_NFT_OWNER");
         });
 
-        it("should fail when called without a premium (transaction value)", async function () {
+        it("fails when called without a premium (transaction value)", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .publishOptionRequest(NFTDummyCTR.address, 1, 0, 0, 0))
                 .to.be.revertedWith("Premium must be > 0");
         });
 
-        it("should fail when called with 0 as Strike Price", async function () {
+        it("fails when called with 0 as Strike Price", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .publishOptionRequest(NFTDummyCTR.address, 1, 0, 0, 0, { value: 1 }))
                 .to.be.revertedWith("Strike price must be > 0");
         });
 
-        it("should fail when called with 0 as Interval", async function () {
+        it("fails when called with 0 as Interval", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .publishOptionRequest(NFTDummyCTR.address, 1, 1, 0, 0, { value: 1 }))
                 .to.be.revertedWith("Expiration interval must be > 0");
         });
 
-        it("should succeed when called with valid values", async function () {
+        it("succeeds when called with valid values", async function () {
             const balance0 = await NFTOptCTR.getBalance();
             const optionID0 = await NFTOptCTR.optionID();
 
@@ -99,8 +96,16 @@ describe("NFTOpt Tests", function () {
             expect(option.state).to.equal(dummyOptionRequest.state);
         });
 
-        it("should emit NewRequest event when succeeded", async function () {
-            await expect(publishDummyOptionRequest())
+        it("emits 'NewRequest' event when succeeded", async function () {
+            await expect(NFTOptCTR.connect(buyer)
+                .publishOptionRequest(
+                    dummyOptionRequest.nftContract,
+                    dummyOptionRequest.nftId,
+                    dummyOptionRequest.strikePrice,
+                    dummyOptionRequest.interval,
+                    dummyOptionRequest.flavor,
+                    { value: 1 }
+                ))
                 .to.emit(NFTOptCTR, "NewRequest")
                 .withArgs(buyer.address, 1);
         });

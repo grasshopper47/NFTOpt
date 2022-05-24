@@ -1,16 +1,15 @@
-import {expect} from "chai";
+import { expect } from "chai";
 import {
-    address0,
+    address_empty,
     buyer,
+    seller,
     contractInitializer,
-    dummyOptionRequest,
-    increaseEVMTimestampBy,
     NFTDummyCTR,
     NFTOptCTR,
+    dummyOptionRequest,
+    publishDummyOptionRequest,
     OptionFlavor,
     OptionState,
-    publishDummyOptionRequest,
-    seller,
 } from "./utils";
 
 describe("NFTOpt Tests", function () {
@@ -19,7 +18,7 @@ describe("NFTOpt Tests", function () {
     });
 
     describe("withdrawOptionRequest", function () {
-        it("should test that method can be called", async function () {
+        it("tests that method can be called", async function () {
             expect(NFTOptCTR.connect(buyer).withdrawOptionRequest(0)).to.not.throw;
         });
     });
