@@ -1,13 +1,14 @@
-import {expect} from "chai";
-import {BigNumber} from "ethers";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {NFTOpt, DummyNFT} from "../typechain-types";
-import {ethers} from "hardhat";
+import { expect } from "chai";
+import { BigNumber } from "ethers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { NFTOpt, DummyNFT } from "../typechain-types";
+import { ethers } from "hardhat";
 
 export const address0: string = "0x0000000000000000000000000000000000000000";
 
 export let buyer: SignerWithAddress;
 export let seller: SignerWithAddress;
+export let nonParticipant: SignerWithAddress;
 export let NFTOptCTR: NFTOpt;
 export let NFTDummyCTR: DummyNFT;
 
@@ -45,7 +46,7 @@ export let publishDummyOptionRequest = async () => {
             dummyOptionRequest.strikePrice,
             dummyOptionRequest.interval,
             dummyOptionRequest.flavor,
-            {value: dummyOptionRequest.premium}
+            { value: dummyOptionRequest.premium }
         )
     ).to.not.be.reverted;
 };
@@ -65,6 +66,8 @@ export const contractInitializer = async () => {
 
     buyer = accounts[0];
     seller = accounts[1];
+
+    nonParticipant = accounts[3];
 
     // Deploy APP contract
     const NFTOpt = await ethers.getContractFactory("NFTOpt");
