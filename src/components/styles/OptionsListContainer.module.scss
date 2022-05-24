@@ -1,0 +1,56 @@
+@import "src/styles/variables.scss";
+
+.root {
+    max-width: 900px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    margin-top: 60px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 30px;
+}
+
+.tabs {
+    border-bottom: 1px solid $text-tertiary;
+    color: $color-primary;
+
+    button {
+        text-transform: none;
+        letter-spacing: 1px;
+        font-size: 18px;
+        padding: 4px 24px;
+        font-weight: 600;
+        color: $color-primary;
+    }
+
+    :global(.Mui-selected) {
+        color: $color-primary;
+    }
+
+    :global(.MuiTabs-indicator) {
+        background-color: $color-primary;
+    }
+}
+
+.containerGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    row-gap: 40px;
+    column-gap: 40px;
+    overflow: auto;
+    margin-top: 40px;
+}
+
+.containerItem {
+    margin-top: 40px;
+}
+
+.noOptions {
+    font-weight: bold;
+    font-size: 16px;
+}

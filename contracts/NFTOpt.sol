@@ -15,7 +15,7 @@ contract NFTOpt {
     error NOT_AUTHORIZED(address providedAddress);
 
     /// @notice Contract address needs approval from owner to transfer NFT
-    error NFT_NOT_APPROVED(address nftAddress, uint32 nftId);
+    error NFT_NOT_APPROVED(address nftAddress, uint256 nftId);
 
     /// @notice Current option state is not allowed for this transaction
     error INVALID_OPTION_STATE(OptionState currentState, OptionState neededState);
@@ -39,11 +39,11 @@ contract NFTOpt {
         address payable      buyer;
         address payable      seller;
         address              nftContract;
-        uint32               nftId;
         uint32               interval;
         uint256              startDate;
         uint256              premium;
         uint256              strikePrice;
+        uint256              nftId;
         OptionFlavor flavor;
         OptionState state;
     }
@@ -104,7 +104,7 @@ contract NFTOpt {
     function publishOptionRequest
     (
         address      _nftContract
-    ,   uint32       _nftId
+    ,   uint256      _nftId
     ,   uint256      _strikePrice
     ,   uint32       _interval
     ,   OptionFlavor _flavor
