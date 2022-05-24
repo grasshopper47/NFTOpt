@@ -12,34 +12,34 @@ import {
     Typography,
 } from "@mui/material";
 import clsx from "clsx";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-import {useAccount, useContracts} from "../providers/contexts";
-import {fetchAssetsForAddress} from "../utils/api";
-import {NFTAsset, OptionFlavor} from "../utils/declarations";
+import { useAccount, useContracts } from "../providers/contexts";
+import { fetchAssetsForAddress } from "../utils/api";
+import { NFTAsset, OptionFlavor } from "../utils/declarations";
 import classes from "./styles/CreateOption.module.scss";
-import {ethers} from "ethers";
-import {dummyNFT} from "../utils/dummyData";
+import { ethers } from "ethers";
+import { dummyNFT } from "../utils/dummyData";
 
 type FormState = {
     asset?: NFTAsset;
     strikePrice?: string;
     premium?: string;
-    interval?: number;
+    interval?: string;
     flavor?: OptionFlavor;
 };
 
 function CreateOption() {
     const account = useAccount();
-    const {nftOpt} = useContracts();
+    const { nftOpt } = useContracts();
 
     // TODO Stefana: cleanup dummy data
     const [assets, setAssets] = useState<NFTAsset[]>([dummyNFT]);
     const [formState, setFormState] = useState<FormState>({
         asset: dummyNFT,
-        strikePrice: null,
-        premium: null,
-        interval: null,
+        strikePrice: "",
+        premium: "",
+        interval: "",
         flavor: OptionFlavor.EUROPEAN,
     });
 
@@ -58,9 +58,11 @@ function CreateOption() {
     };
 
     const handleChangeFieldString = (field: keyof FormState, event: React.ChangeEvent<HTMLInputElement>) => {
+        const val = event.target.value == undefined ? "" : event.target.value;
+
         setFormState((prev) => ({
             ...prev,
-            [field]: parseFloat(event.target.value) < 0 ? "0" : event.target.value,
+            [field]: parseFloat(val) < 0 ? "0" : event.target.value,
         }));
     };
 
@@ -79,32 +81,43 @@ function CreateOption() {
         return (
             !missingFormFields &&
             parseFloat(formState.premium) !== 0 &&
-            formState.premium != null &&
+            formState.premium != null && formState.premium != "" &&
             parseFloat(formState.strikePrice) !== 0 &&
-            formState.strikePrice != null &&
-            formState.interval
+            formState.strikePrice != null && formState.strikePrice != "" &&
+            formState.interval != null && formState.interval != ""
         );
     };
 
     const handleChangeInterval = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.value == undefined ||
+            event.target.value == "") {
+            setFormState((prev) => ({
+                ...prev,
+                interval: "",
+            }));
+
+            return;
+        };
+
         setFormState((prev) => ({
             ...prev,
-            interval: Math.max(1, Math.min(parseInt(event.target.value), 30)),
+            interval: Math.max(1, Math.min(parseInt(event.target.value), 30)).toString(),
         }));
     };
 
     const handlePublishOption = () => {
-        const ethToWei = 1000000000000000000;
-        const strikePriceWei = parseFloat(formState.strikePrice) * ethToWei;
-        const premiumWei = parseFloat(formState.premium) * ethToWei;
+        const txOptions = {
+            value: ethers.utils.parseEther(`${parseFloat(formState.premium)}`),
+            gasLimit: 100000
+        };
 
         nftOpt.publishOptionRequest(
             formState.asset.address,
             formState.asset.tokenId,
-            ethers.utils.parseEther(strikePriceWei.toString()),
-            formState.interval * 24 * 3600, // days in seconds
+            ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
+            parseInt(formState.interval) * 24 * 3600, // days in seconds
             formState.flavor,
-            {value: ethers.utils.parseEther(premiumWei.toString()), gasLimit: 100000}
+            txOptions
         );
     };
 
@@ -159,7 +172,7 @@ function CreateOption() {
                             ),
                         }}
                         type="number"
-                        placeholder="Expire in how many days"
+                        placeholder="Expiration interval"
                         className={classes.field}
                         value={formState.interval}
                         onChange={handleChangeInterval}
@@ -197,7 +210,7 @@ function CreateOption() {
                     {formState.asset ? (
                         <img src={formState.asset.image} alt="" />
                     ) : (
-                        Array.from({length: 3}).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
+                        Array.from({ length: 3 }).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
                     )}
                 </div>
             </div>
