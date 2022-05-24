@@ -17,7 +17,7 @@ describe("NFTOpt Tests", function () {
     describe("createOption", function () {
         it("fails when the option with the specified id does not exist", async function () {
             await expect(NFTOptCTR.connect(seller)
-                .createOption(0))
+                .createOption(9999))
                 .to.be.revertedWith("Option with the specified id does not exist");
         });
 
@@ -93,13 +93,8 @@ describe("NFTOpt Tests", function () {
 
             const updatedOption = await NFTOptCTR.connect(seller).options(1);
 
-            // Check that the option startDate was updated
             expect(updatedOption.startDate).to.not.equal(0);
-
-            // Check that the option seller address was updated
             expect(updatedOption.seller).to.equal(seller.address);
-
-            // Check that the option state was updated to Open
             expect(updatedOption.state).to.equal(OptionState.Open);
 
             // Check that the seller's new balance is equal with the initial balance - gas used in transaction + premium - strikePrice

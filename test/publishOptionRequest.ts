@@ -28,14 +28,16 @@ describe("NFTOpt Tests", function () {
         });
 
         it("fails when NFT Token ID is under different ownership than the caller's", async function () {
-            // Send NFT ID 3 to seller
             let _nftID = 3;
+
+            // Send NFT to seller
             await NFTDummyCTR.connect(buyer).transferFrom(buyer.address, seller.address, _nftID);
 
             let owner = await NFTDummyCTR.ownerOf(_nftID);
 
             expect(owner).to.be.equal(seller.address);
 
+            // Can't publish option request when not an owner
             await expect(NFTOptCTR.connect(buyer)
                 .publishOptionRequest(NFTDummyCTR.address, _nftID, 0, 0, 0))
                 .to.be.revertedWith("NOT_NFT_OWNER");

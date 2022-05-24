@@ -19,7 +19,6 @@ describe("NFTOpt Tests", function () {
     });
 
     describe("cancelOption", function () {
-
         it("reverts with non-existent optionID", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .cancelOption(9999))
