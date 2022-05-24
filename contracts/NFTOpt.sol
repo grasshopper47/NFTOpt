@@ -56,6 +56,7 @@ contract NFTOpt {
     event NewRequest(address, uint);
     event Exercised(uint);
     event Filled(address, uint);
+    event Canceled(address, uint);
 
     receive() external payable
     {
@@ -112,14 +113,13 @@ contract NFTOpt {
     external
     payable
     {
-        require(_nftContract != address(0), "NFT contract must be a valid address");
-        require(_nftId > 0                , "NFT token ID must be > 0");
+        require
+        (
+            _detect_if_contract_implements_ERC721(_nftContract)
+        ,   "Provided NFT contract address must implement ERC-721 interface"
+        );
 
-        // require
-        // (
-        //     _detect_if_contract_implements_ERC721(_nftContract)
-        // ,   "Provided NFT contract address must implement ERC-721 interface"
-        // );
+        require(_nftId > 0, "NFT token ID must be > 0");
 
         if (IERC721(_nftContract).ownerOf(_nftId) != msg.sender)
         {
@@ -184,11 +184,47 @@ contract NFTOpt {
         emit Filled(msg.sender, _optionId);
     }
 
-    function cancelOption(uint32 _optionId)
+    function cancelOption(uint _optionId)
     external
     payable
     {
+        Option memory option = options[_optionId];
 
+        if
+        (
+            option.buyer       == address(0) &&
+            option.seller      == address(0) &&
+            option.nftContract == address(0) &&
+            option.nftId       == 0          &&
+            option.interval    == 0          &&
+            option.startDate   == 0          &&
+            option.premium     == 0          &&
+            option.strikePrice == 0
+        )
+        {
+            revert("The Option does not exist");
+        }
+
+        require(option.startDate != 0 && option.state == OptionState.OPEN, "The Option is not open");
+
+        uint expirationDate = option.startDate + option.interval;
+        if (expirationDate > block.timestamp)
+        {
+            require(msg.sender == option.buyer, "Only Buyer can cancel");
+        }
+        else
+        {
+            require(msg.sender == option.buyer || msg.sender == option.seller, "Only Buyer or Seller can cancel");
+        }
+
+        (bool success,) = option.seller.call{value: option.strikePrice}("");
+        if (!success)
+        {
+            revert FUNDS_TRANSFER_FAILED();
+        }
+
+        options[_optionId].state = OptionState.CLOSED;
+        emit Canceled(msg.sender, _optionId);
     }
 
     function exerciseOption(uint32 _optionId)
