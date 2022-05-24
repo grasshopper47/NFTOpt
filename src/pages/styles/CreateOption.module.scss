@@ -1,0 +1,111 @@
+@import "src/styles/variables.scss";
+
+.root {
+    max-width: 900px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: auto;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+
+    .field, :global(.MuiTextField-root) {
+        margin-top: 20px;
+    }
+
+    :global(.MuiInputBase-root) {
+        color: $text-primary;
+        svg {
+            color: $text-primary;
+        }
+    }
+}
+
+.field {
+    :global(.MuiFormLabel-root) {
+        color: $text-primary;
+        margin-top: 10px;
+    }
+    :global(.MuiFormGroup-root){
+        display: flex;
+        flex-direction: row;
+        > * {
+            margin: unset;
+            width: max-content;
+            &:first-of-type {
+                margin-right: 20px;
+            }
+        }
+    }
+    :global(.MuiRadio-colorPrimary) {
+        color: $color-secondary;
+    }
+    :global(.MuiInputAdornment-root) p {
+        color: $text-primary;
+    }
+}
+
+.title {
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 30px;
+}
+
+.dummyImageContainer {
+    background: $color-tertiary;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    position: relative;
+    height: 392px;
+    width: 392px;
+    border-radius: 10px;
+}
+
+.imageContainer {
+    &:not(.dummyImageContainer) {
+        > * {
+            height: 392px;
+            width: 392px;
+            border-radius: 10px;
+        }
+    }
+}
+
+
+.dot {
+    background: $color-secondary;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+}
+
+.submitBtn {
+    margin-top: 40px;
+    padding: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 10px;
+    background: $color-primary;
+    &:hover {
+        background: $color-primary;
+    }
+}
+
+[data-theme="dark"] {
+    .form {
+        fieldset {
+            border-color: $text-primary;
+        }
+        &:hover {
+            fieldset {
+                border-color: $text-primary !important;
+            }
+        }
+    }
+}

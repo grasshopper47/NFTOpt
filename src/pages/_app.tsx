@@ -2,7 +2,14 @@ import React, {useState, useEffect} from "react";
 import {AppProps} from "next/app";
 import "./_app.scss";
 import {AccountContext, ContractsContext} from "../providers/contexts";
-import {networkName, getCurrentAccount, getEthereumObject, getSignedContract, setupEthereumEventListeners, connectWallet} from "../utils";
+import {
+    networkName,
+    getCurrentAccount,
+    getEthereumObject,
+    getSignedContract,
+    setupEthereumEventListeners,
+    connectWallet,
+} from "../utils/api";
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
 import addresses from "../../addresses.json";
 import Header from "../components/Header";
