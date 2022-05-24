@@ -37,16 +37,17 @@
     "scripts": {
         "clean": "npx hardhat clean",
         "compile": "npx hardhat compile",
+        "---": "",
         "test all": "npx hardhat test",
         "test - publishOptionRequest": "npx hardhat test test/publishOptionRequest.ts",
         "test - withdrawOptionRequest": "npx hardhat test test/withdrawOptionRequest.ts",
         "test - createOption": "npx hardhat test test/createOption.ts",
         "test - exerciseOption": "npx hardhat test test/exerciseOption.ts",
         "test - cancelOption": "npx hardhat test test/cancelOption.ts",
-        "node": "npx hardhat node",
-        "deploy": "npx hardhat run scripts/deploy.ts --network localhost",
-        "next:dev": "next dev -p 3003",
-        "next:build": "next build",
-        "next:start": "next start"
+        "---": "",
+        "start blockchain node": "npx hardhat node",
+        "deploy contracts": "npx hardhat run scripts/deploy.ts --network localhost",
+        "---": "",
+        "start webserver": "next dev -p 3003"
     }
 }

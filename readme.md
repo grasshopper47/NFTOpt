@@ -1,5 +1,3 @@
-**README**
-
 .
 
 **_Prepare_** the project by running
@@ -14,9 +12,24 @@
 
 .
 
-**_Run tests_** by calling
+**_Run tests_** through HardHat by calling
 
 `npm run tests`
+
+.
+
+**_Start local node_** by calling
+
+`npm run node`
+
+This will open a new console session with a live ETH node under HardHat management
+Closing the console will terminate the process
+.
+
+**_Deploy smart contracts_** on local node by calling
+`npm run deploy`
+
+When succesfull, copy the value of _NFTOpt contract address_ and paste it in _addresses.json_
 
 .
 
@@ -24,21 +37,9 @@
 
 `npm run next:dev`
 
+Use the frontend without rebuilding, it auto-refreshes on save.
+
 .
-
-**_Use smart contracts with frontend_** by calling
-
-`npm run node`
-
-Copy the Account #0 Private key and import the account in your MetaMask extension
-
-`npm run deploy`
-
-And take the NFTOpt contract address and paste it in _addresses.json_
-
-`npm run next:dev`
-
-Now you use the frontend with your contract!
 
 ---
 

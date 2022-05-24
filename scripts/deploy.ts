@@ -1,5 +1,5 @@
-import {ethers} from "hardhat";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import { ethers } from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 let buyer: SignerWithAddress;
 
@@ -29,7 +29,6 @@ async function deployContracts() {
     let metadata = await NFTDummyCTR.tokenURI(0)
     console.log(`Metadata for TokenID 0 is ${metadata}!`);
 }
-
 
 async function deployLocalDevEnv() {
     // Fund testing account
