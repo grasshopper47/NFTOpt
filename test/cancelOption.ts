@@ -22,7 +22,7 @@ describe("NFTOpt Tests", function () {
         it("reverts with non-existent optionID", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .cancelOption(9999))
-                .to.be.revertedWith("The Option does not exist");
+                .to.be.revertedWith("INVALID_OPTION_ID");
         });
 
         it("reverts when the option NOT in OPEN state", async function () {
@@ -33,7 +33,7 @@ describe("NFTOpt Tests", function () {
 
             await expect(NFTOptCTR.connect(buyer)
                 .cancelOption(1))
-                .to.be.revertedWith("The Option is not open");
+                .to.be.revertedWith("INVALID_OPTION_STATE");
         });
 
         it("fails when option has already been exercised", async function () {
@@ -62,7 +62,7 @@ describe("NFTOpt Tests", function () {
 
             await expect(NFTOptCTR.connect(buyer)
                 .cancelOption(1))
-                .to.be.revertedWith("The Option is not open");
+                .to.be.revertedWith("INVALID_OPTION_STATE");
         });
 
         it("fails when non-participant tries to cancel", async function () {
@@ -80,7 +80,7 @@ describe("NFTOpt Tests", function () {
             // Try to cancel
             await expect(NFTOptCTR.connect(seller)
                 .cancelOption(1))
-                .to.be.revertedWith("Only Buyer can cancel");
+                .to.be.revertedWith("NOT_AUTHORIZED");
 
             // Fast-foward EVM by interval + 1 days
             await increaseEVMTimestampBy((dummyOptionRequest.interval / (24 * 3600)) + 1);
@@ -88,7 +88,7 @@ describe("NFTOpt Tests", function () {
             // Try to cancel again
             await expect(NFTOptCTR.connect(nonParticipant)
                 .cancelOption(1))
-                .to.be.revertedWith("Only Buyer or Seller can cancel");
+                .to.be.revertedWith("NOT_AUTHORIZED");
         });
 
         it("succeeds when called by seller after expiration date", async function () {
@@ -103,7 +103,7 @@ describe("NFTOpt Tests", function () {
             // Try to cancel
             await expect(NFTOptCTR.connect(seller)
                 .cancelOption(1))
-                .to.be.revertedWith("Only Buyer can cancel");
+                .to.be.revertedWith("NOT_AUTHORIZED");
 
             // Fast-foward EVM by interval + 1 days
             await increaseEVMTimestampBy((dummyOptionRequest.interval / (24 * 3600)) + 1);

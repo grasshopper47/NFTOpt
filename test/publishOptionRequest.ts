@@ -18,13 +18,13 @@ describe("NFTOpt Tests", function () {
         it("fails when called with an invalid (non ERC-721 compliant) NFT Contract", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .publishOptionRequest(buyer.address, 1, 0, 0, 0))
-                .to.be.revertedWith("Provided NFT contract address must implement ERC-721 interface");
+                .to.be.revertedWith("NOT_AN_INTERFACE_OF");
         });
 
         it("fails when called with 0 as NFT Token ID", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .publishOptionRequest(NFTDummyCTR.address, 0, 0, 0, 0))
-                .to.be.revertedWith("NFT token ID must be > 0");
+                .to.be.revertedWith("INVALID_TOKEN_ID");
         });
 
         it("fails when NFT Token ID is under different ownership than the caller's", async function () {
@@ -40,25 +40,25 @@ describe("NFTOpt Tests", function () {
             // Can't publish option request when not an owner
             await expect(NFTOptCTR.connect(buyer)
                 .publishOptionRequest(NFTDummyCTR.address, _nftID, 0, 0, 0))
-                .to.be.revertedWith("NOT_NFT_OWNER");
+                .to.be.revertedWith("NFT_NOT_OWNER");
         });
 
         it("fails when called without a premium (transaction value)", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .publishOptionRequest(NFTDummyCTR.address, 1, 0, 0, 0))
-                .to.be.revertedWith("Premium must be > 0");
+                .to.be.revertedWith("INVALID_PREMIUM_AMOUNT");
         });
 
         it("fails when called with 0 as Strike Price", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .publishOptionRequest(NFTDummyCTR.address, 1, 0, 0, 0, { value: 1 }))
-                .to.be.revertedWith("Strike price must be > 0");
+                .to.be.revertedWith("INVALID_STRIKE_PRICE_AMOUNT");
         });
 
         it("fails when called with 0 as Interval", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .publishOptionRequest(NFTDummyCTR.address, 1, 1, 0, 0, { value: 1 }))
-                .to.be.revertedWith("Expiration interval must be > 0");
+                .to.be.revertedWith("INVALID_EXPIRATION_INTERVAL");
         });
 
         it("succeeds when called with valid values", async function () {

@@ -18,7 +18,7 @@ describe("NFTOpt Tests", function () {
         it("fails when the option with the specified id does not exist", async function () {
             await expect(NFTOptCTR.connect(seller)
                 .createOption(9999))
-                .to.be.revertedWith("Option with the specified id does not exist");
+                .to.be.revertedWith("INVALID_OPTION_ID");
         });
 
         it("fails when the option is already fulfilled by a seller", async function () {
@@ -26,11 +26,11 @@ describe("NFTOpt Tests", function () {
 
             await expect(NFTOptCTR.connect(seller)
                 .createOption(1, { value: dummyOptionRequest.strikePrice }))
-                .to.not.reverted;
+                .to.emit(NFTOptCTR, "Filled");
 
             await expect(NFTOptCTR.connect(seller)
                 .createOption(1, { value: dummyOptionRequest.strikePrice }))
-                .to.be.revertedWith("Option is already fulfilled by a seller");
+                .to.be.revertedWith("OPTION_REQUEST_ALREADY_FULFILLED");
         });
 
         it("fails when the option is not in the request state", async function () {
@@ -42,7 +42,7 @@ describe("NFTOpt Tests", function () {
 
             await expect(NFTOptCTR.connect(seller)
                 .createOption(1))
-                .to.be.revertedWith("Option is not in the request state");
+                .to.be.revertedWith("INVALID_OPTION_STATE");
         });
 
         it("fails when the option seller is the same as the option buyer", async function () {
@@ -50,7 +50,7 @@ describe("NFTOpt Tests", function () {
 
             await expect(NFTOptCTR.connect(buyer)
                 .createOption(1))
-                .to.be.revertedWith("Seller is the same as buyer");
+                .to.be.revertedWith("CANNOT_HAVE_BUYER_SAME_AS_SELLER");
         });
 
         it("fails when the wrong strike price is provided by the seller", async function () {
@@ -58,7 +58,7 @@ describe("NFTOpt Tests", function () {
 
             await expect(NFTOptCTR.connect(seller)
                 .createOption(1, { value: dummyOptionRequest.strikePrice.sub(1) }))
-                .to.be.revertedWith("Wrong strike price provided");
+                .to.be.revertedWith("INVALID_STRIKE_PRICE_AMOUNT");
         });
 
         it("succeeds when called with valid values", async function () {

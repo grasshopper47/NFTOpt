@@ -9,19 +9,43 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 contract NFTOpt {
 
     /// @notice Invalid option ID
-    error INVALID_OPTION_ID(uint32 providedId);
+    error INVALID_OPTION_ID(uint256 id);
+
+    /// @notice Invalid NFT token ID
+    error INVALID_TOKEN_ID(uint256 id);
+
+    /// @notice Invalid NFT contract address
+    error NOT_AN_INTERFACE_OF(string interfaceName, address contractAddress);
+
+    /// @notice Invalid premium amount
+    error INVALID_PREMIUM_AMOUNT(uint256 premium);
+
+    /// @notice Invalid strike price
+    error INVALID_STRIKE_PRICE_AMOUNT(uint256 strikePrice);
+
+    /// @notice Missing requested funds from balancce
+    error MISSING_FUNDS_TO_PAY_REQUESTED_AMOUNT(uint256 requestedAmount);
+
+    /// @notice Invalid interval
+    error INVALID_EXPIRATION_INTERVAL(uint32 interval);
 
     /// @notice Address do not have permission to execute action
-    error NOT_AUTHORIZED(address providedAddress);
+    error NOT_AUTHORIZED(address providedAddress, string reason);
 
     /// @notice Contract address needs approval from owner to transfer NFT
     error NFT_NOT_APPROVED(address nftAddress, uint256 nftId);
+
+    /// @notice Address is not owner of the NFT
+    error NFT_NOT_OWNER(address presumableOwnerAddress);
 
     /// @notice Current option state is not allowed for this transaction
     error INVALID_OPTION_STATE(OptionState currentState, OptionState neededState);
 
     /// @notice Current timestamp does not allow for option exercise
-    error EXERCISE_WINDOW_IS_CLOSED(uint expirationTimestamp);
+    error EXERCISE_WINDOW_IS_CLOSED(uint256 expirationTimestamp);
+
+    /// @notice Current timestamp does not allow for option exercise
+    error OPTION_REQUEST_ALREADY_FULFILLED(address fulfillerAddress);
 
     /// @notice Insufficient funds in escrow to withdrawal
     error INSUFFICIENT_FUNDS();
@@ -29,8 +53,10 @@ contract NFTOpt {
     /// @notice Failed to transfer funds from escrow to msg.sender
     error FUNDS_TRANSFER_FAILED();
 
-    /// @notice Address is not owner of the NFT
-    error NOT_NFT_OWNER(address presumableOwnerAddress);
+    /// @notice Buyer always != seller
+    error CANNOT_HAVE_BUYER_SAME_AS_SELLER();
+
+    error UNSIGNED_INTEGER_OVERFLOW();
 
     enum OptionState  {REQUEST, OPEN, CLOSED}
     enum OptionFlavor {EUROPEAN, AMERICAN}
@@ -77,7 +103,11 @@ contract NFTOpt {
     internal
     returns (bool)
     {
-        bool success;
+        /// @dev Testing by trying to call two methods: ownerOf, getApproved
+        ///      Sent with 0 gas, expecting error, so as to avoid incurring extra costs
+
+        bool _error;
+
         bytes memory data =
         abi.encodeWithSelector
         (
@@ -87,11 +117,11 @@ contract NFTOpt {
 
         assembly
         {
-            success := call
+            _error := call
             (
                 0,                // gas remaining
                 _token,           // destination address
-                0,                // no ether
+                0,                // no value
                 add(data, 32),    // input buffer (starts after the first 32 bytes in the `data` array)
                 mload(data),      // input length (loaded from the first 32 bytes in the `data` array)
                 0,                // output buffer
@@ -99,7 +129,25 @@ contract NFTOpt {
             )
         }
 
-        return !success;
+        if (_error) { return false; }
+
+        data = abi.encodeWithSelector(bytes4(keccak256("getApproved(uint256)")), 0);
+
+        assembly
+        {
+            _error := call
+            (
+                0,
+                _token,
+                0,
+                add(data, 32),
+                mload(data),
+                0,
+                0
+            )
+        }
+
+        return !_error;
     }
 
     function publishOptionRequest
@@ -113,22 +161,40 @@ contract NFTOpt {
     external
     payable
     {
-        require
-        (
-            _detect_if_contract_implements_ERC721(_nftContract)
-        ,   "Provided NFT contract address must implement ERC-721 interface"
-        );
+        if (!_detect_if_contract_implements_ERC721(_nftContract))
+        {
+            revert NOT_AN_INTERFACE_OF("ERC-721", _nftContract);
+        }
 
-        require(_nftId > 0, "NFT token ID must be > 0");
+        if (_nftId == 0)
+        {
+            revert INVALID_TOKEN_ID(_nftId);
+        }
 
         if (IERC721(_nftContract).ownerOf(_nftId) != msg.sender)
         {
-            revert NOT_NFT_OWNER(msg.sender);
+            revert NFT_NOT_OWNER(msg.sender);
         }
 
-        require(msg.value > 0   , "Premium must be > 0");
-        require(_strikePrice > 0, "Strike price must be > 0");
-        require(_interval > 0   , "Expiration interval must be > 0");
+        if (msg.value == 0)
+        {
+            revert INVALID_PREMIUM_AMOUNT(0);
+        }
+
+        if (msg.value == 0)
+        {
+            revert INVALID_PREMIUM_AMOUNT(0);
+        }
+
+        if (_strikePrice == 0)
+        {
+            revert INVALID_STRIKE_PRICE_AMOUNT(0);
+        }
+
+        if (_interval == 0)
+        {
+            revert INVALID_EXPIRATION_INTERVAL(0);
+        }
 
         options[++optionID] =
         Option
@@ -148,7 +214,7 @@ contract NFTOpt {
         emit NewRequest(msg.sender, optionID);
     }
 
-    function withdrawOptionRequest(uint32 _optionId)
+    function withdrawOptionRequest(uint256 _optionId)
     external
     payable
     {
@@ -156,35 +222,7 @@ contract NFTOpt {
         options[_optionId].state = OptionState.CLOSED;
     }
 
-    function createOption(uint32 _optionId)
-    external
-    payable
-    {
-        Option memory option = options[_optionId];
-
-        require(option.buyer != address(0)         , "Option with the specified id does not exist");
-        require(option.seller == address(0)        , "Option is already fulfilled by a seller");
-        require(option.state == OptionState.REQUEST, "Option is not in the request state");
-        require(option.buyer != msg.sender         , "Seller is the same as buyer");
-        require(getBalance() >= option.premium     , "Not enough funds to pay the premium to the seller");
-        require(msg.value == option.strikePrice    , "Wrong strike price provided");
-
-        (bool success,) = msg.sender.call{value: option.premium}("");
-        if (!success)
-        {
-            revert FUNDS_TRANSFER_FAILED();
-        }
-
-        Option storage o = options[_optionId];
-
-        o.seller    = payable(msg.sender);
-        o.startDate = block.timestamp;
-        o.state     = OptionState.OPEN;
-
-        emit Filled(msg.sender, _optionId);
-    }
-
-    function cancelOption(uint _optionId)
+    function createOption(uint256 _optionId)
     external
     payable
     {
@@ -192,29 +230,111 @@ contract NFTOpt {
 
         if
         (
-            option.buyer       == address(0) &&
-            option.seller      == address(0) &&
-            option.nftContract == address(0) &&
-            option.nftId       == 0          &&
-            option.interval    == 0          &&
-            option.startDate   == 0          &&
-            option.premium     == 0          &&
+            option.buyer       == address(0) ||
+            option.nftContract == address(0) ||
+            option.nftId       == 0          ||
+            option.interval    == 0          ||
+            option.premium     == 0          ||
             option.strikePrice == 0
         )
         {
-            revert("The Option does not exist");
+            revert INVALID_OPTION_ID(_optionId);
         }
 
-        require(option.startDate != 0 && option.state == OptionState.OPEN, "The Option is not open");
-
-        uint expirationDate = option.startDate + option.interval;
-        if (expirationDate > block.timestamp)
+        if (option.seller != address(0))
         {
-            require(msg.sender == option.buyer, "Only Buyer can cancel");
+            revert OPTION_REQUEST_ALREADY_FULFILLED(option.seller);
         }
-        else
+
+        if (option.state != OptionState.REQUEST)
         {
-            require(msg.sender == option.buyer || msg.sender == option.seller, "Only Buyer or Seller can cancel");
+            revert INVALID_OPTION_STATE(option.state, OptionState.REQUEST);
+        }
+
+        if (option.buyer == msg.sender)
+        {
+            revert CANNOT_HAVE_BUYER_SAME_AS_SELLER();
+        }
+
+        if (getBalance() < option.premium)
+        {
+            revert MISSING_FUNDS_TO_PAY_REQUESTED_AMOUNT(option.premium);
+        }
+
+        if (msg.value != option.strikePrice)
+        {
+            revert INVALID_STRIKE_PRICE_AMOUNT(option.strikePrice);
+        }
+
+        if (block.timestamp + option.interval < block.timestamp)
+        {
+            revert UNSIGNED_INTEGER_OVERFLOW();
+        }
+
+        option.seller    = payable(msg.sender);
+        option.startDate = block.timestamp;
+        option.state     = OptionState.OPEN;
+
+        options[_optionId] = option;
+
+        (bool success,) = msg.sender.call{value: option.premium}("");
+        if (!success)
+        {
+            revert FUNDS_TRANSFER_FAILED();
+        }
+
+        emit Filled(msg.sender, _optionId);
+    }
+
+    function cancelOption(uint256 _optionId)
+    external
+    payable
+    {
+        Option memory option = options[_optionId];
+
+        if
+        (
+            option.buyer       == address(0) ||
+            option.nftContract == address(0) ||
+            option.nftId       == 0          ||
+            option.interval    == 0          ||
+            option.premium     == 0          ||
+            option.strikePrice == 0
+        )
+        {
+            revert INVALID_OPTION_ID(_optionId);
+        }
+
+        if (option.state != OptionState.OPEN)
+        {
+            revert INVALID_OPTION_STATE(option.state, OptionState.OPEN);
+        }
+
+        if (option.startDate + option.interval < option.startDate)
+        {
+            revert UNSIGNED_INTEGER_OVERFLOW();
+        }
+
+        uint256 expirationDate = option.startDate + option.interval;
+
+        /// @dev Restrict calling rights to buyer (permitted anytime) or seller (restricted)
+        if
+        (
+            option.buyer != msg.sender &&
+            option.seller != msg.sender
+        )
+        {
+            revert NOT_AUTHORIZED(msg.sender, "Only Buyer or Seller can cancel");
+        }
+
+        /// @dev Restrict calling rights of seller: permit only after expiration
+        if
+        (
+            expirationDate >= block.timestamp &&
+            option.buyer != msg.sender
+        )
+        {
+            revert NOT_AUTHORIZED(msg.sender, "Only Buyer can cancel");
         }
 
         (bool success,) = option.seller.call{value: option.strikePrice}("");
@@ -224,66 +344,78 @@ contract NFTOpt {
         }
 
         options[_optionId].state = OptionState.CLOSED;
+
         emit Canceled(msg.sender, _optionId);
     }
 
-    function exerciseOption(uint32 _optionId)
+    function exerciseOption(uint256 _optionId)
     external
     payable
     {
-        Option memory currentOption = options[_optionId];
+        Option memory option = options[_optionId];
 
-        if (currentOption.buyer == address(0))
+        if (option.buyer == address(0))
         {
-            revert INVALID_OPTION_ID({providedId : _optionId});
+            revert INVALID_OPTION_ID(_optionId);
         }
 
-        if (currentOption.state != OptionState.OPEN)
+        if (option.state != OptionState.OPEN)
         {
-            revert INVALID_OPTION_STATE(currentOption.state, OptionState.OPEN);
+            revert INVALID_OPTION_STATE(option.state, OptionState.OPEN);
         }
 
-        if (currentOption.buyer != msg.sender)
+        /// @dev Restrict calling rights to buyer only
+        if (option.buyer != msg.sender)
         {
-            revert NOT_AUTHORIZED({providedAddress : msg.sender});
+            revert NOT_AUTHORIZED(msg.sender, "Only Buyer can exercise");
         }
 
         /// @dev Check for NFT access and ownership
-        IERC721 nftContract = IERC721(currentOption.nftContract);
+        IERC721 nftContract = IERC721(option.nftContract);
 
-        if (nftContract.ownerOf(currentOption.nftId) != msg.sender)
+        if (nftContract.ownerOf(option.nftId) != msg.sender)
         {
-            revert NOT_NFT_OWNER(msg.sender);
+            revert NFT_NOT_OWNER(msg.sender);
         }
 
-        if (nftContract.getApproved(currentOption.nftId) != address(this))
+        if (nftContract.getApproved(option.nftId) != address(this))
         {
-            revert NFT_NOT_APPROVED({nftAddress : currentOption.nftContract, nftId : currentOption.nftId});
+            revert NFT_NOT_APPROVED(option.nftContract, option.nftId);
+        }
+
+        if (option.startDate + option.interval < option.startDate)
+        {
+            revert UNSIGNED_INTEGER_OVERFLOW();
         }
 
         /// @dev Check for time restrictions
-        uint256 expirationDate = currentOption.startDate + currentOption.interval;
+        uint256 expirationDate = option.startDate + option.interval;
         if
         (
             block.timestamp > expirationDate ||
-            (currentOption.flavor == OptionFlavor.EUROPEAN && (expirationDate - 1 days) > block.timestamp)
+            (option.flavor == OptionFlavor.EUROPEAN && (expirationDate - 1 days) > block.timestamp)
         )
         {
             revert EXERCISE_WINDOW_IS_CLOSED(expirationDate);
         }
 
-        if (getBalance() < currentOption.strikePrice)
+        if (getBalance() < option.strikePrice)
         {
             revert INSUFFICIENT_FUNDS();
         }
 
-        (bool success,) = msg.sender.call{value: currentOption.strikePrice}("");
+        (bool success,) = msg.sender.call{value: option.strikePrice}("");
         if (!success)
         {
             revert FUNDS_TRANSFER_FAILED();
         }
 
-        nftContract.transferFrom({from : msg.sender, to : currentOption.seller, tokenId : currentOption.nftId});
+        nftContract.transferFrom
+        ({
+            to      : option.seller
+        ,   from    : msg.sender
+        ,   tokenId : option.nftId
+        });
 
         options[_optionId].state = OptionState.CLOSED;
 

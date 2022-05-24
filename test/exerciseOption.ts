@@ -71,7 +71,7 @@ describe("NFTOpt Tests", function () {
             // Exercise option
             await expect(NFTOptCTR.connect(buyer)
                 .exerciseOption(1))
-                .to.be.revertedWith("NOT_NFT_OWNER");
+                .to.be.revertedWith("NFT_NOT_OWNER");
         });
 
         it("reverts when option state is not OPEN", async function () {
