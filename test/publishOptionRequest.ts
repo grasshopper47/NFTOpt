@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import {
-    address_empty,
     buyer,
     seller,
     contractInitializer,
@@ -16,22 +15,16 @@ describe("NFTOpt Tests", function () {
     });
 
     describe("publishOptionRequest", function () {
-        it("fails when called with address(0) as NFT Contract Address", async function () {
-            await expect(NFTOptCTR.connect(buyer)
-                .publishOptionRequest(address_empty, 0, 0, 0, 0))
-                .to.be.revertedWith("NFT contract must be a valid address");
-        });
-
-        it("fails when called with 0 as NFT Token ID", async function () {
-            await expect(NFTOptCTR.connect(buyer)
-                .publishOptionRequest(buyer.address, 0, 0, 0, 0))
-                .to.be.revertedWith("NFT token ID must be > 0");
-        });
-
         it("fails when called with an invalid (non ERC-721 compliant) NFT Contract", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .publishOptionRequest(buyer.address, 1, 0, 0, 0))
                 .to.be.revertedWith("Provided NFT contract address must implement ERC-721 interface");
+        });
+
+        it("fails when called with 0 as NFT Token ID", async function () {
+            await expect(NFTOptCTR.connect(buyer)
+                .publishOptionRequest(NFTDummyCTR.address, 0, 0, 0, 0))
+                .to.be.revertedWith("NFT token ID must be > 0");
         });
 
         it("fails when NFT Token ID is under different ownership than the caller's", async function () {
