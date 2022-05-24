@@ -24,6 +24,7 @@
 
 This will open a new console session with a live ETH node under HardHat management
 Closing the console will terminate the process
+
 .
 
 **_Deploy smart contracts_** on local node by calling
@@ -37,7 +38,7 @@ When succesfull, copy the value of _NFTOpt contract address_ and paste it in _ad
 
 `npm run next:dev`
 
-Use the frontend without rebuilding, it auto-refreshes on save.
+You can edit the React components and work on other front-end related code without rebuilding, it auto-refreshes on save.
 
 .
 
