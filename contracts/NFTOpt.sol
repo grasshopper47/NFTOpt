@@ -215,7 +215,7 @@ contract NFTOpt {
         emit NewRequest(msg.sender, optionID);
     }
 
-    function withdrawOptionRequest(uint32 _optionId)
+    function withdrawOptionRequest(uint256 _optionId)
     external
     payable
     {
