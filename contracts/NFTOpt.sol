@@ -270,7 +270,8 @@ contract NFTOpt {
         delete options[optionID--];
     }
 
-    function createOption(uint256 _optionId)
+
+    function createOption(uint32 _optionId)
     external
     payable
     {
