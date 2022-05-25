@@ -83,6 +83,7 @@ contract NFTOpt {
     event Exercised(uint);
     event Filled(address, uint);
     event Canceled(address, uint);
+    event WithdrawRequest(address, uint);
 
     receive() external payable
     {
@@ -214,12 +215,59 @@ contract NFTOpt {
         emit NewRequest(msg.sender, optionID);
     }
 
-    function withdrawOptionRequest(uint256 _optionId)
+    function withdrawOptionRequest(uint32 _optionId)
     external
     payable
     {
-        // TODO: update this with the correct implementation (wrote this here only for testing)
-        options[_optionId].state = OptionState.CLOSED;
+        Option memory option = options[_optionId];
+
+        if
+        (
+            option.buyer       == address(0) ||
+            option.nftContract == address(0) ||
+            option.nftId       == 0          ||
+            option.interval    == 0          ||
+            option.premium     == 0          ||
+            option.strikePrice == 0
+        )
+        {
+            revert INVALID_OPTION_ID(_optionId);
+        }
+
+        if (option.state != OptionState.OPEN)
+        {
+            revert INVALID_OPTION_STATE(option.state, OptionState.OPEN);
+        }
+
+        if (option.buyer != msg.sender)
+        {
+            revert NOT_AUTHORIZED(msg.sender, "ONLY BUYER CAN CANCEL");
+        }
+
+        emit WithdrawRequest(msg.sender, _optionId);
+
+        //move all items in the array to decrement by 1 (overwriting the deleteable option)
+        for(uint i=_optionId;i<optionID;i++)
+        {
+            //move the i+1 record into the i record
+            options[i] =
+            Option
+            ({
+                buyer       : options[i+1].buyer
+            ,   seller      : options[i+1].seller
+            ,   nftContract : options[i+1].nftContract
+            ,   nftId       : options[i+1].nftId
+            ,   startDate   : options[i+1].startDate
+            ,   interval    : options[i+1].interval
+            ,   premium     : options[i+1].premium
+            ,   strikePrice : options[i+1].strikePrice
+            ,   flavor      : options[i+1].flavor
+            ,   state       : options[i+1].state
+            });
+        }
+
+    // delete the now empty/duplicated last option and decrement optionID
+        delete options[optionID--];
     }
 
     function createOption(uint256 _optionId)
