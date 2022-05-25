@@ -26,8 +26,9 @@ describe("NFTOpt Tests", function () {
         });
 
         it("should fail when option is not in REQUEST state", async function () {
+            await publishDummyOptionRequest();
             const option = await NFTOptCTR.options(1);
-            expect(option.state).to.equal(OptionState.Request);
+            expect(dummyOptionRequest.state).to.equal(OptionState.Request);
         });
 
         it("should fail when caller is not the buyer", async function () {

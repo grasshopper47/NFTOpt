@@ -215,7 +215,7 @@ contract NFTOpt {
         emit NewRequest(msg.sender, optionID);
     }
 
-    function withdrawOptionRequest(uint32 _optionId)
+    function withdrawOptionRequest(uint256 _optionId)
     external
     payable
     {
@@ -234,9 +234,9 @@ contract NFTOpt {
             revert INVALID_OPTION_ID(_optionId);
         }
 
-        if (option.state != OptionState.OPEN)
+        if (option.state != OptionState.REQUEST)
         {
-            revert INVALID_OPTION_STATE(option.state, OptionState.OPEN);
+            revert INVALID_OPTION_STATE(option.state, OptionState.REQUEST);
         }
 
         if (option.buyer != msg.sender)
