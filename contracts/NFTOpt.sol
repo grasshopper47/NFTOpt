@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract NFTOpt {
 
+
+    /// Option Property Errors
     /// @notice Invalid option ID
     error INVALID_OPTION_ID(uint256 id);
 
@@ -29,7 +31,9 @@ contract NFTOpt {
     /// @notice Invalid interval
     error INVALID_EXPIRATION_INTERVAL(uint32 interval);
 
-    /// @notice Address do not have permission to execute action
+
+    /// Account/Address Errors
+    /// @notice Address does not have permission to execute action
     error NOT_AUTHORIZED(address providedAddress, string reason);
 
     /// @notice Contract address needs approval from owner to transfer NFT
@@ -38,8 +42,10 @@ contract NFTOpt {
     /// @notice Address is not owner of the NFT
     error NFT_NOT_OWNER(address presumableOwnerAddress);
 
-    /// @notice Current option state is not allowed for this transaction
-    error INVALID_OPTION_STATE(OptionState currentState, OptionState neededState);
+
+    /// Option event/actions Errors
+    /// @notice Buyer always != seller
+    error CANNOT_HAVE_BUYER_SAME_AS_SELLER();
 
     /// @notice Current timestamp does not allow for option exercise
     error EXERCISE_WINDOW_IS_CLOSED(uint256 expirationTimestamp);
@@ -47,16 +53,21 @@ contract NFTOpt {
     /// @notice Current timestamp does not allow for option exercise
     error OPTION_REQUEST_ALREADY_FULFILLED(address fulfillerAddress);
 
+    /// @notice Current option state is not allowed for this transaction
+    error INVALID_OPTION_STATE(OptionState currentState, OptionState neededState);
+
+
+    /// Funds Transfer Errors
     /// @notice Insufficient funds in escrow to withdrawal
     error INSUFFICIENT_FUNDS();
 
     /// @notice Failed to transfer funds from escrow to msg.sender
     error FUNDS_TRANSFER_FAILED();
 
-    /// @notice Buyer always != seller
-    error CANNOT_HAVE_BUYER_SAME_AS_SELLER();
 
+    // Arithmetic Error
     error UNSIGNED_INTEGER_OVERFLOW();
+
 
     enum OptionState  {REQUEST, OPEN, CLOSED}
     enum OptionFlavor {EUROPEAN, AMERICAN}
@@ -174,11 +185,6 @@ contract NFTOpt {
         if (IERC721(_nftContract).ownerOf(_nftId) != msg.sender)
         {
             revert NFT_NOT_OWNER(msg.sender);
-        }
-
-        if (msg.value == 0)
-        {
-            revert INVALID_PREMIUM_AMOUNT(0);
         }
 
         if (msg.value == 0)
