@@ -243,31 +243,9 @@ contract NFTOpt {
         {
             revert NOT_AUTHORIZED(msg.sender, "ONLY BUYER CAN CANCEL");
         }
+        delete options[optionID];
 
         emit WithdrawRequest(msg.sender, _optionId);
-
-        //move all items in the array to decrement by 1 (overwriting the deleteable option)
-        for(uint i=_optionId;i<optionID;i++)
-        {
-            //move the i+1 record into the i record
-            options[i] =
-            Option
-            ({
-                buyer       : options[i+1].buyer
-            ,   seller      : options[i+1].seller
-            ,   nftContract : options[i+1].nftContract
-            ,   nftId       : options[i+1].nftId
-            ,   startDate   : options[i+1].startDate
-            ,   interval    : options[i+1].interval
-            ,   premium     : options[i+1].premium
-            ,   strikePrice : options[i+1].strikePrice
-            ,   flavor      : options[i+1].flavor
-            ,   state       : options[i+1].state
-            });
-        }
-
-    // delete the now empty/duplicated last option and decrement optionID
-        delete options[optionID--];
     }
 
 
