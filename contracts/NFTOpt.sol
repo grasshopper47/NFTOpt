@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 contract NFTOpt {
 
 
-    /// Option Property Errors
+    /// @notice Option Property Errors --
     /// @notice Invalid option ID
     error INVALID_OPTION_ID(uint256 id);
 
@@ -32,7 +32,7 @@ contract NFTOpt {
     error INVALID_EXPIRATION_INTERVAL(uint32 interval);
 
 
-    /// Account/Address Errors
+    /// @notice Account/Address Errors --
     /// @notice Address does not have permission to execute action
     error NOT_AUTHORIZED(address providedAddress, string reason);
 
@@ -43,7 +43,7 @@ contract NFTOpt {
     error NFT_NOT_OWNER(address presumableOwnerAddress);
 
 
-    /// Option event/actions Errors
+    /// @notice Option event/actions Errors --
     /// @notice Buyer always != seller
     error CANNOT_HAVE_BUYER_SAME_AS_SELLER();
 
@@ -57,7 +57,7 @@ contract NFTOpt {
     error INVALID_OPTION_STATE(OptionState currentState, OptionState neededState);
 
 
-    /// Funds Transfer Errors
+    /// @notice Funds Transfer Errors --
     /// @notice Insufficient funds in escrow to withdrawal
     error INSUFFICIENT_FUNDS();
 
@@ -65,7 +65,7 @@ contract NFTOpt {
     error FUNDS_TRANSFER_FAILED();
 
 
-    // Arithmetic Error
+    /// @notice Arithmetic Error --
     error UNSIGNED_INTEGER_OVERFLOW();
 
 
