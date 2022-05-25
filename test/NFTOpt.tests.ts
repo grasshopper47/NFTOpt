@@ -1,5 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
+import { Console } from "console";
 import { BigNumber, ContractTransaction } from "ethers";
 import { ethers } from "hardhat";
 import { NFTOpt, DummyNFT } from "../typechain-types";
@@ -92,7 +93,7 @@ describe("NFTOpt Tests", function () {
         ,   state       : OptionState.Request
         }
     });
-
+/*
     describe("publishOptionRequest", function () {
         it("should fail when called with address(0) as NFT Contract Address", async function () {
             await expect(NFTOptCTR.connect(buyer)
@@ -174,23 +175,30 @@ describe("NFTOpt Tests", function () {
                   .withArgs(buyer.address, 1);
         });
     });
+*/
 
     describe("withdrawOptionRequest", function () {
-        it("should test that method can be called", async function () {
-            expect(
-                NFTOptCTR.connect(buyer).withdrawOptionRequest(0)
-            ).to.not.throw;
+
+        it("should fail when option does not exist", async function () {
+            console.log("buyer="+buyer);
+            await expect(NFTOptCTR.connect(buyer)
+                                  .withdrawOptionRequest(9999))
+                  .to.be.revertedWith("INVALID_OPTION_ID");
+        });
+
+        it("should fail when option is not in OPEN state", async function () {
+            const option = await NFTOptCTR.options(1);
+            expect(option.state).to.equal(OptionState.Request);
         });
 
         it("should fail when caller is not the buyer", async function () {
-            expect(
-                NFTOptCTR.connect(seller).withdrawOptionRequest(0)
-            ).to.not.throw;
+                await publishDummyOptionRequest();
+                const option = await NFTOptCTR.options(1);
+    //            console.log("nondummyoptionId="+option[optionId]);
+                expect(option.buyer).to.equal(dummyOptionRequest.buyer);
+            });
         });
-
-
-    });
-
+/*
     describe("createOption", function () {
         it("should fail when the option with the specified id does not exist", async function () {
             await expect(NFTOptCTR.connect(seller)
@@ -469,4 +477,5 @@ describe("NFTOpt Tests", function () {
             .to.be.equal(seller.address)
         });
     });
+    */
 });

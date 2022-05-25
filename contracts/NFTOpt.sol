@@ -152,8 +152,52 @@ contract NFTOpt {
     external
     payable
     {
-        require (options[_optionId].buyer == msg.sender , "Only buyer can withdraw option request");
-        options[_optionId].state = OptionState.CLOSED;
+        Option memory option = options[_optionId];
+
+        if
+        (
+            option.buyer       == address(0) ||
+            option.nftContract == address(0) ||
+            option.nftId       == 0          ||
+            option.interval    == 0          ||
+            option.premium     == 0          ||
+            option.strikePrice == 0
+        )
+        {
+            revert INVALID_OPTION_ID(_optionId);
+        }
+
+        if (option.state != OptionState.OPEN)
+        {
+            revert INVALID_OPTION_STATE(option.state, OptionState.OPEN);
+        }
+
+        if (option.buyer != msg.sender)
+        {
+            revert NOT_AUTHORIZED(msg.sender);
+        }
+        //move all items in the array to decrement by 1 (overwriting the deleteable option)
+        for(uint i=_optionId;i<optionID;i++)
+        {
+            //move the i+1 record into the i record
+            options[i] =
+            Option
+            ({
+                buyer       : options[i+1].buyer
+            ,   seller      : options[i+1].seller
+            ,   nftContract : options[i+1].nftContract
+            ,   nftId       : options[i+1].nftId
+            ,   startDate   : options[i+1].startDate
+            ,   interval    : options[i+1].interval
+            ,   premium     : options[i+1].premium
+            ,   strikePrice : options[i+1].strikePrice
+            ,   flavor      : options[i+1].flavor
+            ,   state       : options[i+1].state
+            });
+//            emit NewRequest(msg.sender, i);  // log it - this is needed?
+        }
+    // delete the now empty/duplicated last option and decrement optionID
+        delete options[optionID--];
     }
 
 
