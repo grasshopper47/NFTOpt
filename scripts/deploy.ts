@@ -9,11 +9,19 @@ async function setupAccounts() {
 }
 
 async function deployContracts() {
-    const NFTOptFactory = await ethers.getContractFactory("NFTOpt");
+    const InterfaceDetector = await ethers.getContractFactory("InterfaceDetector");
+    let InterfaceDetectorCTR = await InterfaceDetector.deploy();
+    await InterfaceDetectorCTR.deployed();
+
+    const NFTOptFactory = await ethers.getContractFactory("NFTOpt", {
+        libraries: {
+            "InterfaceDetector": InterfaceDetectorCTR.address,
+        },
+    });
     const NFTOpt = await NFTOptFactory.deploy();
     await NFTOpt.deployed();
 
-    console.log("Deployed NFTOpt address:", NFTOpt.address);
+    console.log("\nDeployed NFTOpt address:", NFTOpt.address);
 
     // Deploy dummy NFT contract and mint 20 nfts
     const NFT = await ethers.getContractFactory("DummyNFT");
@@ -24,10 +32,7 @@ async function deployContracts() {
 
     // Sanity check minting
     let numMinted = (await NFTDummyCTR.balanceOf(buyer.address)).toString()
-    console.log(`Minted ${numMinted} NFTs to adress ${buyer.address}!`);
-
-    let metadata = await NFTDummyCTR.tokenURI(0)
-    console.log(`Metadata for TokenID 0 is ${metadata}!`);
+    console.log(`\nMinted ${numMinted} NFTs and set owner to '${buyer.address}'`);
 }
 
 async function deployLocalDevEnv() {
