@@ -83,7 +83,7 @@ describe("NFTOpt Tests", function () {
         it("fails when contract address is not approved to transfer NFT", async function () {
             await expect(NFTOptCTR.connect(buyer)
                 .exerciseOption(1))
-                .to.be.revertedWith("NFT_NOT_APPROVED");
+                .to.be.revertedWith("NOT_APPROVED_TO_TRANSFER_NFT");
         });
 
         it("succeeds when contract address is approved to transfer NFT", async function () {

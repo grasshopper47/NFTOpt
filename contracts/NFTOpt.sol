@@ -1,76 +1,14 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.14;
 
-/**
- * @dev OpenZeppelin's interface of EIP-721 https://eips.ethereum.org/EIPS/eip-721.
- */
+/// @dev OpenZeppelin's interface of EIP-721 https://eips.ethereum.org/EIPS/eip-721.
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract NFTOpt {
 
-
-    /// @notice Option Property Errors --
-    /// @notice Invalid option ID
-    error INVALID_OPTION_ID(uint256 id);
-
-    /// @notice Invalid NFT token ID
-    error INVALID_TOKEN_ID(uint256 id);
-
-    /// @notice Invalid NFT contract address
-    error NOT_AN_INTERFACE_OF(string interfaceName, address contractAddress);
-
-    /// @notice Invalid premium amount
-    error INVALID_PREMIUM_AMOUNT(uint256 premium);
-
-    /// @notice Invalid strike price
-    error INVALID_STRIKE_PRICE_AMOUNT(uint256 strikePrice);
-
-    /// @notice Missing requested funds from balancce
-    error MISSING_FUNDS_TO_PAY_REQUESTED_AMOUNT(uint256 requestedAmount);
-
-    /// @notice Invalid interval
-    error INVALID_EXPIRATION_INTERVAL(uint32 interval);
-
-
-    /// @notice Account/Address Errors --
-    /// @notice Address does not have permission to execute action
-    error NOT_AUTHORIZED(address providedAddress, string reason);
-
-    /// @notice Contract address needs approval from owner to transfer NFT
-    error NFT_NOT_APPROVED(address nftAddress, uint256 nftId);
-
-    /// @notice Address is not owner of the NFT
-    error NFT_NOT_OWNER(address presumableOwnerAddress);
-
-
-    /// @notice Option event/actions Errors --
-    /// @notice Buyer always != seller
-    error CANNOT_HAVE_BUYER_SAME_AS_SELLER();
-
-    /// @notice Current timestamp does not allow for option exercise
-    error EXERCISE_WINDOW_IS_CLOSED(uint256 expirationTimestamp);
-
-    /// @notice Current timestamp does not allow for option exercise
-    error OPTION_REQUEST_ALREADY_FULFILLED(address fulfillerAddress);
-
-    /// @notice Current option state is not allowed for this transaction
-    error INVALID_OPTION_STATE(OptionState currentState, OptionState neededState);
-
-
-    /// @notice Funds Transfer Errors --
-    /// @notice Insufficient funds in escrow to withdrawal
-    error INSUFFICIENT_FUNDS();
-
-    /// @notice Failed to transfer funds from escrow to msg.sender
-    error FUNDS_TRANSFER_FAILED();
-
-
-    /// @notice Arithmetic Error --
-    error UNSIGNED_INTEGER_OVERFLOW();
-
-
-    enum OptionState  {REQUEST, OPEN, CLOSED}
-    enum OptionFlavor {EUROPEAN, AMERICAN}
+    /// @dev -- SCAFFOLDING ---------------------------
+    enum OptionState  { REQUEST, OPEN, CLOSED }
+    enum OptionFlavor { EUROPEAN, AMERICAN }
 
     struct Option {
         address payable      buyer;
@@ -85,16 +23,20 @@ contract NFTOpt {
         OptionState state;
     }
 
+    /// @dev -- STACK ---------------------------------
     uint256                    public optionID;
     mapping(uint256 => Option) public options;
 
-    event Received(address, uint);
-    event Fallback(address, uint);
-    event NewRequest(address, uint);
-    event Exercised(uint);
-    event Filled(address, uint);
-    event Canceled(address, uint);
+    /// @dev -- EVENTS --------------------------------
+    event Received  (address, uint256);
+    event Fallback  (address, uint256);
 
+    event NewRequest(address, uint256);
+    event Exercised (uint256);
+    event Filled    (address, uint256);
+    event Canceled  (address, uint256);
+
+    /// @dev -- PAYABLE AND BALANCE  ------------------
     receive() external payable
     {
         emit Received(msg.sender, msg.value);
@@ -161,6 +103,10 @@ contract NFTOpt {
         return !_error;
     }
 
+    /// @dev -- METHODS -------------------------------
+
+    /// @notice Description
+    /// @custom:author PeterA
     function publishOptionRequest
     (
         address      _nftContract
@@ -220,6 +166,8 @@ contract NFTOpt {
         emit NewRequest(msg.sender, optionID);
     }
 
+    /// @notice Description
+    /// @custom:author GregVanDell
     function withdrawOptionRequest(uint256 _optionId)
     external
     payable
@@ -228,6 +176,8 @@ contract NFTOpt {
         options[_optionId].state = OptionState.CLOSED;
     }
 
+    /// @notice Description
+    /// @custom:author StefanaM
     function createOption(uint256 _optionId)
     external
     payable
@@ -259,12 +209,12 @@ contract NFTOpt {
 
         if (option.buyer == msg.sender)
         {
-            revert CANNOT_HAVE_BUYER_SAME_AS_SELLER();
+            revert BUYER_MUST_DIFFER_FROM_SELLER();
         }
 
         if (getBalance() < option.premium)
         {
-            revert MISSING_FUNDS_TO_PAY_REQUESTED_AMOUNT(option.premium);
+            revert INSUFFICIENT_FUNDS();
         }
 
         if (msg.value != option.strikePrice)
@@ -292,6 +242,8 @@ contract NFTOpt {
         emit Filled(msg.sender, _optionId);
     }
 
+    /// @notice Description
+    /// @custom:author ShababAli
     function cancelOption(uint256 _optionId)
     external
     payable
@@ -354,6 +306,8 @@ contract NFTOpt {
         emit Canceled(msg.sender, _optionId);
     }
 
+    /// @notice Description
+    /// @custom:author LuisImagiire
     function exerciseOption(uint256 _optionId)
     external
     payable
@@ -386,7 +340,7 @@ contract NFTOpt {
 
         if (nftContract.getApproved(option.nftId) != address(this))
         {
-            revert NFT_NOT_APPROVED(option.nftContract, option.nftId);
+            revert NOT_APPROVED_TO_TRANSFER_NFT(option.nftContract, option.nftId);
         }
 
         if (option.startDate + option.interval < option.startDate)
@@ -427,4 +381,32 @@ contract NFTOpt {
 
         emit Exercised(_optionId);
     }
+
+    /// @dev -- CUSTOM ERRORS -------------------------
+
+    /// @dev -- Option Property
+    error INVALID_OPTION_ID(uint256 id);
+    error INVALID_TOKEN_ID(uint256 id);
+    error INVALID_PREMIUM_AMOUNT(uint256 premium);
+    error INVALID_STRIKE_PRICE_AMOUNT(uint256 strikePrice);
+    error INVALID_EXPIRATION_INTERVAL(uint32 interval);
+
+    /// @dev -- Account
+    error NOT_AUTHORIZED(address user, string reason);
+    error NOT_APPROVED_TO_TRANSFER_NFT(address nftContract, uint256 nftId);
+    error NFT_NOT_OWNER(address presumedOwner);
+
+    /// @dev -- Option Action
+    error BUYER_MUST_DIFFER_FROM_SELLER();
+    error EXERCISE_WINDOW_IS_CLOSED(uint256 expirationTimestamp);
+    error OPTION_REQUEST_ALREADY_FULFILLED(address fulfillerAddress);
+    error INVALID_OPTION_STATE(OptionState currentState, OptionState neededState);
+
+    /// @dev -- Funds-related
+    error INSUFFICIENT_FUNDS();
+    error FUNDS_TRANSFER_FAILED();
+
+    /// @dev -- General
+    error NOT_AN_INTERFACE_OF(string interfaceName, address contractAddress);
+    error UNSIGNED_INTEGER_OVERFLOW();
 }

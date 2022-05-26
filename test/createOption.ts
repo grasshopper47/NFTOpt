@@ -50,7 +50,7 @@ describe("NFTOpt Tests", function () {
 
             await expect(NFTOptCTR.connect(buyer)
                 .createOption(1))
-                .to.be.revertedWith("CANNOT_HAVE_BUYER_SAME_AS_SELLER");
+                .to.be.revertedWith("BUYER_MUST_DIFFER_FROM_SELLER");
         });
 
         it("fails when the wrong strike price is provided by the seller", async function () {
