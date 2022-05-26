@@ -26,7 +26,7 @@ type FormState = {
     asset?: NFTAsset;
     strikePrice?: string;
     premium?: string;
-    interval?: string;
+    interval?: number;
     flavor?: OptionFlavor;
 };
 
@@ -40,6 +40,7 @@ function CreateOption() {
         asset: dummyNFT,
         strikePrice: "",
         premium: "",
+        // @ts-ignore
         interval: "",
         flavor: OptionFlavor.EUROPEAN,
     });
@@ -84,19 +85,19 @@ function CreateOption() {
 
         return (
             !missingFormFields &&
-            parseFloat(formState.premium) !== 0 &&
             formState.premium != null &&
             formState.premium != "" &&
-            parseFloat(formState.strikePrice) !== 0 &&
+            parseFloat(formState.premium) !== 0 &&
             formState.strikePrice != null &&
             formState.strikePrice != "" &&
-            formState.interval != null &&
-            formState.interval != ""
+            parseFloat(formState.strikePrice) !== 0 &&
+            formState.interval != 0
         );
     };
 
     const handleChangeInterval = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (!event.target.value) {
+            // @ts-ignore
             setFormState((prev) => ({
                 ...prev,
                 interval: "",
@@ -107,7 +108,7 @@ function CreateOption() {
 
         setFormState((prev) => ({
             ...prev,
-            interval: Math.max(1, Math.min(parseInt(event.target.value), 30)).toString(),
+            interval: Math.max(1, Math.min(parseInt(event.target.value), 30)),
         }));
     };
 
@@ -121,7 +122,7 @@ function CreateOption() {
                 formState.asset.address,
                 formState.asset.tokenId,
                 ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
-                parseInt(formState.interval) * 24 * 3600, // days in seconds
+                formState.interval * 24 * 3600, // days in seconds
                 formState.flavor,
                 txOptions
             );

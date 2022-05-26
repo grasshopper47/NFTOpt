@@ -22,8 +22,8 @@ function MyOptions() {
     useEffect(() => {
         setCurrentAccountOptions(
             contractOptions.filter((option) =>
-                option.buyer.toLowerCase() === account ||
-                option.seller.toLowerCase() === account)
+                option.buyer === account ||
+                option.seller === account)
         );
     }, [contractOptions, account]);
 

@@ -104,6 +104,7 @@ export async function fetchNFTDetailsForOneOptions(
 ) {
     let asset: NFTAsset | null = null;
     asset = {
+        id: 1,
         tokenId: nftTokenId,
         address: nftContract,
         name: "???",
@@ -142,6 +143,7 @@ export async function fetchNFTDetailsForMultipleOptions(
 
     for (let option of options) {
         asset = {
+            id: option.id + 1,
             tokenId: option.nftId,
             address: option.nftContract,
             name: `Option ${option.id}`,
@@ -149,7 +151,6 @@ export async function fetchNFTDetailsForMultipleOptions(
             url: "https://freesvg.org/img/Placeholder.png",
         };
 
-        console.log(option);
         optionsWithNFTDetails.push({
             ...option,
             asset
@@ -191,7 +192,7 @@ function checkOptionExists(option: Option): boolean {
         option.nftId === "0" ||
         option.premium === "0" ||
         option.strikePrice === "0" ||
-        option.interval === "0"
+        option.interval === 0
     ) {
         return false;
     }
@@ -201,15 +202,19 @@ function checkOptionExists(option: Option): boolean {
 export async function loadContractOptions(contract: NFTOpt, setOptionsCallback: (options: Option[]) => void) {
     let options: Option[] = [];
     try {
-        const optionsLength = await (await contract.optionID()).toNumber();
+        let optionIDPromise = await contract.optionID();
+
+        if (optionIDPromise === undefined) { return; }
+
+        const optionsLength = optionIDPromise.toNumber();
         for (let optionId = 0; optionId <= optionsLength; ++optionId) {
             const contractOption = await contract.options(optionId);
             const option: Option = {
                 id: optionId,
-                buyer: contractOption.buyer,
-                seller: contractOption.seller,
+                buyer: contractOption.buyer.toLowerCase(),
+                seller: contractOption.seller.toLowerCase(),
                 flavor: contractOption.flavor,
-                interval: (contractOption.interval / (24 * 3600)).toString(),
+                interval: contractOption.interval / (24 * 3600),
                 nftContract: contractOption.nftContract,
                 nftId: contractOption.nftId.toString(),
                 premium: ethers.utils.formatEther(contractOption.strikePrice).toString(),

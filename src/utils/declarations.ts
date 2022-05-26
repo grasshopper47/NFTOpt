@@ -3,6 +3,7 @@ export type WithChildren = {
 };
 
 export type NFTAsset = {
+    id: number;
     tokenId: string;
     address: string;
     name: string;
@@ -28,11 +29,11 @@ export type Option = {
     nftContract: string;
     nftId: string;
     startDate: string;
-    interval: string;
+    interval: number;
     premium: string;
     strikePrice: string;
-    flavor: OptionFlavor | null;
-    state: OptionState | null;
+    flavor: OptionFlavor;
+    state: OptionState;
 };
 
 export type OptionWithNFTDetails = Omit<Option, "nftContract" | "nftId"> & { asset: NFTAsset };

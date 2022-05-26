@@ -91,11 +91,15 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
             return false;
         }
         const today = endOfDay(new Date());
+        let end_day = new Date(option.startDate);
+
+        end_day.setDate(end_day.getDate() + option.interval / (24 * 3600));
+
         if (option.flavor === OptionFlavor.EUROPEAN) {
-            return isSameDay(option.interval, today);
+            return isSameDay(end_day, today);
         }
         if (option.flavor === OptionFlavor.AMERICAN) {
-            return isBefore(today, option.interval) || isSameDay(option.interval, today);
+            return isBefore(today, end_day) || isSameDay(end_day, today);
         }
         return false;
     };
