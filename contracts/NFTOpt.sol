@@ -47,12 +47,17 @@ contract NFTOpt {
 
     /// @dev -- METHODS -------------------------------
 
-    /// @notice Description
     /// @custom:author PeterA
+    /// @notice Publishes a request for an option in the marketplace
+    /// @param _nftContract: address of NFT contract of token
+    /// @param _nftTokenID: ID of NFT token from specified contract
+    /// @param _strikePrice: floor price of NFT to insure against
+    /// @param _interval: time the option is to be available for, in seconds
+    /// @param _flavor: EUROPEAN or AMERICAN
     function publishOptionRequest
     (
         address      _nftContract
-    ,   uint256      _nftId
+    ,   uint256      _nftTokenID
     ,   uint256      _strikePrice
     ,   uint32       _interval
     ,   OptionFlavor _flavor
@@ -65,12 +70,12 @@ contract NFTOpt {
             revert NOT_AN_INTERFACE_OF("ERC-721", _nftContract);
         }
 
-        if (_nftId == 0)
+        if (_nftTokenID == 0)
         {
-            revert INVALID_TOKEN_ID(_nftId);
+            revert INVALID_TOKEN_ID(_nftTokenID);
         }
 
-        if (IERC721(_nftContract).ownerOf(_nftId) != msg.sender)
+        if (IERC721(_nftContract).ownerOf(_nftTokenID) != msg.sender)
         {
             revert NFT_NOT_OWNER(msg.sender);
         }
@@ -96,7 +101,7 @@ contract NFTOpt {
             buyer       : payable(msg.sender)
         ,   seller      : payable(address(0))
         ,   nftContract : _nftContract
-        ,   nftId       : _nftId
+        ,   nftId       : _nftTokenID
         ,   startDate   : 0
         ,   interval    : _interval
         ,   premium     : msg.value
@@ -108,8 +113,8 @@ contract NFTOpt {
         emit NewRequest(msg.sender, optionID);
     }
 
-    /// @notice Description
     /// @custom:author GregVanDell
+    /// @notice Description
     function withdrawOptionRequest(uint256 _optionId)
     external
     payable
@@ -118,8 +123,8 @@ contract NFTOpt {
         options[_optionId].state = OptionState.CLOSED;
     }
 
-    /// @notice Description
     /// @custom:author StefanaM
+    /// @notice Description
     function createOption(uint256 _optionId)
     external
     payable
@@ -184,8 +189,8 @@ contract NFTOpt {
         emit Filled(msg.sender, _optionId);
     }
 
-    /// @notice Description
     /// @custom:author ShababAli
+    /// @notice Description
     function cancelOption(uint256 _optionId)
     external
     payable
@@ -248,8 +253,8 @@ contract NFTOpt {
         emit Canceled(msg.sender, _optionId);
     }
 
-    /// @notice Description
     /// @custom:author LuisImagiire
+    /// @notice Description
     function exerciseOption(uint256 _optionId)
     external
     payable
