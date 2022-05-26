@@ -26,7 +26,7 @@ describe("cancelOption", function () {
             .to.be.revertedWith("INVALID_OPTION_ID");
     });
 
-    it("reverts when the option NOT in OPEN state", async function () {
+    it("reverts when option state is not OPEN", async function () {
         await publishDummyOptionRequest();
 
         var publishedOption = await NFTOptCTR.connect(buyer).options(1);
