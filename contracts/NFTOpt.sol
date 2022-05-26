@@ -32,24 +32,13 @@ contract NFTOpt {
     mapping(uint256 => Option) public options;
 
     /// @dev -- EVENTS --------------------------------
-    event Received  (address, uint256);
-    event Fallback  (address, uint256);
-
     event NewRequest(address, uint256);
     event Exercised (uint256);
     event Filled    (address, uint256);
     event Canceled  (address, uint256);
 
     /// @dev -- PAYABLE AND BALANCE  ------------------
-    receive() external payable
-    {
-        emit Received(msg.sender, msg.value);
-    }
-
-    fallback() external payable
-    {
-        emit Fallback(msg.sender, msg.value);
-    }
+    receive() external payable { }
 
     function getBalance() public view returns (uint)
     {
