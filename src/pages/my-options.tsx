@@ -1,17 +1,16 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import OptionsListContainer from "../components/OptionsListContainer";
-import {Option, OptionWithNFTDetails} from "../utils/declarations";
-import {useAccount, useContracts} from "../providers/contexts";
-import {fetchNFTDetailsForMultipleOptions, loadContractOptions} from "../utils/api";
+import { Option, OptionState, OptionWithNFTDetails } from "../utils/declarations";
+import { useAccount, useContracts } from "../providers/contexts";
+import { fetchNFTDetailsForMultipleOptions, loadContractOptions } from "../utils/api";
 
 function MyOptions() {
     const account = useAccount();
-    const {nftOpt} = useContracts();
+    const { nftOpt } = useContracts();
 
     const [contractOptions, setContractOptions] = useState<Option[]>([]);
     const [currentAccountOptions, setCurrentAccountOptions] = useState<Option[]>([]);
-
     const [optionsWithNFTDetails, setOptionsWithNFTDetails] = useState<OptionWithNFTDetails[]>([]);
 
     // Firstly load the contract options
@@ -22,10 +21,13 @@ function MyOptions() {
     // Then filter the options for the current account => current account is either seller or buyer
     useEffect(() => {
         setCurrentAccountOptions(
-            contractOptions.filter((option) => option.buyer === account || option.seller === account)
+            contractOptions.filter((option) =>
+                option.buyer.toLowerCase() === account ||
+                option.seller.toLowerCase() === account)
         );
     }, [contractOptions, account]);
 
+    // console.log(contractOptions.filter((option) => option.buyer === account || option.seller === account));
     // Then fetch the NFT details for the current account options
     useEffect(() => {
         fetchNFTDetailsForMultipleOptions(currentAccountOptions, setOptionsWithNFTDetails);

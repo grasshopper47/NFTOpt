@@ -3,7 +3,6 @@ export type WithChildren = {
 };
 
 export type NFTAsset = {
-    id: string;
     tokenId: string;
     address: string;
     name: string;
@@ -23,17 +22,17 @@ export enum OptionState {
 }
 
 export type Option = {
-    id: string | null;
-    buyer: string | null;
-    seller: string | null;
-    nftContract: string | null;
-    nftId: string | null;
-    startDate: number;
-    interval: number;
-    premium: number | null;
-    strikePrice: number | null;
+    id: number;
+    buyer: string;
+    seller: string;
+    nftContract: string;
+    nftId: string;
+    startDate: string;
+    interval: string;
+    premium: string;
+    strikePrice: string;
     flavor: OptionFlavor | null;
     state: OptionState | null;
 };
 
-export type OptionWithNFTDetails = Omit<Option, "nftContract" | "nftId"> & {asset: NFTAsset};
+export type OptionWithNFTDetails = Omit<Option, "nftContract" | "nftId"> & { asset: NFTAsset };
