@@ -9,111 +9,109 @@ import {
     OptionState,
 } from "./utils";
 
-describe("NFTOpt Tests", function () {
-    beforeEach("deploy contract", async () => {
-        await contractInitializer();
+beforeEach("deploy contract", async () => {
+    await contractInitializer();
+});
+
+describe("createOption", function () {
+    it("fails when the option with the specified id does not exist", async function () {
+        await expect(NFTOptCTR.connect(seller)
+            .createOption(9999))
+            .to.be.revertedWith("INVALID_OPTION_ID");
     });
 
-    describe("createOption", function () {
-        it("fails when the option with the specified id does not exist", async function () {
-            await expect(NFTOptCTR.connect(seller)
-                .createOption(9999))
-                .to.be.revertedWith("INVALID_OPTION_ID");
-        });
+    it("fails when the option is already fulfilled by a seller", async function () {
+        await publishDummyOptionRequest();
 
-        it("fails when the option is already fulfilled by a seller", async function () {
-            await publishDummyOptionRequest();
+        await expect(NFTOptCTR.connect(seller)
+            .createOption(1, { value: dummyOptionRequest.strikePrice }))
+            .to.emit(NFTOptCTR, "Filled");
 
-            await expect(NFTOptCTR.connect(seller)
-                .createOption(1, { value: dummyOptionRequest.strikePrice }))
-                .to.emit(NFTOptCTR, "Filled");
+        await expect(NFTOptCTR.connect(seller)
+            .createOption(1, { value: dummyOptionRequest.strikePrice }))
+            .to.be.revertedWith("OPTION_REQUEST_ALREADY_FULFILLED");
+    });
 
-            await expect(NFTOptCTR.connect(seller)
-                .createOption(1, { value: dummyOptionRequest.strikePrice }))
-                .to.be.revertedWith("OPTION_REQUEST_ALREADY_FULFILLED");
-        });
+    it("fails when the option is not in the request state", async function () {
+        await publishDummyOptionRequest();
 
-        it("fails when the option is not in the request state", async function () {
-            await publishDummyOptionRequest();
+        await expect(NFTOptCTR.connect(buyer)
+            .withdrawOptionRequest(1))
+            .to.not.be.reverted;
 
-            await expect(NFTOptCTR.connect(buyer)
-                .withdrawOptionRequest(1))
-                .to.not.be.reverted;
+        await expect(NFTOptCTR.connect(seller)
+            .createOption(1))
+            .to.be.revertedWith("INVALID_OPTION_STATE");
+    });
 
-            await expect(NFTOptCTR.connect(seller)
-                .createOption(1))
-                .to.be.revertedWith("INVALID_OPTION_STATE");
-        });
+    it("fails when the option seller is the same as the option buyer", async function () {
+        await publishDummyOptionRequest();
 
-        it("fails when the option seller is the same as the option buyer", async function () {
-            await publishDummyOptionRequest();
+        await expect(NFTOptCTR.connect(buyer)
+            .createOption(1))
+            .to.be.revertedWith("BUYER_MUST_DIFFER_FROM_SELLER");
+    });
 
-            await expect(NFTOptCTR.connect(buyer)
-                .createOption(1))
-                .to.be.revertedWith("BUYER_MUST_DIFFER_FROM_SELLER");
-        });
+    it("fails when the wrong strike price is provided by the seller", async function () {
+        await publishDummyOptionRequest();
 
-        it("fails when the wrong strike price is provided by the seller", async function () {
-            await publishDummyOptionRequest();
+        await expect(NFTOptCTR.connect(seller)
+            .createOption(1, { value: dummyOptionRequest.strikePrice.sub(1) }))
+            .to.be.revertedWith("INVALID_STRIKE_PRICE_AMOUNT");
+    });
 
-            await expect(NFTOptCTR.connect(seller)
-                .createOption(1, { value: dummyOptionRequest.strikePrice.sub(1) }))
-                .to.be.revertedWith("INVALID_STRIKE_PRICE_AMOUNT");
-        });
+    it("succeeds when called with valid values", async function () {
+        let contractBalance = await NFTOptCTR.getBalance();
 
-        it("succeeds when called with valid values", async function () {
-            let contractBalance = await NFTOptCTR.getBalance();
+        expect(contractBalance).to.equal(0);
 
-            expect(contractBalance).to.equal(0);
+        await publishDummyOptionRequest();
 
-            await publishDummyOptionRequest();
+        contractBalance = await NFTOptCTR.getBalance();
 
-            contractBalance = await NFTOptCTR.getBalance();
+        expect(contractBalance).to.equal(dummyOptionRequest.premium);
 
-            expect(contractBalance).to.equal(dummyOptionRequest.premium);
+        // Seller responds to request and creates an option
+        let sellerBalance0 = await seller.getBalance();
 
-            // Seller responds to request and creates an option
-            let sellerBalance0 = await seller.getBalance();
+        let tx = NFTOptCTR.connect(seller).createOption(1, { value: dummyOptionRequest.strikePrice });
 
-            let tx = NFTOptCTR.connect(seller).createOption(1, { value: dummyOptionRequest.strikePrice });
+        let transaction = await tx;
+        let transactionReceipt = await transaction.wait();
 
-            let transaction = await tx;
-            let transactionReceipt = await transaction.wait();
+        // Get transaction gas costs
+        const gasUsed = transactionReceipt.gasUsed;
+        const gasPrice = transaction.gasPrice;
+        const gasUsedInTransaction = gasUsed.mul(gasPrice ?? 0);
 
-            // Get transaction gas costs
-            const gasUsed = transactionReceipt.gasUsed;
-            const gasPrice = transaction.gasPrice;
-            const gasUsedInTransaction = gasUsed.mul(gasPrice ?? 0);
+        await expect(tx).to.emit(NFTOptCTR, "Filled");
 
-            await expect(tx).to.emit(NFTOptCTR, "Filled");
+        // Check that the collateral was paid
+        contractBalance = await NFTOptCTR.getBalance();
+        expect(contractBalance).to.equal(dummyOptionRequest.strikePrice);
 
-            // Check that the collateral was paid
-            contractBalance = await NFTOptCTR.getBalance();
-            expect(contractBalance).to.equal(dummyOptionRequest.strikePrice);
+        const updatedOption = await NFTOptCTR.connect(seller).options(1);
 
-            const updatedOption = await NFTOptCTR.connect(seller).options(1);
+        expect(updatedOption.startDate).to.not.equal(0);
+        expect(updatedOption.seller).to.equal(seller.address);
+        expect(updatedOption.state).to.equal(OptionState.Open);
 
-            expect(updatedOption.startDate).to.not.equal(0);
-            expect(updatedOption.seller).to.equal(seller.address);
-            expect(updatedOption.state).to.equal(OptionState.Open);
+        // Check that the seller's new balance is equal with the initial balance - gas used in transaction + premium - strikePrice
+        let sellerBalance1 = await seller.getBalance();
 
-            // Check that the seller's new balance is equal with the initial balance - gas used in transaction + premium - strikePrice
-            let sellerBalance1 = await seller.getBalance();
+        sellerBalance1 = sellerBalance1.sub(updatedOption.premium)
+            .add(dummyOptionRequest.strikePrice)
+            .add(gasUsedInTransaction);
 
-            sellerBalance1 = sellerBalance1.sub(updatedOption.premium)
-                .add(dummyOptionRequest.strikePrice)
-                .add(gasUsedInTransaction);
+        expect(sellerBalance0).to.equal(sellerBalance1);
+    });
 
-            expect(sellerBalance0).to.equal(sellerBalance1);
-        });
+    it("emits 'Filled' event when succeeded", async function () {
+        await publishDummyOptionRequest();
 
-        it("emits 'Filled' event when succeeded", async function () {
-            await publishDummyOptionRequest();
-
-            await expect(NFTOptCTR.connect(seller)
-                .createOption(1, { value: dummyOptionRequest.strikePrice }))
-                .to.emit(NFTOptCTR, "Filled")
-                .withArgs(seller.address, 1);
-        });
+        await expect(NFTOptCTR.connect(seller)
+            .createOption(1, { value: dummyOptionRequest.strikePrice }))
+            .to.emit(NFTOptCTR, "Filled")
+            .withArgs(seller.address, 1);
     });
 });
