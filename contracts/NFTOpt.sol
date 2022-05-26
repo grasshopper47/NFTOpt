@@ -1,170 +1,63 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.14;
 
-/**
- * @dev OpenZeppelin's interface of EIP-721 https://eips.ethereum.org/EIPS/eip-721.
- */
+/// @dev OpenZeppelin's interface of EIP-721 https://eips.ethereum.org/EIPS/eip-721.
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
+import "./InterfaceDetector.sol";
 
 contract NFTOpt {
 
+    using InterfaceDetector for address;
 
-    /// @notice Option Property Errors --
-    /// @notice Invalid option ID
-    error INVALID_OPTION_ID(uint256 id);
-
-    /// @notice Invalid NFT token ID
-    error INVALID_TOKEN_ID(uint256 id);
-
-    /// @notice Invalid NFT contract address
-    error NOT_AN_INTERFACE_OF(string interfaceName, address contractAddress);
-
-    /// @notice Invalid premium amount
-    error INVALID_PREMIUM_AMOUNT(uint256 premium);
-
-    /// @notice Invalid strike price
-    error INVALID_STRIKE_PRICE_AMOUNT(uint256 strikePrice);
-
-    /// @notice Missing requested funds from balancce
-    error MISSING_FUNDS_TO_PAY_REQUESTED_AMOUNT(uint256 requestedAmount);
-
-    /// @notice Invalid interval
-    error INVALID_EXPIRATION_INTERVAL(uint32 interval);
-
-
-    /// @notice Account/Address Errors --
-    /// @notice Address does not have permission to execute action
-    error NOT_AUTHORIZED(address providedAddress, string reason);
-
-    /// @notice Contract address needs approval from owner to transfer NFT
-    error NFT_NOT_APPROVED(address nftAddress, uint256 nftId);
-
-    /// @notice Address is not owner of the NFT
-    error NFT_NOT_OWNER(address presumableOwnerAddress);
-
-
-    /// @notice Option event/actions Errors --
-    /// @notice Buyer always != seller
-    error CANNOT_HAVE_BUYER_SAME_AS_SELLER();
-
-    /// @notice Current timestamp does not allow for option exercise
-    error EXERCISE_WINDOW_IS_CLOSED(uint256 expirationTimestamp);
-
-    /// @notice Current timestamp does not allow for option exercise
-    error OPTION_REQUEST_ALREADY_FULFILLED(address fulfillerAddress);
-
-    /// @notice Current option state is not allowed for this transaction
-    error INVALID_OPTION_STATE(OptionState currentState, OptionState neededState);
-
-
-    /// @notice Funds Transfer Errors --
-    /// @notice Insufficient funds in escrow to withdrawal
-    error INSUFFICIENT_FUNDS();
-
-    /// @notice Failed to transfer funds from escrow to msg.sender
-    error FUNDS_TRANSFER_FAILED();
-
-
-    /// @notice Arithmetic Error --
-    error UNSIGNED_INTEGER_OVERFLOW();
-
-
-    enum OptionState  {REQUEST, OPEN, CLOSED}
-    enum OptionFlavor {EUROPEAN, AMERICAN}
+    /// @dev -- SCAFFOLDING ---------------------------
+    enum OptionState  { REQUEST, OPEN, CLOSED }
+    enum OptionFlavor { EUROPEAN, AMERICAN }
 
     struct Option {
-        address payable      buyer;
-        address payable      seller;
-        address              nftContract;
-        uint32               interval;
-        uint256              startDate;
-        uint256              premium;
-        uint256              strikePrice;
-        uint256              nftId;
-        OptionFlavor flavor;
-        OptionState state;
+        address payable buyer;
+        OptionFlavor    flavor;
+        address payable seller;
+        OptionState     state;
+        address         nftContract;
+        uint32          interval;
+        uint256         startDate;
+        uint256         premium;
+        uint256         strikePrice;
+        uint256         nftId;
     }
 
+    /// @dev -- STACK ---------------------------------
     uint256                    public optionID;
     mapping(uint256 => Option) public options;
 
-    event Received(address, uint);
-    event Fallback(address, uint);
-    event NewRequest(address, uint);
-    event Exercised(uint);
-    event Filled(address, uint);
-    event Canceled(address, uint);
+    /// @dev -- EVENTS --------------------------------
+    event NewRequest(address, uint256);
+    event Exercised (uint256);
+    event Filled    (address, uint256);
+    event Canceled  (address, uint256);
 
-    receive() external payable
-    {
-        emit Received(msg.sender, msg.value);
-    }
-
-    fallback() external payable
-    {
-        emit Fallback(msg.sender, msg.value);
-    }
+    /// @dev -- PAYABLE AND BALANCE  ------------------
+    receive() external payable { }
 
     function getBalance() public view returns (uint)
     {
         return address(this).balance;
     }
 
-    function _detect_if_contract_implements_ERC721(address _token)
-    internal
-    returns (bool)
-    {
-        /// @dev Testing by trying to call two methods: ownerOf, getApproved
-        ///      Sent with 0 gas, expecting error, so as to avoid incurring extra costs
+    /// @dev -- METHODS -------------------------------
 
-        bool _error;
-
-        bytes memory data =
-        abi.encodeWithSelector
-        (
-            bytes4(keccak256("ownerOf(uint256)"))   // encoded method name and comma-separated list of parameter types
-        ,   0                                       // values for parameters
-        );
-
-        assembly
-        {
-            _error := call
-            (
-                0,                // gas remaining
-                _token,           // destination address
-                0,                // no value
-                add(data, 32),    // input buffer (starts after the first 32 bytes in the `data` array)
-                mload(data),      // input length (loaded from the first 32 bytes in the `data` array)
-                0,                // output buffer
-                0                 // output length
-            )
-        }
-
-        if (_error) { return false; }
-
-        data = abi.encodeWithSelector(bytes4(keccak256("getApproved(uint256)")), 0);
-
-        assembly
-        {
-            _error := call
-            (
-                0,
-                _token,
-                0,
-                add(data, 32),
-                mload(data),
-                0,
-                0
-            )
-        }
-
-        return !_error;
-    }
-
+    /// @custom:author PeterA
+    /// @notice Publishes a request for an option in the marketplace
+    /// @param _nftContract: address of NFT contract of token
+    /// @param _nftTokenID: ID of NFT token from specified contract
+    /// @param _strikePrice: floor price of NFT to insure against
+    /// @param _interval: time the option is to be available for, in seconds
+    /// @param _flavor: EUROPEAN or AMERICAN
     function publishOptionRequest
     (
         address      _nftContract
-    ,   uint256      _nftId
+    ,   uint256      _nftTokenID
     ,   uint256      _strikePrice
     ,   uint32       _interval
     ,   OptionFlavor _flavor
@@ -172,17 +65,17 @@ contract NFTOpt {
     external
     payable
     {
-        if (!_detect_if_contract_implements_ERC721(_nftContract))
+        if (!_nftContract.isInterfaceOf_ERC721())
         {
             revert NOT_AN_INTERFACE_OF("ERC-721", _nftContract);
         }
 
-        if (_nftId == 0)
+        if (_nftTokenID == 0)
         {
-            revert INVALID_TOKEN_ID(_nftId);
+            revert INVALID_TOKEN_ID(_nftTokenID);
         }
 
-        if (IERC721(_nftContract).ownerOf(_nftId) != msg.sender)
+        if (IERC721(_nftContract).ownerOf(_nftTokenID) != msg.sender)
         {
             revert NFT_NOT_OWNER(msg.sender);
         }
@@ -208,7 +101,7 @@ contract NFTOpt {
             buyer       : payable(msg.sender)
         ,   seller      : payable(address(0))
         ,   nftContract : _nftContract
-        ,   nftId       : _nftId
+        ,   nftId       : _nftTokenID
         ,   startDate   : 0
         ,   interval    : _interval
         ,   premium     : msg.value
@@ -220,6 +113,8 @@ contract NFTOpt {
         emit NewRequest(msg.sender, optionID);
     }
 
+    /// @custom:author GregVanDell
+    /// @notice Description
     function withdrawOptionRequest(uint256 _optionId)
     external
     payable
@@ -228,6 +123,8 @@ contract NFTOpt {
         options[_optionId].state = OptionState.CLOSED;
     }
 
+    /// @custom:author StefanaM
+    /// @notice Description
     function createOption(uint256 _optionId)
     external
     payable
@@ -259,12 +156,12 @@ contract NFTOpt {
 
         if (option.buyer == msg.sender)
         {
-            revert CANNOT_HAVE_BUYER_SAME_AS_SELLER();
+            revert BUYER_MUST_DIFFER_FROM_SELLER();
         }
 
         if (getBalance() < option.premium)
         {
-            revert MISSING_FUNDS_TO_PAY_REQUESTED_AMOUNT(option.premium);
+            revert INSUFFICIENT_FUNDS();
         }
 
         if (msg.value != option.strikePrice)
@@ -292,6 +189,8 @@ contract NFTOpt {
         emit Filled(msg.sender, _optionId);
     }
 
+    /// @custom:author ShababAli
+    /// @notice Description
     function cancelOption(uint256 _optionId)
     external
     payable
@@ -354,6 +253,8 @@ contract NFTOpt {
         emit Canceled(msg.sender, _optionId);
     }
 
+    /// @custom:author LuisImagiire
+    /// @notice Description
     function exerciseOption(uint256 _optionId)
     external
     payable
@@ -386,7 +287,7 @@ contract NFTOpt {
 
         if (nftContract.getApproved(option.nftId) != address(this))
         {
-            revert NFT_NOT_APPROVED(option.nftContract, option.nftId);
+            revert NOT_APPROVED_TO_TRANSFER_NFT(option.nftContract, option.nftId);
         }
 
         if (option.startDate + option.interval < option.startDate)
@@ -427,4 +328,32 @@ contract NFTOpt {
 
         emit Exercised(_optionId);
     }
+
+    /// @dev -- CUSTOM ERRORS -------------------------
+
+    /// @dev -- Option Property
+    error INVALID_OPTION_ID(uint256 id);
+    error INVALID_TOKEN_ID(uint256 id);
+    error INVALID_PREMIUM_AMOUNT(uint256 premium);
+    error INVALID_STRIKE_PRICE_AMOUNT(uint256 strikePrice);
+    error INVALID_EXPIRATION_INTERVAL(uint32 interval);
+
+    /// @dev -- Account
+    error NOT_AUTHORIZED(address user, string reason);
+    error NOT_APPROVED_TO_TRANSFER_NFT(address nftContract, uint256 nftId);
+    error NFT_NOT_OWNER(address presumedOwner);
+
+    /// @dev -- Option Action
+    error BUYER_MUST_DIFFER_FROM_SELLER();
+    error EXERCISE_WINDOW_IS_CLOSED(uint256 expirationTimestamp);
+    error OPTION_REQUEST_ALREADY_FULFILLED(address fulfillerAddress);
+    error INVALID_OPTION_STATE(OptionState currentState, OptionState neededState);
+
+    /// @dev -- Funds-related
+    error INSUFFICIENT_FUNDS();
+    error FUNDS_TRANSFER_FAILED();
+
+    /// @dev -- General
+    error NOT_AN_INTERFACE_OF(string interfaceName, address contractAddress);
+    error UNSIGNED_INTEGER_OVERFLOW();
 }
