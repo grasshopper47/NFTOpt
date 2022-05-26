@@ -1,8 +1,8 @@
-import {expect} from "chai";
-import {BigNumber} from "ethers";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {NFTOpt, DummyNFT} from "../typechain-types";
-import {ethers} from "hardhat";
+import { expect } from "chai";
+import { BigNumber } from "ethers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { NFTOpt, DummyNFT } from "../typechain-types";
+import { ethers } from "hardhat";
 
 export const address_empty: string = "0x0000000000000000000000000000000000000000";
 
@@ -46,7 +46,7 @@ export let publishDummyOptionRequest = async () => {
             dummyOptionRequest.strikePrice,
             dummyOptionRequest.interval,
             dummyOptionRequest.flavor,
-            {value: dummyOptionRequest.premium}
+            { value: dummyOptionRequest.premium }
         )
     ).to.emit(NFTOptCTR, "NewRequest");
 };
@@ -67,15 +67,22 @@ export const contractInitializer = async () => {
 
     nonParticipant = accounts[3];
 
+    const InterfaceDetector = await ethers.getContractFactory("InterfaceDetector");
+    let InterfaceDetectorCTR = await InterfaceDetector.deploy();
+    await InterfaceDetectorCTR.deployed();
+
     // Deploy APP contract
-    const NFTOpt = await ethers.getContractFactory("NFTOpt");
-    // @ts-ignore
+    const NFTOpt = await ethers.getContractFactory("NFTOpt", {
+        libraries: {
+            "InterfaceDetector": InterfaceDetectorCTR.address,
+        },
+    });
+
     NFTOptCTR = await NFTOpt.deploy();
     await NFTOptCTR.deployed();
 
     // Deploy dummy NFT contract and mint 20 nfts to buyer
     const NFT = await ethers.getContractFactory("DummyNFT");
-    // @ts-ignore
     NFTDummyCTR = await NFT.deploy(buyer.address);
     await NFTDummyCTR.deployed();
 
