@@ -1,6 +1,8 @@
 import {ArrowBackIosRounded, ArrowRightAlt} from "@mui/icons-material";
 import {Button, IconButton, Link, Typography} from "@mui/material";
 import {endOfDay, isBefore, isSameDay} from "date-fns";
+import {ethers} from "ethers";
+import {useContracts} from "../providers/contexts";
 import {getAccountDisplayValue} from "../utils/api";
 import {OptionFlavor, OptionState, OptionWithNFTDetails} from "../utils/declarations";
 import classes from "./styles/OptionDetailsPreview.module.scss";
@@ -14,13 +16,44 @@ type OptionDetailsPreviewProps = {
 function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     const {currentAccount, option, onSelectOption} = props;
 
-    const handleWithdrawOption = () => {};
+    const {nftOpt} = useContracts();
 
-    const handleCancelOption = () => {};
+    const handleWithdrawOption = async () => {
+        try {
+            await nftOpt.withdrawOptionRequest(option.id);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
-    const handleCreateOption = () => {};
+    const handleCancelOption = async () => {
+        try {
+            await nftOpt.cancelOption(option.id);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
-    const handleExerciseOption = () => {};
+    const handleCreateOption = async () => {
+        const txOptions = {
+            value: ethers.utils.parseEther(`${option.strikePrice}`),
+            gasLimit: 100000,
+        };
+
+        try {
+            await nftOpt.createOption(option.id, txOptions);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleExerciseOption = async () => {
+        try {
+            await nftOpt.exerciseOption(option.id);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     const actionsForRequestState = (
         <>

@@ -28,8 +28,8 @@ export type Option = {
     seller: string | null;
     nftContract: string | null;
     nftId: string | null;
-    startDate: Date | null;
-    interval: Date | null;
+    startDate: number;
+    interval: number;
     premium: number | null;
     strikePrice: number | null;
     flavor: OptionFlavor | null;
