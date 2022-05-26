@@ -187,7 +187,6 @@ export async function loadContractOptions(contract: NFTOpt, setOptionsCallback: 
         const optionsLength = await (await contract.optionID()).toNumber();
         for (let optionId = 0; optionId <= optionsLength; ++optionId) {
             const contractOption = await contract.options(optionId);
-            console.log({contractOption});
             const option: Option = {
                 id: optionId.toString(),
                 buyer: contractOption.buyer,
