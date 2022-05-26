@@ -16,7 +16,7 @@ describe("createOption", function () {
         await initializer();
     });
 
-    it("reverts when the option with the specified id does not exist", async function () {
+    it("reverts with non-existent optionID", async function () {
         await expect(NFTOptCTR.connect(seller)
             .createOption(9999))
             .to.be.revertedWith("INVALID_OPTION_ID");
