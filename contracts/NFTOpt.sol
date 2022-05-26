@@ -15,16 +15,16 @@ contract NFTOpt {
     enum OptionFlavor { EUROPEAN, AMERICAN }
 
     struct Option {
-        address payable      buyer;
-        address payable      seller;
-        address              nftContract;
-        uint32               interval;
-        uint256              startDate;
-        uint256              premium;
-        uint256              strikePrice;
-        uint256              nftId;
-        OptionFlavor flavor;
-        OptionState state;
+        address payable buyer;
+        OptionFlavor    flavor;
+        address payable seller;
+        OptionState     state;
+        address         nftContract;
+        uint32          interval;
+        uint256         startDate;
+        uint256         premium;
+        uint256         strikePrice;
+        uint256         nftId;
     }
 
     /// @dev -- STACK ---------------------------------
