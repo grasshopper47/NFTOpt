@@ -20,6 +20,7 @@ import {NFTAsset, OptionFlavor} from "../utils/declarations";
 import classes from "./styles/CreateOption.module.scss";
 import {ethers} from "ethers";
 import {dummyNFT} from "../utils/dummyData";
+import toast from "react-hot-toast";
 
 type FormState = {
     asset?: NFTAsset;
@@ -110,14 +111,14 @@ function CreateOption() {
         }));
     };
 
-    const handlePublishOption = () => {
+    const handlePublishOption = async () => {
         const txOptions = {
             value: ethers.utils.parseEther(`${parseFloat(formState.premium)}`),
             gasLimit: 100000,
         };
 
         try {
-            nftOpt.publishOptionRequest(
+            await nftOpt.publishOptionRequest(
                 formState.asset.address,
                 formState.asset.tokenId,
                 ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
@@ -125,7 +126,9 @@ function CreateOption() {
                 formState.flavor,
                 txOptions
             );
+            toast.success("Option published successfully", {duration: 4000});
         } catch (error) {
+            toast.error("There was an error while trying to publish the option", {duration: 4000});
             console.error(error);
         }
     };

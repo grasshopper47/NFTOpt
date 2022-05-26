@@ -13,6 +13,7 @@ import {
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
 import addresses from "../../addresses.json";
 import Header from "../components/Header";
+import toast, {Toaster} from "react-hot-toast";
 
 const NFTOptContractAddr = addresses[networkName].NFTOpt;
 
@@ -45,9 +46,28 @@ export default function App({Component, pageProps}: AppProps) {
         load();
     }, []);
 
+    useEffect(() => {
+        if (!contracts.nftOpt) {
+            return;
+        }
+        contracts.nftOpt.on("NewRequest", () => {
+            toast.success("Successfully published a new request");
+        });
+        contracts.nftOpt.on("Exercised", () => {
+            toast.success("Successfully exercised the option request");
+        });
+        contracts.nftOpt.on("Filled", () => {
+            toast.success("Successfully filled the option request");
+        });
+        contracts.nftOpt.on("Canceled", () => {
+            toast.success("Successfully canceled the option request");
+        });
+    }, [contracts.nftOpt]);
+
     return (
         <AccountContext.Provider value={account}>
             <ContractsContext.Provider value={contracts}>
+                <Toaster />
                 <Header account={account} onConnectAccount={connectWallet.bind(null, setAccount)} />
                 <Component {...pageProps} />
             </ContractsContext.Provider>
