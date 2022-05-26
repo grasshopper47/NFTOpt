@@ -9,6 +9,7 @@ export const address_empty: string = "0x0000000000000000000000000000000000000000
 export let buyer: SignerWithAddress;
 export let seller: SignerWithAddress;
 export let nonParticipant: SignerWithAddress;
+export let InterfaceDetectorAddress: string;
 export let NFTOptCTR: NFTOpt;
 export let NFTDummyCTR: DummyNFT;
 
@@ -59,7 +60,30 @@ export async function increaseEVMTimestampBy(days: number) {
     await ethers.provider.send("evm_mine", []);
 }
 
-export const contractInitializer = async () => {
+export async function deployNFTOptContract() {
+    const NFTOpt = await ethers.getContractFactory("NFTOpt", {
+        libraries: {
+            "InterfaceDetector": InterfaceDetectorAddress,
+        },
+    });
+
+    // @ts-ignore
+    NFTOptCTR = await NFTOpt.deploy();
+    await NFTOptCTR.deployed();
+}
+
+export async function deployNFTDummyContract() {
+    // Deploy dummy NFT contract and mint 20 nfts to buyer
+    const NFT = await ethers.getContractFactory("DummyNFT");
+    // @ts-ignore
+    NFTDummyCTR = await NFT.deploy(buyer.address);
+    await NFTDummyCTR.deployed();
+
+    dummyOptionRequest.nftContract = NFTDummyCTR.address
+    dummyOptionRequest.nftId = 10;
+}
+
+export const initializer = async () => {
     const accounts = await ethers.getSigners();
 
     buyer = accounts[0];
@@ -67,30 +91,11 @@ export const contractInitializer = async () => {
 
     nonParticipant = accounts[3];
 
-    const InterfaceDetector = await ethers.getContractFactory("InterfaceDetector");
-    let InterfaceDetectorCTR = await InterfaceDetector.deploy();
-    await InterfaceDetectorCTR.deployed();
-
-    // Deploy APP contract
-    const NFTOpt = await ethers.getContractFactory("NFTOpt", {
-        libraries: {
-            "InterfaceDetector": InterfaceDetectorCTR.address,
-        },
-    });
-
-    NFTOptCTR = await NFTOpt.deploy();
-    await NFTOptCTR.deployed();
-
-    // Deploy dummy NFT contract and mint 20 nfts to buyer
-    const NFT = await ethers.getContractFactory("DummyNFT");
-    NFTDummyCTR = await NFT.deploy(buyer.address);
-    await NFTDummyCTR.deployed();
-
     dummyOptionRequest = {
         buyer: buyer.address,
         seller: address_empty,
-        nftContract: NFTDummyCTR.address,
-        nftId: 10,
+        nftContract: "",
+        nftId: 0,
         startDate: 0,
         interval: 7 * 24 * 3600, //  7 days
         premium: ethers.utils.parseEther("1"),
@@ -98,4 +103,12 @@ export const contractInitializer = async () => {
         flavor: OptionFlavor.European,
         state: OptionState.Request,
     };
+
+    const InterfaceDetector = await ethers.getContractFactory("InterfaceDetector");
+    let InterfaceDetectorCTR = await InterfaceDetector.deploy();
+    await InterfaceDetectorCTR.deployed();
+    InterfaceDetectorAddress = InterfaceDetectorCTR.address;
+
+    await deployNFTOptContract();
+    await deployNFTDummyContract();
 };

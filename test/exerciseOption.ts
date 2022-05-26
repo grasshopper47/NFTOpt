@@ -2,7 +2,7 @@ import { expect } from "chai";
 import {
     buyer,
     seller,
-    contractInitializer,
+    initializer,
     increaseEVMTimestampBy,
     NFTDummyCTR,
     NFTOptCTR,
@@ -14,12 +14,10 @@ import {
 let optionAmerican: any;
 let optionEuropean: any;
 
-beforeEach("deploy contract", async () => {
-    await contractInitializer();
-});
-
 describe("exerciseOption", function () {
     beforeEach("create_option_for_exercise", async function () {
+        await initializer();
+
         // Publish American option
         await NFTOptCTR.connect(buyer).publishOptionRequest(
             dummyOptionRequest.nftContract,
@@ -134,7 +132,7 @@ describe("exerciseOption", function () {
             .withArgs(1);
     });
 
-    it("succeeds when exercised and buyer's ETH balance has increased by STRIKE_PRICE", async function () {
+    it("succeeds when exercised and buyer's ETH balance has increased by strike price", async function () {
         // Approve contract to transfer NFT
         await NFTDummyCTR.connect(buyer).approve(NFTOptCTR.address, optionAmerican.nftId);
 

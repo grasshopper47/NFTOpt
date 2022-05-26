@@ -3,24 +3,26 @@ import {
     buyer,
     seller,
     NFTOptCTR,
-    contractInitializer,
+    initializer,
+    deployNFTOptContract,
     dummyOptionRequest,
     publishDummyOptionRequest,
     OptionState,
 } from "./utils";
 
-beforeEach("deploy contract", async () => {
-    await contractInitializer();
-});
-
 describe("createOption", function () {
-    it("fails when the option with the specified id does not exist", async function () {
+
+    this.beforeAll("deploy", async function () {
+        await initializer();
+    });
+
+    it("reverts when the option with the specified id does not exist", async function () {
         await expect(NFTOptCTR.connect(seller)
             .createOption(9999))
             .to.be.revertedWith("INVALID_OPTION_ID");
     });
 
-    it("fails when the option is already fulfilled by a seller", async function () {
+    it("reverts when the option is already fulfilled by a seller", async function () {
         await publishDummyOptionRequest();
 
         await expect(NFTOptCTR.connect(seller)
@@ -30,9 +32,12 @@ describe("createOption", function () {
         await expect(NFTOptCTR.connect(seller)
             .createOption(1, { value: dummyOptionRequest.strikePrice }))
             .to.be.revertedWith("OPTION_REQUEST_ALREADY_FULFILLED");
+
+        // Reset the state
+        await deployNFTOptContract();
     });
 
-    it("fails when the option is not in the request state", async function () {
+    it("reverts when the option is not in REQUEST state", async function () {
         await publishDummyOptionRequest();
 
         await expect(NFTOptCTR.connect(buyer)
@@ -42,22 +47,31 @@ describe("createOption", function () {
         await expect(NFTOptCTR.connect(seller)
             .createOption(1))
             .to.be.revertedWith("INVALID_OPTION_STATE");
+
+        // Reset the state
+        await deployNFTOptContract();
     });
 
-    it("fails when the option seller is the same as the option buyer", async function () {
+    it("reverts when the option seller is the same as the option buyer", async function () {
         await publishDummyOptionRequest();
 
         await expect(NFTOptCTR.connect(buyer)
             .createOption(1))
             .to.be.revertedWith("BUYER_MUST_DIFFER_FROM_SELLER");
+
+        // Reset the state
+        await deployNFTOptContract();
     });
 
-    it("fails when the wrong strike price is provided by the seller", async function () {
+    it("reverts when the wrong strike price is provided by the seller", async function () {
         await publishDummyOptionRequest();
 
         await expect(NFTOptCTR.connect(seller)
             .createOption(1, { value: dummyOptionRequest.strikePrice.sub(1) }))
             .to.be.revertedWith("INVALID_STRIKE_PRICE_AMOUNT");
+
+        // Reset the state
+        await deployNFTOptContract();
     });
 
     it("succeeds when called with valid values", async function () {
@@ -104,6 +118,9 @@ describe("createOption", function () {
             .add(gasUsedInTransaction);
 
         expect(sellerBalance0).to.equal(sellerBalance1);
+
+        // Reset the state
+        await deployNFTOptContract();
     });
 
     it("emits 'Filled' event when succeeded", async function () {
@@ -113,5 +130,8 @@ describe("createOption", function () {
             .createOption(1, { value: dummyOptionRequest.strikePrice }))
             .to.emit(NFTOptCTR, "Filled")
             .withArgs(seller.address, 1);
+
+        // Reset the state
+        await deployNFTOptContract();
     });
 });
