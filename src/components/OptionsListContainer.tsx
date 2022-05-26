@@ -1,6 +1,6 @@
 import {Tab, Tabs, Typography} from "@mui/material";
 import {useEffect, useState} from "react";
-import {Option, OptionState, OptionWithNFTDetails} from "../utils/declarations";
+import {OptionState, OptionWithNFTDetails} from "../utils/declarations";
 import OptionDetailsPreview from "./OptionDetailsPreview";
 import OptionListItemPreview from "./OptionListItemPreview";
 import classes from "./styles/OptionsListContainer.module.scss";
@@ -8,7 +8,7 @@ import {useAccount} from "../providers/contexts";
 
 type OptionsListContainerProps = {
     title: string;
-    options: Option[];
+    options: OptionWithNFTDetails[];
 };
 
 type OptionStateTab = {
@@ -37,7 +37,7 @@ function OptionsListContainer(props: OptionsListContainerProps) {
     const account = useAccount();
 
     const [activeTabIndex, setActiveTabIndex] = useState(0);
-    const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
+    const [filteredOptions, setFilteredOptions] = useState<OptionWithNFTDetails[]>([]);
     const [selectedOptionForPreview, setSelectedOptionForPreview] = useState<OptionWithNFTDetails | null>(null);
 
     const handleChangeTab = (_, tabIndex: number) => {

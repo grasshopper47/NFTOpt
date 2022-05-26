@@ -1,8 +1,8 @@
-import { expect } from "chai";
-import { BigNumber } from "ethers";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { NFTOpt, DummyNFT } from "../typechain-types";
-import { ethers } from "hardhat";
+import {expect} from "chai";
+import {BigNumber} from "ethers";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {NFTOpt, DummyNFT} from "../typechain-types";
+import {ethers} from "hardhat";
 
 export const address_empty: string = "0x0000000000000000000000000000000000000000";
 
@@ -39,16 +39,16 @@ export const OptionFlavor = {
 export let dummyOptionRequest: Option;
 
 export let publishDummyOptionRequest = async () => {
-    await expect(NFTOptCTR.connect(buyer)
-        .publishOptionRequest(
+    await expect(
+        NFTOptCTR.connect(buyer).publishOptionRequest(
             dummyOptionRequest.nftContract,
             dummyOptionRequest.nftId,
             dummyOptionRequest.strikePrice,
             dummyOptionRequest.interval,
             dummyOptionRequest.flavor,
-            { value: dummyOptionRequest.premium }
-        ))
-        .to.emit(NFTOptCTR, "NewRequest");
+            {value: dummyOptionRequest.premium}
+        )
+    ).to.emit(NFTOptCTR, "NewRequest");
 };
 
 export async function increaseEVMTimestampBy(days: number) {

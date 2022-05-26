@@ -1,26 +1,39 @@
 import React, {useEffect, useState} from "react";
 import Layout from "../components/Layout";
 import OptionsListContainer from "../components/OptionsListContainer";
-import {address0, dummyOptions} from "../utils/dummyData";
-import {Option} from "../utils/declarations";
-import {useAccount} from "../providers/contexts";
+import {Option, OptionWithNFTDetails} from "../utils/declarations";
+import {useAccount, useContracts} from "../providers/contexts";
+import {fetchNFTDetailsForMultipleOptions, loadContractOptions} from "../utils/api";
 
 function MyOptions() {
-    // TODO: retrieve correct options
-    // const account = useAccount();
-    const account = address0;
+    const account = useAccount();
+    const {nftOpt} = useContracts();
 
+    const [contractOptions, setContractOptions] = useState<Option[]>([]);
     const [currentAccountOptions, setCurrentAccountOptions] = useState<Option[]>([]);
 
+    const [optionsWithNFTDetails, setOptionsWithNFTDetails] = useState<OptionWithNFTDetails[]>([]);
+
+    // Firstly load the contract options
+    useEffect(() => {
+        loadContractOptions(nftOpt, setContractOptions);
+    }, [nftOpt]);
+
+    // Then filter the options for the current account => current account is either seller or buyer
     useEffect(() => {
         setCurrentAccountOptions(
-            dummyOptions.filter((option) => option.buyer === account || option.seller === account)
+            contractOptions.filter((option) => option.buyer === account || option.seller === account)
         );
-    }, [dummyOptions, account]);
+    }, [contractOptions, account]);
+
+    // Then fetch the NFT details for the current account options
+    useEffect(() => {
+        fetchNFTDetailsForMultipleOptions(currentAccountOptions, setOptionsWithNFTDetails);
+    }, [currentAccountOptions]);
 
     return (
         <Layout>
-            <OptionsListContainer key={`my-options-list`} title={"Your NFT Options"} options={currentAccountOptions} />
+            <OptionsListContainer key={`my-options-list`} title={"Your NFT Options"} options={optionsWithNFTDetails} />
         </Layout>
     );
 }

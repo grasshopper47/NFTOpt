@@ -15,11 +15,12 @@ import clsx from "clsx";
 import React, {useEffect, useState} from "react";
 import Layout from "../components/Layout";
 import {useAccount, useContracts} from "../providers/contexts";
-import {fetchAssetsForAddress} from "../utils/api";
+import {floatNumberRegex} from "../utils";
 import {NFTAsset, OptionFlavor} from "../utils/declarations";
 import classes from "./styles/CreateOption.module.scss";
 import {ethers} from "ethers";
 import {dummyNFT} from "../utils/dummyData";
+import toast from "react-hot-toast";
 
 type FormState = {
     asset?: NFTAsset;
@@ -62,7 +63,10 @@ function CreateOption() {
 
         setFormState((prev) => ({
             ...prev,
-            [field]: parseFloat(val) < 0 ? "0" : event.target.value,
+            [field]:
+                Number.isNaN(parseFloat(val)) || parseFloat(val) < 0 || !floatNumberRegex.test(val)
+                    ? "0"
+                    : event.target.value,
         }));
     };
 
@@ -92,7 +96,7 @@ function CreateOption() {
     };
 
     const handleChangeInterval = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.value == undefined || event.target.value == "") {
+        if (!event.target.value) {
             setFormState((prev) => ({
                 ...prev,
                 interval: "",
@@ -107,20 +111,26 @@ function CreateOption() {
         }));
     };
 
-    const handlePublishOption = () => {
+    const handlePublishOption = async () => {
         const txOptions = {
             value: ethers.utils.parseEther(`${parseFloat(formState.premium)}`),
             gasLimit: 100000,
         };
 
-        nftOpt.publishOptionRequest(
-            formState.asset.address,
-            formState.asset.tokenId,
-            ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
-            parseInt(formState.interval) * 24 * 3600, // days in seconds
-            formState.flavor,
-            txOptions
-        );
+        try {
+            await nftOpt.publishOptionRequest(
+                formState.asset.address,
+                formState.asset.tokenId,
+                ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
+                parseInt(formState.interval) * 24 * 3600, // days in seconds
+                formState.flavor,
+                txOptions
+            );
+            toast.success("Option published successfully", {duration: 4000});
+        } catch (error) {
+            toast.error("There was an error while trying to publish the option", {duration: 4000});
+            console.error(error);
+        }
     };
 
     return (
