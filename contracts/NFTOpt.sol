@@ -243,7 +243,7 @@ contract NFTOpt {
         {
             revert NOT_AUTHORIZED(msg.sender, "ONLY BUYER CAN CANCEL");
         }
-        delete options[optionID];
+        delete options[_optionId];
 
         emit WithdrawRequest(msg.sender, _optionId);
     }
