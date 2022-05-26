@@ -12,14 +12,12 @@ import {
     OptionState,
 } from "./utils";
 
-describe("NFTOpt Tests", function () {
-    beforeEach("deploy contract", async () => {
-        await contractInitializer();
-    });
+beforeEach("deploy contract", async () => {
+    await contractInitializer();
+});
 
-    describe("withdrawOptionRequest", function () {
-        it("tests that method can be called", async function () {
-            expect(NFTOptCTR.connect(buyer).withdrawOptionRequest(0)).to.not.throw;
-        });
+describe("withdrawOptionRequest", function () {
+    it("tests that method can be called", async function () {
+        expect(NFTOptCTR.connect(buyer).withdrawOptionRequest(0)).to.not.throw;
     });
 });
