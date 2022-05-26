@@ -1,6 +1,15 @@
+#Hardhat files
 artifacts
 cache
+
+# Node/NPM
 node_modules
 .next
 typechain-types
 package-lock.json
+
+# OSX
+.DS_Store
+
+# IntelliJ IDE
+.idea
