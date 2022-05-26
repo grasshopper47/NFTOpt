@@ -1,8 +1,8 @@
-import { addDays } from "date-fns";
 import { Option, OptionFlavor, OptionState, NFTAsset } from "./declarations";
+import addresses from "../../addresses.json";
 
 export const address0: string = "0x0000000000000000000000000000000000000000";
-const dummyNFTAddress: string = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+const dummyNFTAddress: string = addresses["localhost"].NFTDummy;
 const dummyNFTToken: string = "1";
 
 export const dummyNFT: NFTAsset = {

@@ -7,11 +7,11 @@ declare var window: Window & {
     ethereum: any;
 };
 
-const networkId = process.env.NEXT_PUBLIC_NETWORK_ID || "1337";
+const networkId = process.env.NEXT_PUBLIC_NETWORK_ID || "31337";
 const networks = {
     "1": "mainnet",
     "4": "rinkeby",
-    "1337": "localhost",
+    "31337": "localhost",
 };
 export const networkName = networks[networkId];
 
