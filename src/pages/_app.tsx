@@ -14,11 +14,13 @@ import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json"
 import addresses from "../../addresses.json";
 import Header from "../components/Header";
 import toast, {Toaster} from "react-hot-toast";
+import RouteGuard from "../components/RouteGuard";
 
 const NFTOptContractAddr = addresses[networkName].NFTOpt;
 
 export default function App({Component, pageProps}: AppProps) {
     const [account, setAccount] = useState(null);
+    const [loaded, setLoaded] = useState(false);
     const [contracts, setContracts] = useState({
         nftOpt: null,
     });
@@ -40,10 +42,16 @@ export default function App({Component, pageProps}: AppProps) {
         const currentAccount = await getCurrentAccount();
         setContracts({nftOpt: NFTOptContract});
         setAccount(currentAccount);
+
+        setLoaded(true);
     };
 
     useEffect(() => {
         load();
+
+        return () => {
+            setLoaded(false);
+        };
     }, []);
 
     useEffect(() => {
@@ -67,9 +75,11 @@ export default function App({Component, pageProps}: AppProps) {
     return (
         <AccountContext.Provider value={account}>
             <ContractsContext.Provider value={contracts}>
-                <Toaster />
-                <Header account={account} onConnectAccount={connectWallet.bind(null, setAccount)} />
-                <Component {...pageProps} />
+                <RouteGuard account={account} loaded={loaded}>
+                    <Toaster />
+                    <Header account={account} onConnectAccount={connectWallet.bind(null, setAccount)} />
+                    <Component {...pageProps} />
+                </RouteGuard>
             </ContractsContext.Provider>
         </AccountContext.Provider>
     );
