@@ -20,6 +20,7 @@ export enum OptionState {
     REQUEST,
     OPEN,
     CLOSED,
+    WITHDRAWN,
 }
 
 export type Option = {
@@ -36,7 +37,7 @@ export type Option = {
     state: OptionState;
 };
 
-import { BigNumber } from "ethers";
+import {BigNumber} from "ethers";
 
 export interface Option_TEST_STRUCT {
     buyer: string;
@@ -51,4 +52,4 @@ export interface Option_TEST_STRUCT {
     state: number;
 }
 
-export type OptionWithNFTDetails = Omit<Option, "nftContract" | "nftId"> & { asset: NFTAsset };
+export type OptionWithNFTDetails = Omit<Option, "nftContract" | "nftId"> & {asset: NFTAsset};
