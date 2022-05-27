@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import { NFTOpt } from "../../typechain-types/contracts/NFTOpt";
 import { NFTAsset, Option, OptionWithNFTDetails } from "./types";
-import { addressEmpty } from "./constants";
+import { addressEmpty, SECONDS_IN_A_DAY } from "./constants";
 
 declare var window: Window & {
     ethereum: any;
@@ -260,7 +260,7 @@ export async function loadContractOptions(contract: NFTOpt, setOptionsCallback: 
                 buyer: contractOption.buyer.toLowerCase(),
                 seller: contractOption.seller.toLowerCase(),
                 flavor: contractOption.flavor,
-                interval: contractOption.interval / (24 * 3600),
+                interval: contractOption.interval / SECONDS_IN_A_DAY,
                 nftContract: contractOption.nftContract,
                 nftId: contractOption.nftId.toString(),
                 premium: ethers.utils.formatEther(contractOption.strikePrice).toString(),

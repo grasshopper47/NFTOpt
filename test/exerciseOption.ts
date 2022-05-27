@@ -10,6 +10,7 @@ import {
     dummyOptionRequest,
     publishDummyOptionRequest,
 } from "../src/utils/backend";
+import { SECONDS_IN_A_DAY } from "../src/utils/constants";
 
 let optionAmerican: any;
 let optionEuropean: any;
@@ -109,7 +110,7 @@ describe("exerciseOption", function () {
         await NFTDummyCTR.connect(buyer).approve(NFTOptCTR.address, optionEuropean.nftId);
 
         // Fast-foward EVM by interval - 1 day (to the day of exercise)
-        await increaseEVMTimestampBy((dummyOptionRequest.interval / (24 * 3600)) - 1);
+        await increaseEVMTimestampBy((dummyOptionRequest.interval / SECONDS_IN_A_DAY) - 1);
 
         // Exercise option
         await expect(NFTOptCTR.connect(buyer)
