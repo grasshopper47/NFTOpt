@@ -3,7 +3,7 @@ import {
     address_empty,
     buyer,
     seller,
-    contractInitializer,
+    initializer,
     NFTDummyCTR,
     NFTOptCTR,
     dummyOptionRequest,
@@ -13,7 +13,7 @@ import {
 } from "./utils";
 
 beforeEach("deploy contract", async () => {
-    await contractInitializer();
+    await initializer();
 });
 
 describe("withdrawOptionRequest", function () {

@@ -1,60 +1,56 @@
 import { expect } from "chai";
 import {
     buyer,
-    seller,
-    contractInitializer,
+    initializer,
+    deployNFTOptContract,
     NFTDummyCTR,
     NFTOptCTR,
     dummyOptionRequest,
     publishDummyOptionRequest,
 } from "./utils";
 
-beforeEach("deploy contract", async () => {
-    await contractInitializer();
-});
-
 describe("publishOptionRequest", function () {
-    it("fails when called with an invalid (non ERC-721 compliant) NFT Contract", async function () {
+
+    this.beforeAll("deploy", async function () {
+        await initializer();
+    });
+
+    it("reverts when called with an invalid (non ERC-721 compliant) NFT Contract", async function () {
         await expect(NFTOptCTR.connect(buyer)
             .publishOptionRequest(buyer.address, 1, 0, 0, 0))
             .to.be.revertedWith("NOT_AN_INTERFACE_OF");
     });
 
-    it("fails when called with 0 as NFT Token ID", async function () {
+    it("reverts when called with 0 as NFT Token ID", async function () {
         await expect(NFTOptCTR.connect(buyer)
             .publishOptionRequest(NFTDummyCTR.address, 0, 0, 0, 0))
             .to.be.revertedWith("INVALID_TOKEN_ID");
     });
 
-    it("fails when NFT Token ID is under different ownership than the caller's", async function () {
-        let _nftID = 3;
+    it("reverts when NFT Token ID is under different ownership than the caller's", async function () {
+        let owner = await NFTDummyCTR.ownerOf(21);
 
-        // Send NFT to seller
-        await NFTDummyCTR.connect(buyer).transferFrom(buyer.address, seller.address, _nftID);
-
-        let owner = await NFTDummyCTR.ownerOf(_nftID);
-
-        expect(owner).to.be.equal(seller.address);
+        expect(owner).to.be.equal(NFTDummyCTR.address);
 
         // Can't publish option request when not an owner
         await expect(NFTOptCTR.connect(buyer)
-            .publishOptionRequest(NFTDummyCTR.address, _nftID, 0, 0, 0))
+            .publishOptionRequest(NFTDummyCTR.address, 21, 0, 0, 0))
             .to.be.revertedWith("NFT_NOT_OWNER");
     });
 
-    it("fails when called without a premium (transaction value)", async function () {
+    it("reverts when called without a premium (transaction value)", async function () {
         await expect(NFTOptCTR.connect(buyer)
             .publishOptionRequest(NFTDummyCTR.address, 1, 0, 0, 0))
             .to.be.revertedWith("INVALID_PREMIUM_AMOUNT");
     });
 
-    it("fails when called with 0 as Strike Price", async function () {
+    it("reverts when called with 0 as Strike Price", async function () {
         await expect(NFTOptCTR.connect(buyer)
             .publishOptionRequest(NFTDummyCTR.address, 1, 0, 0, 0, { value: 1 }))
             .to.be.revertedWith("INVALID_STRIKE_PRICE_AMOUNT");
     });
 
-    it("fails when called with 0 as Interval", async function () {
+    it("reverts when called with 0 as Interval", async function () {
         await expect(NFTOptCTR.connect(buyer)
             .publishOptionRequest(NFTDummyCTR.address, 1, 1, 0, 0, { value: 1 }))
             .to.be.revertedWith("INVALID_EXPIRATION_INTERVAL");
@@ -88,6 +84,9 @@ describe("publishOptionRequest", function () {
         expect(option.strikePrice).to.equal(dummyOptionRequest.strikePrice);
         expect(option.flavor).to.equal(dummyOptionRequest.flavor);
         expect(option.state).to.equal(dummyOptionRequest.state);
+
+        // Reset the state
+        await deployNFTOptContract();
     });
 
     it("emits 'NewRequest' event when succeeded", async function () {
@@ -102,5 +101,8 @@ describe("publishOptionRequest", function () {
             ))
             .to.emit(NFTOptCTR, "NewRequest")
             .withArgs(buyer.address, 1);
+
+        // Reset the state
+        await deployNFTOptContract();
     });
 });

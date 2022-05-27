@@ -4,7 +4,9 @@ import {
     seller,
     nonParticipant,
     increaseEVMTimestampBy,
-    contractInitializer,
+    deployNFTOptContract,
+    deployNFTDummyContract,
+    initializer,
     NFTDummyCTR,
     NFTOptCTR,
     dummyOptionRequest,
@@ -14,8 +16,8 @@ import {
 
 describe("cancelOption", function () {
 
-    beforeEach("deploy contract", async () => {
-        await contractInitializer();
+    this.beforeAll("deploy", async function () {
+        await initializer();
     });
 
     it("reverts with non-existent optionID", async function () {
@@ -24,7 +26,7 @@ describe("cancelOption", function () {
             .to.be.revertedWith("INVALID_OPTION_ID");
     });
 
-    it("reverts when the option NOT in OPEN state", async function () {
+    it("reverts when option state is not OPEN", async function () {
         await publishDummyOptionRequest();
 
         var publishedOption = await NFTOptCTR.connect(buyer).options(1);
@@ -33,9 +35,12 @@ describe("cancelOption", function () {
         await expect(NFTOptCTR.connect(buyer)
             .cancelOption(1))
             .to.be.revertedWith("INVALID_OPTION_STATE");
+
+        // Reset the state
+        await deployNFTOptContract();
     });
 
-    it("fails when option has already been exercised", async function () {
+    it("reverts when option has already been exercised", async function () {
         await publishDummyOptionRequest();
 
         // Fill option
@@ -62,9 +67,13 @@ describe("cancelOption", function () {
         await expect(NFTOptCTR.connect(buyer)
             .cancelOption(1))
             .to.be.revertedWith("INVALID_OPTION_STATE");
+
+        // Reset the state
+        await deployNFTOptContract();
+        await deployNFTDummyContract();
     });
 
-    it("fails when non-participant tries to cancel", async function () {
+    it("reverts when non-participant tries to cancel", async function () {
         await publishDummyOptionRequest();
 
         // Fill option
@@ -88,6 +97,10 @@ describe("cancelOption", function () {
         await expect(NFTOptCTR.connect(nonParticipant)
             .cancelOption(1))
             .to.be.revertedWith("NOT_AUTHORIZED");
+
+        // Reset the state
+        await deployNFTOptContract();
+        await deployNFTDummyContract();
     });
 
     it("succeeds when called by seller after expiration date", async function () {
@@ -112,6 +125,10 @@ describe("cancelOption", function () {
             .cancelOption(1))
             .to.emit(NFTOptCTR, "Canceled")
             .withArgs(seller.address, 1);
+
+        // Reset the state
+        await deployNFTOptContract();
+        await deployNFTDummyContract();
     });
 
     it("succeeds when called by buyer within specified interval", async function () {
@@ -130,6 +147,10 @@ describe("cancelOption", function () {
             .cancelOption(1))
             .to.emit(NFTOptCTR, "Canceled")
             .withArgs(buyer.address, 1);
+
+        // Reset the state
+        await deployNFTOptContract();
+        await deployNFTDummyContract();
     });
 
     it("sends the collateral back to the seller", async function () {
@@ -153,6 +174,10 @@ describe("cancelOption", function () {
         let sellerBalance1 = await seller.getBalance();
         sellerBalance1 = sellerBalance1.sub(dummyOptionRequest.strikePrice);
         expect(sellerBalance0).to.equal(sellerBalance1);
+
+        // Reset the state
+        await deployNFTOptContract();
+        await deployNFTDummyContract();
     });
 
     it("emits 'Canceled' event", async function () {
@@ -171,6 +196,9 @@ describe("cancelOption", function () {
             .withArgs(buyer.address, 1);
 
         let cancelledOption = await NFTOptCTR.connect(buyer).options(1);
-        expect(cancelledOption.state).to.equal(OptionState.Closed)
+        expect(cancelledOption.state).to.equal(OptionState.Closed);
+
+        // Reset the state
+        await deployNFTOptContract();
     });
 });
