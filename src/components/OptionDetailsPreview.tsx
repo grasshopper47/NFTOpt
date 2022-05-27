@@ -4,8 +4,8 @@ import { endOfDay, isBefore, isSameDay } from "date-fns";
 import { ethers } from "ethers";
 import toast from "react-hot-toast";
 import { useContracts } from "../providers/contexts";
-import { getAccountDisplayValue } from "../utils/api";
-import { OptionFlavor, OptionState, OptionWithNFTDetails } from "../utils/declarations";
+import { getAccountDisplayValue } from "../utils/frontend";
+import { OptionFlavor, OptionState, OptionWithNFTDetails } from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
 
 type OptionDetailsPreviewProps = {

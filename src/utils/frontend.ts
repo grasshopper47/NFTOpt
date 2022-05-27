@@ -1,22 +1,14 @@
-import {ethers} from "ethers";
-import {NFTOpt} from "../../typechain-types/contracts/NFTOpt";
-import {NFTAsset, Option, OptionWithNFTDetails} from "./declarations";
-import {address0} from "./dummyData";
+import { ethers } from "ethers";
+import { NFTOpt } from "../../typechain-types/contracts/NFTOpt";
+import { NFTAsset, Option, OptionWithNFTDetails } from "./types";
+import { addressEmpty } from "./constants";
 
 declare var window: Window & {
     ethereum: any;
 };
 
-const networkId = process.env.NEXT_PUBLIC_NETWORK_ID || "31337";
-const networks = {
-    "1": "mainnet",
-    "4": "rinkeby",
-    "31337": "localhost",
-};
-export const networkName = networks[networkId];
-
 export function getEthereumObject() {
-    const {ethereum} = window;
+    const { ethereum } = window;
 
     return ethereum ?? null;
 }
@@ -38,9 +30,9 @@ export function setupEthereumEventListeners(ethereum: ethers.providers.ExternalP
 }
 
 export async function getCurrentAccount() {
-    const {ethereum} = window;
+    const { ethereum } = window;
 
-    const accounts = await ethereum.request({method: "eth_accounts"});
+    const accounts = await ethereum.request({ method: "eth_accounts" });
 
     if (!accounts || accounts?.length === 0) {
         return null;
@@ -55,14 +47,14 @@ export async function connectWallet(setAccountCallback: (account: string) => voi
     const ethereum = getEthereumObject();
 
     if (ethereum) {
-        ethereum.request({method: "eth_requestAccounts"}).then((res) => setAccountCallback(res[0]));
+        ethereum.request({ method: "eth_requestAccounts" }).then((res) => setAccountCallback(res[0]));
     } else {
         alert("Please install MetaMask extension");
     }
 }
 
 export function getSignedContract(address: string, abi: any) {
-    const {ethereum} = window;
+    const { ethereum } = window;
 
     const provider = new ethers.providers.Web3Provider(ethereum, "any");
 
@@ -186,8 +178,8 @@ export function getAccountDisplayValue(account: string) {
 
 function checkOptionExists(option: Option): boolean {
     if (
-        option.buyer === address0 ||
-        option.nftContract === address0 ||
+        option.buyer === addressEmpty ||
+        option.nftContract === addressEmpty ||
         option.nftId === "0" ||
         option.premium === "0" ||
         option.strikePrice === "0" ||

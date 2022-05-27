@@ -1,7 +1,7 @@
-import { Option, OptionFlavor, OptionState, NFTAsset } from "./declarations";
+import { Option, OptionFlavor, OptionState, NFTAsset } from "./types";
 import addresses from "../../addresses.json";
+import { addressEmpty } from "./constants";
 
-export const address0: string = "0x0000000000000000000000000000000000000000";
 const dummyNFTAddress: string = addresses["localhost"].NFTDummy;
 const dummyNFTToken: string = "1";
 
@@ -18,7 +18,7 @@ export const dummyOptions: Option[] = [
     // Request
     {
         id: 1,
-        buyer: address0,
+        buyer: addressEmpty,
         seller: null,
         nftContract: dummyNFTAddress,
         nftId: dummyNFTToken,
@@ -31,7 +31,7 @@ export const dummyOptions: Option[] = [
     },
     {
         id: 2,
-        buyer: address0,
+        buyer: addressEmpty,
         seller: null,
         nftContract: dummyNFTAddress,
         nftId: dummyNFTToken,
@@ -45,8 +45,8 @@ export const dummyOptions: Option[] = [
     // Open
     {
         id: 3,
-        buyer: address0,
-        seller: address0,
+        buyer: addressEmpty,
+        seller: addressEmpty,
         nftContract: dummyNFTAddress,
         nftId: dummyNFTToken,
         startDate: (new Date().getUTCMilliseconds() / 1000).toString(),
@@ -58,8 +58,8 @@ export const dummyOptions: Option[] = [
     },
     {
         id: 4,
-        buyer: address0,
-        seller: address0,
+        buyer: addressEmpty,
+        seller: addressEmpty,
         nftContract: dummyNFTAddress,
         nftId: dummyNFTToken,
         startDate: (new Date().getUTCMilliseconds() / 1000).toString(),
@@ -72,8 +72,8 @@ export const dummyOptions: Option[] = [
     // Closed
     {
         id: 5,
-        buyer: address0,
-        seller: address0,
+        buyer: addressEmpty,
+        seller: addressEmpty,
         nftContract: dummyNFTAddress,
         nftId: dummyNFTToken,
         startDate: (new Date().getUTCMilliseconds() / 1000).toString(),
@@ -85,8 +85,8 @@ export const dummyOptions: Option[] = [
     },
     {
         id: 6,
-        buyer: address0,
-        seller: address0,
+        buyer: addressEmpty,
+        seller: addressEmpty,
         nftContract: dummyNFTAddress,
         nftId: dummyNFTToken,
         startDate: (new Date().getUTCMilliseconds() / 1000).toString(),

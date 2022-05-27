@@ -1,10 +1,9 @@
 import { expect } from "chai";
-import { BigNumber } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { NFTOpt, DummyNFT } from "../typechain-types";
+import { NFTOpt, DummyNFT } from "../../typechain-types";
 import { ethers } from "hardhat";
-
-export const address_empty: string = "0x0000000000000000000000000000000000000000";
+import { Option_TEST_STRUCT, OptionState, OptionFlavor } from "./types";
+import { addressEmpty } from "./constants";
 
 export let buyer: SignerWithAddress;
 export let seller: SignerWithAddress;
@@ -13,31 +12,7 @@ export let InterfaceDetectorAddress: string;
 export let NFTOptCTR: NFTOpt;
 export let NFTDummyCTR: DummyNFT;
 
-export interface Option {
-    buyer: string;
-    seller: string;
-    nftContract: string;
-    nftId: number;
-    startDate: number;
-    interval: number;
-    premium: BigNumber;
-    strikePrice: BigNumber;
-    flavor: number;
-    state: number;
-}
-
-export const OptionState = {
-    Request: 0,
-    Open: 1,
-    Closed: 2,
-};
-
-export const OptionFlavor = {
-    European: 0,
-    American: 1,
-};
-
-export let dummyOptionRequest: Option;
+export let dummyOptionRequest: Option_TEST_STRUCT;
 
 export let publishDummyOptionRequest = async () => {
     await expect(
@@ -93,15 +68,15 @@ export const initializer = async () => {
 
     dummyOptionRequest = {
         buyer: buyer.address,
-        seller: address_empty,
+        seller: addressEmpty,
         nftContract: "",
         nftId: 0,
         startDate: 0,
         interval: 7 * 24 * 3600, //  7 days
         premium: ethers.utils.parseEther("1"),
         strikePrice: ethers.utils.parseEther("50"),
-        flavor: OptionFlavor.European,
-        state: OptionState.Request,
+        flavor: OptionFlavor.EUROPEAN,
+        state: OptionState.REQUEST,
     };
 
     const InterfaceDetector = await ethers.getContractFactory("InterfaceDetector");
