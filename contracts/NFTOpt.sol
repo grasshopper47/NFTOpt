@@ -28,6 +28,8 @@ contract NFTOpt {
     }
 
     /// @dev -- STACK ---------------------------------
+    string constant private _msg_OnlyBuyerCanCall = "Only Buyer can call this method";
+    string constant private _msg_OnlyBuyerOrSellerCanCall = "Only Buyer or Seller can call this method";
     uint256                    public optionID;
     mapping(uint256 => Option) public options;
 
@@ -225,7 +227,7 @@ contract NFTOpt {
             option.seller != msg.sender
         )
         {
-            revert NOT_AUTHORIZED(msg.sender, "Only Buyer or Seller can cancel");
+            revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerOrSellerCanCall);
         }
 
         /// @dev Restrict calling rights of seller: permit only after expiration
@@ -235,7 +237,7 @@ contract NFTOpt {
             option.buyer != msg.sender
         )
         {
-            revert NOT_AUTHORIZED(msg.sender, "Only Buyer can cancel");
+            revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall);
         }
 
         (bool success,) = option.seller.call{value: option.strikePrice}("");
@@ -270,7 +272,7 @@ contract NFTOpt {
         /// @dev Restrict calling rights to buyer only
         if (option.buyer != msg.sender)
         {
-            revert NOT_AUTHORIZED(msg.sender, "Only Buyer can exercise");
+            revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall);
         }
 
         /// @dev Check for NFT access and ownership
