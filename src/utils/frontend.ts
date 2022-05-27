@@ -1,14 +1,18 @@
-import { ethers } from "ethers";
-import { NFTOpt } from "../../typechain-types/contracts/NFTOpt";
-import { NFTAsset, Option, OptionWithNFTDetails } from "./types";
-import { addressEmpty } from "./constants";
+import {ethers} from "ethers";
+import {NFTOpt} from "../../typechain-types/contracts/NFTOpt";
+import {NFTAsset, Option, OptionWithNFTDetails} from "./types";
+import {addressEmpty} from "./constants";
 
 declare var window: Window & {
     ethereum: any;
 };
 
+export function getCorrectPlural(word: string, count: number) {
+    return word + (count > 1 ? "s" : "");
+}
+
 export function getEthereumObject() {
-    const { ethereum } = window;
+    const {ethereum} = window;
 
     return ethereum ?? null;
 }
@@ -30,9 +34,9 @@ export function setupEthereumEventListeners(ethereum: ethers.providers.ExternalP
 }
 
 export async function getCurrentAccount() {
-    const { ethereum } = window;
+    const {ethereum} = window;
 
-    const accounts = await ethereum.request({ method: "eth_accounts" });
+    const accounts = await ethereum.request({method: "eth_accounts"});
 
     if (!accounts || accounts?.length === 0) {
         return null;
@@ -47,14 +51,14 @@ export async function connectWallet(setAccountCallback: (account: string) => voi
     const ethereum = getEthereumObject();
 
     if (ethereum) {
-        ethereum.request({ method: "eth_requestAccounts" }).then((res) => setAccountCallback(res[0]));
+        ethereum.request({method: "eth_requestAccounts"}).then((res) => setAccountCallback(res[0]));
     } else {
         alert("Please install MetaMask extension");
     }
 }
 
 export function getSignedContract(address: string, abi: any) {
-    const { ethereum } = window;
+    const {ethereum} = window;
 
     const provider = new ethers.providers.Web3Provider(ethereum, "any");
 

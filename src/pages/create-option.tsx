@@ -9,17 +9,16 @@ import {
     RadioGroup,
     Select,
     TextField,
-    Typography,
 } from "@mui/material";
 import clsx from "clsx";
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import Layout from "../components/Layout";
-import { useAccount, useContracts } from "../providers/contexts";
-import { floatNumberRegex } from "../utils/constants";
-import { NFTAsset, OptionFlavor } from "../utils/types";
+import {useAccount, useContracts} from "../providers/contexts";
+import {floatNumberRegex} from "../utils/constants";
+import {NFTAsset, OptionFlavor} from "../utils/types";
 import classes from "./styles/CreateOption.module.scss";
-import { ethers } from "ethers";
-import { dummyNFT } from "../utils/dummyData";
+import {ethers} from "ethers";
+import {dummyNFT} from "../utils/dummyData";
 import toast from "react-hot-toast";
 
 type FormState = {
@@ -32,12 +31,12 @@ type FormState = {
 
 function CreateOption() {
     const account = useAccount();
-    const { nftOpt } = useContracts();
+    const {nftOpt} = useContracts();
 
     // TODO Stefana: cleanup dummy data
     const [assets, setAssets] = useState<NFTAsset[]>([dummyNFT]);
     const [formState, setFormState] = useState<FormState>({
-        asset: dummyNFT,
+        asset: undefined,
         strikePrice: "",
         premium: "",
         interval: undefined,
@@ -83,6 +82,7 @@ function CreateOption() {
             Object.keys(formState).filter((x) => x != null).length;
 
         return (
+            formState.asset?.id != null &&
             !missingFormFields &&
             formState.premium != null &&
             formState.premium != "" &&
@@ -125,14 +125,15 @@ function CreateOption() {
                 formState.flavor,
                 txOptions
             );
-            toast.success("Option published successfully", { duration: 4000 });
+            toast.success("Option published successfully", {duration: 4000});
         } catch (error) {
-            if (error.code === 4001) { // Metamask TX Cancel
+            if (error.code === 4001) {
+                // Metamask TX Cancel
                 toast.error("User canceled");
                 return;
             }
 
-            toast.error("There was an error while trying to publish the option", { duration: 4000 });
+            toast.error("There was an error while trying to publish the option", {duration: 4000});
             console.error(error);
         }
     };
@@ -141,56 +142,71 @@ function CreateOption() {
         <Layout>
             <div className={classes.root}>
                 <div className={classes.form}>
-                    <Typography className={classes.title}>Buy an NFT Option</Typography>
-                    <Select value={formState.asset?.id} placeholder="Select your NFT">
-                        <Typography>Select your NFT</Typography>
-                        {assets.map((asset) => (
-                            <MenuItem
-                                key={`asset-${asset.id}`}
-                                value={asset.id}
-                                onClick={handleSelectAsset.bind(null, asset)}
-                            >
-                                {asset.name}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                    <TextField
-                        key={`input-premium`}
-                        InputProps={{
-                            endAdornment: <InputAdornment position="end">ETH</InputAdornment>,
-                        }}
-                        placeholder="Premium"
-                        className={classes.field}
-                        value={formState.premium}
-                        onChange={handleChangeFieldString.bind(this, "premium")}
-                    />
-                    <TextField
-                        key={`input-strike-price`}
-                        InputProps={{
-                            endAdornment: <InputAdornment position="end">ETH</InputAdornment>,
-                        }}
-                        placeholder="Strike price"
-                        className={classes.field}
-                        value={formState.strikePrice}
-                        onChange={handleChangeFieldString.bind(this, "strikePrice")}
-                    />
-                    <TextField
-                        key={`input-interval`}
-                        InputProps={{
-                            inputProps: {
-                                min: 1,
-                                max: 30,
-                            },
-                            endAdornment: <InputAdornment position="end">days</InputAdornment>,
-                        }}
-                        type="number"
-                        placeholder="Expiration interval"
-                        className={classes.field}
-                        value={formState.interval ?? ""}
-                        onChange={handleChangeInterval}
-                    />
+                    <p className={classes.title}>Create PUT Option</p>
+                    <div className={classes.fieldWrapper}>
+                        <Select value={formState.asset?.id ?? -1} placeholder="Select your NFT">
+                            <MenuItem value={-1}>Select your NFT</MenuItem>
+                            {assets.map((asset) => (
+                                <MenuItem
+                                    key={`asset-${asset.id}`}
+                                    value={asset.id}
+                                    onClick={handleSelectAsset.bind(null, asset)}
+                                >
+                                    {asset.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </div>
+
+                    <div className={classes.fieldWrapper}>
+                        <label>Premium</label>
+                        <TextField
+                            key={`input-premium`}
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">ETH</InputAdornment>,
+                            }}
+                            placeholder="Premium"
+                            className={classes.field}
+                            value={formState.premium}
+                            onChange={handleChangeFieldString.bind(this, "premium")}
+                        />
+                    </div>
+
+                    <div className={classes.fieldWrapper}>
+                        <label>Strike price</label>
+                        <TextField
+                            key={`input-strike-price`}
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">ETH</InputAdornment>,
+                            }}
+                            placeholder="Strike price"
+                            className={classes.field}
+                            value={formState.strikePrice}
+                            onChange={handleChangeFieldString.bind(this, "strikePrice")}
+                        />
+                    </div>
+
+                    <div className={classes.fieldWrapper}>
+                        <label>Interval</label>
+                        <TextField
+                            key={`input-interval`}
+                            InputProps={{
+                                inputProps: {
+                                    min: 1,
+                                    max: 30,
+                                },
+                                endAdornment: <InputAdornment position="end">days</InputAdornment>,
+                            }}
+                            type="number"
+                            placeholder="Expiration interval"
+                            className={classes.field}
+                            value={formState.interval ?? ""}
+                            onChange={handleChangeInterval}
+                        />
+                    </div>
+
                     <FormControl className={classes.field}>
-                        <FormLabel id="demo-radio-buttons-group-label">Option Flavor</FormLabel>
+                        <label>Option Flavor</label>
                         <RadioGroup defaultValue={OptionFlavor.EUROPEAN}>
                             <FormControlLabel
                                 key={`option-flavor-european`}
@@ -222,7 +238,7 @@ function CreateOption() {
                     {formState.asset ? (
                         <img src={formState.asset.image} alt="" />
                     ) : (
-                        Array.from({ length: 3 }).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
+                        Array.from({length: 3}).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
                     )}
                 </div>
             </div>
