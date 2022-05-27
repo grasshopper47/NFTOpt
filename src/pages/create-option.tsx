@@ -26,7 +26,7 @@ type FormState = {
     asset?: NFTAsset;
     strikePrice?: string;
     premium?: string;
-    interval?: string;
+    interval?: number;
     flavor?: OptionFlavor;
 };
 
@@ -40,7 +40,7 @@ function CreateOption() {
         asset: dummyNFT,
         strikePrice: "",
         premium: "",
-        interval: "",
+        interval: undefined,
         flavor: OptionFlavor.EUROPEAN,
     });
 
@@ -84,19 +84,19 @@ function CreateOption() {
 
         return (
             !missingFormFields &&
-            parseFloat(formState.premium) !== 0 &&
             formState.premium != null &&
             formState.premium != "" &&
-            parseFloat(formState.strikePrice) !== 0 &&
+            parseFloat(formState.premium) !== 0 &&
             formState.strikePrice != null &&
             formState.strikePrice != "" &&
-            formState.interval != null &&
-            formState.interval != ""
+            parseFloat(formState.strikePrice) !== 0 &&
+            formState.interval != 0
         );
     };
 
     const handleChangeInterval = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (!event.target.value) {
+            // @ts-ignore
             setFormState((prev) => ({
                 ...prev,
                 interval: "",
@@ -107,14 +107,13 @@ function CreateOption() {
 
         setFormState((prev) => ({
             ...prev,
-            interval: Math.max(1, Math.min(parseInt(event.target.value), 30)).toString(),
+            interval: Math.max(1, Math.min(parseInt(event.target.value), 30)),
         }));
     };
 
     const handlePublishOption = async () => {
         const txOptions = {
             value: ethers.utils.parseEther(`${parseFloat(formState.premium)}`),
-            gasLimit: 100000,
         };
 
         try {
@@ -122,7 +121,7 @@ function CreateOption() {
                 formState.asset.address,
                 formState.asset.tokenId,
                 ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
-                parseInt(formState.interval) * 24 * 3600, // days in seconds
+                formState.interval * 24 * 3600, // days in seconds
                 formState.flavor,
                 txOptions
             );
@@ -182,7 +181,7 @@ function CreateOption() {
                         type="number"
                         placeholder="Expiration interval"
                         className={classes.field}
-                        value={formState.interval}
+                        value={formState.interval ?? ""}
                         onChange={handleChangeInterval}
                     />
                     <FormControl className={classes.field}>

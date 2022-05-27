@@ -1,11 +1,11 @@
-import {ArrowBackIosRounded, ArrowRightAlt} from "@mui/icons-material";
-import {Button, IconButton, Link, Typography} from "@mui/material";
-import {endOfDay, isBefore, isSameDay} from "date-fns";
-import {ethers} from "ethers";
+import { ArrowBackIosRounded, ArrowRightAlt } from "@mui/icons-material";
+import { Button, IconButton, Link, Typography } from "@mui/material";
+import { endOfDay, isBefore, isSameDay } from "date-fns";
+import { ethers } from "ethers";
 import toast from "react-hot-toast";
-import {useContracts} from "../providers/contexts";
-import {getAccountDisplayValue} from "../utils/api";
-import {OptionFlavor, OptionState, OptionWithNFTDetails} from "../utils/declarations";
+import { useContracts } from "../providers/contexts";
+import { getAccountDisplayValue } from "../utils/api";
+import { OptionFlavor, OptionState, OptionWithNFTDetails } from "../utils/declarations";
 import classes from "./styles/OptionDetailsPreview.module.scss";
 
 type OptionDetailsPreviewProps = {
@@ -18,17 +18,17 @@ type TriggerActionErrorType = "withdraw" | "cancel" | "exercise" | "create";
 type TriggerActionSuccessType = "withdrawn" | "canceled" | "exercised" | "created";
 
 function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
-    const {currentAccount, option, onSelectOption} = props;
+    const { currentAccount, option, onSelectOption } = props;
 
-    const {nftOpt} = useContracts();
+    const { nftOpt } = useContracts();
 
     const handleSuccess = (trigger: TriggerActionSuccessType) => {
-        toast.success(`The option was successfully ${trigger}`, {duration: 4000});
+        toast.success(`The option was successfully ${trigger}`, { duration: 4000 });
     };
 
     const handleError = (error, trigger: TriggerActionErrorType) => {
         console.error(error);
-        toast.error(`There was an error while trying to ${trigger} the option`, {duration: 4000});
+        toast.error(`There was an error while trying to ${trigger} the option`, { duration: 4000 });
     };
 
     const handleWithdrawOption = async () => {
@@ -91,11 +91,15 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
             return false;
         }
         const today = endOfDay(new Date());
+        let end_day = new Date(option.startDate);
+
+        end_day.setDate(end_day.getDate() + option.interval / (24 * 3600));
+
         if (option.flavor === OptionFlavor.EUROPEAN) {
-            return isSameDay(option.interval, today);
+            return isSameDay(end_day, today);
         }
         if (option.flavor === OptionFlavor.AMERICAN) {
-            return isBefore(today, option.interval) || isSameDay(option.interval, today);
+            return isBefore(today, end_day) || isSameDay(end_day, today);
         }
         return false;
     };
@@ -128,7 +132,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
             </IconButton>
             <div className={classes.detailsContainer}>
                 <div>
-                    <img style={{backgroundImage: `url(${option.asset.image})`}} alt="" />
+                    <img style={{ backgroundImage: `url(${option.asset.image})` }} alt="" />
                     <Link href={option.asset.url} target="_blank" className={classes.link}>
                         View on Opensea
                         <ArrowRightAlt />
@@ -159,7 +163,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                         <div>
                             <div className={classes.field}>
                                 <span>Expiration date:</span>
-                                <span>{new Date(option.interval).toLocaleDateString()}</span>
+                                <span>{option.interval} days</span>
                             </div>
                             <div className={classes.field}>
                                 <span>Option style: </span>
@@ -182,10 +186,10 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                         {option.state === OptionState.CLOSED
                             ? null
                             : option.state === OptionState.REQUEST
-                            ? actionsForRequestState
-                            : option.state === OptionState.OPEN
-                            ? actionsForOpenState
-                            : null}
+                                ? actionsForRequestState
+                                : option.state === OptionState.OPEN
+                                    ? actionsForOpenState
+                                    : null}
                     </div>
                 </div>
             </div>
