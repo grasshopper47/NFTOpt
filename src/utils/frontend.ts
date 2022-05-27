@@ -2,6 +2,7 @@ import { BigNumber, ethers } from "ethers";
 import { NFTOpt } from "../../typechain-types/contracts/NFTOpt";
 import { NFTAsset, Option, OptionWithNFTDetails } from "./types";
 import { addressEmpty, SECONDS_IN_A_DAY } from "./constants";
+import addresses from "../../addresses.json";
 
 declare var window: Window & {
     ethereum: any;
@@ -114,6 +115,46 @@ export async function fetchAssetsForAddress(account: string, setAssetsCallback: 
     //     .catch((error) => {
     //         console.error(error);
     //     });
+
+    const abi_IERC721: any = [
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "ownerOf",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        }];
+
+    let NFTContract = getSignedContract(addresses["localhost"].NFTDummy, abi_IERC721);
+
+    for (let i = 1; i < 21; ++i) {
+        var data = await NFTContract.ownerOf(i);
+
+        data = data.toLowerCase();
+
+        if (data === account) {
+            assets.push({
+                id: i,
+                tokenId: BigNumber.from("1"),
+                address: addresses["localhost"].NFTDummy,
+                name: "X Collection - " + i,
+                image: "",
+                url: "",
+            });
+        }
+    }
 
     setAssetsCallback(assets);
 }
