@@ -37,15 +37,11 @@ contract NFTOpt {
     event Filled    (address, uint256);
     event Canceled  (address, uint256);
 
-    /// @dev -- PAYABLE AND BALANCE  ------------------
-    receive() external payable { }
-
-    function getBalance() public view returns (uint)
+    /// @dev -- METHODS -------------------------------
+    function getBalance() public view returns (uint256)
     {
         return address(this).balance;
     }
-
-    /// @dev -- METHODS -------------------------------
 
     /// @custom:author PeterA
     /// @notice Publishes a request for an option in the marketplace
