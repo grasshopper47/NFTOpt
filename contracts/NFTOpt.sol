@@ -114,7 +114,7 @@ contract NFTOpt {
 
     /// @custom:author GregVanDell and LuisImagiire
     /// @notice Removes a published option request from the marketplace
-    /// @param _optionId: id of the option to remove
+    /// @param _optionId: id of the option request to remove
     function withdrawOptionRequest(uint256 _optionId)
     external
     payable
@@ -163,7 +163,7 @@ contract NFTOpt {
     /// @custom:author StefanaM
     /// @notice Create (enables) an option from a published request from the marketplace
     ///         by sending strike price to contract and premium to msg.sender
-    /// @param _optionId: id of the option to remove
+    /// @param _optionId: id of the option request from which to create the option
     function createOption(uint256 _optionId)
     external
     payable
@@ -229,7 +229,8 @@ contract NFTOpt {
     }
 
     /// @custom:author ShababAli
-    /// @notice Description
+    /// @notice Cancels an active option and returns strike price to seller
+    /// @param _optionId: id of the option to cancel
     function cancelOption(uint256 _optionId)
     external
     payable
