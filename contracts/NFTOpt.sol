@@ -36,6 +36,7 @@ contract NFTOpt {
     event Exercised (uint256);
     event Filled    (address, uint256);
     event Canceled  (address, uint256);
+    event Withdrawn (address, uint256);
 
     /// @dev -- PAYABLE AND BALANCE  ------------------
     receive() external payable { }
@@ -113,14 +114,51 @@ contract NFTOpt {
         emit NewRequest(msg.sender, optionID);
     }
 
-    /// @custom:author GregVanDell
+    /// @custom:author GregVanDell and LuisImagiire
     /// @notice Description
     function withdrawOptionRequest(uint256 _optionId)
     external
     payable
     {
-        // TODO: update this with the correct implementation (wrote this here only for testing)
+        Option memory option = options[_optionId];
+
+        if
+        (
+            option.buyer       == address(0) ||
+            option.nftContract == address(0) ||
+            option.nftId       == 0          ||
+            option.interval    == 0          ||
+            option.premium     == 0          ||
+            option.strikePrice == 0
+        )
+        {
+            revert INVALID_OPTION_ID(_optionId);
+        }
+
+        if (option.state != OptionState.REQUEST)
+        {
+            revert INVALID_OPTION_STATE(option.state, OptionState.REQUEST);
+        }
+
+        if (option.buyer != msg.sender)
+        {
+            revert NOT_AUTHORIZED(msg.sender, "Only Buyer can withdraw");
+        }
+
+        if (getBalance() < option.premium)
+        {
+            revert INSUFFICIENT_FUNDS();
+        }
+
+        (bool success,) = option.buyer.call{value: option.premium}("");
+        if (!success)
+        {
+            revert FUNDS_TRANSFER_FAILED();
+        }
+
         options[_optionId].state = OptionState.CLOSED;
+
+        emit Withdrawn(msg.sender, _optionId);
     }
 
     /// @custom:author StefanaM
