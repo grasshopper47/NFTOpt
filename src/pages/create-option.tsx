@@ -12,14 +12,14 @@ import {
     Typography,
 } from "@mui/material";
 import clsx from "clsx";
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import Layout from "../components/Layout";
-import { useAccount, useContracts } from "../providers/contexts";
-import { floatNumberRegex } from "../utils";
-import { NFTAsset, OptionFlavor } from "../utils/declarations";
+import {useAccount, useContracts} from "../providers/contexts";
+import {floatNumberRegex} from "../utils";
+import {NFTAsset, OptionFlavor} from "../utils/declarations";
 import classes from "./styles/CreateOption.module.scss";
-import { ethers } from "ethers";
-import { dummyNFT } from "../utils/dummyData";
+import {ethers} from "ethers";
+import {dummyNFT} from "../utils/dummyData";
 import toast from "react-hot-toast";
 
 type FormState = {
@@ -32,7 +32,7 @@ type FormState = {
 
 function CreateOption() {
     const account = useAccount();
-    const { nftOpt } = useContracts();
+    const {nftOpt} = useContracts();
 
     // TODO Stefana: cleanup dummy data
     const [assets, setAssets] = useState<NFTAsset[]>([dummyNFT]);
@@ -40,8 +40,7 @@ function CreateOption() {
         asset: dummyNFT,
         strikePrice: "",
         premium: "",
-        // @ts-ignore
-        interval: "",
+        interval: undefined,
         flavor: OptionFlavor.EUROPEAN,
     });
 
@@ -126,9 +125,9 @@ function CreateOption() {
                 formState.flavor,
                 txOptions
             );
-            toast.success("Option published successfully", { duration: 4000 });
+            toast.success("Option published successfully", {duration: 4000});
         } catch (error) {
-            toast.error("There was an error while trying to publish the option", { duration: 4000 });
+            toast.error("There was an error while trying to publish the option", {duration: 4000});
             console.error(error);
         }
     };
@@ -182,7 +181,7 @@ function CreateOption() {
                         type="number"
                         placeholder="Expiration interval"
                         className={classes.field}
-                        value={formState.interval}
+                        value={formState.interval ?? ""}
                         onChange={handleChangeInterval}
                     />
                     <FormControl className={classes.field}>
@@ -218,7 +217,7 @@ function CreateOption() {
                     {formState.asset ? (
                         <img src={formState.asset.image} alt="" />
                     ) : (
-                        Array.from({ length: 3 }).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
+                        Array.from({length: 3}).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
                     )}
                 </div>
             </div>
