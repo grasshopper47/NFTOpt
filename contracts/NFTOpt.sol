@@ -113,7 +113,8 @@ contract NFTOpt {
     }
 
     /// @custom:author GregVanDell and LuisImagiire
-    /// @notice Description
+    /// @notice Removes a published option request from the marketplace
+    /// @param _optionId: id of the option to remove
     function withdrawOptionRequest(uint256 _optionId)
     external
     payable
