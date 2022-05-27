@@ -140,7 +140,7 @@ contract NFTOpt {
 
         if (option.buyer != msg.sender)
         {
-            revert NOT_AUTHORIZED(msg.sender, "Only Buyer can withdraw");
+            revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall);
         }
 
         if (getBalance() < option.premium)

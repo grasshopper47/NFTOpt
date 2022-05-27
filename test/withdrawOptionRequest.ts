@@ -38,7 +38,7 @@ describe("withdrawOptionRequest", function () {
         await expect(NFTOptCTR.connect(seller).withdrawOptionRequest(1)).to.be.revertedWith("NOT_AUTHORIZED");
     });
 
-    it("Buyer should receive premium back when success", async function () {
+    it("should send premium to buyer on success", async function () {
         await publishDummyOptionRequest();
         let buyerBalance0 = await buyer.getBalance();
 
