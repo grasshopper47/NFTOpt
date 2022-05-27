@@ -304,7 +304,7 @@ export async function loadContractOptions(contract: NFTOpt, setOptionsCallback: 
                 interval: contractOption.interval / SECONDS_IN_A_DAY,
                 nftContract: contractOption.nftContract,
                 nftId: contractOption.nftId,
-                premium: ethers.utils.formatEther(contractOption.strikePrice).toString(),
+                premium: ethers.utils.formatEther(contractOption.premium).toString(),
                 startDate: contractOption.startDate.toString(),
                 state: contractOption.state,
                 strikePrice: ethers.utils.formatEther(contractOption.strikePrice).toString(),
