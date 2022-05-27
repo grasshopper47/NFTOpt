@@ -21,6 +21,7 @@ import classes from "./styles/CreateOption.module.scss";
 import { ethers } from "ethers";
 import { dummyNFT } from "../utils/dummyData";
 import toast from "react-hot-toast";
+import { fetchAssetsForAddress } from "../utils/frontend";
 
 type FormState = {
     asset?: NFTAsset;
@@ -48,7 +49,7 @@ function CreateOption() {
         if (!account) {
             return;
         }
-        // fetchAssetsForAddress(account, setAssets);
+        fetchAssetsForAddress(account, setAssets);
     }, [account]);
 
     const handleSelectAsset = (asset: NFTAsset) => {
