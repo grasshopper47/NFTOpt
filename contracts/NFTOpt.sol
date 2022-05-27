@@ -161,7 +161,9 @@ contract NFTOpt {
     }
 
     /// @custom:author StefanaM
-    /// @notice Description
+    /// @notice Create (enables) an option from a published request from the marketplace
+    ///         by sending strike price to contract and premium to msg.sender
+    /// @param _optionId: id of the option to remove
     function createOption(uint256 _optionId)
     external
     payable
