@@ -1,22 +1,14 @@
-import {ethers} from "ethers";
-import {NFTOpt} from "../../typechain-types/contracts/NFTOpt";
-import {NFTAsset, Option, OptionWithNFTDetails} from "./declarations";
-import {address0} from "./dummyData";
+import { BigNumber, ethers } from "ethers";
+import { NFTOpt } from "../../typechain-types/contracts/NFTOpt";
+import { NFTAsset, Option, OptionWithNFTDetails } from "./types";
+import { addressEmpty } from "./constants";
 
 declare var window: Window & {
     ethereum: any;
 };
 
-const networkId = process.env.NEXT_PUBLIC_NETWORK_ID || "31337";
-const networks = {
-    "1": "mainnet",
-    "4": "rinkeby",
-    "31337": "localhost",
-};
-export const networkName = networks[networkId];
-
 export function getEthereumObject() {
-    const {ethereum} = window;
+    const { ethereum } = window;
 
     return ethereum ?? null;
 }
@@ -38,9 +30,9 @@ export function setupEthereumEventListeners(ethereum: ethers.providers.ExternalP
 }
 
 export async function getCurrentAccount() {
-    const {ethereum} = window;
+    const { ethereum } = window;
 
-    const accounts = await ethereum.request({method: "eth_accounts"});
+    const accounts = await ethereum.request({ method: "eth_accounts" });
 
     if (!accounts || accounts?.length === 0) {
         return null;
@@ -55,20 +47,49 @@ export async function connectWallet(setAccountCallback: (account: string) => voi
     const ethereum = getEthereumObject();
 
     if (ethereum) {
-        ethereum.request({method: "eth_requestAccounts"}).then((res) => setAccountCallback(res[0]));
+        ethereum.request({ method: "eth_requestAccounts" }).then((res) => setAccountCallback(res[0]));
     } else {
         alert("Please install MetaMask extension");
     }
 }
 
 export function getSignedContract(address: string, abi: any) {
-    const {ethereum} = window;
+    const { ethereum } = window;
 
     const provider = new ethers.providers.Web3Provider(ethereum, "any");
 
     const signer = provider.getSigner();
 
     return new ethers.Contract(address, abi, signer);
+}
+
+async function fetchNFTImage(address: string, id: BigNumber) {
+    const abi_IERC721: any = [
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "tokenURI",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        }];
+
+    let NFTContract = getSignedContract(address, abi_IERC721);
+
+    var data = await NFTContract.tokenURI(id);
+
+    return JSON.parse(atob(data.slice(29))).image;
 }
 
 export async function fetchAssetsForAddress(account: string, setAssetsCallback: (assets: NFTAsset[]) => void) {
@@ -99,16 +120,17 @@ export async function fetchAssetsForAddress(account: string, setAssetsCallback: 
 
 export async function fetchNFTDetailsForOneOptions(
     nftContract: string,
-    nftTokenId: string,
+    nftTokenId: BigNumber,
     setAssetCallback: (asset: NFTAsset) => void
 ) {
     let asset: NFTAsset | null = null;
+
     asset = {
         id: 1,
         tokenId: nftTokenId,
         address: nftContract,
         name: "???",
-        image: "https://freesvg.org/img/Placeholder.png",
+        image: await fetchNFTImage(nftContract, nftTokenId),
         url: "https://freesvg.org/img/Placeholder.png",
     };
 
@@ -140,13 +162,35 @@ export async function fetchNFTDetailsForMultipleOptions(
     const optionsWithNFTDetails: OptionWithNFTDetails[] = [];
     let asset: NFTAsset | null = null;
 
+    const abi_IERC721: any = [
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "tokenURI",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        }];
+
     for (let option of options) {
+
         asset = {
             id: option.id + 1,
             tokenId: option.nftId,
             address: option.nftContract,
             name: `Option ${option.id}`,
-            image: "https://freesvg.org/img/Placeholder.png",
+            image: await fetchNFTImage(option.nftContract, option.nftId),
             url: "https://freesvg.org/img/Placeholder.png",
         };
 
@@ -186,9 +230,10 @@ export function getAccountDisplayValue(account: string) {
 
 function checkOptionExists(option: Option): boolean {
     if (
-        option.buyer === address0 ||
-        option.nftContract === address0 ||
-        option.nftId === "0" ||
+        option.buyer === addressEmpty ||
+        option.nftContract === addressEmpty ||
+        option.nftId === BigNumber.from("0") ||
+        option.nftId === undefined ||
         option.premium === "0" ||
         option.strikePrice === "0" ||
         option.interval === 0

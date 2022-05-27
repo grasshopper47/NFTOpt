@@ -1,24 +1,22 @@
-import React, {useState, useEffect} from "react";
-import {AppProps} from "next/app";
+import React, { useState, useEffect } from "react";
+import { AppProps } from "next/app";
 import "./_app.scss";
-import {AccountContext, ContractsContext} from "../providers/contexts";
+import { AccountContext, ContractsContext } from "../providers/contexts";
+import { networkName } from "../utils/constants"
 import {
-    networkName,
     getCurrentAccount,
     getEthereumObject,
     getSignedContract,
     setupEthereumEventListeners,
     connectWallet,
-} from "../utils/api";
+} from "../utils/frontend";
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
 import addresses from "../../addresses.json";
 import Header from "../components/Header";
-import toast, {Toaster} from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import RouteGuard from "../components/RouteGuard";
 
-const NFTOptContractAddr = addresses[networkName].NFTOpt;
-
-export default function App({Component, pageProps}: AppProps) {
+export default function App({ Component, pageProps }: AppProps) {
     const [account, setAccount] = useState(null);
     const [loaded, setLoaded] = useState(false);
     const [contracts, setContracts] = useState({
@@ -33,14 +31,14 @@ export default function App({Component, pageProps}: AppProps) {
 
         setupEthereumEventListeners(ethereum);
 
-        const NFTOptContract = getSignedContract(NFTOptContractAddr, NFTOptSolContract.abi);
+        const NFTOptContract = getSignedContract(addresses[networkName].NFTOpt, NFTOptSolContract.abi);
 
         if (!NFTOptContract) {
             return null;
         }
 
         const currentAccount = await getCurrentAccount();
-        setContracts({nftOpt: NFTOptContract});
+        setContracts({ nftOpt: NFTOptContract });
         setAccount(currentAccount);
 
         setLoaded(true);

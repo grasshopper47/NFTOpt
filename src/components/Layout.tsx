@@ -1,5 +1,5 @@
 import React from "react";
-import {WithChildren} from "../utils/declarations";
+import { WithChildren } from "../utils/types";
 
 function Layout(props: WithChildren) {
     return (

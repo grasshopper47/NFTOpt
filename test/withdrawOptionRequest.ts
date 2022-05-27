@@ -1,6 +1,6 @@
 import {expect} from "chai";
+
 import {
-    address_empty,
     buyer,
     seller,
     initializer,
@@ -8,9 +8,7 @@ import {
     NFTOptCTR,
     dummyOptionRequest,
     publishDummyOptionRequest,
-    OptionFlavor,
-    OptionState,
-} from "./utils";
+} from "../src/utils/backend";
 
 beforeEach("deploy contract", async () => {
     await initializer();

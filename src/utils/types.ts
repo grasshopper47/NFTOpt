@@ -4,7 +4,7 @@ export type WithChildren = {
 
 export type NFTAsset = {
     id: number;
-    tokenId: string;
+    tokenId: BigNumber;
     address: string;
     name: string;
     image: string;
@@ -27,7 +27,7 @@ export type Option = {
     buyer: string;
     seller: string;
     nftContract: string;
-    nftId: string;
+    nftId: BigNumber;
     startDate: string;
     interval: number;
     premium: string;
@@ -35,5 +35,20 @@ export type Option = {
     flavor: OptionFlavor;
     state: OptionState;
 };
+
+import { BigNumber } from "ethers";
+
+export interface Option_TEST_STRUCT {
+    buyer: string;
+    seller: string;
+    nftContract: string;
+    nftId: number;
+    startDate: number;
+    interval: number;
+    premium: BigNumber;
+    strikePrice: BigNumber;
+    flavor: number;
+    state: number;
+}
 
 export type OptionWithNFTDetails = Omit<Option, "nftContract" | "nftId"> & { asset: NFTAsset };
