@@ -15,7 +15,7 @@ import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { useAccount, useContracts } from "../providers/contexts";
-import { floatNumberRegex } from "../utils/constants";
+import { floatNumberRegex, SECONDS_IN_A_DAY } from "../utils/constants";
 import { NFTAsset, OptionFlavor } from "../utils/types";
 import classes from "./styles/CreateOption.module.scss";
 import { ethers } from "ethers";
@@ -121,7 +121,7 @@ function CreateOption() {
                 formState.asset.address,
                 formState.asset.tokenId,
                 ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
-                formState.interval * 24 * 3600, // days in seconds
+                formState.interval * SECONDS_IN_A_DAY,
                 formState.flavor,
                 txOptions
             );
