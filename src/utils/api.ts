@@ -1,7 +1,7 @@
-import { ethers } from "ethers";
-import { NFTOpt } from "../../typechain-types/contracts/NFTOpt";
-import { NFTAsset, Option, OptionWithNFTDetails } from "./declarations";
-import { address0 } from "./dummyData";
+import {ethers} from "ethers";
+import {NFTOpt} from "../../typechain-types/contracts/NFTOpt";
+import {NFTAsset, Option, OptionWithNFTDetails} from "./declarations";
+import {address0} from "./dummyData";
 
 declare var window: Window & {
     ethereum: any;
@@ -16,7 +16,7 @@ const networks = {
 export const networkName = networks[networkId];
 
 export function getEthereumObject() {
-    const { ethereum } = window;
+    const {ethereum} = window;
 
     return ethereum ?? null;
 }
@@ -38,9 +38,9 @@ export function setupEthereumEventListeners(ethereum: ethers.providers.ExternalP
 }
 
 export async function getCurrentAccount() {
-    const { ethereum } = window;
+    const {ethereum} = window;
 
-    const accounts = await ethereum.request({ method: "eth_accounts" });
+    const accounts = await ethereum.request({method: "eth_accounts"});
 
     if (!accounts || accounts?.length === 0) {
         return null;
@@ -55,14 +55,14 @@ export async function connectWallet(setAccountCallback: (account: string) => voi
     const ethereum = getEthereumObject();
 
     if (ethereum) {
-        ethereum.request({ method: "eth_requestAccounts" }).then((res) => setAccountCallback(res[0]));
+        ethereum.request({method: "eth_requestAccounts"}).then((res) => setAccountCallback(res[0]));
     } else {
         alert("Please install MetaMask extension");
     }
 }
 
 export function getSignedContract(address: string, abi: any) {
-    const { ethereum } = window;
+    const {ethereum} = window;
 
     const provider = new ethers.providers.Web3Provider(ethereum, "any");
 
@@ -137,7 +137,6 @@ export async function fetchNFTDetailsForMultipleOptions(
     options: Option[],
     setOptionsCallback: (optionsWithNFTDetails: OptionWithNFTDetails[]) => void
 ) {
-
     const optionsWithNFTDetails: OptionWithNFTDetails[] = [];
     let asset: NFTAsset | null = null;
 
@@ -153,7 +152,7 @@ export async function fetchNFTDetailsForMultipleOptions(
 
         optionsWithNFTDetails.push({
             ...option,
-            asset
+            asset,
         });
         // await fetch(`https://api.opensea.io/api/v1/asset/${option.nftContract}/${option.nftId}/`)
         //     .then((res) => res.json())
@@ -182,7 +181,7 @@ export async function fetchNFTDetailsForMultipleOptions(
 }
 
 export function getAccountDisplayValue(account: string) {
-    return account.slice(0, 6) + "..." + account.slice(-4);
+    return account?.slice(0, 6) + "..." + account?.slice(-4);
 }
 
 function checkOptionExists(option: Option): boolean {
@@ -204,7 +203,9 @@ export async function loadContractOptions(contract: NFTOpt, setOptionsCallback: 
     try {
         let optionIDPromise = await contract.optionID();
 
-        if (optionIDPromise === undefined) { return; }
+        if (optionIDPromise === undefined) {
+            return;
+        }
 
         const optionsLength = optionIDPromise.toNumber();
         for (let optionId = 0; optionId <= optionsLength; ++optionId) {

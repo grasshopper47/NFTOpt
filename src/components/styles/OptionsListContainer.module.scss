@@ -28,7 +28,7 @@
         color: $color-primary;
     }
 
-    :global(.Mui-selected) {
+    :global(.Mui-selected), :global(.MuiButtonBase-root.MuiTab-root.MuiTab-textColorPrimary.Mui-selected) {
         color: $color-primary;
     }
 
