@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { OptionState } from "../src/utils/types"
 import {
     buyer,
     seller,
@@ -7,8 +8,7 @@ import {
     deployNFTOptContract,
     dummyOptionRequest,
     publishDummyOptionRequest,
-    OptionState,
-} from "./utils";
+} from "../src/utils/backend";
 
 describe("createOption", function () {
 
@@ -108,7 +108,7 @@ describe("createOption", function () {
 
         expect(updatedOption.startDate).to.not.equal(0);
         expect(updatedOption.seller).to.equal(seller.address);
-        expect(updatedOption.state).to.equal(OptionState.Open);
+        expect(updatedOption.state).to.equal(OptionState.OPEN);
 
         // Check that the seller's new balance is equal with the initial balance - gas used in transaction + premium - strikePrice
         let sellerBalance1 = await seller.getBalance();

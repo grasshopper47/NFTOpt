@@ -1,6 +1,6 @@
 import { AccessTime } from "@mui/icons-material";
 import { Typography } from "@mui/material";
-import { OptionWithNFTDetails } from "../utils/declarations";
+import { OptionWithNFTDetails } from "../utils/types";
 import classes from "./styles/OptionListItemPreview.module.scss";
 
 type OptionListItemPreviewProps = {

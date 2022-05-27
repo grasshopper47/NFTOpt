@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { OptionState } from "../src/utils/types"
 import {
     buyer,
     seller,
@@ -11,8 +12,7 @@ import {
     NFTOptCTR,
     dummyOptionRequest,
     publishDummyOptionRequest,
-    OptionState,
-} from "./utils";
+} from "../src/utils/backend";
 
 describe("cancelOption", function () {
 
@@ -30,7 +30,7 @@ describe("cancelOption", function () {
         await publishDummyOptionRequest();
 
         var publishedOption = await NFTOptCTR.connect(buyer).options(1);
-        expect(publishedOption.state).to.equal(OptionState.Request);
+        expect(publishedOption.state).to.equal(OptionState.REQUEST);
 
         await expect(NFTOptCTR.connect(buyer)
             .cancelOption(1))
@@ -62,7 +62,7 @@ describe("cancelOption", function () {
             .withArgs(1);
 
         let exercisedOption = await NFTOptCTR.connect(buyer).options(1);
-        expect(exercisedOption.state).to.equal(OptionState.Closed);
+        expect(exercisedOption.state).to.equal(OptionState.CLOSED);
 
         await expect(NFTOptCTR.connect(buyer)
             .cancelOption(1))
@@ -196,7 +196,7 @@ describe("cancelOption", function () {
             .withArgs(buyer.address, 1);
 
         let cancelledOption = await NFTOptCTR.connect(buyer).options(1);
-        expect(cancelledOption.state).to.equal(OptionState.Closed);
+        expect(cancelledOption.state).to.equal(OptionState.CLOSED);
 
         // Reset the state
         await deployNFTOptContract();

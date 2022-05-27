@@ -1,10 +1,10 @@
-import {Tab, Tabs, Typography} from "@mui/material";
-import {useEffect, useState} from "react";
-import {OptionState, OptionWithNFTDetails} from "../utils/declarations";
+import { Tab, Tabs, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import { OptionState, OptionWithNFTDetails } from "../utils/types";
 import OptionDetailsPreview from "./OptionDetailsPreview";
 import OptionListItemPreview from "./OptionListItemPreview";
 import classes from "./styles/OptionsListContainer.module.scss";
-import {useAccount} from "../providers/contexts";
+import { useAccount } from "../providers/contexts";
 
 type OptionsListContainerProps = {
     title: string;
@@ -32,7 +32,7 @@ const optionStateTabs: OptionStateTab[] = [
 ];
 
 function OptionsListContainer(props: OptionsListContainerProps) {
-    const {options, title} = props;
+    const { options, title } = props;
 
     const account = useAccount();
 

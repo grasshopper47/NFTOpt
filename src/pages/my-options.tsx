@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import OptionsListContainer from "../components/OptionsListContainer";
-import { Option, OptionState, OptionWithNFTDetails } from "../utils/declarations";
+import { Option, OptionState, OptionWithNFTDetails } from "../utils/types";
 import { useAccount, useContracts } from "../providers/contexts";
-import { fetchNFTDetailsForMultipleOptions, loadContractOptions } from "../utils/api";
+import { fetchNFTDetailsForMultipleOptions, loadContractOptions } from "../utils/frontend";
 
 function MyOptions() {
     const account = useAccount();

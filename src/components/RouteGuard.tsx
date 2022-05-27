@@ -1,6 +1,6 @@
-import {useRouter} from "next/router";
-import {useEffect} from "react";
-import {WithChildren} from "../utils/declarations";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { WithChildren } from "../utils/types";
 
 type RouteGuardProps = {
     account: string;
@@ -9,7 +9,7 @@ type RouteGuardProps = {
 
 function RouteGuard(props: RouteGuardProps): JSX.Element {
     const router = useRouter();
-    const {account, loaded} = props;
+    const { account, loaded } = props;
 
     useEffect(() => {
         if (!account && router.route !== "/" && loaded) {
