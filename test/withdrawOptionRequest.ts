@@ -1,4 +1,5 @@
 import {expect} from "chai";
+import {OptionState} from "../src/utils/types";
 
 import {
     buyer,
@@ -9,6 +10,7 @@ import {
     dummyOptionRequest,
     publishDummyOptionRequest,
 } from "../src/utils/backend";
+import {NFTOpt} from "../typechain-types";
 
 beforeEach("deploy contract", async () => {
     await initializer();
@@ -58,5 +60,11 @@ describe("withdrawOptionRequest", function () {
 
         // Check balance of option buyer
         expect(buyerBalance0).to.be.equal(buyerBalance1);
+    });
+
+    it("should be read with status WITHDRAWN after withdrawal", async function () {
+        await publishDummyOptionRequest();
+        await expect(NFTOptCTR.connect(buyer).withdrawOptionRequest(1)).to.emit(NFTOptCTR, "Withdrawn");
+        await expect((await NFTOptCTR.options(1)).state).to.be.equal(OptionState.WITHDRAWN);
     });
 });

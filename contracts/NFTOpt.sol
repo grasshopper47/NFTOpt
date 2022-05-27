@@ -11,7 +11,7 @@ contract NFTOpt {
     using InterfaceDetector for address;
 
     /// @dev -- SCAFFOLDING ---------------------------
-    enum OptionState  { REQUEST, OPEN, CLOSED }
+    enum OptionState  { REQUEST, OPEN, CLOSED, WITHDRAWN }
     enum OptionFlavor { EUROPEAN, AMERICAN }
 
     struct Option {
@@ -154,7 +154,7 @@ contract NFTOpt {
             revert FUNDS_TRANSFER_FAILED();
         }
 
-        options[_optionId].state = OptionState.CLOSED;
+        options[_optionId].state = OptionState.WITHDRAWN;
 
         emit Withdrawn(msg.sender, _optionId);
     }
