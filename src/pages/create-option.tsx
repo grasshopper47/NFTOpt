@@ -38,7 +38,7 @@ function CreateOption() {
     // TODO Stefana: cleanup dummy data
     const [assets, setAssets] = useState<NFTAsset[]>([dummyNFT]);
     const [formState, setFormState] = useState<FormState>({
-        asset: dummyNFT,
+        asset: undefined,
     });
 
     useEffect(() => {
