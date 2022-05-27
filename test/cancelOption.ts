@@ -13,6 +13,7 @@ import {
     dummyOptionRequest,
     publishDummyOptionRequest,
 } from "../src/utils/backend";
+import { SECONDS_IN_A_DAY } from "../src/utils/constants";
 
 describe("cancelOption", function () {
 
@@ -50,7 +51,7 @@ describe("cancelOption", function () {
             .withArgs(seller.address, 1);
 
         // Fast-foward EVM by exercise date (interval 6 days) for european contract
-        await increaseEVMTimestampBy((dummyOptionRequest.interval / (24 * 3600)) - 1);
+        await increaseEVMTimestampBy((dummyOptionRequest.interval / SECONDS_IN_A_DAY) - 1);
 
         // Approve contract for transferring NFT
         NFTDummyCTR.connect(buyer).approve(NFTOptCTR.address, dummyOptionRequest.nftId);
@@ -91,7 +92,7 @@ describe("cancelOption", function () {
             .to.be.revertedWith("NOT_AUTHORIZED");
 
         // Fast-foward EVM by interval + 1 days
-        await increaseEVMTimestampBy((dummyOptionRequest.interval / (24 * 3600)) + 1);
+        await increaseEVMTimestampBy((dummyOptionRequest.interval / SECONDS_IN_A_DAY) + 1);
 
         // Try to cancel again
         await expect(NFTOptCTR.connect(nonParticipant)
@@ -118,7 +119,7 @@ describe("cancelOption", function () {
             .to.be.revertedWith("NOT_AUTHORIZED");
 
         // Fast-foward EVM by interval + 1 days
-        await increaseEVMTimestampBy((dummyOptionRequest.interval / (24 * 3600)) + 1);
+        await increaseEVMTimestampBy((dummyOptionRequest.interval / SECONDS_IN_A_DAY) + 1);
 
         // Should be allowed to cancel when option is expired
         await expect(NFTOptCTR.connect(seller)
