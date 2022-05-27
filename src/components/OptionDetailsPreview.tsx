@@ -4,6 +4,7 @@ import {endOfDay, isBefore, isSameDay} from "date-fns";
 import {ethers} from "ethers";
 import toast from "react-hot-toast";
 import {useContracts} from "../providers/contexts";
+import {SECONDS_IN_A_DAY} from "../utils/constants";
 import {getAccountDisplayValue, getCorrectPlural} from "../utils/frontend";
 import {OptionFlavor, OptionState, OptionWithNFTDetails} from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
@@ -99,7 +100,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
         const today = endOfDay(new Date());
         let end_day = new Date(option.startDate);
 
-        end_day.setDate(end_day.getDate() + option.interval / (24 * 3600));
+        end_day.setDate(end_day.getDate() + option.interval / SECONDS_IN_A_DAY);
 
         if (option.flavor === OptionFlavor.EUROPEAN) {
             return isSameDay(end_day, today);
@@ -155,7 +156,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                             </div>
                             <div className={classes.field}>
                                 <span>NFT token ID:</span>
-                                <span> {option.asset.tokenId}</span>
+                                <span> {option.asset.tokenId.toString()}</span>
                             </div>
                             <div className={classes.field}>
                                 <span>Premium:</span>

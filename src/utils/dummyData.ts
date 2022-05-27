@@ -1,9 +1,10 @@
-import { Option, OptionFlavor, OptionState, NFTAsset } from "./types";
+import {Option, OptionFlavor, OptionState, NFTAsset} from "./types";
 import addresses from "../../addresses.json";
-import { addressEmpty } from "./constants";
+import {addressEmpty} from "./constants";
+import {BigNumber} from "ethers";
 
 const dummyNFTAddress: string = addresses["localhost"].NFTDummy;
-const dummyNFTToken: string = "1";
+const dummyNFTToken: BigNumber = BigNumber.from("1");
 
 export const dummyNFT: NFTAsset = {
     id: 0,

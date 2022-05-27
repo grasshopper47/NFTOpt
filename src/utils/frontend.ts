@@ -1,7 +1,8 @@
-import {ethers} from "ethers";
+import {BigNumber, ethers} from "ethers";
 import {NFTOpt} from "../../typechain-types/contracts/NFTOpt";
 import {NFTAsset, Option, OptionWithNFTDetails} from "./types";
-import {addressEmpty} from "./constants";
+import {addressEmpty, SECONDS_IN_A_DAY} from "./constants";
+import addresses from "../../addresses.json";
 
 declare var window: Window & {
     ethereum: any;
@@ -67,6 +68,36 @@ export function getSignedContract(address: string, abi: any) {
     return new ethers.Contract(address, abi, signer);
 }
 
+async function fetchNFTImage(address: string, id: BigNumber) {
+    const abi_IERC721: any = [
+        {
+            inputs: [
+                {
+                    internalType: "uint256",
+                    name: "tokenId",
+                    type: "uint256",
+                },
+            ],
+            name: "tokenURI",
+            outputs: [
+                {
+                    internalType: "string",
+                    name: "",
+                    type: "string",
+                },
+            ],
+            stateMutability: "view",
+            type: "function",
+        },
+    ];
+
+    let NFTContract = getSignedContract(address, abi_IERC721);
+
+    var data = await NFTContract.tokenURI(id);
+
+    return JSON.parse(atob(data.slice(29))).image;
+}
+
 export async function fetchAssetsForAddress(account: string, setAssetsCallback: (assets: NFTAsset[]) => void) {
     const assets: NFTAsset[] = [];
 
@@ -90,21 +121,63 @@ export async function fetchAssetsForAddress(account: string, setAssetsCallback: 
     //         console.error(error);
     //     });
 
+    const abi_IERC721: any = [
+        {
+            inputs: [
+                {
+                    internalType: "uint256",
+                    name: "tokenId",
+                    type: "uint256",
+                },
+            ],
+            name: "ownerOf",
+            outputs: [
+                {
+                    internalType: "address",
+                    name: "",
+                    type: "address",
+                },
+            ],
+            stateMutability: "view",
+            type: "function",
+        },
+    ];
+
+    let NFTContract = getSignedContract(addresses["localhost"].NFTDummy, abi_IERC721);
+
+    for (let i = 1; i < 21; ++i) {
+        var data = await NFTContract.ownerOf(i);
+
+        data = data.toLowerCase();
+
+        if (data === account) {
+            assets.push({
+                id: i,
+                tokenId: BigNumber.from("1"),
+                address: addresses["localhost"].NFTDummy,
+                name: "X Collection - " + i,
+                image: "",
+                url: "",
+            });
+        }
+    }
+
     setAssetsCallback(assets);
 }
 
 export async function fetchNFTDetailsForOneOptions(
     nftContract: string,
-    nftTokenId: string,
+    nftTokenId: BigNumber,
     setAssetCallback: (asset: NFTAsset) => void
 ) {
     let asset: NFTAsset | null = null;
+
     asset = {
         id: 1,
         tokenId: nftTokenId,
         address: nftContract,
         name: "???",
-        image: "https://freesvg.org/img/Placeholder.png",
+        image: await fetchNFTImage(nftContract, nftTokenId),
         url: "https://freesvg.org/img/Placeholder.png",
     };
 
@@ -136,13 +209,35 @@ export async function fetchNFTDetailsForMultipleOptions(
     const optionsWithNFTDetails: OptionWithNFTDetails[] = [];
     let asset: NFTAsset | null = null;
 
+    const abi_IERC721: any = [
+        {
+            inputs: [
+                {
+                    internalType: "uint256",
+                    name: "tokenId",
+                    type: "uint256",
+                },
+            ],
+            name: "tokenURI",
+            outputs: [
+                {
+                    internalType: "string",
+                    name: "",
+                    type: "string",
+                },
+            ],
+            stateMutability: "view",
+            type: "function",
+        },
+    ];
+
     for (let option of options) {
         asset = {
             id: option.id + 1,
             tokenId: option.nftId,
             address: option.nftContract,
             name: `Option ${option.id}`,
-            image: "https://freesvg.org/img/Placeholder.png",
+            image: await fetchNFTImage(option.nftContract, option.nftId),
             url: "https://freesvg.org/img/Placeholder.png",
         };
 
@@ -184,7 +279,8 @@ function checkOptionExists(option: Option): boolean {
     if (
         option.buyer === addressEmpty ||
         option.nftContract === addressEmpty ||
-        option.nftId === "0" ||
+        option.nftId === BigNumber.from("0") ||
+        option.nftId === undefined ||
         option.premium === "0" ||
         option.strikePrice === "0" ||
         option.interval === 0
@@ -211,9 +307,9 @@ export async function loadContractOptions(contract: NFTOpt, setOptionsCallback: 
                 buyer: contractOption.buyer.toLowerCase(),
                 seller: contractOption.seller.toLowerCase(),
                 flavor: contractOption.flavor,
-                interval: contractOption.interval / (24 * 3600),
+                interval: contractOption.interval / SECONDS_IN_A_DAY,
                 nftContract: contractOption.nftContract,
-                nftId: contractOption.nftId.toString(),
+                nftId: contractOption.nftId,
                 premium: ethers.utils.formatEther(contractOption.strikePrice).toString(),
                 startDate: contractOption.startDate.toString(),
                 state: contractOption.state,

@@ -11,7 +11,7 @@ contract NFTOpt {
     using InterfaceDetector for address;
 
     /// @dev -- SCAFFOLDING ---------------------------
-    enum OptionState  { REQUEST, OPEN, CLOSED }
+    enum OptionState  { REQUEST, OPEN, CLOSED, WITHDRAWN }
     enum OptionFlavor { EUROPEAN, AMERICAN }
 
     struct Option {
@@ -28,6 +28,8 @@ contract NFTOpt {
     }
 
     /// @dev -- STACK ---------------------------------
+    string constant private _msg_OnlyBuyerCanCall = "Only Buyer can call this method";
+    string constant private _msg_OnlyBuyerOrSellerCanCall = "Only Buyer or Seller can call this method";
     uint256                    public optionID;
     mapping(uint256 => Option) public options;
 
@@ -36,6 +38,7 @@ contract NFTOpt {
     event Exercised (uint256);
     event Filled    (address, uint256);
     event Canceled  (address, uint256);
+    event Withdrawn (address, uint256);
 
     /// @dev -- METHODS -------------------------------
     function getBalance() public view returns (uint256)
@@ -109,14 +112,51 @@ contract NFTOpt {
         emit NewRequest(msg.sender, optionID);
     }
 
-    /// @custom:author GregVanDell
+    /// @custom:author GregVanDell and LuisImagiire
     /// @notice Description
     function withdrawOptionRequest(uint256 _optionId)
     external
     payable
     {
-        // TODO: update this with the correct implementation (wrote this here only for testing)
-        options[_optionId].state = OptionState.CLOSED;
+        Option memory option = options[_optionId];
+
+        if
+        (
+            option.buyer       == address(0) ||
+            option.nftContract == address(0) ||
+            option.nftId       == 0          ||
+            option.interval    == 0          ||
+            option.premium     == 0          ||
+            option.strikePrice == 0
+        )
+        {
+            revert INVALID_OPTION_ID(_optionId);
+        }
+
+        if (option.state != OptionState.REQUEST)
+        {
+            revert INVALID_OPTION_STATE(option.state, OptionState.REQUEST);
+        }
+
+        if (option.buyer != msg.sender)
+        {
+            revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall);
+        }
+
+        if (getBalance() < option.premium)
+        {
+            revert INSUFFICIENT_FUNDS();
+        }
+
+        (bool success,) = option.buyer.call{value: option.premium}("");
+        if (!success)
+        {
+            revert FUNDS_TRANSFER_FAILED();
+        }
+
+        options[_optionId].state = OptionState.WITHDRAWN;
+
+        emit Withdrawn(msg.sender, _optionId);
     }
 
     /// @custom:author StefanaM
@@ -225,7 +265,7 @@ contract NFTOpt {
             option.seller != msg.sender
         )
         {
-            revert NOT_AUTHORIZED(msg.sender, "Only Buyer or Seller can cancel");
+            revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerOrSellerCanCall);
         }
 
         /// @dev Restrict calling rights of seller: permit only after expiration
@@ -235,7 +275,7 @@ contract NFTOpt {
             option.buyer != msg.sender
         )
         {
-            revert NOT_AUTHORIZED(msg.sender, "Only Buyer can cancel");
+            revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall);
         }
 
         (bool success,) = option.seller.call{value: option.strikePrice}("");
@@ -270,7 +310,7 @@ contract NFTOpt {
         /// @dev Restrict calling rights to buyer only
         if (option.buyer != msg.sender)
         {
-            revert NOT_AUTHORIZED(msg.sender, "Only Buyer can exercise");
+            revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall);
         }
 
         /// @dev Check for NFT access and ownership

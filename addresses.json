@@ -1,5 +1,6 @@
 {
     "localhost": {
-        "NFTOpt": "Your NFTOpt contract address deployed on localhost"
+        "NFTOpt": "Your NFTOpt contract address deployed on localhost",
+        "NFTDummy": ""
     }
 }
