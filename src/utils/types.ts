@@ -4,7 +4,7 @@ export type WithChildren = {
 
 export type NFTAsset = {
     id: number;
-    tokenId: string;
+    tokenId: BigNumber;
     address: string;
     name: string;
     image: string;
@@ -27,7 +27,7 @@ export type Option = {
     buyer: string;
     seller: string;
     nftContract: string;
-    nftId: string;
+    nftId: BigNumber;
     startDate: string;
     interval: number;
     premium: string;

@@ -154,7 +154,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                             </div>
                             <div className={classes.field}>
                                 <span>NFT token ID:</span>
-                                <span> {option.asset.tokenId}</span>
+                                <span> {option.asset.tokenId.toString()}</span>
                             </div>
                             <div className={classes.field}>
                                 <span>Premium:</span>
