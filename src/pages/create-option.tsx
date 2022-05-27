@@ -39,10 +39,6 @@ function CreateOption() {
     const [assets, setAssets] = useState<NFTAsset[]>([dummyNFT]);
     const [formState, setFormState] = useState<FormState>({
         asset: dummyNFT,
-        strikePrice: "",
-        premium: "",
-        interval: undefined,
-        flavor: OptionFlavor.EUROPEAN,
     });
 
     useEffect(() => {
@@ -143,12 +139,12 @@ function CreateOption() {
             <div className={classes.root}>
                 <div className={classes.form}>
                     <Typography className={classes.title}>Buy an NFT Option</Typography>
-                    <Select value={formState.asset?.id} placeholder="Select your NFT">
+                    <Select value={formState.asset?.tokenId.toString()} placeholder="Select your NFT">
                         <Typography>Select your NFT</Typography>
                         {assets.map((asset) => (
                             <MenuItem
-                                key={`asset-${asset.id}`}
-                                value={asset.id}
+                                key={`asset-${asset.tokenId}`}
+                                value={asset.tokenId.toString()}
                                 onClick={handleSelectAsset.bind(null, asset)}
                             >
                                 {asset.name}
