@@ -7,7 +7,7 @@ import {
     NFTOptCTR,
     dummyOptionRequest,
     publishDummyOptionRequest,
-} from "./utils";
+} from "../src/utils/backend";
 
 describe("publishOptionRequest", function () {
 

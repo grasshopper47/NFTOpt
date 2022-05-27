@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { OptionFlavor } from "../src/utils/types"
 import {
     buyer,
     seller,
@@ -8,8 +9,7 @@ import {
     NFTOptCTR,
     dummyOptionRequest,
     publishDummyOptionRequest,
-    OptionFlavor,
-} from "./utils";
+} from "../src/utils/backend";
 
 let optionAmerican: any;
 let optionEuropean: any;
@@ -24,7 +24,7 @@ describe("exerciseOption", function () {
             dummyOptionRequest.nftId,
             dummyOptionRequest.strikePrice,
             dummyOptionRequest.interval,
-            OptionFlavor.American,
+            OptionFlavor.AMERICAN,
             { value: dummyOptionRequest.premium }
         );
 

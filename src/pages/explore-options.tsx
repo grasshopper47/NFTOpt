@@ -1,12 +1,12 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import OptionsListContainer from "../components/OptionsListContainer";
-import {Option, OptionWithNFTDetails} from "../utils/declarations";
-import {useContracts} from "../providers/contexts";
-import {fetchNFTDetailsForMultipleOptions, loadContractOptions} from "../utils/api";
+import { Option, OptionWithNFTDetails } from "../utils/types";
+import { useContracts } from "../providers/contexts";
+import { fetchNFTDetailsForMultipleOptions, loadContractOptions } from "../utils/frontend";
 
 function ExploreOptions() {
-    const {nftOpt} = useContracts();
+    const { nftOpt } = useContracts();
     const [contractOptions, setContractOptions] = useState<Option[]>([]);
     const [optionsWithNFTDetails, setOptionsWithNFTDetails] = useState<OptionWithNFTDetails[]>([]);
 
