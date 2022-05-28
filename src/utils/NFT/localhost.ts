@@ -61,7 +61,7 @@ export async function fetchAssetsForAddress(account: string, setAssetsCallback: 
     const NFTContractAddress = addresses["localhost"].NFTDummy;
     let NFTContract = getSignedContract(NFTContractAddress, abi_IERC721);
 
-    for (let i = 1; i < 21; ++i) {
+    for (let i = 1; i < 6; ++i) {
         var data = await NFTContract.ownerOf(i, await getTXOptions());
 
         data = data.toLowerCase();
@@ -81,13 +81,13 @@ export async function fetchAssetsForAddress(account: string, setAssetsCallback: 
     const NFTContractAddress1 = addresses["localhost"].NFTJW;
     let NFTContract1 = getSignedContract(NFTContractAddress, abi_IERC721);
 
-    for (let i = 1; i < 21; ++i) {
+    for (let i = 1; i < 6; ++i) {
         var data = await NFTContract1.ownerOf(i, await getTXOptions());
 
         data = data.toLowerCase();
 
         if (data === account) {
-            const id = BigNumber.from(i);
+            const id = BigNumber.from(i + 5);
             assets.push({
                 tokenId: id,
                 address: NFTContractAddress1,
