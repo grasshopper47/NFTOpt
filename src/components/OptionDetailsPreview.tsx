@@ -166,10 +166,6 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
             <div className={classes.detailsContainer}>
                 <div>
                     <img style={{ backgroundImage: `url(${option.asset.image})` }} alt="" />
-                    <Link href={option.asset.url} target="_blank" className={classes.link}>
-                        View on Opensea
-                        <ArrowRightAlt />
-                    </Link>
                 </div>
                 <div>
                     <p className={classes.title}>{option.asset.name}</p>
