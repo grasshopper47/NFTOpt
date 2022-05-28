@@ -55,14 +55,6 @@ export default function App({Component, pageProps}: AppProps) {
         });
     };
 
-    const removeEventListeners = (contract: NFTOpt) => {
-        contract.removeAllListeners("NewRequest");
-        contract.removeAllListeners("Exercised");
-        contract.removeAllListeners("Filled");
-        contract.removeAllListeners("Canceled");
-        contract.removeAllListeners("Withdrawn");
-    };
-
     const load = async () => {
         const ethereum = getEthereumObject();
         if (!ethereum) {
@@ -104,7 +96,7 @@ export default function App({Component, pageProps}: AppProps) {
             return;
         }
         return () => {
-            removeEventListeners(contracts.nftOpt);
+            contracts.nftOpt?.removeAllListeners();
         };
     }, [contracts.nftOpt]);
 
