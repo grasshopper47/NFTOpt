@@ -18,16 +18,16 @@ async function deployContracts() {
             "InterfaceDetector": InterfaceDetectorCTR.address,
         },
     });
-    const NFTOpt = await NFTOptFactory.deploy();
-    await NFTOpt.deployed();
 
-    console.log("\nDeployed NFTOpt address:", NFTOpt.address);
+    const NFTOptCTR = await NFTOptFactory.deploy();
+    await NFTOptCTR.deployed();
+
+    console.log("\nDeployed NFTOpt address:", NFTOptCTR.address);
 
     // Deploy dummy NFT contract and mint 20 nfts
-    const NFT = await ethers.getContractFactory("DummyNFT");
-    let NFTDummyCTR = await NFT.deploy(buyer.address);
+    const NFTDummyFactory = await ethers.getContractFactory("DummyNFT");
+    let NFTDummyCTR = await NFTDummyFactory.deploy(buyer.address);
     await NFTDummyCTR.deployed();
-
     console.log("Deployed NFTDummy address:", NFTDummyCTR.address);
 
     // Sanity check minting
