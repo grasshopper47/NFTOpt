@@ -38,6 +38,9 @@ function CreateOption() {
     const [assets, setAssets] = useState<NFTAsset[]>([dummyNFT]);
     const [formState, setFormState] = useState<FormState>({
         asset: undefined,
+        premium: "",
+        strikePrice: "",
+        interval: undefined,
     });
 
     useEffect(() => {
