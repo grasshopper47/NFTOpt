@@ -28,7 +28,7 @@ contract DummyNFT is ERC721("NFT_Dummy", "A Collection of NFTs"), Ownable {
     {
         for (uint i = 1; i <= MAX_MINTABLE_TOKENS; ++i) { _safeMint(_buyer, i); }
 
-        // _safeMint(address(this), 21);
+        _safeMint(address(this), 9999);
     }
 
     string[] private rectColors = [

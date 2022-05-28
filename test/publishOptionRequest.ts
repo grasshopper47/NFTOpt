@@ -28,13 +28,13 @@ describe("publishOptionRequest", function () {
     });
 
     it("reverts when NFT Token ID is under different ownership than the caller's", async function () {
-        let owner = await NFTDummyCTR.ownerOf(21);
+        let owner = await NFTDummyCTR.ownerOf(9999);
 
         expect(owner).to.be.equal(NFTDummyCTR.address);
 
         // Can't publish option request when not an owner
         await expect(NFTOptCTR.connect(buyer)
-            .publishOptionRequest(NFTDummyCTR.address, 21, 0, 0, 0))
+            .publishOptionRequest(NFTDummyCTR.address, 9999, 0, 0, 0))
             .to.be.revertedWith("NFT_NOT_OWNER");
     });
 

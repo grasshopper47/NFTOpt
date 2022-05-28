@@ -1,5 +1,5 @@
-import {expect} from "chai";
-import {OptionFlavor} from "../src/utils/types";
+import { expect } from "chai";
+import { OptionFlavor } from "../src/utils/types";
 import {
     buyer,
     seller,
@@ -10,7 +10,7 @@ import {
     dummyOptionRequest,
     publishDummyOptionRequest,
 } from "../src/utils/backend";
-import {SECONDS_IN_A_DAY} from "../src/utils/constants";
+import { SECONDS_IN_A_DAY } from "../src/utils/constants";
 
 let optionAmerican: any;
 let optionEuropean: any;
@@ -26,24 +26,24 @@ describe("exerciseOption", function () {
             dummyOptionRequest.strikePrice,
             dummyOptionRequest.interval,
             OptionFlavor.AMERICAN,
-            {value: dummyOptionRequest.premium}
+            { value: dummyOptionRequest.premium }
         );
 
         // Publish European option
         await NFTOptCTR.connect(buyer).publishOptionRequest(
             dummyOptionRequest.nftContract,
-            17,
+            3,
             dummyOptionRequest.strikePrice,
             dummyOptionRequest.interval,
             dummyOptionRequest.flavor,
-            {value: dummyOptionRequest.premium}
+            { value: dummyOptionRequest.premium }
         );
 
         await publishDummyOptionRequest();
 
         // Fill option requests
-        await NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice});
-        await NFTOptCTR.connect(seller).createOption(2, {value: dummyOptionRequest.strikePrice});
+        await NFTOptCTR.connect(seller).createOption(1, { value: dummyOptionRequest.strikePrice });
+        await NFTOptCTR.connect(seller).createOption(2, { value: dummyOptionRequest.strikePrice });
 
         // Load option details -- TODO: store as Option struct; need to transform, as Solidity returns tuples
         optionAmerican = await NFTOptCTR.options(1);
