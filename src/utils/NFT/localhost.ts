@@ -2,30 +2,63 @@ import { BigNumber } from "ethers";
 import { NFTAsset, Option, OptionWithNFTDetails } from "../types";
 import { getSignedContract, getTXOptions } from "../metamask";
 import addresses from "../../../addresses.json";
+import { MAX_MINTABLE_TOKENS } from "../constants";
+
+const abi_IERC721 = [
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256",
+            },
+        ],
+        "name": "ownerOf",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address",
+            },
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "name",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256",
+            },
+        ],
+        "name": "tokenURI",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string",
+            },
+        ],
+        "stateMutability": "view",
+        "type": "function",
+    },
+];
 
 export async function fetchNFTImage(address: string, id: BigNumber) {
-    const abi_IERC721: any = [
-        {
-            inputs: [
-                {
-                    internalType: "uint256",
-                    name: "tokenId",
-                    type: "uint256",
-                },
-            ],
-            name: "tokenURI",
-            outputs: [
-                {
-                    internalType: "string",
-                    name: "",
-                    type: "string",
-                },
-            ],
-            stateMutability: "view",
-            type: "function",
-        },
-    ];
-
     let NFTContract = getSignedContract(address, abi_IERC721);
 
     var data = await NFTContract.tokenURI(id, await getTXOptions());
@@ -36,66 +69,34 @@ export async function fetchNFTImage(address: string, id: BigNumber) {
 export async function fetchAssetsForAddress(account: string, setAssetsCallback: (assets: NFTAsset[]) => void) {
     const assets: NFTAsset[] = [];
 
-    const abi_IERC721: any = [
-        {
-            inputs: [
-                {
-                    internalType: "uint256",
-                    name: "tokenId",
-                    type: "uint256",
-                },
-            ],
-            name: "ownerOf",
-            outputs: [
-                {
-                    internalType: "address",
-                    name: "",
-                    type: "address",
-                },
-            ],
-            stateMutability: "view",
-            type: "function",
-        },
-    ];
+    const contractNames = Object.keys(addresses["localhost"]);
 
-    const NFTContractAddress = addresses["localhost"].NFTDummy;
-    let NFTContract = getSignedContract(NFTContractAddress, abi_IERC721);
+    let j = -1;
+    for (const name of contractNames) {
+        if (name === "NFTOpt") { continue; }
 
-    for (let i = 1; i < 6; ++i) {
-        var data = await NFTContract.ownerOf(i, await getTXOptions());
+        const NFTContractAddress = addresses["localhost"][name];
 
-        data = data.toLowerCase();
+        const NFTContract = getSignedContract(NFTContractAddress, abi_IERC721);
 
-        if (data === account) {
-            const id = BigNumber.from(i);
-            assets.push({
-                tokenId: id,
-                address: NFTContractAddress,
-                name: "X Collection - " + i,
-                image: await fetchNFTImage(NFTContractAddress, id),
-                url: "",
-            });
+        for (let i = 1; i < MAX_MINTABLE_TOKENS; ++i) {
+            var data = await NFTContract.ownerOf(i, await getTXOptions());
+
+            data = data.toLowerCase();
+
+            if (data === account) {
+                const _tokenId = BigNumber.from(i);
+                assets.push({
+                    id: i + j * MAX_MINTABLE_TOKENS,
+                    tokenId: _tokenId,
+                    address: NFTContractAddress,
+                    name: await NFTContract.name() + " - " + _tokenId,
+                    image: await fetchNFTImage(NFTContractAddress, _tokenId),
+                });
+            }
         }
-    }
 
-    const NFTContractAddress1 = addresses["localhost"].NFTJW;
-    let NFTContract1 = getSignedContract(NFTContractAddress, abi_IERC721);
-
-    for (let i = 1; i < 6; ++i) {
-        var data = await NFTContract1.ownerOf(i, await getTXOptions());
-
-        data = data.toLowerCase();
-
-        if (data === account) {
-            const id = BigNumber.from(i + 5);
-            assets.push({
-                tokenId: id,
-                address: NFTContractAddress1,
-                name: "Y Collection - " + i,
-                image: await fetchNFTImage(NFTContractAddress1, id),
-                url: "",
-            });
-        }
+        ++j;
     }
 
     setAssetsCallback(assets);
@@ -106,12 +107,15 @@ export async function fetchNFTDetailsForMultipleOptions(options: Option[]): Prom
     let asset: NFTAsset | null = null;
 
     for (let option of options) {
+
+        const NFTContract = getSignedContract(option.nftContract, abi_IERC721);
+
         asset = {
+            id: option.id,
             tokenId: option.nftId,
             address: option.nftContract,
-            name: `Option ${option.id}`,
+            name: await NFTContract.name() + " - " + option.nftId,
             image: await fetchNFTImage(option.nftContract, option.nftId),
-            url: "https://freesvg.org/img/Placeholder.png",
         };
 
         optionsWithNFTDetails.push({
