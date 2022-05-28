@@ -2,7 +2,6 @@ import {
     Button,
     FormControl,
     FormControlLabel,
-    FormLabel,
     InputAdornment,
     MenuItem,
     Radio,
@@ -11,16 +10,17 @@ import {
     TextField,
 } from "@mui/material";
 import clsx from "clsx";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-import {useAccount, useContracts} from "../providers/contexts";
-import {floatNumberRegex, SECONDS_IN_A_DAY, TOAST_DURATION} from "../utils/constants";
-import {NFTAsset, OptionFlavor} from "../utils/types";
+import { useAccount, useContracts } from "../providers/contexts";
+import { floatNumberRegex, SECONDS_IN_A_DAY, TOAST_DURATION } from "../utils/constants";
+import { NFTAsset, OptionFlavor } from "../utils/types";
 import classes from "./styles/CreateOption.module.scss";
-import {ethers} from "ethers";
-import {dummyNFT} from "../utils/dummyData";
+import { ethers } from "ethers";
+import { dummyNFT } from "../utils/dummyData";
 import toast from "react-hot-toast";
-import {fetchAssetsForAddress, throwTransactionToast} from "../utils/frontend";
+import { throwTransactionToast } from "../utils/frontend";
+import { fetchAssetsForAddress } from "../utils/NFT/localhost";
 
 type FormState = {
     asset?: NFTAsset;
@@ -32,7 +32,7 @@ type FormState = {
 
 function CreateOption() {
     const account = useAccount();
-    const {nftOpt} = useContracts();
+    const { nftOpt } = useContracts();
 
     // TODO Stefana: cleanup dummy data
     const [assets, setAssets] = useState<NFTAsset[]>([dummyNFT]);
@@ -114,19 +114,19 @@ function CreateOption() {
 
     const handlePublishOption = async () => {
         const txOptions = {
-            value: ethers.utils.parseEther(`${parseFloat(formState.premium)}`),
+            value: formState.premium.toString()//ethers.utils.parseEther(`${parseFloat(formState.premium)}`),
         };
 
         try {
             await nftOpt.publishOptionRequest(
                 formState.asset.address,
                 formState.asset.tokenId,
-                ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
+                formState.strikePrice,//ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
                 formState.interval * SECONDS_IN_A_DAY,
                 formState.flavor,
                 txOptions
             );
-            throwTransactionToast("confirmed");
+            throwTransactionToast("sent");
         } catch (error) {
             if (error.code === 4001) {
                 // Metamask TX Cancel
@@ -239,7 +239,7 @@ function CreateOption() {
                     {formState.asset ? (
                         <img src={formState.asset.image} alt="" />
                     ) : (
-                        Array.from({length: 3}).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
+                        Array.from({ length: 3 }).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
                     )}
                 </div>
             </div>

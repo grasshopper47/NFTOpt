@@ -3,7 +3,8 @@ import Layout from "../components/Layout";
 import OptionsListContainer from "../components/OptionsListContainer";
 import { Option, OptionWithNFTDetails } from "../utils/types";
 import { useContracts } from "../providers/contexts";
-import { fetchNFTDetailsForMultipleOptions, loadContractOptions } from "../utils/frontend";
+import { fetchNFTDetailsForMultipleOptions } from "../utils/NFT/localhost";
+import { loadContractOptions } from "../utils/options";
 
 function ExploreOptions() {
     const { nftOpt } = useContracts();

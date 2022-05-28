@@ -3,7 +3,8 @@ import Layout from "../components/Layout";
 import OptionsListContainer from "../components/OptionsListContainer";
 import { Option, OptionState, OptionWithNFTDetails } from "../utils/types";
 import { useAccount, useContracts } from "../providers/contexts";
-import { fetchNFTDetailsForMultipleOptions, loadContractOptions } from "../utils/frontend";
+import { fetchNFTDetailsForMultipleOptions } from "../utils/NFT/localhost";
+import { loadContractOptions } from "../utils/options";
 
 function MyOptions() {
     const account = useAccount();

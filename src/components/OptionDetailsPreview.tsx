@@ -1,12 +1,12 @@
-import {ArrowBackIosRounded, ArrowRightAlt} from "@mui/icons-material";
-import {Button, IconButton, Link} from "@mui/material";
-import {endOfDay, isBefore, isSameDay} from "date-fns";
-import {ethers} from "ethers";
+import { ArrowBackIosRounded, ArrowRightAlt } from "@mui/icons-material";
+import { Button, IconButton, Link } from "@mui/material";
+import { endOfDay, isBefore, isSameDay } from "date-fns";
+import { ethers } from "ethers";
 import toast from "react-hot-toast";
-import {useContracts} from "../providers/contexts";
-import {SECONDS_IN_A_DAY, TOAST_DURATION} from "../utils/constants";
-import {getAccountDisplayValue, getCorrectPlural, throwTransactionToast} from "../utils/frontend";
-import {OptionFlavor, OptionState, OptionWithNFTDetails} from "../utils/types";
+import { useContracts } from "../providers/contexts";
+import { SECONDS_IN_A_DAY, TOAST_DURATION } from "../utils/constants";
+import { getAccountDisplayValue, getCorrectPlural, throwTransactionToast } from "../utils/frontend";
+import { OptionFlavor, OptionState, OptionWithNFTDetails } from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
 
 type OptionDetailsPreviewProps = {
@@ -16,12 +16,12 @@ type OptionDetailsPreviewProps = {
 };
 
 function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
-    const {currentAccount, option, onSelectOption} = props;
+    const { currentAccount, option, onSelectOption } = props;
 
-    const {nftOpt} = useContracts();
+    const { nftOpt } = useContracts();
 
     const handleConfirmedTransaction = () => {
-        throwTransactionToast("confirmed");
+        throwTransactionToast("sent");
         onSelectOption(undefined);
     };
 
@@ -56,7 +56,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
 
     const handleCreateOption = async () => {
         const txOptions = {
-            value: ethers.utils.parseEther(`${option.strikePrice}`),
+            value: option.strikePrice.toString(),
         };
 
         try {
@@ -91,20 +91,15 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     );
 
     const canExerciseOption = () => {
-        if (option.buyer !== currentAccount) {
-            return false;
-        }
+        if (option.buyer !== currentAccount) { return false; }
+
         const today = endOfDay(new Date());
-        let end_day = new Date(option.startDate);
+        let end_day = new Date(option.startDate + option.interval / SECONDS_IN_A_DAY);
 
-        end_day.setDate(end_day.getDate() + option.interval / SECONDS_IN_A_DAY);
+        if (isSameDay(end_day, today)) { return true; }
 
-        if (option.flavor === OptionFlavor.EUROPEAN) {
-            return isSameDay(end_day, today);
-        }
-        if (option.flavor === OptionFlavor.AMERICAN) {
-            return isBefore(today, end_day) || isSameDay(end_day, today);
-        }
+        if (option.flavor === OptionFlavor.AMERICAN) { return isBefore(today, end_day); }
+
         return false;
     };
 
@@ -136,7 +131,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
             </IconButton>
             <div className={classes.detailsContainer}>
                 <div>
-                    <img style={{backgroundImage: `url(${option.asset.image})`}} alt="" />
+                    <img style={{ backgroundImage: `url(${option.asset.image})` }} alt="" />
                     <Link href={option.asset.url} target="_blank" className={classes.link}>
                         View on Opensea
                         <ArrowRightAlt />
@@ -157,11 +152,11 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                             </div>
                             <div className={classes.field}>
                                 <span>Premium:</span>
-                                <span> {option.premium}</span>
+                                <span> {ethers.utils.formatEther(option.premium)}</span>
                             </div>
                             <div className={classes.field}>
                                 <span>Strike price:</span>
-                                <span>{option.strikePrice}</span>
+                                <span>{ethers.utils.formatEther(option.strikePrice)}</span>
                             </div>
                         </div>
                         <div>
@@ -192,10 +187,10 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                         {option.state === OptionState.CLOSED
                             ? null
                             : option.state === OptionState.REQUEST
-                            ? actionsForRequestState
-                            : option.state === OptionState.OPEN
-                            ? actionsForOpenState
-                            : null}
+                                ? actionsForRequestState
+                                : option.state === OptionState.OPEN
+                                    ? actionsForOpenState
+                                    : null}
                     </div>
                 </div>
             </div>
