@@ -37,26 +37,26 @@ export async function increaseEVMTimestampBy(days: number) {
 }
 
 export async function deployNFTOptContract() {
-    const NFTOpt = await ethers.getContractFactory("NFTOpt", {
+    const NFTOptFactory = await ethers.getContractFactory("NFTOpt", {
         libraries: {
             InterfaceDetector: InterfaceDetectorAddress,
         },
     });
 
     // @ts-ignore
-    NFTOptCTR = await NFTOpt.deploy();
+    NFTOptCTR = await NFTOptFactory.deploy();
     await NFTOptCTR.deployed();
 }
 
 export async function deployNFTDummyContract() {
     // Deploy dummy NFT contract and mint 20 nfts to buyer
-    const NFT = await ethers.getContractFactory("DummyNFT");
+    const NFTDummyFactory = await ethers.getContractFactory("DummyNFT");
     // @ts-ignore
-    NFTDummyCTR = await NFT.deploy(buyer.address);
+    NFTDummyCTR = await NFTDummyFactory.deploy(buyer.address);
     await NFTDummyCTR.deployed();
 
     dummyOptionRequest.nftContract = NFTDummyCTR.address;
-    dummyOptionRequest.nftId = BigNumber.from(10);
+    dummyOptionRequest.nftId = BigNumber.from(1);
 }
 
 export const initializer = async () => {
