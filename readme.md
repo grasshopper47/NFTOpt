@@ -44,21 +44,3 @@ When successful, the values of _NFTOpt contract address_ are outputted by 'deplo
 `npm run next:dev`
 
 You can edit the React components and work on other front-end related code without rebuilding, it auto-refreshes on save.
-
-<br />
-<br />
-<br />
-<br />
-
----
-
-Once upon a time, there used to be magic here... now there is a duck.
-
-```
-      >(')
-       )/
-       /(
-      /  `----/
-      \  ~=- /
-~~~^~^~^~^~^~^~^~^~~~
-```
