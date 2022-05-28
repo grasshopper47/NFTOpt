@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
 @import "src/styles/variables.scss";
 
 html {
@@ -7,11 +7,13 @@ html {
     display: flex;
     flex-direction: column;
     height: 100%;
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     color: $text-primary;
 }
 
-body, #__next, .main-content-layout {
+body,
+#__next,
+.main-content-layout {
     max-height: 100%;
     height: 100%;
     overflow: hidden;
@@ -38,4 +40,8 @@ button.MuiButton-root {
 ::-webkit-scrollbar-thumb {
     background-color: rgba(200, 200, 200, 0.5);
     border-radius: 15px;
+}
+
+.toast-container {
+    margin-top: 60px;
 }
