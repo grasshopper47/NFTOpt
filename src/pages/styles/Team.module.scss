@@ -1,0 +1,56 @@
+@import "src/styles/variables.scss";
+
+.root {
+    max-width: 90%;
+    margin: auto;
+    margin-top: 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    row-gap: 26px;
+    column-gap: 26px;
+    overflow: auto;
+}
+
+.card {
+    border-radius: 8px;
+    border: 2px solid $text-tertiary;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 150ms ease-in-out;
+    position: relative;
+}
+
+.title {
+    font-size: 24px;
+    margin: 0;
+    font-weight: 600;
+}
+
+.social {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    strong {
+        margin-right: 6px;
+        opacity: 0.7;
+    }
+    a {
+        text-decoration: none;
+        color: $color-tertiary;
+        max-width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+}
+
+.content {
+    padding: 20px 12px;
+    > :last-child {
+        margin-top: 20px;
+    }
+}
