@@ -113,15 +113,16 @@ function CreateOption() {
     };
 
     const handlePublishOption = async () => {
+        console.log(formState.premium);
         const txOptions = {
-            value: formState.premium.toString()//ethers.utils.parseEther(`${parseFloat(formState.premium)}`),
+            value: ethers.utils.parseEther(`${parseFloat(formState.premium)}`),
         };
 
         try {
             await nftOpt.publishOptionRequest(
                 formState.asset.address,
                 formState.asset.tokenId,
-                formState.strikePrice,//ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
+                ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
                 formState.interval * SECONDS_IN_A_DAY,
                 formState.flavor,
                 txOptions
