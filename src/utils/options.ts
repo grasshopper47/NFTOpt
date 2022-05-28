@@ -18,15 +18,13 @@ function isOptionValid(option: any): boolean {
     return !isMalformed;
 }
 
-export async function loadoptionSoliditys(contract: NFTOpt): Promise<Option[]> {
+export async function loadContractOptions(contract: NFTOpt): Promise<Option[]> {
     let options: Option[] = [];
 
     try {
         const optionIDPromise = await contract.optionID();
 
-        if (!optionIDPromise) {
-            return;
-        }
+        if (!optionIDPromise) { return; }
 
         // TODO: handle optionsLength > 2^53
         const optionsLength = optionIDPromise.toNumber();
@@ -34,9 +32,7 @@ export async function loadoptionSoliditys(contract: NFTOpt): Promise<Option[]> {
         for (let idx = 1; idx <= optionsLength; ++idx) {
             const optionSolidity = await contract.options(idx);
 
-            if (!isOptionValid(optionSolidity)) {
-                continue;
-            }
+            if (!isOptionValid(optionSolidity)) { continue; }
 
             options.push({
                 id: idx,
@@ -59,7 +55,7 @@ export async function loadoptionSoliditys(contract: NFTOpt): Promise<Option[]> {
     return options;
 }
 
-export async function loadOptionWithaAsset(
+export async function loadOptionWithAsset(
     contract: NFTOpt,
     optionId: number
 ): Promise<OptionWithNFTDetails> {
