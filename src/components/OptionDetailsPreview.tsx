@@ -71,35 +71,6 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
 
         try {
             await nftOpt.createOption(option.id, txOptions);
-
-            const abi_IERC721: any = [
-                {
-                    "inputs": [
-                        {
-                            "internalType": "address",
-                            "name": "to",
-                            "type": "address"
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "tokenId",
-                            "type": "uint256"
-                        }
-                    ],
-                    "name": "approve",
-                    "outputs": [],
-                    "stateMutability": "nonpayable",
-                    "type": "function"
-                },
-            ];
-
-            let NFTContract = getSignedContract(option.asset.address, abi_IERC721);
-
-            // TX 1: ask for approval to send NFT
-            NFTContract.connect(getCurrentProvider().getSigner()).approve(nftOpt.address, option.asset.tokenId);
-
-            // TX 2: exercise
-
             handleConfirmedTransaction();
         } catch (error) {
             handleError(error);
@@ -110,11 +81,11 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
         <>
             {option.buyer === currentAccount ? (
                 <Button variant="outlined" className={classes.btnSecondary} onClick={handleWithdrawOption}>
-                    Withdraw option
+                    Withdraw Request
                 </Button>
             ) : (
                 <Button variant="contained" className={classes.btnPrimary} onClick={handleCreateOption}>
-                    Sell option
+                    Create Option
                 </Button>
             )}
         </>

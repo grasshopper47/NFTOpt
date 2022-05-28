@@ -64,17 +64,9 @@ function OptionsListContainer(props: OptionsListContainerProps) {
     const handleLoadOptions = async () => {
         const options = await loadContractOptions(nftOpt);
         const optionsWithAsset = await fetchNFTDetailsForMultipleOptions(options);
-        if (filterOwnership === OptionFilterOwnership.ALL) {
-            setOptionsWithAsset(optionsWithAsset);
-        }
-        if (filterOwnership === OptionFilterOwnership.ALL) {
-            setOptionsWithAsset(
-                optionsWithAsset.filter((option) => option.buyer === account || option.seller === account)
-            );
-        }
+        setOptionsWithAsset(optionsWithAsset);
     };
 
-    // Fetch options with NFT details
     useEffect(() => {
         if (!nftOpt || !account) {
             return;
@@ -82,7 +74,6 @@ function OptionsListContainer(props: OptionsListContainerProps) {
         handleLoadOptions();
     }, [nftOpt, account, filterOwnership]);
 
-    // Attach listeners
     const handleUpdateOption = async (optionId: number) => {
         const updatedOption = await loadOptionWithAsset(nftOpt, optionId);
         setOptionsWithAsset((prev) => [...prev.filter((x) => x.id !== optionId), updatedOption]);
