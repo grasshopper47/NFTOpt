@@ -34,7 +34,7 @@ Closing the console will terminate the process
 
 `npm run deploy`
 
-Addresses of deployed contracts are outputted by `deploy.ts` in _addresses.json_ when successful
+When successful, the addresses of deployed contracts by `scripts/deploy.ts` are outputted in `./addresses.json`
 
 <br />
 <br />
@@ -43,4 +43,4 @@ Addresses of deployed contracts are outputted by `deploy.ts` in _addresses.json_
 
 `npm run next:dev`
 
-You can edit the React components and work on other front-end related code without rebuilding, it auto-refreshes on save.
+You can edit the React components and work on other front-end related code without rebuilding, as it auto-refreshes on save
