@@ -9,6 +9,7 @@ import { getAccountDisplayValue, getCorrectPlural, showToast } from "../utils/fr
 import { OptionFlavor, OptionState, OptionWithAsset } from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
 import { addressEmpty } from "../utils/constants";
+import { useState } from "react";
 
 type OptionDetailsPreviewProps = {
     currentAccount: string;
@@ -20,6 +21,58 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     const { currentAccount, option, onSelectOption } = props;
 
     const { nftOpt } = useContracts();
+
+    const [approvedNFT, setApprovedNFT] = useState(true);
+
+    if (option.state === OptionState.OPEN) {
+        const abi_IERC721: any = [
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "approve",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "getApproved",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+        ];
+
+        let NFTContract = getSignedContract(option.asset.address, abi_IERC721);
+
+        NFTContract.getApproved(option.asset.tokenId).then((res) => {
+            if (res != nftOpt.address) {
+                setApprovedNFT(false);
+            }
+        });
+    }
 
     const handleConfirmedTransaction = () => {
         showToast("sent");
@@ -56,7 +109,14 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
 
     const handleExerciseOption = async () => {
         try {
-            await nftOpt.exerciseOption(option.id, await getTXOptions());
+            if (!approvedNFT) {
+                let NFTContract = getSignedContract(option.asset.address, abi_IERC721);
+                NFTContract.connect(getCurrentProvider().getSigner()).approve(nftOpt.address, option.asset.tokenId, await getTXOptions());
+            }
+            else {
+                await nftOpt.exerciseOption(option.id, await getTXOptions());
+            }
+
             handleConfirmedTransaction();
         } catch (error) {
             handleError(error);
@@ -85,7 +145,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                 </Button>
             ) : (
                 <Button variant="contained" className={classes.btnPrimary} onClick={handleCreateOption}>
-                    Create Option
+                    {approvedNFT ? "Create Option" : "Approve NFT"}
                 </Button>
             )}
         </>
@@ -117,7 +177,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                             Cancel option
                         </Button>
                         <Button variant="contained" className={classes.btnPrimary} onClick={handleExerciseOption}>
-                            Exercise option
+                            {approvedNFT ? "Exercise Option" : "Approve NFT"}
                         </Button>
                     </>
                 ) : (
