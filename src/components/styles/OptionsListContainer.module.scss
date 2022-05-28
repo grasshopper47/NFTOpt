@@ -10,14 +10,13 @@
 }
 
 .title {
-    font-size: 24px;
+    font-size: 20pt;
     font-weight: 800;
     margin-bottom: 30px;
 }
 
 .tabs {
     border-bottom: 1px solid $color-primary;
-    color: $color-primary;
 
     button {
         text-transform: none;
@@ -25,16 +24,17 @@
         font-size: 18px;
         padding: 4px 24px;
         font-weight: 600;
+        text-shadow: 1px 1px rgb(25, 25, 25);
         color: $color-primary;
     }
 
     :global(.Mui-selected),
     :global(.MuiButtonBase-root.MuiTab-root.MuiTab-textColorPrimary.Mui-selected) {
-        color: $color-primary;
+        color: $color-secondary;
     }
 
     :global(.MuiTabs-indicator) {
-        background-color: $color-primary;
+        background-color: $color-tertiary;
     }
 }
 
