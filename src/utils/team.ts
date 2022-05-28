@@ -11,6 +11,7 @@ export type Person = {
 
 export const team: Person[] = [
     {
+        // TODO: cleanup dummy data after everybody commits their info
         name: "Your name here",
         social: [{name: "Your social ref here", url: "Your social url here"}],
         image: "LW-433-400x422.jpg",
