@@ -37,7 +37,7 @@ export const team: Person[] = [
     },
 
     {
-        name: "✨ TEAM NFT-OPT",
+        name: "..  ✨ NFT-OթͲ ✨ ..",
         social: [],
         image: "placeholder.jpg"
     },

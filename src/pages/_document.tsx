@@ -5,8 +5,8 @@ export default class Document extends NextDocument {
         return (
             <Html>
                 <Head>
-                    <title>NFTOpt</title>
-                    <meta name="description" content="NFTopt is a marketplace of Options for NFTs."></meta>
+                    <title>NFT-OթͲ</title>
+                    <meta name="description" content="NFT-OթͲ is a marketplace for NFT Options. Here you can list your request to hedge NFTs in your collection against floor price downside"></meta>
                     <meta name="viewport" content="initial-scale=1.0, width=device-width" />
                     <link
                         rel="icon"

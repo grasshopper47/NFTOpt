@@ -44,7 +44,7 @@ function Header(props: HeaderProps) {
     return (
         <div className={classes.root}>
             <Link key="route-link-main" href="/">
-                <a className={clsx(classes.link, classes.logo)}>NFT-Opt</a>
+                <a className={clsx(classes.link, classes.logo)}>NFT-OթͲ</a>
             </Link>
             <div>
                 {account
