@@ -14,13 +14,13 @@ import clsx from "clsx";
 import React, {useEffect, useState} from "react";
 import Layout from "../components/Layout";
 import {useAccount, useContracts} from "../providers/contexts";
-import {floatNumberRegex, SECONDS_IN_A_DAY} from "../utils/constants";
+import {floatNumberRegex, SECONDS_IN_A_DAY, TOAST_DURATION} from "../utils/constants";
 import {NFTAsset, OptionFlavor} from "../utils/types";
 import classes from "./styles/CreateOption.module.scss";
 import {ethers} from "ethers";
 import {dummyNFT} from "../utils/dummyData";
 import toast from "react-hot-toast";
-import {fetchAssetsForAddress} from "../utils/frontend";
+import {fetchAssetsForAddress, throwTransactionToast} from "../utils/frontend";
 
 type FormState = {
     asset?: NFTAsset;
@@ -126,7 +126,7 @@ function CreateOption() {
                 formState.flavor,
                 txOptions
             );
-            toast.success("Option published successfully", {duration: 4000});
+            throwTransactionToast("confirmed");
         } catch (error) {
             if (error.code === 4001) {
                 // Metamask TX Cancel
@@ -134,7 +134,7 @@ function CreateOption() {
                 return;
             }
 
-            toast.error("There was an error while trying to publish the option", {duration: 4000});
+            throwTransactionToast("failed");
             console.error(error);
         }
     };
@@ -166,7 +166,7 @@ function CreateOption() {
                             InputProps={{
                                 endAdornment: <InputAdornment position="end">ETH</InputAdornment>,
                             }}
-                            placeholder="Premium"
+                            placeholder="Enter the premium"
                             className={classes.field}
                             value={formState.premium}
                             onChange={handleChangeFieldString.bind(this, "premium")}
@@ -180,7 +180,7 @@ function CreateOption() {
                             InputProps={{
                                 endAdornment: <InputAdornment position="end">ETH</InputAdornment>,
                             }}
-                            placeholder="Strike price"
+                            placeholder="Enter the strike price"
                             className={classes.field}
                             value={formState.strikePrice}
                             onChange={handleChangeFieldString.bind(this, "strikePrice")}
@@ -199,7 +199,7 @@ function CreateOption() {
                                 endAdornment: <InputAdornment position="end">days</InputAdornment>,
                             }}
                             type="number"
-                            placeholder="Expiration interval"
+                            placeholder="Enter the expiration interval"
                             className={classes.field}
                             value={formState.interval ?? ""}
                             onChange={handleChangeInterval}

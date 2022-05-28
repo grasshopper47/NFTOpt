@@ -1,8 +1,9 @@
 import {BigNumber, ethers} from "ethers";
 import {NFTOpt} from "../../typechain-types/contracts/NFTOpt";
 import {NFTAsset, Option, OptionWithNFTDetails} from "./types";
-import {addressEmpty, SECONDS_IN_A_DAY} from "./constants";
+import {addressEmpty, SECONDS_IN_A_DAY, TOAST_DURATION} from "./constants";
 import addresses from "../../addresses.json";
+import toast from "react-hot-toast";
 
 declare var window: Window & {
     ethereum: any;
@@ -310,7 +311,7 @@ export async function loadContractOptions(contract: NFTOpt, setOptionsCallback: 
                 interval: contractOption.interval / SECONDS_IN_A_DAY,
                 nftContract: contractOption.nftContract,
                 nftId: contractOption.nftId,
-                premium: ethers.utils.formatEther(contractOption.strikePrice).toString(),
+                premium: ethers.utils.formatEther(contractOption.premium).toString(),
                 startDate: contractOption.startDate.toString(),
                 state: contractOption.state,
                 strikePrice: ethers.utils.formatEther(contractOption.strikePrice).toString(),
@@ -323,4 +324,8 @@ export async function loadContractOptions(contract: NFTOpt, setOptionsCallback: 
     } catch (error) {
         console.error(error);
     }
+}
+
+export function throwTransactionToast(action: "confirmed" | "failed") {
+    toast.success(`Transaction ${action}`, {duration: TOAST_DURATION});
 }

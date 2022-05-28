@@ -1,5 +1,5 @@
 import {Tab, Tabs} from "@mui/material";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {OptionState, OptionWithNFTDetails} from "../utils/types";
 import OptionDetailsPreview from "./OptionDetailsPreview";
 import OptionListItemPreview from "./OptionListItemPreview";
@@ -45,7 +45,14 @@ function OptionsListContainer(props: OptionsListContainerProps) {
     };
 
     useEffect(() => {
-        setFilteredOptions(options.filter((option) => option.state === optionStateTabs[activeTabIndex].optionState));
+        const state = optionStateTabs[activeTabIndex].optionState;
+        setFilteredOptions(
+            options.filter((option) =>
+                state === OptionState.OPEN || state === OptionState.REQUEST
+                    ? option.state === state
+                    : option.state === OptionState.WITHDRAWN || option.state === OptionState.CLOSED
+            )
+        );
         if (selectedOptionForPreview) {
             setSelectedOptionForPreview(null);
         }
