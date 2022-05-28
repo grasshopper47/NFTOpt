@@ -3,7 +3,6 @@ export type WithChildren = {
 };
 
 export type NFTAsset = {
-    id: number;
     tokenId: BigNumber;
     address: string;
     name: string;
