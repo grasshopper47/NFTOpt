@@ -1,11 +1,11 @@
-import NextDocument, {Head, Html, Main, NextScript} from "next/document";
+import NextDocument, { Head, Html, Main, NextScript } from "next/document";
 
 export default class Document extends NextDocument {
     render() {
         return (
             <Html>
                 <Head>
-                    <title>NFTopt</title>
+                    <title>NFTOpt</title>
                     <meta name="description" content="NFTopt is a marketplace of Options for NFTs."></meta>
                     <meta name="viewport" content="initial-scale=1.0, width=device-width" />
                     <link
