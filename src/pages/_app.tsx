@@ -104,7 +104,7 @@ export default function App({Component, pageProps}: AppProps) {
         <AccountContext.Provider value={account}>
             <ContractsContext.Provider value={contracts}>
                 <RouteGuard account={account} loaded={loaded}>
-                    <Toaster />
+                    <Toaster toastOptions={{duration: TOAST_DURATION}} containerClassName={"toast-container"} />
                     <Header account={account} onConnectAccount={connectWallet.bind(null, setAccount)} />
                     <Component {...pageProps} />
                 </RouteGuard>
