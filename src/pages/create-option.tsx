@@ -41,6 +41,7 @@ function CreateOption() {
         premium: "",
         strikePrice: "",
         interval: undefined,
+        flavor: OptionFlavor.EUROPEAN,
     });
 
     useEffect(() => {
