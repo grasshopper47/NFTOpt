@@ -4,8 +4,8 @@ import { addDays, endOfDay, isBefore, isSameDay } from "date-fns";
 import { ethers } from "ethers";
 import toast from "react-hot-toast";
 import { useContracts } from "../providers/contexts";
-import { SECONDS_IN_A_DAY, TOAST_DURATION } from "../utils/constants";
 import { getAccountDisplayValue, getCorrectPlural, throwTransactionToast } from "../utils/frontend";
+import { getCurrentProvider, getSignedContract } from "../utils/metamask";
 import { OptionFlavor, OptionState, OptionWithNFTDetails } from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
 
@@ -69,7 +69,36 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
 
     const handleExerciseOption = async () => {
         try {
+
+            const abi_IERC721: any = [
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "to",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "tokenId",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "approve",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+            ];
+
+            let NFTContract = getSignedContract(option.asset.address, abi_IERC721);
+
+            // TX 1: ask for approval to send NFT
+            NFTContract.connect(getCurrentProvider().getSigner()).approve(nftOpt.address, option.asset.tokenId);
+
+            // TX 2: exercise
             await nftOpt.exerciseOption(option.id);
+
             handleConfirmedTransaction();
         } catch (error) {
             handleError(error);
