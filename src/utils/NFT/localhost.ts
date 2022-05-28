@@ -1,6 +1,6 @@
 import {BigNumber} from "ethers";
 import {NFTAsset, Option, OptionWithNFTDetails} from "../types";
-import { getSignedContract, getTXOptions } from "../metamask";
+import {getSignedContract, getTXOptions} from "../metamask";
 import addresses from "../../../addresses.json";
 
 export async function fetchNFTImage(address: string, id: BigNumber) {
@@ -61,7 +61,7 @@ export async function fetchAssetsForAddress(account: string, setAssetsCallback: 
     const NFTContractAddress = addresses["localhost"].NFTDummy;
     let NFTContract = getSignedContract(NFTContractAddress, abi_IERC721);
 
-    for (let i = 1; i < 21; ++i) {
+    for (let i = 1; i < 6; ++i) {
         var data = await NFTContract.ownerOf(i, await getTXOptions());
 
         data = data.toLowerCase();
@@ -73,6 +73,26 @@ export async function fetchAssetsForAddress(account: string, setAssetsCallback: 
                 address: NFTContractAddress,
                 name: "X Collection - " + i,
                 image: await fetchNFTImage(NFTContractAddress, id),
+                url: "",
+            });
+        }
+    }
+
+    const NFTContractAddress1 = addresses["localhost"].NFTJW;
+    let NFTContract1 = getSignedContract(NFTContractAddress, abi_IERC721);
+
+    for (let i = 1; i < 6; ++i) {
+        var data = await NFTContract1.ownerOf(i, await getTXOptions());
+
+        data = data.toLowerCase();
+
+        if (data === account) {
+            const id = BigNumber.from(i + 5);
+            assets.push({
+                tokenId: id,
+                address: NFTContractAddress1,
+                name: "Y Collection - " + i,
+                image: await fetchNFTImage(NFTContractAddress1, id),
                 url: "",
             });
         }
