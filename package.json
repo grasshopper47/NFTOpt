@@ -47,8 +47,10 @@
         "test - exerciseOption": "npx hardhat test test/exerciseOption.ts",
         "test - publishOptionRequest": "npx hardhat test test/publishOptionRequest.ts",
         "test - withdrawOptionRequest": "npx hardhat test test/withdrawOptionRequest.ts",
+        "---": "",
         "start blockchain node": "npx hardhat node",
         "deploy contracts": "npx hardhat run scripts/deploy.ts --network localhost",
+        "---": "",
         "start webserver": "next dev -p 3003",
         "prepare": "husky install"
     }
