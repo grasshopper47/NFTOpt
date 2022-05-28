@@ -15,7 +15,7 @@ export const team: Person[] = [
     {
         name: "Shabab A",
         social: [{ name: "Your social ref here", url: "Your social url here" }],
-        image: "placeholder.jpg",
+        image: "shabab.jpg",
     },
 
     {
@@ -37,9 +37,9 @@ export const team: Person[] = [
     },
 
     {
-        name: "42",
+        name: "✨ TEAM NFT-OPT",
         social: [],
-        // image: ""
+        image: "placeholder.jpg"
     },
 
     {
@@ -49,19 +49,19 @@ export const team: Person[] = [
     },
 
     {
-        name: "Coach - Rahul",
+        name: "Coach - Shubham",
         social: [{ name: "Your social ref here", url: "Your social url here" }],
         image: "shubham.jpg",
     },
 
     {
-        name: "Master of Ceremonies - Preethi",
+        name: "Guide - Preethi",
         social: [{ name: "Your social ref here", url: "Your social url here" }],
         image: "preethi.jpg",
     },
 
     {
-        name: "Coach - Shubam",
+        name: "Coach - Rahul",
         social: [{ name: "Your social ref here", url: "Your social url here" }],
         image: "rahul.jpg",
     },

@@ -12,8 +12,8 @@ function TeamPage() {
                         <Image
                             src={`/images/${member.image}`}
                             alt={member.name}
-                            width={10}
-                            height={10}
+                            width={100}
+                            height={104}
 
                             layout="responsive"
                         />
