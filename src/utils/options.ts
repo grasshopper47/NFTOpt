@@ -19,7 +19,14 @@ function isOptionValid(option: any): boolean {
 export async function loadContractOptions(contract: NFTOpt, setOptionsCallback: (options: Option[]) => void) {
     let options: Option[] = [];
 
-    const optionIDPromise = await contract.optionID();
+    let optionIDPromise = null;
+    try {
+        optionIDPromise = await contract.optionID();
+    }
+    catch (err) {
+        console.error(err);
+        return
+    }
 
     if (!optionIDPromise) { return; }
 
