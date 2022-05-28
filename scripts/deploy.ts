@@ -1,5 +1,5 @@
-import {ethers} from "hardhat";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import { ethers } from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 let buyer: SignerWithAddress;
 
@@ -10,7 +10,7 @@ async function setupAccounts() {
 
 async function create_address_json(address_map: object) {
     const fs = require("fs");
-    fs.writeFileSync("addresses.json", JSON.stringify({localhost: address_map}));
+    fs.writeFileSync("addresses.json", JSON.stringify({ localhost: address_map }));
 }
 
 async function deployContracts() {
@@ -41,7 +41,7 @@ async function deployContracts() {
 
     // Update local json addresses
     create_address_json({
-        NFTOpt: NFTOpt.address,
+        NFTOpt: NFTOptCTR.address,
         NFTDummy: NFTDummyCTR.address,
     });
 }

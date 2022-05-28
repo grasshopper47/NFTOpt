@@ -1,12 +1,14 @@
-import {ArrowBackIosRounded, ArrowRightAlt} from "@mui/icons-material";
-import {Button, IconButton, Link} from "@mui/material";
+import { ArrowBackIosRounded, ArrowRightAlt } from "@mui/icons-material";
+import { Button, IconButton, Link } from "@mui/material";
 import { endOfDay, isBefore, isSameDay } from "date-fns";
-import {ethers} from "ethers";
+import { ethers } from "ethers";
 import toast from "react-hot-toast";
-import {useContracts} from "../providers/contexts";
+import { useContracts } from "../providers/contexts";
+import { getCurrentProvider, getSignedContract, getTXOptions } from "../utils/metamask";
 import { getAccountDisplayValue, getCorrectPlural, showToast } from "../utils/frontend";
-import {OptionFlavor, OptionState, OptionWithNFTDetails} from "../utils/types";
+import { OptionFlavor, OptionState, OptionWithNFTDetails } from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
+import { addressEmpty } from "../utils/constants";
 
 type OptionDetailsPreviewProps = {
     currentAccount: string;
@@ -15,9 +17,9 @@ type OptionDetailsPreviewProps = {
 };
 
 function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
-    const {currentAccount, option, onSelectOption} = props;
+    const { currentAccount, option, onSelectOption } = props;
 
-    const {nftOpt} = useContracts();
+    const { nftOpt } = useContracts();
 
     const handleConfirmedTransaction = () => {
         showToast("sent");
@@ -64,7 +66,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     const handleCreateOption = async () => {
         const txOptions = {
             value: option.strikePrice.toString(),
-            nonce: getCurrentProvider().getTransactionCount(getCurrentAccount()) + 1
+            nonce: (await getTXOptions()).nonce
         };
 
         try {
@@ -163,7 +165,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
             </IconButton>
             <div className={classes.detailsContainer}>
                 <div>
-                    <img style={{backgroundImage: `url(${option.asset.image})`}} alt="" />
+                    <img style={{ backgroundImage: `url(${option.asset.image})` }} alt="" />
                     <Link href={option.asset.url} target="_blank" className={classes.link}>
                         View on Opensea
                         <ArrowRightAlt />
@@ -219,10 +221,10 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                         {option.state === OptionState.CLOSED
                             ? null
                             : option.state === OptionState.REQUEST
-                            ? actionsForRequestState
-                            : option.state === OptionState.OPEN
-                            ? actionsForOpenState
-                            : null}
+                                ? actionsForRequestState
+                                : option.state === OptionState.OPEN
+                                    ? actionsForOpenState
+                                    : null}
                     </div>
                 </div>
             </div>
