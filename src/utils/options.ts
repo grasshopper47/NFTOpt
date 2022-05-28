@@ -1,4 +1,4 @@
-import {BigNumber, ethers} from "ethers";
+import {BigNumber} from "ethers";
 import {NFTOpt} from "../../typechain-types/contracts/NFTOpt";
 import {Option, OptionWithNFTDetails} from "./types";
 import {addressEmpty, SECONDS_IN_A_DAY} from "./constants";
