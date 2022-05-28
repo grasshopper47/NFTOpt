@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { TOAST_DURATION } from "./constants";
+import {TOAST_DURATION} from "./constants";
 
 export function getCorrectPlural(word: string, count: number) {
     return word + (count > 1 ? "s" : "");
@@ -10,5 +10,5 @@ export function getAccountDisplayValue(account: string) {
 }
 
 export function throwTransactionToast(action: "sent" | "failed") {
-    toast[action === "sent" ? "success" : "error"](`Transaction ${action}`, { duration: TOAST_DURATION });
+    toast[action === "sent" ? "success" : "error"](`Transaction ${action}`, {duration: TOAST_DURATION});
 }

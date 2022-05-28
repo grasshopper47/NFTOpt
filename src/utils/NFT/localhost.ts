@@ -1,9 +1,9 @@
-import { BigNumber } from "ethers";
-import { NFTAsset, Option, OptionWithNFTDetails } from "../types";
-import { getSignedContract } from "../metamask";
+import {BigNumber} from "ethers";
+import {NFTAsset, Option, OptionWithNFTDetails} from "../types";
+import {getSignedContract} from "../metamask";
 import addresses from "../../../addresses.json";
 
-async function fetchNFTImage(address: string, id: BigNumber) {
+export async function fetchNFTImage(address: string, id: BigNumber) {
     const abi_IERC721: any = [
         {
             inputs: [
@@ -80,28 +80,7 @@ export async function fetchAssetsForAddress(account: string, setAssetsCallback: 
     setAssetsCallback(assets);
 }
 
-export async function fetchNFTDetailsForOneOptions(
-    nftContract: string,
-    nftTokenId: BigNumber,
-    setAssetCallback: (asset: NFTAsset) => void
-) {
-    let asset: NFTAsset | null = null;
-
-    asset = {
-        tokenId: nftTokenId,
-        address: nftContract,
-        name: "???",
-        image: await fetchNFTImage(nftContract, nftTokenId),
-        url: "https://freesvg.org/img/Placeholder.png",
-    };
-
-    setAssetCallback(asset);
-}
-
-export async function fetchNFTDetailsForMultipleOptions(
-    options: Option[],
-    setOptionsCallback: (optionsWithNFTDetails: OptionWithNFTDetails[]) => void
-) {
+export async function fetchNFTDetailsForMultipleOptions(options: Option[]): Promise<OptionWithNFTDetails[]> {
     const optionsWithNFTDetails: OptionWithNFTDetails[] = [];
     let asset: NFTAsset | null = null;
 
@@ -120,5 +99,5 @@ export async function fetchNFTDetailsForMultipleOptions(
         });
     }
 
-    setOptionsCallback(optionsWithNFTDetails);
+    return optionsWithNFTDetails;
 }

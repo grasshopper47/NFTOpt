@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import {BigNumber} from "ethers";
 
 export type WithChildren = {
     children?: React.ReactNode | React.ReactNode[];
@@ -22,6 +22,11 @@ export enum OptionState {
     OPEN,
     CLOSED,
     WITHDRAWN,
+}
+
+export enum OptionFilterOwnership {
+    ALL,
+    PERSONAL,
 }
 
 export type Option = {
@@ -51,4 +56,4 @@ export interface Option_SOLIDITY {
     state: OptionState;
 }
 
-export type OptionWithNFTDetails = Omit<Option, "nftContract" | "nftId"> & { asset: NFTAsset };
+export type OptionWithNFTDetails = Omit<Option, "nftContract" | "nftId"> & {asset: NFTAsset};
