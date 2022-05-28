@@ -18,8 +18,9 @@ import {NFTAsset, OptionFlavor} from "../utils/types";
 import classes from "./styles/CreateOption.module.scss";
 import {ethers} from "ethers";
 import toast from "react-hot-toast";
-import {throwTransactionToast} from "../utils/frontend";
+import { showToast } from "../utils/frontend";
 import {fetchAssetsForAddress} from "../utils/NFT/localhost";
+import { getTXOptions } from "../utils/metamask";
 
 type FormState = {
     asset?: NFTAsset;
@@ -115,6 +116,7 @@ function CreateOption() {
     const handlePublishOption = async () => {
         const txOptions = {
             value: ethers.utils.parseEther(`${parseFloat(formState.premium)}`),
+            nonce: (await getTXOptions()).nonce
         };
 
         try {
@@ -127,17 +129,16 @@ function CreateOption() {
                 txOptions
             );
 
-            throwTransactionToast("sent");
+            showToast("sent");
 
             setFormState(defaultFormState);
         } catch (error) {
-            if (error.code === 4001) {
-                // Metamask TX Cancel
+            if (error.code === 4001) { // Metamask TX Cancel
                 toast.error("User canceled");
                 return;
             }
 
-            throwTransactionToast("failed");
+            showToast("failed");
             console.error(error);
         }
     };
