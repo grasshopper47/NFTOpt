@@ -1,12 +1,11 @@
-import { ArrowBackIosRounded, ArrowRightAlt } from "@mui/icons-material";
-import { Button, IconButton, Link } from "@mui/material";
-import { addDays, endOfDay, isBefore, isSameDay } from "date-fns";
-import { ethers } from "ethers";
+import {ArrowBackIosRounded, ArrowRightAlt} from "@mui/icons-material";
+import {Button, IconButton, Link} from "@mui/material";
+import { endOfDay, isBefore, isSameDay } from "date-fns";
+import {ethers} from "ethers";
 import toast from "react-hot-toast";
-import { useContracts } from "../providers/contexts";
-import { getAccountDisplayValue, getCorrectPlural, throwTransactionToast } from "../utils/frontend";
-import { getCurrentProvider, getSignedContract } from "../utils/metamask";
-import { OptionFlavor, OptionState, OptionWithNFTDetails } from "../utils/types";
+import {useContracts} from "../providers/contexts";
+import { getAccountDisplayValue, getCorrectPlural, showToast } from "../utils/frontend";
+import {OptionFlavor, OptionState, OptionWithNFTDetails} from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
 
 type OptionDetailsPreviewProps = {
@@ -16,29 +15,28 @@ type OptionDetailsPreviewProps = {
 };
 
 function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
-    const { currentAccount, option, onSelectOption } = props;
+    const {currentAccount, option, onSelectOption} = props;
 
-    const { nftOpt } = useContracts();
+    const {nftOpt} = useContracts();
 
     const handleConfirmedTransaction = () => {
-        throwTransactionToast("sent");
+        showToast("sent");
         onSelectOption(undefined);
     };
 
     const handleError = (error) => {
-        if (error.code === 4001) {
-            // Metamask TX Cancel
+        if (error.code === 4001) { // Metamask TX Cancel
             toast.error("User canceled");
             return;
         }
 
-        throwTransactionToast("failed");
+        showToast("failed");
         console.error(error);
     };
 
     const handleWithdrawOption = async () => {
         try {
-            await nftOpt.withdrawOptionRequest(option.id);
+            await nftOpt.withdrawOptionRequest(option.id, await getTXOptions());
             handleConfirmedTransaction();
         } catch (error) {
             handleError(error);
@@ -47,7 +45,16 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
 
     const handleCancelOption = async () => {
         try {
-            await nftOpt.cancelOption(option.id);
+            await nftOpt.cancelOption(option.id, await getTXOptions());
+            handleConfirmedTransaction();
+        } catch (error) {
+            handleError(error);
+        }
+    };
+
+    const handleExerciseOption = async () => {
+        try {
+            await nftOpt.exerciseOption(option.id, await getTXOptions());
             handleConfirmedTransaction();
         } catch (error) {
             handleError(error);
@@ -57,18 +64,11 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     const handleCreateOption = async () => {
         const txOptions = {
             value: option.strikePrice.toString(),
+            nonce: getCurrentProvider().getTransactionCount(getCurrentAccount()) + 1
         };
 
         try {
             await nftOpt.createOption(option.id, txOptions);
-            handleConfirmedTransaction();
-        } catch (error) {
-            handleError(error);
-        }
-    };
-
-    const handleExerciseOption = async () => {
-        try {
 
             const abi_IERC721: any = [
                 {
@@ -97,7 +97,6 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
             NFTContract.connect(getCurrentProvider().getSigner()).approve(nftOpt.address, option.asset.tokenId);
 
             // TX 2: exercise
-            await nftOpt.exerciseOption(option.id);
 
             handleConfirmedTransaction();
         } catch (error) {
@@ -164,7 +163,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
             </IconButton>
             <div className={classes.detailsContainer}>
                 <div>
-                    <img style={{ backgroundImage: `url(${option.asset.image})` }} alt="" />
+                    <img style={{backgroundImage: `url(${option.asset.image})`}} alt="" />
                     <Link href={option.asset.url} target="_blank" className={classes.link}>
                         View on Opensea
                         <ArrowRightAlt />
@@ -207,7 +206,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                                 <span>Buyer:</span>
                                 <span> {getAccountDisplayValue(option.buyer)}</span>
                             </div>
-                            {option.seller ? (
+                            {option.seller && option.seller !== addressEmpty ? (
                                 <div className={classes.field}>
                                     <span>Seller:</span>
                                     <span> {getAccountDisplayValue(option.seller)}</span>
@@ -220,10 +219,10 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                         {option.state === OptionState.CLOSED
                             ? null
                             : option.state === OptionState.REQUEST
-                                ? actionsForRequestState
-                                : option.state === OptionState.OPEN
-                                    ? actionsForOpenState
-                                    : null}
+                            ? actionsForRequestState
+                            : option.state === OptionState.OPEN
+                            ? actionsForOpenState
+                            : null}
                     </div>
                 </div>
             </div>

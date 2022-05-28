@@ -6,7 +6,7 @@ export default class Document extends NextDocument {
             <Html>
                 <Head>
                     <title>NFTopt</title>
-                    <meta name="description" content="DappCamp Warriors is a tutorial project from DappCamp"></meta>
+                    <meta name="description" content="NFTopt is a marketplace of Options for NFTs."></meta>
                     <meta name="viewport" content="initial-scale=1.0, width=device-width" />
                     <link
                         rel="icon"

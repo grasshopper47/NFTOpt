@@ -13,3 +13,5 @@ package-lock.json
 
 # IntelliJ IDE
 .idea
+
+addresses.json

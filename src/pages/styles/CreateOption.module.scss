@@ -72,6 +72,7 @@
     height: 392px;
     width: 392px;
     border-radius: 10px;
+    box-shadow: 1px 0px 3px rgb(15 23 42 / 14%), 4px 6px 6px rgb(15 23 42 / 10%);
 }
 
 .imageContainer {
@@ -80,6 +81,7 @@
             height: 392px;
             width: 392px;
             border-radius: 10px;
+            box-shadow: 1px 0px 3px rgb(15 23 42 / 14%), 4px 6px 6px rgb(15 23 42 / 10%);
         }
     }
 }
@@ -103,6 +105,11 @@ button.submitBtn {
     }
 }
 
+div.menuPaper:global(.MuiPaper-root) {
+    max-height: 360px;
+    border-radius: 8px;
+}
+
 [data-theme="dark"] {
     .form {
         fieldset {
@@ -112,6 +119,13 @@ button.submitBtn {
             fieldset {
                 border-color: $text-primary !important;
             }
+        }
+    }
+
+    div.menuPaper:global(.MuiPaper-root) {
+        background: rgb(51, 64, 85);
+        li {
+            color: white;
         }
     }
 }

@@ -52,3 +52,10 @@ export function getCurrentAccount() {
 export function getSignedContract(address: string, abi: any) {
     return new ethers.Contract(address, abi, provider.getSigner());
 }
+
+export async function getTXOptions() {
+
+    return {
+        nonce: await getCurrentProvider().getTransactionCount(getCurrentAccount()) + 1
+    };
+}

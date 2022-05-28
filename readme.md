@@ -34,7 +34,7 @@ Closing the console will terminate the process
 
 `npm run deploy`
 
-When successful, copy the value of _NFTOpt contract address_ and paste it in _addresses.json_
+When successful, the values of _NFTOpt contract address_ are outputted by 'deploy.ts' in _addresses.json_
 
 <br />
 <br />
