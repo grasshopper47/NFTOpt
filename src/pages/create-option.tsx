@@ -113,7 +113,6 @@ function CreateOption() {
     };
 
     const handlePublishOption = async () => {
-        console.log(formState.premium);
         const txOptions = {
             value: ethers.utils.parseEther(`${parseFloat(formState.premium)}`),
         };
