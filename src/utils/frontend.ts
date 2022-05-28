@@ -327,5 +327,5 @@ export async function loadContractOptions(contract: NFTOpt, setOptionsCallback: 
 }
 
 export function throwTransactionToast(action: "confirmed" | "failed") {
-    toast.success(`Transaction ${action}`, {duration: TOAST_DURATION});
+    toast[action === "confirmed" ? "success" : "error"](`Transaction ${action}`, {duration: TOAST_DURATION});
 }
