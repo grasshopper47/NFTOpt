@@ -3,11 +3,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 let buyer: SignerWithAddress;
 
-async function setupAccounts() {
-    const accounts = await ethers.getSigners();
-    buyer = accounts[0];
-}
-
 async function deployContracts() {
     const InterfaceDetector = await ethers.getContractFactory("InterfaceDetector");
     let InterfaceDetectorCTR = await InterfaceDetector.deploy();
@@ -55,10 +50,9 @@ async function deployContracts() {
 }
 
 async function deployLocalDevEnv() {
-    // Fund testing account
-    await setupAccounts();
+    const accounts = await ethers.getSigners();
+    buyer = accounts[0];
 
-    // Deploy main contracts
     await deployContracts();
 }
 
