@@ -16,7 +16,7 @@
 }
 
 .tabs {
-    border-bottom: 1px solid $text-tertiary;
+    border-bottom: 1px solid $color-primary;
     color: $color-primary;
 
     button {
@@ -28,7 +28,8 @@
         color: $color-primary;
     }
 
-    :global(.Mui-selected), :global(.MuiButtonBase-root.MuiTab-root.MuiTab-textColorPrimary.Mui-selected) {
+    :global(.Mui-selected),
+    :global(.MuiButtonBase-root.MuiTab-root.MuiTab-textColorPrimary.Mui-selected) {
         color: $color-primary;
     }
 

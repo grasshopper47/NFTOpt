@@ -1,10 +1,10 @@
-import { Tab, Tabs, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
-import { OptionState, OptionWithNFTDetails } from "../utils/types";
+import {Tab, Tabs} from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {OptionState, OptionWithNFTDetails} from "../utils/types";
 import OptionDetailsPreview from "./OptionDetailsPreview";
 import OptionListItemPreview from "./OptionListItemPreview";
 import classes from "./styles/OptionsListContainer.module.scss";
-import { useAccount } from "../providers/contexts";
+import {useAccount} from "../providers/contexts";
 
 type OptionsListContainerProps = {
     title: string;
@@ -32,7 +32,7 @@ const optionStateTabs: OptionStateTab[] = [
 ];
 
 function OptionsListContainer(props: OptionsListContainerProps) {
-    const { options, title } = props;
+    const {options, title} = props;
 
     const account = useAccount();
 
@@ -45,7 +45,14 @@ function OptionsListContainer(props: OptionsListContainerProps) {
     };
 
     useEffect(() => {
-        setFilteredOptions(options.filter((option) => option.state === optionStateTabs[activeTabIndex].optionState));
+        const state = optionStateTabs[activeTabIndex].optionState;
+        setFilteredOptions(
+            options.filter((option) =>
+                state === OptionState.OPEN || state === OptionState.REQUEST
+                    ? option.state === state
+                    : option.state === OptionState.WITHDRAWN || option.state === OptionState.CLOSED
+            )
+        );
         if (selectedOptionForPreview) {
             setSelectedOptionForPreview(null);
         }
@@ -53,7 +60,7 @@ function OptionsListContainer(props: OptionsListContainerProps) {
 
     return (
         <div className={classes.root}>
-            <Typography className={classes.title}>{title}</Typography>
+            <p className={classes.title}>{title}</p>
             <Tabs className={classes.tabs} value={activeTabIndex} onChange={handleChangeTab}>
                 {optionStateTabs.map((optionStateTab) => (
                     <Tab key={`option-state-tab-${optionStateTab.name}`} label={optionStateTab.name} />
@@ -80,7 +87,7 @@ function OptionsListContainer(props: OptionsListContainerProps) {
                             />
                         ))
                     ) : (
-                        <Typography className={classes.noOptions}>No Options</Typography>
+                        <p className={classes.noOptions}>No Options</p>
                     )}
                 </div>
             )}

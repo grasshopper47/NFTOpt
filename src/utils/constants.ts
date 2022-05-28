@@ -10,3 +10,4 @@ export const addressEmpty: string = "0x0000000000000000000000000000000000000000"
 export const floatNumberRegex = /^([0-9]*[.])?[0-9]*$/;
 export const networkName: string = networks[networkId];
 export const SECONDS_IN_A_DAY = 86400;
+export const TOAST_DURATION = 4000;

@@ -36,7 +36,7 @@
     }
 }
 
-.link {
+a.link {
     color: $color-tertiary;
     font-weight: bold;
     text-decoration: none;
@@ -64,7 +64,7 @@
     font-weight: bold;
 }
 
-.field {
+div.field {
     margin-top: 16px;
     display: flex;
     flex-direction: column;
@@ -77,7 +77,7 @@
         &:last-of-type {
             margin-top: 4px;
             letter-spacing: 0.4px;
-            font-size: 16px;
+            font-size: 18px;
             color: $color-primary;
             font-weight: bold;
             max-width: 250px;
@@ -88,7 +88,7 @@
     }
 }
 
-.goBackBtn {
+button.goBackBtn {
     border-radius: 6px;
     border: 2px solid $text-tertiary;
     color: $text-secondary;
@@ -101,7 +101,7 @@
     margin-top: 40px;
 }
 
-.btnPrimary {
+button.btnPrimary {
     border-radius: 10px;
     font-size: 16px;
     font-weight: 500;
@@ -112,7 +112,7 @@
     }
 }
 
-.btnSecondary {
+button.btnSecondary {
     border-radius: 10px;
     font-size: 16px;
     font-weight: 500;

@@ -1,4 +1,3 @@
-import {Typography} from "@mui/material";
 import Image from "next/image";
 import Layout from "../components/Layout";
 import classes from "./styles/LandingPage.module.scss";
@@ -38,8 +37,8 @@ function LandingPage() {
                 {presentationCards.map((card) => (
                     <div key={`presentation-card-${card.key}`} className={classes.card}>
                         <Image src={card.image} alt="" width="200" height="380" />
-                        <Typography className={classes.title}>{card.title}</Typography>
-                        <Typography className={classes.description}>{card.description}</Typography>
+                        <p className={classes.title}>{card.title}</p>
+                        <p className={classes.description}>{card.description}</p>
                     </div>
                 ))}
             </div>

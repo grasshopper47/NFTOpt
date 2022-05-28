@@ -1,6 +1,6 @@
-import { AccessTime } from "@mui/icons-material";
-import { Typography } from "@mui/material";
-import { OptionWithNFTDetails } from "../utils/types";
+import {AccessTime} from "@mui/icons-material";
+import {getCorrectPlural} from "../utils/frontend";
+import {OptionWithNFTDetails} from "../utils/types";
 import classes from "./styles/OptionListItemPreview.module.scss";
 
 type OptionListItemPreviewProps = {
@@ -9,19 +9,21 @@ type OptionListItemPreviewProps = {
 };
 
 function OptionListItemPreview(props: OptionListItemPreviewProps) {
-    const { option, onSelectOptionForPreview } = props;
+    const {option, onSelectOptionForPreview} = props;
 
     return (
         <div className={classes.card} onClick={onSelectOptionForPreview.bind(null, option)}>
-            <img style={{ backgroundImage: `url(${option.asset.image})` }} alt="" />
+            <img style={{backgroundImage: `url(${option.asset.image})`}} alt="" />
             <div className={classes.content}>
-                <Typography className={classes.title}>{option.asset.name}</Typography>
+                <p className={classes.title}>{option.asset.name}</p>
                 <div className={classes.moreInfoContainer}>
-                    <Typography>{option.strikePrice} ETH</Typography>
-                    <Typography>
+                    <p>{option.strikePrice} ETH</p>
+                    <p>
                         <AccessTime />
-                        <span>{option.interval} days</span>
-                    </Typography>
+                        <span>
+                            {option.interval} {getCorrectPlural("day", option.interval)}
+                        </span>
+                    </p>
                 </div>
             </div>
         </div>

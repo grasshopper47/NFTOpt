@@ -12,10 +12,7 @@
 .form {
     display: flex;
     flex-direction: column;
-
-    .field, :global(.MuiTextField-root) {
-        margin-top: 20px;
-    }
+    width: 35%;
 
     :global(.MuiInputBase-root) {
         color: $text-primary;
@@ -25,12 +22,22 @@
     }
 }
 
+.fieldWrapper {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+
+    label {
+        margin-bottom: 4px;
+    }
+}
+
 .field {
-    :global(.MuiFormLabel-root) {
+    label:global(.MuiFormLabel-root) {
         color: $text-primary;
         margin-top: 10px;
     }
-    :global(.MuiFormGroup-root){
+    :global(.MuiFormGroup-root) {
         display: flex;
         flex-direction: row;
         > * {
@@ -41,7 +48,7 @@
             }
         }
     }
-    :global(.MuiRadio-colorPrimary) {
+    :global(.MuiRadio-root.MuiRadio-colorPrimary) {
         color: $color-secondary;
     }
     :global(.MuiInputAdornment-root) p {
@@ -50,7 +57,7 @@
 }
 
 .title {
-    font-size: 30px;
+    font-size: 24px;
     font-weight: 800;
     margin-bottom: 30px;
 }
@@ -77,7 +84,6 @@
     }
 }
 
-
 .dot {
     background: $color-secondary;
     border-radius: 50%;
@@ -85,7 +91,7 @@
     height: 30px;
 }
 
-.submitBtn {
+button.submitBtn {
     margin-top: 40px;
     padding: 8px;
     font-size: 16px;

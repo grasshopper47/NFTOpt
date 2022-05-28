@@ -1,15 +1,20 @@
-import { BigNumber, ethers } from "ethers";
-import { NFTOpt } from "../../typechain-types/contracts/NFTOpt";
-import { NFTAsset, Option, OptionWithNFTDetails } from "./types";
-import { addressEmpty, SECONDS_IN_A_DAY } from "./constants";
+import {BigNumber, ethers} from "ethers";
+import {NFTOpt} from "../../typechain-types/contracts/NFTOpt";
+import {NFTAsset, Option, OptionWithNFTDetails} from "./types";
+import {addressEmpty, SECONDS_IN_A_DAY, TOAST_DURATION} from "./constants";
 import addresses from "../../addresses.json";
+import toast from "react-hot-toast";
 
 declare var window: Window & {
     ethereum: any;
 };
 
+export function getCorrectPlural(word: string, count: number) {
+    return word + (count > 1 ? "s" : "");
+}
+
 export function getEthereumObject() {
-    const { ethereum } = window;
+    const {ethereum} = window;
 
     return ethereum ?? null;
 }
@@ -31,9 +36,9 @@ export function setupEthereumEventListeners(ethereum: ethers.providers.ExternalP
 }
 
 export async function getCurrentAccount() {
-    const { ethereum } = window;
+    const {ethereum} = window;
 
-    const accounts = await ethereum.request({ method: "eth_accounts" });
+    const accounts = await ethereum.request({method: "eth_accounts"});
 
     if (!accounts || accounts?.length === 0) {
         return null;
@@ -48,14 +53,14 @@ export async function connectWallet(setAccountCallback: (account: string) => voi
     const ethereum = getEthereumObject();
 
     if (ethereum) {
-        ethereum.request({ method: "eth_requestAccounts" }).then((res) => setAccountCallback(res[0]));
+        ethereum.request({method: "eth_requestAccounts"}).then((res) => setAccountCallback(res[0]));
     } else {
         alert("Please install MetaMask extension");
     }
 }
 
 export function getSignedContract(address: string, abi: any) {
-    const { ethereum } = window;
+    const {ethereum} = window;
 
     const provider = new ethers.providers.Web3Provider(ethereum, "any");
 
@@ -67,24 +72,25 @@ export function getSignedContract(address: string, abi: any) {
 async function fetchNFTImage(address: string, id: BigNumber) {
     const abi_IERC721: any = [
         {
-            "inputs": [
+            inputs: [
                 {
-                    "internalType": "uint256",
-                    "name": "tokenId",
-                    "type": "uint256"
-                }
+                    internalType: "uint256",
+                    name: "tokenId",
+                    type: "uint256",
+                },
             ],
-            "name": "tokenURI",
-            "outputs": [
+            name: "tokenURI",
+            outputs: [
                 {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
+                    internalType: "string",
+                    name: "",
+                    type: "string",
+                },
             ],
-            "stateMutability": "view",
-            "type": "function"
-        }];
+            stateMutability: "view",
+            type: "function",
+        },
+    ];
 
     let NFTContract = getSignedContract(address, abi_IERC721);
 
@@ -118,24 +124,25 @@ export async function fetchAssetsForAddress(account: string, setAssetsCallback: 
 
     const abi_IERC721: any = [
         {
-            "inputs": [
+            inputs: [
                 {
-                    "internalType": "uint256",
-                    "name": "tokenId",
-                    "type": "uint256"
-                }
+                    internalType: "uint256",
+                    name: "tokenId",
+                    type: "uint256",
+                },
             ],
-            "name": "ownerOf",
-            "outputs": [
+            name: "ownerOf",
+            outputs: [
                 {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
+                    internalType: "address",
+                    name: "",
+                    type: "address",
+                },
             ],
-            "stateMutability": "view",
-            "type": "function"
-        }];
+            stateMutability: "view",
+            type: "function",
+        },
+    ];
 
     const NFTContractAddress = addresses["localhost"].NFTDummy;
     let NFTContract = getSignedContract(NFTContractAddress, abi_IERC721);
@@ -204,27 +211,27 @@ export async function fetchNFTDetailsForMultipleOptions(
 
     const abi_IERC721: any = [
         {
-            "inputs": [
+            inputs: [
                 {
-                    "internalType": "uint256",
-                    "name": "tokenId",
-                    "type": "uint256"
-                }
+                    internalType: "uint256",
+                    name: "tokenId",
+                    type: "uint256",
+                },
             ],
-            "name": "tokenURI",
-            "outputs": [
+            name: "tokenURI",
+            outputs: [
                 {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
+                    internalType: "string",
+                    name: "",
+                    type: "string",
+                },
             ],
-            "stateMutability": "view",
-            "type": "function"
-        }];
+            stateMutability: "view",
+            type: "function",
+        },
+    ];
 
     for (let option of options) {
-
         asset = {
             tokenId: option.nftId,
             address: option.nftContract,
@@ -315,4 +322,8 @@ export async function loadContractOptions(contract: NFTOpt, setOptionsCallback: 
     } catch (error) {
         console.error(error);
     }
+}
+
+export function throwTransactionToast(action: "confirmed" | "failed") {
+    toast[action === "confirmed" ? "success" : "error"](`Transaction ${action}`, {duration: TOAST_DURATION});
 }
