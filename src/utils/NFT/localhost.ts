@@ -1,6 +1,6 @@
-import {BigNumber} from "ethers";
-import {NFTAsset, Option, OptionWithNFTDetails} from "../types";
-import {getSignedContract, getTXOptions} from "../metamask";
+import { BigNumber } from "ethers";
+import { NFTAsset, Option, OptionWithNFTDetails } from "../types";
+import { getSignedContract, getTXOptions } from "../metamask";
 import addresses from "../../../addresses.json";
 
 export async function fetchNFTImage(address: string, id: BigNumber) {
