@@ -1,9 +1,10 @@
-import {expect} from "chai";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {NFTOpt, DummyNFT} from "../../typechain-types";
-import {ethers} from "hardhat";
-import {Option_TEST_STRUCT, OptionState, OptionFlavor} from "./types";
-import {addressEmpty, SECONDS_IN_A_DAY} from "./constants";
+import { expect } from "chai";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { NFTOpt, DummyNFT } from "../../typechain-types";
+import { ethers } from "hardhat";
+import { Option_SOLIDITY, OptionState, OptionFlavor } from "./types";
+import { addressEmpty, SECONDS_IN_A_DAY } from "./constants";
+import { BigNumber } from "ethers";
 
 export let buyer: SignerWithAddress;
 export let seller: SignerWithAddress;
@@ -12,7 +13,7 @@ export let InterfaceDetectorAddress: string;
 export let NFTOptCTR: NFTOpt;
 export let NFTDummyCTR: DummyNFT;
 
-export let dummyOptionRequest: Option_TEST_STRUCT;
+export let dummyOptionRequest: Option_SOLIDITY;
 
 export let publishDummyOptionRequest = async () => {
     await expect(
@@ -22,7 +23,7 @@ export let publishDummyOptionRequest = async () => {
             dummyOptionRequest.strikePrice,
             dummyOptionRequest.interval,
             dummyOptionRequest.flavor,
-            {value: dummyOptionRequest.premium}
+            { value: dummyOptionRequest.premium }
         )
     ).to.emit(NFTOptCTR, "NewRequest");
 };
@@ -55,7 +56,7 @@ export async function deployNFTDummyContract() {
     await NFTDummyCTR.deployed();
 
     dummyOptionRequest.nftContract = NFTDummyCTR.address;
-    dummyOptionRequest.nftId = 10;
+    dummyOptionRequest.nftId = BigNumber.from(10);
 }
 
 export const initializer = async () => {
@@ -70,7 +71,7 @@ export const initializer = async () => {
         buyer: buyer.address,
         seller: addressEmpty,
         nftContract: "",
-        nftId: 0,
+        nftId: BigNumber.from(0),
         startDate: 0,
         interval: 7 * SECONDS_IN_A_DAY,
         premium: ethers.utils.parseEther("1"),

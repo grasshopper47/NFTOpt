@@ -1,13 +1,12 @@
-import {Option, OptionFlavor, OptionState, NFTAsset} from "./types";
+import { Option, OptionFlavor, OptionState, NFTAsset } from "./types";
 import addresses from "../../addresses.json";
-import {addressEmpty} from "./constants";
-import {BigNumber} from "ethers";
+import { addressEmpty } from "./constants";
+import { BigNumber, ethers } from "ethers";
 
 const dummyNFTAddress: string = addresses["localhost"].NFTDummy;
 const dummyNFTToken: BigNumber = BigNumber.from("1");
 
 export const dummyNFT: NFTAsset = {
-    id: 0,
     name: "BoredApe #12470",
     address: dummyNFTAddress,
     tokenId: dummyNFTToken,
@@ -25,8 +24,8 @@ export const dummyOptions: Option[] = [
         nftId: dummyNFTToken,
         startDate: null,
         interval: 4,
-        premium: "0.1",
-        strikePrice: "2",
+        premium: ethers.utils.parseEther("0.1"),
+        strikePrice: BigNumber.from(2),
         flavor: OptionFlavor.AMERICAN,
         state: OptionState.REQUEST,
     },
@@ -38,8 +37,8 @@ export const dummyOptions: Option[] = [
         nftId: dummyNFTToken,
         startDate: null,
         interval: 4,
-        premium: "0.1",
-        strikePrice: "2",
+        premium: ethers.utils.parseEther("0.1"),
+        strikePrice: BigNumber.from(2),
         flavor: OptionFlavor.EUROPEAN,
         state: OptionState.REQUEST,
     },
@@ -50,10 +49,10 @@ export const dummyOptions: Option[] = [
         seller: addressEmpty,
         nftContract: dummyNFTAddress,
         nftId: dummyNFTToken,
-        startDate: (new Date().getUTCMilliseconds() / 1000).toString(),
+        startDate: new Date().getUTCMilliseconds() / 1000,
         interval: 4,
-        premium: "0.1",
-        strikePrice: "2",
+        premium: ethers.utils.parseEther("0.1"),
+        strikePrice: BigNumber.from(2),
         flavor: OptionFlavor.AMERICAN,
         state: OptionState.OPEN,
     },
@@ -63,10 +62,10 @@ export const dummyOptions: Option[] = [
         seller: addressEmpty,
         nftContract: dummyNFTAddress,
         nftId: dummyNFTToken,
-        startDate: (new Date().getUTCMilliseconds() / 1000).toString(),
+        startDate: new Date().getUTCMilliseconds() / 1000,
         interval: 4,
-        premium: "0.1",
-        strikePrice: "2",
+        premium: ethers.utils.parseEther("0.1"),
+        strikePrice: BigNumber.from(2),
         flavor: OptionFlavor.AMERICAN,
         state: OptionState.OPEN,
     },
@@ -77,10 +76,10 @@ export const dummyOptions: Option[] = [
         seller: addressEmpty,
         nftContract: dummyNFTAddress,
         nftId: dummyNFTToken,
-        startDate: (new Date().getUTCMilliseconds() / 1000).toString(),
+        startDate: new Date().getUTCMilliseconds() / 1000,
         interval: 4,
-        premium: "0.1",
-        strikePrice: "2",
+        premium: ethers.utils.parseEther("0.1"),
+        strikePrice: BigNumber.from(2),
         flavor: OptionFlavor.AMERICAN,
         state: OptionState.CLOSED,
     },
@@ -90,10 +89,10 @@ export const dummyOptions: Option[] = [
         seller: addressEmpty,
         nftContract: dummyNFTAddress,
         nftId: dummyNFTToken,
-        startDate: (new Date().getUTCMilliseconds() / 1000).toString(),
+        startDate: new Date().getUTCMilliseconds() / 1000,
         interval: 4,
-        premium: "0.1",
-        strikePrice: "2",
+        premium: ethers.utils.parseEther("0.1"),
+        strikePrice: BigNumber.from(2),
         flavor: OptionFlavor.EUROPEAN,
         state: OptionState.CLOSED,
     },
