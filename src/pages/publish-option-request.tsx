@@ -147,7 +147,7 @@ function CreateOption() {
         <Layout>
             <div className={classes.root}>
                 <div className={classes.form}>
-                    <p className={classes.title}>Create PUT Option</p>
+                    <p className={classes.title}>Request a PUT Option</p>
                     <div className={classes.fieldWrapper}>
                         <Select
                             MenuProps={{ classes: { paper: classes.menuPaper } }}
@@ -157,7 +157,7 @@ function CreateOption() {
                             <MenuItem value={-1}>Select your NFT</MenuItem>
                             {assets.map((asset) => (
                                 <MenuItem
-                                    key={`asset-${asset.tokenId}`}
+                                    key={`asset-${asset.id}`}
                                     value={asset.tokenId.toString()}
                                     onClick={handleSelectAsset.bind(null, asset)}
                                 >
