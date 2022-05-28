@@ -19,8 +19,9 @@ import classes from "./styles/CreateOption.module.scss";
 import { ethers } from "ethers";
 import { dummyNFT } from "../utils/dummyData";
 import toast from "react-hot-toast";
-import { throwTransactionToast } from "../utils/frontend";
+import { showToast } from "../utils/frontend";
 import { fetchAssetsForAddress } from "../utils/NFT/localhost";
+import { getTXOptions } from "../utils/metamask";
 
 type FormState = {
     asset?: NFTAsset;
@@ -114,27 +115,28 @@ function CreateOption() {
 
     const handlePublishOption = async () => {
         const txOptions = {
-            value: formState.premium.toString()//ethers.utils.parseEther(`${parseFloat(formState.premium)}`),
+            value: ethers.utils.parseEther(`${parseFloat(formState.premium)}`),
+            nonce: (await getTXOptions()).nonce
         };
 
         try {
             await nftOpt.publishOptionRequest(
                 formState.asset.address,
                 formState.asset.tokenId,
-                formState.strikePrice,//ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
+                ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
                 formState.interval * SECONDS_IN_A_DAY,
                 formState.flavor,
                 txOptions
             );
-            throwTransactionToast("sent");
+
+            showToast("sent");
         } catch (error) {
-            if (error.code === 4001) {
-                // Metamask TX Cancel
+            if (error.code === 4001) { // Metamask TX Cancel
                 toast.error("User canceled");
                 return;
             }
 
-            throwTransactionToast("failed");
+            showToast("failed");
             console.error(error);
         }
     };

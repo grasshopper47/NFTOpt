@@ -1,11 +1,11 @@
 import { ArrowBackIosRounded, ArrowRightAlt } from "@mui/icons-material";
 import { Button, IconButton, Link } from "@mui/material";
-import { addDays, endOfDay, isBefore, isSameDay } from "date-fns";
+import { endOfDay, isBefore, isSameDay } from "date-fns";
 import { ethers } from "ethers";
 import toast from "react-hot-toast";
 import { useContracts } from "../providers/contexts";
-import { SECONDS_IN_A_DAY, TOAST_DURATION } from "../utils/constants";
-import { getAccountDisplayValue, getCorrectPlural, throwTransactionToast } from "../utils/frontend";
+import { getAccountDisplayValue, getCorrectPlural, showToast } from "../utils/frontend";
+import { getCurrentAccount, getCurrentProvider, getTXOptions } from "../utils/metamask";
 import { OptionFlavor, OptionState, OptionWithNFTDetails } from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
 
@@ -21,24 +21,23 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     const { nftOpt } = useContracts();
 
     const handleConfirmedTransaction = () => {
-        throwTransactionToast("sent");
+        showToast("sent");
         onSelectOption(undefined);
     };
 
     const handleError = (error) => {
-        if (error.code === 4001) {
-            // Metamask TX Cancel
+        if (error.code === 4001) { // Metamask TX Cancel
             toast.error("User canceled");
             return;
         }
 
-        throwTransactionToast("failed");
+        showToast("failed");
         console.error(error);
     };
 
     const handleWithdrawOption = async () => {
         try {
-            await nftOpt.withdrawOptionRequest(option.id);
+            await nftOpt.withdrawOptionRequest(option.id, await getTXOptions());
             handleConfirmedTransaction();
         } catch (error) {
             handleError(error);
@@ -47,7 +46,16 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
 
     const handleCancelOption = async () => {
         try {
-            await nftOpt.cancelOption(option.id);
+            await nftOpt.cancelOption(option.id, await getTXOptions());
+            handleConfirmedTransaction();
+        } catch (error) {
+            handleError(error);
+        }
+    };
+
+    const handleExerciseOption = async () => {
+        try {
+            await nftOpt.exerciseOption(option.id, await getTXOptions());
             handleConfirmedTransaction();
         } catch (error) {
             handleError(error);
@@ -57,19 +65,11 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     const handleCreateOption = async () => {
         const txOptions = {
             value: option.strikePrice.toString(),
+            nonce: getCurrentProvider().getTransactionCount(getCurrentAccount()) + 1
         };
 
         try {
             await nftOpt.createOption(option.id, txOptions);
-            handleConfirmedTransaction();
-        } catch (error) {
-            handleError(error);
-        }
-    };
-
-    const handleExerciseOption = async () => {
-        try {
-            await nftOpt.exerciseOption(option.id);
             handleConfirmedTransaction();
         } catch (error) {
             handleError(error);

@@ -9,6 +9,6 @@ export function getAccountDisplayValue(account: string) {
     return account?.slice(0, 6) + "..." + account?.slice(-4);
 }
 
-export function throwTransactionToast(action: "sent" | "failed") {
+export function showToast(action: "sent" | "failed") {
     toast[action === "sent" ? "success" : "error"](`Transaction ${action}`, { duration: TOAST_DURATION });
 }
