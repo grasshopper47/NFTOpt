@@ -98,34 +98,14 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
         const today = endOfDay(new Date());
         let end_day = new Date((option.startDate + option.interval) * 1000);
 
+        // Can exercise only on the end day (both EUROPEAN and AMERICAN)
         if (isSameDay(end_day, today)) { return true; }
 
+        // Can exercise any time before & including the end day
         if (option.flavor === OptionFlavor.AMERICAN) { return isBefore(today, end_day); }
 
         return false;
     };
-
-    // const canExerciseOption = () => {
-    //     if (option.buyer !== currentAccount || !option.startDate) {
-    //         return false;
-    //     }
-
-    //     const startDate = new Date(option.startDate * 1000); // get date from epoch
-    //     const endDate = addDays(startDate, option.interval);
-    //     const today = endOfDay(new Date());
-
-    //     // Can exercise only on the end day
-    //     if (option.flavor === OptionFlavor.EUROPEAN) {
-    //         return isSameDay(today, endDate);
-    //     }
-
-    //     // Can exercise any time before & including the end day
-    //     if (option.flavor === OptionFlavor.AMERICAN) {
-    //         return isSameDay(today, endDate) || isBefore(today, endDate);
-    //     }
-
-    //     return false;
-    // };
 
     const actionsForOpenState = (
         <>
