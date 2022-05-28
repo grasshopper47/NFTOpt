@@ -1,5 +1,5 @@
-import {expect} from "chai";
-import {OptionState} from "../src/utils/types";
+import { expect } from "chai";
+import { OptionState } from "../src/utils/types";
 
 import {
     buyer,
@@ -10,22 +10,22 @@ import {
     dummyOptionRequest,
     publishDummyOptionRequest,
 } from "../src/utils/backend";
-import {NFTOpt} from "../typechain-types";
+import { NFTOpt } from "../typechain-types";
 
 beforeEach("deploy contract", async () => {
     await initializer();
 });
 
 describe("withdrawOptionRequest", function () {
-    it("should fail when option request does not exist", async function () {
+    it("fails when option request does not exist", async function () {
         await publishDummyOptionRequest();
         await expect(NFTOptCTR.connect(buyer).withdrawOptionRequest(9999)).to.be.revertedWith("INVALID_OPTION_ID");
     });
 
-    it("should fail when option not in REQUEST state", async function () {
+    it("fails when option not in REQUEST state", async function () {
         await publishDummyOptionRequest();
         // Fill option
-        await expect(NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice})).to.emit(
+        await expect(NFTOptCTR.connect(seller).createOption(1, { value: dummyOptionRequest.strikePrice })).to.emit(
             NFTOptCTR,
             "Filled"
         );
@@ -33,12 +33,12 @@ describe("withdrawOptionRequest", function () {
         await expect(NFTOptCTR.connect(buyer).withdrawOptionRequest(1)).to.be.revertedWith("INVALID_OPTION_STATE");
     });
 
-    it("should fail when caller is not the buyer", async function () {
+    it("fails when caller is not the buyer", async function () {
         await publishDummyOptionRequest();
         await expect(NFTOptCTR.connect(seller).withdrawOptionRequest(1)).to.be.revertedWith("NOT_AUTHORIZED");
     });
 
-    it("should send premium to buyer on success", async function () {
+    it("sends premium to buyer on success", async function () {
         await publishDummyOptionRequest();
         let buyerBalance0 = await buyer.getBalance();
 
