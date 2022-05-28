@@ -89,8 +89,10 @@ function OptionsListContainer(props: OptionsListContainerProps) {
     };
 
     const success = async (message: string, tx) => {
-        const optionId = tx.args[1].toNumber();
-        handleUpdateOption(optionId);
+        const optionId = tx?.args?.[1]?.toNumber();
+        if (optionId != null) {
+            handleUpdateOption(optionId);
+        }
         toast.success("Successfully " + message);
     };
 
