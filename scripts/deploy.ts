@@ -1,5 +1,5 @@
-import {ethers} from "hardhat";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import { ethers } from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 let buyer: SignerWithAddress;
 
@@ -10,7 +10,7 @@ async function setupAccounts() {
 
 async function create_address_json(address_map: object) {
     const fs = require("fs");
-    fs.writeFileSync("addresses.json", JSON.stringify({localhost: address_map}));
+    fs.writeFileSync("addresses.json", JSON.stringify({ localhost: address_map }));
 }
 
 async function deployContracts() {
@@ -23,16 +23,16 @@ async function deployContracts() {
             InterfaceDetector: InterfaceDetectorCTR.address,
         },
     });
-    const NFTOpt = await NFTOptFactory.deploy();
-    await NFTOpt.deployed();
 
-    console.log("\nDeployed NFTOpt address:", NFTOpt.address);
+    const NFTOptCTR = await NFTOptFactory.deploy();
+    await NFTOptCTR.deployed();
+
+    console.log("\nDeployed NFTOpt address:", NFTOptCTR.address);
 
     // Deploy dummy NFT contract and mint 20 nfts
-    const NFT = await ethers.getContractFactory("DummyNFT");
-    let NFTDummyCTR = await NFT.deploy(buyer.address);
+    const NFTDummyFactory = await ethers.getContractFactory("DummyNFT");
+    let NFTDummyCTR = await NFTDummyFactory.deploy(buyer.address);
     await NFTDummyCTR.deployed();
-
     console.log("Deployed NFTDummy address:", NFTDummyCTR.address);
 
     // Sanity check minting
@@ -41,7 +41,7 @@ async function deployContracts() {
 
     // Update local json addresses
     create_address_json({
-        NFTOpt: NFTOpt.address,
+        NFTOpt: NFTOptCTR.address,
         NFTDummy: NFTDummyCTR.address,
     });
 }
