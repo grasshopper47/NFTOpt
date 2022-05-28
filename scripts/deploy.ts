@@ -1,16 +1,11 @@
-import {ethers} from "hardhat";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import { ethers } from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 let buyer: SignerWithAddress;
 
 async function setupAccounts() {
     const accounts = await ethers.getSigners();
     buyer = accounts[0];
-}
-
-async function create_address_json(address_map: object) {
-    const fs = require("fs");
-    fs.writeFileSync("addresses.json", JSON.stringify({localhost: address_map}));
 }
 
 async function deployContracts() {
@@ -29,31 +24,34 @@ async function deployContracts() {
 
     console.log("\nDeployed NFTOpt address:", NFTOptCTR.address);
 
-    // Deploy dummy NFT contract and mint 20 nfts
-    const NFTDummyFactory = await ethers.getContractFactory("DummyNFT");
-    let NFTDummyCTR = await NFTDummyFactory.deploy(buyer.address);
-    await NFTDummyCTR.deployed();
-    console.log("Deployed NFTDummy address:", NFTDummyCTR.address);
+    // Construct a JSON to write to disk after deployment
+    let addressesJSON: Record<string, any> = {};
+    addressesJSON["NFTOpt"] = NFTOptCTR.address;
 
-    // Sanity check minting
-    let numMinted = (await NFTDummyCTR.balanceOf(buyer.address)).toString();
-    console.log(`\nMinted ${numMinted} NFTs and set owner to '${buyer.address}'`);
+    const contractNames = [
+        "DummyNFT",
+        "JWNFT"
+    ];
 
-    // Deploy JWNFT contract and mint 5 John Wilkinson nfts
-    const JWNFT = await ethers.getContractFactory("JWNFT");
-    let JWNFTCTR = await JWNFT.deploy(buyer.address);
-    await JWNFTCTR.deployed();
-    console.log("Deployed JWNFT address:", JWNFTCTR.address);
+    // Deploy each specified collection
+    for (const name of contractNames) {
+        const NFTFactory = await ethers.getContractFactory(name);
+        let NFTContract = await NFTFactory.deploy(buyer.address);
+        await NFTContract.deployed();
 
-    let numJWMinted = (await JWNFTCTR.balanceOf(buyer.address)).toString();
-    console.log(`\nMinted ${5} NFTs and set owner to '${buyer.address}'`);
+        console.log(`Deployed ${name} @ address:`, NFTContract.address);
 
-    // Update local json addresses
-    create_address_json({
-        NFTOpt: NFTOptCTR.address,
-        NFTDummy: NFTDummyCTR.address,
-        NFTJW: JWNFTCTR.address,
-    });
+        // Store address
+        addressesJSON[name] = NFTContract.address;
+
+        // Sanity check minting
+        let numMinted = (await NFTContract.balanceOf(buyer.address)).toString();
+        console.log(`-> Minted ${numMinted} NFTs and set owner to '${buyer.address}'\n`);
+    }
+
+    // Update addresses.json file with published contract addresses
+    const fs = require("fs");
+    await fs.writeFileSync("addresses.json", JSON.stringify({ localhost: addressesJSON }));
 }
 
 async function deployLocalDevEnv() {
