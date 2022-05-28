@@ -10,17 +10,16 @@ import {
     TextField,
 } from "@mui/material";
 import clsx from "clsx";
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import Layout from "../components/Layout";
-import { useAccount, useContracts } from "../providers/contexts";
-import { floatNumberRegex, SECONDS_IN_A_DAY, TOAST_DURATION } from "../utils/constants";
-import { NFTAsset, OptionFlavor } from "../utils/types";
+import {useAccount, useContracts} from "../providers/contexts";
+import {floatNumberRegex, SECONDS_IN_A_DAY, TOAST_DURATION} from "../utils/constants";
+import {NFTAsset, OptionFlavor} from "../utils/types";
 import classes from "./styles/CreateOption.module.scss";
-import { ethers } from "ethers";
-import { dummyNFT } from "../utils/dummyData";
+import {ethers} from "ethers";
 import toast from "react-hot-toast";
 import { showToast } from "../utils/frontend";
-import { fetchAssetsForAddress } from "../utils/NFT/localhost";
+import {fetchAssetsForAddress} from "../utils/NFT/localhost";
 import { getTXOptions } from "../utils/metamask";
 
 type FormState = {
@@ -31,19 +30,20 @@ type FormState = {
     flavor?: OptionFlavor;
 };
 
+const defaultFormState: FormState = {
+    asset: undefined,
+    premium: "",
+    strikePrice: "",
+    interval: undefined,
+    flavor: OptionFlavor.EUROPEAN,
+};
+
 function CreateOption() {
     const account = useAccount();
-    const { nftOpt } = useContracts();
+    const {nftOpt} = useContracts();
 
-    // TODO Stefana: cleanup dummy data
-    const [assets, setAssets] = useState<NFTAsset[]>([dummyNFT]);
-    const [formState, setFormState] = useState<FormState>({
-        asset: undefined,
-        premium: "",
-        strikePrice: "",
-        interval: undefined,
-        flavor: OptionFlavor.EUROPEAN,
-    });
+    const [assets, setAssets] = useState<NFTAsset[]>([]);
+    const [formState, setFormState] = useState<FormState>(defaultFormState);
 
     useEffect(() => {
         if (!account) {
@@ -130,6 +130,8 @@ function CreateOption() {
             );
 
             showToast("sent");
+
+            setFormState(defaultFormState);
         } catch (error) {
             if (error.code === 4001) { // Metamask TX Cancel
                 toast.error("User canceled");
@@ -147,7 +149,11 @@ function CreateOption() {
                 <div className={classes.form}>
                     <p className={classes.title}>Create PUT Option</p>
                     <div className={classes.fieldWrapper}>
-                        <Select value={formState.asset?.tokenId.toString() ?? -1} placeholder="Select your NFT">
+                        <Select
+                            MenuProps={{classes: {paper: classes.menuPaper}}}
+                            value={formState.asset?.tokenId.toString() ?? -1}
+                            placeholder="Select your NFT"
+                        >
                             <MenuItem value={-1}>Select your NFT</MenuItem>
                             {assets.map((asset) => (
                                 <MenuItem
@@ -241,7 +247,7 @@ function CreateOption() {
                     {formState.asset ? (
                         <img src={formState.asset.image} alt="" />
                     ) : (
-                        Array.from({ length: 3 }).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
+                        Array.from({length: 3}).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
                     )}
                 </div>
             </div>

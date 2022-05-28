@@ -1,5 +1,5 @@
 import Layout from "../components/Layout";
-import {team} from "../utils/team";
+import { team } from "../utils/team";
 import classes from "./styles/Team.module.scss";
 import Image from "next/image";
 
@@ -12,27 +12,27 @@ function TeamPage() {
                         <Image
                             src={`/images/${member.image}`}
                             alt={member.name}
-                            width={300}
-                            height={200}
+                            width={10}
+                            height={10}
+
                             layout="responsive"
                         />
                         <div className={classes.content}>
                             <p className={classes.title}>{member.name}</p>
-                            <div>
-                                {member.social.map(({name, url}, j) => (
-                                    <div key={`social-${i}-${j}`} className={classes.social}>
-                                        <strong>{name}:</strong>
-                                        <a href={url} target="_blank">
-                                            {url}
-                                        </a>
-                                    </div>
-                                ))}
-                            </div>
+                            {member.social.map(({ name, url }, j) => (
+                                <div key={`social-${i}-${j}`} className={classes.social}>
+                                    <strong>{name}:</strong>
+                                    <br />
+                                    <a href={url} target="_blank">
+                                        {url}
+                                    </a>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 ))}
             </div>
-        </Layout>
+        </Layout >
     );
 }
 

@@ -1,13 +1,14 @@
 @import "src/styles/variables.scss";
 
 .root {
-    max-width: 90%;
+    max-width: 720px;
+    width: 90%;
     margin: auto;
     margin-top: 60px;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    row-gap: 26px;
-    column-gap: 26px;
+    row-gap: 8%;
+    column-gap: 8%;
     overflow: auto;
 }
 
@@ -21,7 +22,7 @@
 }
 
 .title {
-    font-size: 24px;
+    font-size: 14pt;
     margin: 0;
     font-weight: 600;
 }
@@ -29,15 +30,19 @@
 .social {
     display: flex;
     align-items: center;
-    margin: 10px 0;
+    margin: 60px 0;
     max-width: 100%;
+
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    font-size: 10pt;
+
     strong {
         margin-right: 6px;
         opacity: 0.7;
     }
+
     a {
         text-decoration: none;
         color: $color-tertiary;
@@ -50,6 +55,7 @@
 
 .content {
     padding: 20px 12px;
+
     > :last-child {
         margin-top: 20px;
     }

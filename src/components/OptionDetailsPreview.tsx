@@ -1,12 +1,13 @@
-import { ArrowBackIosRounded, ArrowRightAlt } from "@mui/icons-material";
-import { Button, IconButton, Link } from "@mui/material";
+import {ArrowBackIosRounded, ArrowRightAlt} from "@mui/icons-material";
+import {Button, IconButton, Link} from "@mui/material";
 import { endOfDay, isBefore, isSameDay } from "date-fns";
-import { ethers } from "ethers";
+import {ethers} from "ethers";
 import toast from "react-hot-toast";
-import { useContracts } from "../providers/contexts";
+import {useContracts} from "../providers/contexts";
+import { SECONDS_IN_A_DAY, TOAST_DURATION } from "../utils/constants";
 import { getAccountDisplayValue, getCorrectPlural, showToast } from "../utils/frontend";
 import { getCurrentAccount, getCurrentProvider, getTXOptions } from "../utils/metamask";
-import { OptionFlavor, OptionState, OptionWithNFTDetails } from "../utils/types";
+import {OptionFlavor, OptionState, OptionWithNFTDetails} from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
 
 type OptionDetailsPreviewProps = {
@@ -16,9 +17,9 @@ type OptionDetailsPreviewProps = {
 };
 
 function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
-    const { currentAccount, option, onSelectOption } = props;
+    const {currentAccount, option, onSelectOption} = props;
 
-    const { nftOpt } = useContracts();
+    const {nftOpt} = useContracts();
 
     const handleConfirmedTransaction = () => {
         showToast("sent");
@@ -135,7 +136,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
             </IconButton>
             <div className={classes.detailsContainer}>
                 <div>
-                    <img style={{ backgroundImage: `url(${option.asset.image})` }} alt="" />
+                    <img style={{backgroundImage: `url(${option.asset.image})`}} alt="" />
                     <Link href={option.asset.url} target="_blank" className={classes.link}>
                         View on Opensea
                         <ArrowRightAlt />
@@ -178,7 +179,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                                 <span>Buyer:</span>
                                 <span> {getAccountDisplayValue(option.buyer)}</span>
                             </div>
-                            {option.seller ? (
+                            {option.seller && option.seller !== addressEmpty ? (
                                 <div className={classes.field}>
                                     <span>Seller:</span>
                                     <span> {getAccountDisplayValue(option.seller)}</span>
@@ -191,10 +192,10 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                         {option.state === OptionState.CLOSED
                             ? null
                             : option.state === OptionState.REQUEST
-                                ? actionsForRequestState
-                                : option.state === OptionState.OPEN
-                                    ? actionsForOpenState
-                                    : null}
+                            ? actionsForRequestState
+                            : option.state === OptionState.OPEN
+                            ? actionsForOpenState
+                            : null}
                     </div>
                 </div>
             </div>
