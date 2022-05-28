@@ -6,14 +6,14 @@ import toast from "react-hot-toast";
 import { useContracts } from "../providers/contexts";
 import { getCurrentProvider, getSignedContract, getTXOptions } from "../utils/metamask";
 import { getAccountDisplayValue, getCorrectPlural, showToast } from "../utils/frontend";
-import { OptionFlavor, OptionState, OptionWithNFTDetails } from "../utils/types";
+import { OptionFlavor, OptionState, OptionWithAsset } from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
 import { addressEmpty } from "../utils/constants";
 
 type OptionDetailsPreviewProps = {
     currentAccount: string;
-    option: OptionWithNFTDetails;
-    onSelectOption: (optionWithNFTDetails: OptionWithNFTDetails | null) => void;
+    option: OptionWithAsset;
+    onSelectOption: (OptionWithAsset: OptionWithAsset | null) => void;
 };
 
 function OptionDetailsPreview(props: OptionDetailsPreviewProps) {

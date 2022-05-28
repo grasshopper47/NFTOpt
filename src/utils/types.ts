@@ -56,4 +56,4 @@ export interface Option_SOLIDITY {
     state: OptionState;
 }
 
-export type OptionWithNFTDetails = Omit<Option, "nftContract" | "nftId"> & { asset: NFTAsset };
+export type OptionWithAsset = Omit<Option, "nftContract" | "nftId"> & { asset: NFTAsset };

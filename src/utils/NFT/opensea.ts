@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { NFTAsset, Option, OptionWithNFTDetails } from "../types";
+import { NFTAsset, Option, OptionWithAsset } from "../types";
 
 export async function fetchAssetsForAddress(account: string, setAssetsCallback: (assets: NFTAsset[]) => void) {
     const assets: NFTAsset[] = [];
@@ -57,9 +57,9 @@ export async function fetchNFTDetailsForOneOptions(
 
 export async function fetchNFTDetailsForMultipleOptions(
     options: Option[],
-    setOptionsCallback: (optionsWithNFTDetails: OptionWithNFTDetails[]) => void
+    setOptionsCallback: (optionsWithAsset: OptionWithAsset[]) => void
 ) {
-    const optionsWithNFTDetails: OptionWithNFTDetails[] = [];
+    const optionsWithAsset: OptionWithAsset[] = [];
     let asset: NFTAsset | null = null;
 
     for (let option of options) {
@@ -76,7 +76,7 @@ export async function fetchNFTDetailsForMultipleOptions(
                     image: res.image_preview_url,
                     url: res.permalink,
                 };
-                optionsWithNFTDetails.push({
+                optionsWithAsset.push({
                     ...option,
                     asset,
                 });
@@ -86,5 +86,5 @@ export async function fetchNFTDetailsForMultipleOptions(
             });
     }
 
-    setOptionsCallback(optionsWithNFTDetails);
+    setOptionsCallback(optionsWithAsset);
 }

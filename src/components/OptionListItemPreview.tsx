@@ -1,12 +1,12 @@
 import { AccessTime } from "@mui/icons-material";
 import { ethers } from "ethers";
 import { getCorrectPlural } from "../utils/frontend";
-import { OptionWithNFTDetails } from "../utils/types";
+import { OptionWithAsset } from "../utils/types";
 import classes from "./styles/OptionListItemPreview.module.scss";
 
 type OptionListItemPreviewProps = {
-    option: OptionWithNFTDetails;
-    onSelectOptionForPreview: (optionWithNFTDetails: OptionWithNFTDetails | null) => void;
+    option: OptionWithAsset;
+    onSelectOptionForPreview: (OptionWithAsset: OptionWithAsset | null) => void;
 };
 
 function OptionListItemPreview(props: OptionListItemPreviewProps) {

@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers";
 import { NFTOpt } from "../../typechain-types/contracts/NFTOpt";
-import { Option, OptionWithNFTDetails } from "./types";
+import { Option, OptionWithAsset } from "./types";
 import { addressEmpty, SECONDS_IN_A_DAY } from "./constants";
 import { fetchNFTImage } from "./NFT/localhost";
 import { getSignedContract } from "./metamask";
@@ -58,8 +58,8 @@ export async function loadContractOptions(contract: NFTOpt): Promise<Option[]> {
 export async function loadOptionWithAsset(
     contract: NFTOpt,
     optionId: number
-): Promise<OptionWithNFTDetails> {
-    let option: OptionWithNFTDetails = null;
+): Promise<OptionWithAsset> {
+    let option: OptionWithAsset = null;
 
     try {
         const optionSolidity = await contract.options(optionId);

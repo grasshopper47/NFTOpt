@@ -1,6 +1,6 @@
 import { Tab, Tabs } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { OptionFilterOwnership, OptionState, OptionWithNFTDetails } from "../utils/types";
+import { OptionFilterOwnership, OptionState, OptionWithAsset } from "../utils/types";
 import OptionDetailsPreview from "./OptionDetailsPreview";
 import OptionListItemPreview from "./OptionListItemPreview";
 import classes from "./styles/OptionsListContainer.module.scss";
@@ -42,15 +42,15 @@ function OptionsListContainer(props: OptionsListContainerProps) {
 
     const [activeTabIndex, setActiveTabIndex] = useState(0);
 
-    const [optionsWithNFTDetails, setOptionsWithNFTDetails] = useState<OptionWithNFTDetails[]>([]);
-    const [filteredOptions, setFilteredOptions] = useState<OptionWithNFTDetails[]>([]);
-    const [selectedOptionForPreview, setSelectedOptionForPreview] = useState<OptionWithNFTDetails | null>(null);
+    const [optionsWithAsset, setOptionsWithAsset] = useState<OptionWithAsset[]>([]);
+    const [filteredOptions, setFilteredOptions] = useState<OptionWithAsset[]>([]);
+    const [selectedOptionForPreview, setSelectedOptionForPreview] = useState<OptionWithAsset | null>(null);
 
     // Filter by active tab
     useEffect(() => {
         const state = optionStateTabs[activeTabIndex].optionState;
         setFilteredOptions(
-            optionsWithNFTDetails?.filter((option) =>
+            optionsWithAsset?.filter((option) =>
                 state === OptionState.OPEN || state === OptionState.REQUEST
                     ? option.state === state
                     : option.state === OptionState.WITHDRAWN || option.state === OptionState.CLOSED
@@ -59,17 +59,17 @@ function OptionsListContainer(props: OptionsListContainerProps) {
         if (selectedOptionForPreview) {
             setSelectedOptionForPreview(null);
         }
-    }, [activeTabIndex, optionsWithNFTDetails]);
+    }, [activeTabIndex, optionsWithAsset]);
 
     const handleLoadOptions = async () => {
         const options = await loadContractOptions(nftOpt);
-        const optionsWithNFTDetails = await fetchNFTDetailsForMultipleOptions(options);
+        const optionsWithAsset = await fetchNFTDetailsForMultipleOptions(options);
         if (filterOwnership === OptionFilterOwnership.ALL) {
-            setOptionsWithNFTDetails(optionsWithNFTDetails);
+            setOptionsWithAsset(optionsWithAsset);
         }
         if (filterOwnership === OptionFilterOwnership.ALL) {
-            setOptionsWithNFTDetails(
-                optionsWithNFTDetails.filter((option) => option.buyer === account || option.seller === account)
+            setOptionsWithAsset(
+                optionsWithAsset.filter((option) => option.buyer === account || option.seller === account)
             );
         }
     };
@@ -85,7 +85,7 @@ function OptionsListContainer(props: OptionsListContainerProps) {
     // Attach listeners
     const handleUpdateOption = async (optionId: number) => {
         const updatedOption = await loadOptionWithAsset(nftOpt, optionId);
-        setOptionsWithNFTDetails((prev) => [...prev.filter((x) => x.id !== optionId), updatedOption]);
+        setOptionsWithAsset((prev) => [...prev.filter((x) => x.id !== optionId), updatedOption]);
     };
 
     const success = async (message: string, tx) => {

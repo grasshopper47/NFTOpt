@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { NFTAsset, Option, OptionWithNFTDetails } from "../types";
+import { NFTAsset, Option, OptionWithAsset } from "../types";
 import { getSignedContract, getTXOptions } from "../metamask";
 import addresses from "../../../addresses.json";
 import { MAX_MINTABLE_TOKENS } from "../constants";
@@ -102,27 +102,24 @@ export async function fetchAssetsForAddress(account: string, setAssetsCallback: 
     setAssetsCallback(assets);
 }
 
-export async function fetchNFTDetailsForMultipleOptions(options: Option[]): Promise<OptionWithNFTDetails[]> {
-    const optionsWithNFTDetails: OptionWithNFTDetails[] = [];
-    let asset: NFTAsset | null = null;
+export async function fetchNFTDetailsForMultipleOptions(options: Option[]): Promise<OptionWithAsset[]> {
+    const optionsWithAsset: OptionWithAsset[] = [];
 
     for (let option of options) {
 
         const NFTContract = getSignedContract(option.nftContract, abi_IERC721);
 
-        asset = {
-            id: option.id,
-            tokenId: option.nftId,
-            address: option.nftContract,
-            name: await NFTContract.name() + " - " + option.nftId,
-            image: await fetchNFTImage(option.nftContract, option.nftId),
-        };
-
-        optionsWithNFTDetails.push({
+        optionsWithAsset.push({
             ...option,
-            asset,
+            asset: {
+                id: option.id,
+                tokenId: option.nftId,
+                address: option.nftContract,
+                name: await NFTContract.name() + " - " + option.nftId,
+                image: await fetchNFTImage(option.nftContract, option.nftId),
+            },
         });
     }
 
-    return optionsWithNFTDetails;
+    return optionsWithAsset;
 }
