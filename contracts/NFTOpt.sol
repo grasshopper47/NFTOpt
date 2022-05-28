@@ -294,7 +294,8 @@ contract NFTOpt {
     }
 
     /// @custom:author LuisImagiire
-    /// @notice Description
+    /// @notice Exercises an active option when msg.sender is allowed to execute
+    /// @param _optionId: id of the option to exercise
     function exerciseOption(uint256 _optionId)
     external
     payable
