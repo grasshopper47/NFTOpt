@@ -1,86 +1,124 @@
-import { ArrowBackIosRounded, ArrowRightAlt } from "@mui/icons-material";
-import { Button, IconButton, Link } from "@mui/material";
-import { endOfDay, isBefore, isSameDay } from "date-fns";
-import { ethers } from "ethers";
+import {ArrowBackIosRounded} from "@mui/icons-material";
+import {Button, IconButton} from "@mui/material";
+import {endOfDay, isBefore, isSameDay} from "date-fns";
+import {ethers} from "ethers";
 import toast from "react-hot-toast";
-import { useContracts } from "../providers/contexts";
-import { getCurrentProvider, getSignedContract, getTXOptions } from "../utils/metamask";
-import { getAccountDisplayValue, getCorrectPlural, showToast } from "../utils/frontend";
-import { OptionFlavor, OptionState, OptionWithAsset } from "../utils/types";
+import {useContracts} from "../providers/contexts";
+import {getCurrentProvider, getSignedContract, getTXOptions} from "../utils/metamask";
+import {getAccountDisplayValue, getCorrectPlural, showToast} from "../utils/frontend";
+import {OptionFlavor, OptionState, OptionWithAsset} from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
-import { addressEmpty } from "../utils/constants";
-import { useState } from "react";
+import {addressEmpty, SECONDS_IN_A_DAY} from "../utils/constants";
+import {useState} from "react";
 
 type OptionDetailsPreviewProps = {
     currentAccount: string;
     option: OptionWithAsset;
     onSelectOption: (OptionWithAsset: OptionWithAsset | null) => void;
+    lastSelectedOptionId: React.MutableRefObject<number | null>;
 };
 
 function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
-    const { currentAccount, option, onSelectOption } = props;
+    const {currentAccount, option, onSelectOption, lastSelectedOptionId} = props;
 
-    const { nftOpt } = useContracts();
+    const {nftOpt} = useContracts();
 
     const [approvedNFT, setApprovedNFT] = useState(true);
 
-    if (option.state === OptionState.OPEN) {
-        const abi_IERC721: any = [
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "to",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "tokenId",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "approve",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "tokenId",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "getApproved",
-                "outputs": [
-                    {
-                        "internalType": "address",
-                        "name": "",
-                        "type": "address"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-        ];
+    let abi_IERC721;
+    const handleCheckApproved = async () => {
+        if (option.state === OptionState.OPEN) {
+            abi_IERC721 = [
+                {
+                    inputs: [
+                        {
+                            internalType: "address",
+                            name: "to",
+                            type: "address",
+                        },
+                        {
+                            internalType: "uint256",
+                            name: "tokenId",
+                            type: "uint256",
+                        },
+                    ],
+                    name: "approve",
+                    outputs: [],
+                    stateMutability: "nonpayable",
+                    type: "function",
+                },
+                {
+                    inputs: [
+                        {
+                            internalType: "uint256",
+                            name: "tokenId",
+                            type: "uint256",
+                        },
+                    ],
+                    name: "getApproved",
+                    outputs: [
+                        {
+                            internalType: "address",
+                            name: "",
+                            type: "address",
+                        },
+                    ],
+                    stateMutability: "view",
+                    type: "function",
+                },
+                {
+                    anonymous: false,
+                    inputs: [
+                        {
+                            indexed: true,
+                            internalType: "address",
+                            name: "owner",
+                            type: "address",
+                        },
+                        {
+                            indexed: true,
+                            internalType: "address",
+                            name: "approved",
+                            type: "address",
+                        },
+                        {
+                            indexed: true,
+                            internalType: "uint256",
+                            name: "tokenId",
+                            type: "uint256",
+                        },
+                    ],
+                    name: "Approval",
+                    type: "event",
+                },
+            ];
 
-        let NFTContract = getSignedContract(option.asset.address, abi_IERC721);
+            let NFTContract = getSignedContract(option.asset.address, abi_IERC721);
 
-        NFTContract.getApproved(option.asset.tokenId).then((res) => {
-            if (res != nftOpt.address) {
-                setApprovedNFT(false);
-            }
-        });
-    }
+            await NFTContract.getApproved(option.asset.tokenId).then((res) => {
+                if (res != nftOpt.address) {
+                    setApprovedNFT(false);
+                }
+            });
+        }
+    };
+
+    handleCheckApproved();
 
     const handleConfirmedTransaction = () => {
         showToast("sent");
-        onSelectOption(undefined);
+
+        if (approvedNFT) {
+            lastSelectedOptionId.current = option.id;
+
+            // Reset panel to list view
+            onSelectOption(undefined);
+        }
     };
 
     const handleError = (error) => {
-        if (error.code === 4001) { // Metamask TX Cancel
+        if (error.code === 4001) {
+            // Metamask TX Cancel
             toast.error("User canceled");
             return;
         }
@@ -111,10 +149,19 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
         try {
             if (!approvedNFT) {
                 let NFTContract = getSignedContract(option.asset.address, abi_IERC721);
-                NFTContract.connect(getCurrentProvider().getSigner())
-                    .approve(nftOpt.address, option.asset.tokenId, await getTXOptions());
-            }
-            else {
+
+                NFTContract.on("Approval", () => {
+                    if (!approvedNFT) {
+                        setApprovedNFT(true);
+                    }
+                });
+
+                await NFTContract.connect(getCurrentProvider().getSigner()).approve(
+                    nftOpt.address,
+                    option.asset.tokenId,
+                    await getTXOptions()
+                );
+            } else {
                 await nftOpt.exerciseOption(option.id, await getTXOptions());
             }
 
@@ -127,7 +174,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     const handleCreateOption = async () => {
         const txOptions = {
             value: option.strikePrice.toString(),
-            nonce: (await getTXOptions()).nonce
+            nonce: (await getTXOptions()).nonce,
         };
 
         try {
@@ -146,7 +193,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                 </Button>
             ) : (
                 <Button variant="contained" className={classes.btnPrimary} onClick={handleCreateOption}>
-                    {approvedNFT ? "Create Option" : "Approve NFT"}
+                    Create Option
                 </Button>
             )}
         </>
@@ -158,13 +205,17 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
         }
 
         const today = endOfDay(new Date());
-        let end_day = new Date((option.startDate + option.interval) * 1000);
+        let end_day = new Date((option.startDate + option.interval * SECONDS_IN_A_DAY) * 1000);
 
         // Can exercise only on the end day (both EUROPEAN and AMERICAN)
-        if (isSameDay(end_day, today)) { return true; }
+        if (isSameDay(end_day, today)) {
+            return true;
+        }
 
         // Can exercise any time before & including the end day
-        if (option.flavor === OptionFlavor.AMERICAN) { return isBefore(today, end_day); }
+        if (option.flavor === OptionFlavor.AMERICAN) {
+            return isBefore(today, end_day);
+        }
 
         return false;
     };
@@ -174,14 +225,16 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
             {option.buyer === currentAccount ? (
                 canExerciseOption() ? (
                     <>
-                        <Button variant="outlined" className={classes.btnSecondary} onClick={handleCancelOption}>
-                            Cancel option
-                        </Button>
+                        {approvedNFT ? null : (
+                            <Button variant="outlined" className={classes.btnSecondary} onClick={handleCancelOption}>
+                                Cancel option
+                            </Button>
+                        )}
                         <Button variant="contained" className={classes.btnPrimary} onClick={handleExerciseOption}>
                             {approvedNFT ? "Exercise Option" : "Approve NFT"}
                         </Button>
                     </>
-                ) : (
+                ) : approvedNFT ? null : (
                     <Button variant="outlined" className={classes.btnSecondary} onClick={handleCancelOption}>
                         Cancel option
                     </Button>
@@ -197,7 +250,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
             </IconButton>
             <div className={classes.detailsContainer}>
                 <div>
-                    <img style={{ backgroundImage: `url(${option.asset.image})` }} alt="" />
+                    <img style={{backgroundImage: `url(${option.asset.image})`}} alt="" />
                 </div>
                 <div>
                     <p className={classes.title}>{option.asset.name}</p>
@@ -230,7 +283,9 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                             </div>
                             <div className={classes.field}>
                                 <span>Option style: </span>
-                                <span>{option.flavor === OptionFlavor.EUROPEAN ? "European" : "American"}</span>
+                                <span className={classes.flavor}>
+                                    {option.flavor === OptionFlavor.EUROPEAN ? "European" : "American"}
+                                </span>
                             </div>
                             <div className={classes.field}>
                                 <span>Buyer:</span>
@@ -249,10 +304,10 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                         {option.state === OptionState.CLOSED
                             ? null
                             : option.state === OptionState.REQUEST
-                                ? actionsForRequestState
-                                : option.state === OptionState.OPEN
-                                    ? actionsForOpenState
-                                    : null}
+                            ? actionsForRequestState
+                            : option.state === OptionState.OPEN
+                            ? actionsForOpenState
+                            : null}
                     </div>
                 </div>
             </div>

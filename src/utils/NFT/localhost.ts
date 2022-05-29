@@ -1,60 +1,60 @@
-import { BigNumber } from "ethers";
-import { NFTAsset, Option, OptionWithAsset } from "../types";
-import { getSignedContract, getTXOptions } from "../metamask";
+import {BigNumber} from "ethers";
+import {NFTAsset, Option, OptionWithAsset} from "../types";
+import {getSignedContract, getTXOptions} from "../metamask";
 import addresses from "../../../addresses.json";
-import { MAX_MINTABLE_TOKENS } from "../constants";
+import {MAX_MINTABLE_TOKENS} from "../constants";
 
 const abi_IERC721 = [
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256",
+                internalType: "uint256",
+                name: "tokenId",
+                type: "uint256",
             },
         ],
-        "name": "ownerOf",
-        "outputs": [
+        name: "ownerOf",
+        outputs: [
             {
-                "internalType": "address",
-                "name": "",
-                "type": "address",
+                internalType: "address",
+                name: "",
+                type: "address",
             },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: "view",
+        type: "function",
     },
     {
-        "inputs": [],
-        "name": "name",
-        "outputs": [
+        inputs: [],
+        name: "name",
+        outputs: [
             {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            }
+                internalType: "string",
+                name: "",
+                type: "string",
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: "view",
+        type: "function",
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256",
+                internalType: "uint256",
+                name: "tokenId",
+                type: "uint256",
             },
         ],
-        "name": "tokenURI",
-        "outputs": [
+        name: "tokenURI",
+        outputs: [
             {
-                "internalType": "string",
-                "name": "",
-                "type": "string",
+                internalType: "string",
+                name: "",
+                type: "string",
             },
         ],
-        "stateMutability": "view",
-        "type": "function",
+        stateMutability: "view",
+        type: "function",
     },
 ];
 
@@ -71,9 +71,11 @@ export async function fetchAssetsForAddress(account: string, setAssetsCallback: 
 
     const contractNames = Object.keys(addresses["localhost"]);
 
-    let j = -1;
+    let j = 0;
     for (const name of contractNames) {
-        if (name === "NFTOpt") { continue; }
+        if (name === "NFTOpt") {
+            continue;
+        }
 
         const NFTContractAddress = addresses["localhost"][name];
 
@@ -90,7 +92,7 @@ export async function fetchAssetsForAddress(account: string, setAssetsCallback: 
                     id: i + j * MAX_MINTABLE_TOKENS,
                     tokenId: _tokenId,
                     address: NFTContractAddress,
-                    name: await NFTContract.name() + " - " + _tokenId,
+                    name: (await NFTContract.name()) + " - " + _tokenId,
                     image: await fetchNFTImage(NFTContractAddress, _tokenId),
                 });
             }
@@ -106,7 +108,6 @@ export async function fetchNFTDetailsForMultipleOptions(options: Option[]): Prom
     const optionsWithAsset: OptionWithAsset[] = [];
 
     for (let option of options) {
-
         const NFTContract = getSignedContract(option.nftContract, abi_IERC721);
 
         optionsWithAsset.push({
@@ -115,7 +116,7 @@ export async function fetchNFTDetailsForMultipleOptions(options: Option[]): Prom
                 id: option.id,
                 tokenId: option.nftId,
                 address: option.nftContract,
-                name: await NFTContract.name() + " - " + option.nftId,
+                name: (await NFTContract.name()) + " - " + option.nftId,
                 image: await fetchNFTImage(option.nftContract, option.nftId),
             },
         });

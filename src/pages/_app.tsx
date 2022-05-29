@@ -23,24 +23,6 @@ export default function App({Component, pageProps}: AppProps) {
     const [loaded, setLoaded] = useState(false);
     const [contracts, setContracts] = useState(null);
 
-    const success = async (_account: string, message: string) => {
-        let newBlockNo = await getCurrentProvider().getBlockNumber();
-
-        const localStorageExists = localStorage.getItem(`${_account}-blockno-${newBlockNo}-emitted`);
-        if (localStorageExists) {
-            return;
-        }
-
-        toast.success("Successfully " + message);
-        localStorage.setItem(`${_account}-blockno-${newBlockNo}-emitted`, "true");
-    };
-
-    const attachEventListeners = (contract: NFTOpt, account: string) => {
-        contract.on("NewRequest", (from, amount, tx) => {
-            success(account, "published a new request");
-        });
-    };
-
     useEffect(() => {
         load();
     }, []);
@@ -60,8 +42,6 @@ export default function App({Component, pageProps}: AppProps) {
 
         setContracts({nftOpt: contract});
         setAccount(currentAccount);
-
-        attachEventListeners(contract, currentAccount);
 
         setLoaded(true);
     };

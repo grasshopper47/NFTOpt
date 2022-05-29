@@ -1,5 +1,5 @@
 import {Tab, Tabs} from "@mui/material";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {OptionFilterOwnership, OptionState, OptionWithAsset} from "../utils/types";
 import OptionDetailsPreview from "./OptionDetailsPreview";
 import OptionListItemPreview from "./OptionListItemPreview";
@@ -26,7 +26,7 @@ const optionStateTabs: OptionStateTab[] = [
         optionState: OptionState.REQUEST,
     },
     {
-        name: "Filled",
+        name: "Open",
         optionState: OptionState.OPEN,
     },
     {
@@ -46,6 +46,7 @@ function OptionsListContainer(props: OptionsListContainerProps) {
     const [optionsWithAsset, setOptionsWithAsset] = useState<OptionWithAsset[]>([]);
     const [filteredOptions, setFilteredOptions] = useState<OptionWithAsset[]>([]);
     const [selectedOptionForPreview, setSelectedOptionForPreview] = useState<OptionWithAsset | null>(null);
+    const lastSelectedOptionId = useRef<number | null>(null); // TODO: make an array for options in progress
 
     // Filter by active tab
     useEffect(() => {
@@ -77,40 +78,40 @@ function OptionsListContainer(props: OptionsListContainerProps) {
 
     const handleUpdateOption = async (optionId: number) => {
         const updatedOption = await loadOptionWithAsset(nftOpt, optionId);
+        console.log(updatedOption);
         setOptionsWithAsset((prev) => [...prev.filter((x) => x.id !== optionId), updatedOption]);
     };
 
-    const success = async (message: string, tx) => {
-        let newBlockNo = await getCurrentProvider().getBlockNumber();
-
-        const localStorageExists = localStorage.getItem(`${account}-blockno-${newBlockNo}-emitted`);
-        if (localStorageExists) {
+    const success = async (message: string, tabIndex: number, optionId: number) => {
+        if (lastSelectedOptionId.current == null || optionId !== lastSelectedOptionId.current) {
             return;
         }
-        const optionId = tx?.args?.[1]?.toNumber();
+
+        setActiveTabIndex(tabIndex);
+
         if (optionId != null) {
             handleUpdateOption(optionId);
         }
         toast.success("Successfully " + message);
-        localStorage.setItem(`${account}-blockno-${newBlockNo}-emitted`, "true");
+        // TODO: remove from the ref array the current updated option
     };
 
     const attachEventListeners = () => {
         nftOpt.on("Exercised", (from, amount, tx) => {
-            success("exercised the option request", tx);
-            setActiveTabIndex(2);
+            const optionId = tx?.args?.[0]?.toNumber();
+            success("exercised the option request", 2, optionId);
         });
-        nftOpt.on("Filled", (from, amount, tx) => {
-            success("filled the option request", tx);
-            setActiveTabIndex(1);
+        nftOpt.on("Opened", (from, amount, tx) => {
+            const optionId = tx?.args?.[1]?.toNumber();
+            success("opened the option request", 1, optionId);
         });
         nftOpt.on("Canceled", (from, amount, tx) => {
-            success("canceled the option request", tx);
-            setActiveTabIndex(2);
+            const optionId = tx?.args?.[1]?.toNumber();
+            success("canceled the option request", 2, optionId);
         });
         nftOpt.on("Withdrawn", (from, amount, tx) => {
-            success("withdrawn the option request", tx);
-            setActiveTabIndex(2);
+            const optionId = tx?.args?.[1]?.toNumber();
+            success("withdrawn the option request", 0, optionId);
         });
     };
 
@@ -145,6 +146,7 @@ function OptionsListContainer(props: OptionsListContainerProps) {
                         currentAccount={account}
                         option={selectedOptionForPreview}
                         onSelectOption={setSelectedOptionForPreview}
+                        lastSelectedOptionId={lastSelectedOptionId}
                     />
                 </div>
             ) : (

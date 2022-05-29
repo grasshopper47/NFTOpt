@@ -36,7 +36,7 @@ contract NFTOpt {
     /// @dev -- EVENTS --------------------------------
     event NewRequest(address, uint256);
     event Exercised (uint256);
-    event Filled    (address, uint256);
+    event Opened    (address, uint256);
     event Canceled  (address, uint256);
     event Withdrawn (address, uint256);
 
@@ -225,7 +225,7 @@ contract NFTOpt {
             revert FUNDS_TRANSFER_FAILED();
         }
 
-        emit Filled(msg.sender, _optionId);
+        emit Opened(msg.sender, _optionId);
     }
 
     /// @custom:author ShababAli
