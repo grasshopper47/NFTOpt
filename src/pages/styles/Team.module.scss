@@ -1,26 +1,24 @@
 @import "src/styles/variables.scss";
 
 .root {
-    max-width: 720px;
-    width: 90%;
     margin: auto;
     margin-top: 60px;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     row-gap: 8%;
     column-gap: 8%;
     overflow: auto;
     padding-right: 7px;
-    height: calc(100% - 20px);
 }
 
 .card {
     border-radius: 8px;
     border: 2px solid $text-tertiary;
-    // cursor: pointer;
     user-select: none;
     transition: all 150ms ease-in-out;
     position: relative;
+    overflow: hidden;
+    min-height: max-content;
 }
 
 .title {
@@ -33,13 +31,13 @@
 .social {
     display: flex;
     align-items: center;
-    margin: 60px 0;
     max-width: 100%;
+    justify-content: center;
 
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    font-size: 10pt;
+    font-size: 18px;
 
     strong {
         margin-right: 6px;
@@ -47,19 +45,22 @@
     }
 
     a {
-        text-decoration: none;
-        color: $color-tertiary;
+        text-decoration: underline;
+        color: $color-secondary;
         max-width: 100%;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+        font-weight: bold;
     }
 }
 
 .content {
-    padding: 20px 12px;
+    padding: 20px 12px 30px 12px;
+}
 
-    // > :last-child {
-    //     margin-top: 20px;
-    // }
+[data-theme="white"] {
+    .card {
+        background: $background-surface-1;
+    }
 }

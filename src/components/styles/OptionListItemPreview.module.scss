@@ -62,3 +62,9 @@
     margin-right: 8px;
     color: $text-secondary;
 }
+
+[data-theme="white"] {
+    .card {
+        background: $background-surface-1;
+    }
+}
