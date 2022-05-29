@@ -12,7 +12,7 @@ import {
 
 describe("createOption", function () {
 
-    this.beforeAll("deploy", async function () {
+    before("deploy", async function () {
         await initializer();
     });
 

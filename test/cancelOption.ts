@@ -16,7 +16,7 @@ import {
 import { SECONDS_IN_A_DAY } from "../src/utils/constants";
 
 describe("cancelOption", function () {
-    this.beforeAll("deploy", async function () {
+    before("deploy", async function () {
         await initializer();
     });
 
