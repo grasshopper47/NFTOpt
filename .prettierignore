@@ -1,3 +1,5 @@
 *.html
 *.json
 *.sol
+
+.vscode/settings.json
