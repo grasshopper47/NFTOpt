@@ -1,3 +1,7 @@
+[![CI/CD](https://github.com/grasshopper47/NFTOpt/actions/workflows/ci.cd.js.yml/badge.svg)](https://github.com/grasshopper47/NFTOpt/actions/workflows/ci.cd.js.yml)
+
+<br />
+
 **_Prepare_** the project
 
 `npm install`
