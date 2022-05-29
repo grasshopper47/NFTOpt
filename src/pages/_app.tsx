@@ -40,9 +40,7 @@ export default function App({ Component, pageProps }: AppProps) {
         });
     };
 
-    useEffect(() => {
-        load();
-    }, []);
+    useEffect(() => { load(); }, []);
 
     const load = async () => {
         const ethereum = getEthereumObject();
@@ -50,7 +48,7 @@ export default function App({ Component, pageProps }: AppProps) {
             return;
         }
 
-        setupWalletConnectivityEventListeners();
+        await setupWalletConnectivityEventListeners();
 
         blockNo = await getCurrentProvider().getBlockNumber();
 
