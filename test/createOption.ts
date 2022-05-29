@@ -27,7 +27,7 @@ describe("createOption", function () {
 
         await expect(NFTOptCTR.connect(seller)
             .createOption(1, { value: dummyOptionRequest.strikePrice }))
-            .to.emit(NFTOptCTR, "Filled");
+            .to.emit(NFTOptCTR, "Opened");
 
         await expect(NFTOptCTR.connect(seller)
             .createOption(1, { value: dummyOptionRequest.strikePrice }))
@@ -98,7 +98,7 @@ describe("createOption", function () {
         const gasPrice = transaction.gasPrice;
         const gasUsedInTransaction = gasUsed.mul(gasPrice ?? 0);
 
-        await expect(tx).to.emit(NFTOptCTR, "Filled");
+        await expect(tx).to.emit(NFTOptCTR, "Opened");
 
         // Check that the collateral was paid
         contractBalance = await NFTOptCTR.getBalance();
@@ -128,7 +128,7 @@ describe("createOption", function () {
 
         await expect(NFTOptCTR.connect(seller)
             .createOption(1, { value: dummyOptionRequest.strikePrice }))
-            .to.emit(NFTOptCTR, "Filled")
+            .to.emit(NFTOptCTR, "Opened")
             .withArgs(seller.address, 1);
 
         // Reset the state

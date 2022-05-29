@@ -37,7 +37,7 @@ describe("withdrawOptionRequest", function () {
             .createOption(1, { value: dummyOptionRequest.strikePrice }))
             .to.emit(
                 NFTOptCTR,
-                "Filled"
+                "Opened"
             );
 
         await expect(NFTOptCTR.connect(buyer)
