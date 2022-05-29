@@ -10,13 +10,15 @@
     row-gap: 8%;
     column-gap: 8%;
     overflow: auto;
+    padding-right: 7px;
+    height: calc(100% - 20px);
 }
 
 .card {
     border-radius: 8px;
     border: 2px solid $text-tertiary;
-    cursor: pointer;
-    overflow: hidden;
+    // cursor: pointer;
+    user-select: none;
     transition: all 150ms ease-in-out;
     position: relative;
 }
@@ -57,7 +59,7 @@
 .content {
     padding: 20px 12px;
 
-    > :last-child {
-        margin-top: 20px;
-    }
+    // > :last-child {
+    //     margin-top: 20px;
+    // }
 }

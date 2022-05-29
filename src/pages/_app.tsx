@@ -23,20 +23,21 @@ export default function App({Component, pageProps}: AppProps) {
     const [loaded, setLoaded] = useState(false);
     const [contracts, setContracts] = useState(null);
 
-    let blockNo = 0;
-
-    const success = async (message: string) => {
+    const success = async (_account: string, message: string) => {
         let newBlockNo = await getCurrentProvider().getBlockNumber();
 
-        if (blockNo < newBlockNo) {
-            blockNo = newBlockNo;
-            toast.success("Successfully " + message, {duration: TOAST_DURATION});
+        const localStorageExists = localStorage.getItem(`${_account}-blockno-${newBlockNo}-emitted`);
+        if (localStorageExists) {
+            return;
         }
+
+        toast.success("Successfully " + message);
+        localStorage.setItem(`${_account}-blockno-${newBlockNo}-emitted`, "true");
     };
 
-    const attachEventListeners = (contract: NFTOpt) => {
+    const attachEventListeners = (contract: NFTOpt, account: string) => {
         contract.on("NewRequest", (from, amount, tx) => {
-            success("published a new request");
+            success(account, "published a new request");
         });
     };
 
@@ -50,19 +51,17 @@ export default function App({Component, pageProps}: AppProps) {
             return;
         }
 
-        setupWalletConnectivityEventListeners();
-
-        blockNo = await getCurrentProvider().getBlockNumber();
+        await setupWalletConnectivityEventListeners();
 
         const NFTOptContract = getSignedContract(addresses[networkName].NFTOpt, NFTOptSolContract.abi);
         const contract = NFTOptContract as NFTOpt;
 
-        // const contract = getSignedContract(addresses[networkName].NFTOpt, NFTOptSolContract.abi) as NFTOpt;
-
-        attachEventListeners(contract);
+        const currentAccount = getCurrentAccount();
 
         setContracts({nftOpt: contract});
-        setAccount(getCurrentAccount());
+        setAccount(currentAccount);
+
+        attachEventListeners(contract, currentAccount);
 
         setLoaded(true);
     };

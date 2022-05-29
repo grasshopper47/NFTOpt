@@ -1,11 +1,11 @@
 import React from "react";
-import { useRouter } from "next/router";
+import {useRouter} from "next/router";
 import Link from "next/link";
 import classes from "./styles/Header.module.scss";
 import clsx from "clsx";
 import Button from "@mui/material/Button";
 import ThemeSwitch from "./ThemeSwitch";
-import { getAccountDisplayValue } from "../utils/frontend";
+import {getAccountDisplayValue} from "../utils/frontend";
 
 type Route = {
     href: string;
@@ -15,7 +15,7 @@ type Route = {
 const routes: Route[] = [
     {
         href: "/publish-option-request",
-        name: "Publish Option Request",
+        name: "Publish Option",
     },
     {
         href: "/explore-options",
@@ -27,7 +27,7 @@ const routes: Route[] = [
     },
     {
         href: "/team",
-        name: "TeaM™",
+        name: "Team™",
     },
 ];
 
@@ -37,7 +37,7 @@ type HeaderProps = {
 };
 
 function Header(props: HeaderProps) {
-    const { account, onConnectAccount } = props;
+    const {account, onConnectAccount} = props;
 
     const router = useRouter();
 
@@ -49,12 +49,12 @@ function Header(props: HeaderProps) {
             <div>
                 {account
                     ? routes.map((route) => (
-                        <Link key={`route-link-${route.href}`} href={route.href}>
-                            <a className={clsx(classes.link, router.pathname == route.href && classes.active)}>
-                                {route.name}
-                            </a>
-                        </Link>
-                    ))
+                          <Link key={`route-link-${route.href}`} href={route.href}>
+                              <a className={clsx(classes.link, router.pathname == route.href && classes.active)}>
+                                  {route.name}
+                              </a>
+                          </Link>
+                      ))
                     : null}
                 <ThemeSwitch />
                 <Button

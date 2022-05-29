@@ -1,5 +1,4 @@
-import { AnyRecord } from "dns";
-import { ethers } from "ethers";
+import {ethers} from "ethers";
 
 declare var window: Window & {
     ethereum: any;
@@ -14,16 +13,16 @@ export async function connectWallet(setAccountCallback: (account: string) => voi
         return;
     }
 
-    window.ethereum.request({ method: "eth_requestAccounts" })
-        .then((res: string) => setAccountCallback(res[0]));
+    window.ethereum.request({method: "eth_requestAccounts"}).then((res: string) => setAccountCallback(res[0]));
 }
 
-export function setupWalletConnectivityEventListeners() {
-    if (!provider) { provider = new ethers.providers.Web3Provider(window.ethereum, "any") }
+export async function setupWalletConnectivityEventListeners() {
+    if (!provider) {
+        provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    }
 
     if (!currentAccount) {
-        window.ethereum.request({ method: "eth_accounts" })
-            .then((accounts) => currentAccount = accounts[0]);
+        await window.ethereum.request({method: "eth_accounts"}).then((accounts) => (currentAccount = accounts[0]));
     }
 
     provider.on("network", (newNetwork, oldNetwork) => {
@@ -32,11 +31,13 @@ export function setupWalletConnectivityEventListeners() {
         }
     });
 
-    window.ethereum.on("accountsChanged", async () => { window.location.reload(); });
+    window.ethereum.on("accountsChanged", async () => {
+        window.location.reload();
+    });
 }
 
 export function getEthereumObject() {
-    const { ethereum } = window;
+    const {ethereum} = window;
 
     return ethereum ?? null;
 }
@@ -54,8 +55,7 @@ export function getSignedContract(address: string, abi: any) {
 }
 
 export async function getTXOptions() {
-
     return {
-        nonce: await getCurrentProvider().getTransactionCount(getCurrentAccount()) + 1
+        nonce: (await getCurrentProvider().getTransactionCount(getCurrentAccount())) + 1,
     };
 }
