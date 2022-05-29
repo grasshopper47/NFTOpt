@@ -1,14 +1,14 @@
 import { BigNumber } from "ethers";
 import { NFTOpt } from "../../typechain-types/contracts/NFTOpt";
 import { Option, OptionWithAsset } from "./types";
-import { addressEmpty, SECONDS_IN_A_DAY } from "./constants";
+import { ADDRESS0, SECONDS_IN_A_DAY } from "./constants";
 import { fetchNFTImage } from "./NFT/localhost";
 import { getSignedContract } from "./metamask";
 
 function isOptionValid(option: any): boolean {
     let isMalformed =
-        option.buyer === addressEmpty ||
-        option.nftContract === addressEmpty ||
+        option.buyer === ADDRESS0 ||
+        option.nftContract === ADDRESS0 ||
         option.nftId === BigNumber.from("0") ||
         option.nftId === undefined ||
         option.premium === "0" ||
@@ -24,7 +24,9 @@ export async function loadContractOptions(contract: NFTOpt): Promise<Option[]> {
     try {
         const optionIDPromise = await contract.optionID();
 
-        if (!optionIDPromise) { return; }
+        if (!optionIDPromise) {
+            return;
+        }
 
         // TODO: handle optionsLength > 2^53
         const optionsLength = optionIDPromise.toNumber();
@@ -32,7 +34,9 @@ export async function loadContractOptions(contract: NFTOpt): Promise<Option[]> {
         for (let idx = 1; idx <= optionsLength; ++idx) {
             const optionSolidity = await contract.options(idx);
 
-            if (!isOptionValid(optionSolidity)) { continue; }
+            if (!isOptionValid(optionSolidity)) {
+                continue;
+            }
 
             options.push({
                 id: idx,
@@ -55,30 +59,29 @@ export async function loadContractOptions(contract: NFTOpt): Promise<Option[]> {
     return options;
 }
 
-export async function loadOptionWithAsset(
-    contract: NFTOpt,
-    optionId: number
-): Promise<OptionWithAsset> {
+export async function loadOptionWithAsset(contract: NFTOpt, optionId: number): Promise<OptionWithAsset> {
     let option: OptionWithAsset = null;
 
     try {
         const optionSolidity = await contract.options(optionId);
 
-        if (!isOptionValid(optionSolidity)) { return; }
+        if (!isOptionValid(optionSolidity)) {
+            return;
+        }
 
         const abi_IERC721 = [
             {
-                "inputs": [],
-                "name": "name",
-                "outputs": [
+                inputs: [],
+                name: "name",
+                outputs: [
                     {
-                        "internalType": "string",
-                        "name": "",
-                        "type": "string"
-                    }
+                        internalType: "string",
+                        name: "",
+                        type: "string",
+                    },
                 ],
-                "stateMutability": "view",
-                "type": "function"
+                stateMutability: "view",
+                type: "function",
             },
         ];
 
@@ -98,7 +101,7 @@ export async function loadOptionWithAsset(
                 id: optionId,
                 tokenId: optionSolidity.nftId,
                 address: optionSolidity.nftContract,
-                name: await NFTContract.name() + " - " + optionSolidity.nftId.toString(),
+                name: (await NFTContract.name()) + " - " + optionSolidity.nftId.toString(),
                 image: await fetchNFTImage(optionSolidity.nftContract, optionSolidity.nftId),
             },
         };

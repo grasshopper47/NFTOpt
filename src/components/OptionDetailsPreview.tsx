@@ -8,7 +8,7 @@ import { getCurrentProvider, getSignedContract, getTXOptions } from "../utils/me
 import { getAccountDisplayValue, getCorrectPlural, showToast } from "../utils/frontend";
 import { OptionFlavor, OptionState, OptionWithAsset } from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
-import { addressEmpty, SECONDS_IN_A_DAY } from "../utils/constants";
+import { ADDRESS0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { useState } from "react";
 
 type OptionDetailsPreviewProps = {
@@ -295,7 +295,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                                 <span>Buyer:</span>
                                 <span> {getAccountDisplayValue(option.buyer)}</span>
                             </div>
-                            {option.seller && option.seller !== addressEmpty ? (
+                            {option.seller && option.seller !== ADDRESS0 ? (
                                 <div className={classes.field}>
                                     <span>Seller:</span>
                                     <span> {getAccountDisplayValue(option.seller)}</span>

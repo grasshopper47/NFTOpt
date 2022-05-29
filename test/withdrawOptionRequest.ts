@@ -1,51 +1,35 @@
-import { expect } from "chai";
-import { OptionState } from "../src/utils/types";
+import {expect} from "chai";
+import {OptionState} from "../src/utils/types";
 
-import {
-    buyer,
-    seller,
-    initializer,
-    NFTOptCTR,
-    dummyOptionRequest,
-    publishDummyOptionRequest,
-    deployNFTOptContract,
-} from "../src/utils/backend";
+import {buyer, seller, initializer, dummyOptionRequest, publishDummyOptionRequest} from "../src/utils/backend";
+import {NFTOptContract, deployMainContract} from "../src/utils/deployment";
 
 describe("withdrawOptionRequest", function () {
-
-    before("deploy", async function () {
+    before("prepareEnv", async function () {
         await initializer();
 
         await publishDummyOptionRequest();
     });
 
     it("fails when option request does not exist", async function () {
-        await expect(NFTOptCTR.connect(buyer)
-            .withdrawOptionRequest(9999))
-            .to.be.revertedWith("INVALID_OPTION_ID");
+        await expect(NFTOptContract.connect(buyer).withdrawOptionRequest(9999)).to.be.revertedWith("INVALID_OPTION_ID");
     });
 
     it("fails when caller is not the buyer", async function () {
-        await expect(NFTOptCTR.connect(seller)
-            .withdrawOptionRequest(1))
-            .to.be.revertedWith("NOT_AUTHORIZED");
+        await expect(NFTOptContract.connect(seller).withdrawOptionRequest(1)).to.be.revertedWith("NOT_AUTHORIZED");
     });
 
     it("fails when option not in REQUEST state", async function () {
         // Fill option
-        await expect(NFTOptCTR.connect(seller)
-            .createOption(1, { value: dummyOptionRequest.strikePrice }))
-            .to.emit(
-                NFTOptCTR,
-                "Opened"
-            );
+        await expect(NFTOptContract.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice})).to.emit(
+            NFTOptContract,
+            "Opened"
+        );
 
-        await expect(NFTOptCTR.connect(buyer)
-            .withdrawOptionRequest(1))
-            .to.be.revertedWith("INVALID_OPTION_STATE");
+        await expect(NFTOptContract.connect(buyer).withdrawOptionRequest(1)).to.be.revertedWith("INVALID_OPTION_STATE");
 
         // Reset the state
-        await deployNFTOptContract();
+        await deployMainContract();
     });
 
     it("sends premium to buyer on success", async function () {
@@ -54,8 +38,8 @@ describe("withdrawOptionRequest", function () {
         let buyerBalance0 = await buyer.getBalance();
 
         // Withdraw option request
-        let tx = NFTOptCTR.connect(buyer).withdrawOptionRequest(1);
-        await expect(tx).to.emit(NFTOptCTR, "Withdrawn");
+        let tx = NFTOptContract.connect(buyer).withdrawOptionRequest(1);
+        await expect(tx).to.emit(NFTOptContract, "Withdrawn");
 
         let transaction = await tx;
         let transactionReceipt = await transaction.wait();
@@ -73,20 +57,18 @@ describe("withdrawOptionRequest", function () {
         expect(buyerBalance0).to.be.equal(buyerBalance1);
 
         // Reset the state
-        await deployNFTOptContract();
+        await deployMainContract();
     });
 
     it("has status 'WITHDRAWN' after withdrawal was successful", async function () {
         await publishDummyOptionRequest();
 
-        await expect(NFTOptCTR.connect(buyer)
-            .withdrawOptionRequest(1))
-            .to.emit(NFTOptCTR, "Withdrawn");
+        await expect(NFTOptContract.connect(buyer).withdrawOptionRequest(1)).to.emit(NFTOptContract, "Withdrawn");
 
-        let option = await NFTOptCTR.options(1);
+        let option = await NFTOptContract.options(1);
         expect(option.state).to.be.equal(OptionState.WITHDRAWN);
 
         // Reset the state
-        await deployNFTOptContract();
+        await deployMainContract();
     });
 });
