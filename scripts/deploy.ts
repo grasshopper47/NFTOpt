@@ -24,7 +24,7 @@ async function deployContracts() {
     addressesJSON["NFTOpt"] = NFTOptCTR.address;
 
     const contractNames = [
-        "DummyNFT",
+        "CIRCLES_NFT",
         "JWNFT"
     ];
 
