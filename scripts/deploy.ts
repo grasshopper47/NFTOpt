@@ -24,8 +24,9 @@ async function deployContracts() {
     addressesJSON["NFTOpt"] = NFTOptCTR.address;
 
     const contractNames = [
-        "DummyNFT",
-        "JWNFT"
+        "NK_NFT",
+        "TH_NFT",
+        "EH_NFT"
     ];
 
     // Deploy each specified collection

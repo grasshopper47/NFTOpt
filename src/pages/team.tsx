@@ -9,26 +9,22 @@ function TeamPage() {
             <div className={classes.root}>
                 {team.map((member, i) => (
                     <div key={`member-card-${i}`} className={classes.card}>
-                        <div>
-                            <Image
-                                src={`/images/${member.image}`}
-                                alt={member.name}
-                                width={100}
-                                height={104}
-                                layout="responsive"
-                            />
-                        </div>
+                        <Image
+                            src={`/images/${member.image}`}
+                            alt={member.name}
+                            width={70}
+                            height={74}
+                            layout="responsive"
+                        />
                         <div className={classes.content}>
-                            <div className={classes.title}>{member.name}</div>
-                            {/* {member.social.map(({name, url}, j) => (
+                            {member.name ? <div className={classes.title}>{member.name}</div> : null}
+                            {member.social?.map(({name, url}, j) => (
                                 <div key={`social-${i}-${j}`} className={classes.social}>
-                                    <strong>{name}:</strong>
-                                    <br />
                                     <a href={url} target="_blank">
-                                        {url}
+                                        {name}
                                     </a>
                                 </div>
-                            ))} */}
+                            ))}
                         </div>
                     </div>
                 ))}

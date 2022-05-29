@@ -4,9 +4,7 @@
     border-radius: 8px;
     border: 2px solid $text-tertiary;
     cursor: pointer;
-    overflow: hidden;
     transition: all 150ms ease-in-out;
-    min-height: 300px;
 
     &:hover {
         border-color: rgb(107 144 128 / 60%);
@@ -28,7 +26,16 @@
 .title {
     font-size: 14px;
     font-weight: bold;
-    margin-bottom: 10px;
+    &:first-of-type {
+        font-size: 16px;
+        margin-top: 0;
+        margin-bottom: 0px;
+    }
+    &:last-of-type {
+        font-style: italic;
+        margin-top: 4px;
+        margin-bottom: 12px;
+    }
 }
 
 .moreInfoContainer {
@@ -41,6 +48,7 @@
         align-items: center;
         font-size: 14px;
         letter-spacing: 0.5px;
+        margin: 4px 0;
     }
 
     svg {
@@ -53,4 +61,10 @@
 .eth {
     margin-right: 8px;
     color: $text-secondary;
+}
+
+[data-theme="white"] {
+    .card {
+        background: $background-surface-1;
+    }
 }

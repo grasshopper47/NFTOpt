@@ -10,17 +10,17 @@ import {
     TextField,
 } from "@mui/material";
 import clsx from "clsx";
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import Layout from "../components/Layout";
-import { useAccount, useContracts } from "../providers/contexts";
-import { floatNumberRegex, SECONDS_IN_A_DAY, TOAST_DURATION } from "../utils/constants";
-import { NFTAsset, OptionFlavor } from "../utils/types";
+import {useAccount, useContracts} from "../providers/contexts";
+import {floatNumberRegex, SECONDS_IN_A_DAY, TOAST_DURATION} from "../utils/constants";
+import {NFTAsset, OptionFlavor} from "../utils/types";
 import classes from "./styles/CreateOption.module.scss";
-import { ethers } from "ethers";
+import {ethers} from "ethers";
 import toast from "react-hot-toast";
-import { showToast } from "../utils/frontend";
-import { fetchAssetsForAddress } from "../utils/NFT/localhost";
-import { getTXOptions } from "../utils/metamask";
+import {showToast} from "../utils/frontend";
+import {fetchAssetsForAddress} from "../utils/NFT/localhost";
+import {getTXOptions} from "../utils/metamask";
 
 type FormState = {
     asset?: NFTAsset;
@@ -35,12 +35,12 @@ const defaultFormState: FormState = {
     premium: "",
     strikePrice: "",
     interval: undefined,
-    flavor: OptionFlavor.EUROPEAN,
+    flavor: OptionFlavor.AMERICAN,
 };
 
 function CreateOption() {
     const account = useAccount();
-    const { nftOpt } = useContracts();
+    const {nftOpt} = useContracts();
 
     const [assets, setAssets] = useState<NFTAsset[]>([]);
     const [formState, setFormState] = useState<FormState>(defaultFormState);
@@ -116,7 +116,7 @@ function CreateOption() {
     const handlePublishOption = async () => {
         const txOptions = {
             value: ethers.utils.parseEther(`${parseFloat(formState.premium)}`),
-            nonce: (await getTXOptions()).nonce
+            nonce: (await getTXOptions()).nonce,
         };
 
         try {
@@ -133,7 +133,8 @@ function CreateOption() {
 
             setFormState(defaultFormState);
         } catch (error) {
-            if (error.code === 4001) { // Metamask TX Cancel
+            if (error.code === 4001) {
+                // Metamask TX Cancel
                 toast.error("User canceled");
                 return;
             }
@@ -150,15 +151,15 @@ function CreateOption() {
                     <p className={classes.title}>Request a PUT Option</p>
                     <div className={classes.fieldWrapper}>
                         <Select
-                            MenuProps={{ classes: { paper: classes.menuPaper } }}
-                            value={formState.asset?.tokenId.toString() ?? -1}
+                            MenuProps={{classes: {paper: classes.menuPaper}}}
+                            value={formState.asset?.id ?? -1}
                             placeholder="Select your NFT"
                         >
                             <MenuItem value={-1}>Select your NFT</MenuItem>
                             {assets.map((asset) => (
                                 <MenuItem
                                     key={`asset-${asset.id}`}
-                                    value={asset.tokenId.toString()}
+                                    value={asset.id}
                                     onClick={handleSelectAsset.bind(null, asset)}
                                 >
                                     {asset.name}
@@ -216,20 +217,20 @@ function CreateOption() {
 
                     <FormControl className={classes.field}>
                         <label>Option Flavor</label>
-                        <RadioGroup defaultValue={OptionFlavor.EUROPEAN}>
-                            <FormControlLabel
-                                key={`option-flavor-european`}
-                                label="European"
-                                value={OptionFlavor.EUROPEAN}
-                                onChange={handleChangeFlavor.bind(null, OptionFlavor.EUROPEAN)}
-                                control={<Radio />}
-                            />
+                        <RadioGroup defaultValue={OptionFlavor.AMERICAN}>
                             <FormControlLabel
                                 key={`option-flavor-american`}
                                 label="American"
                                 value={OptionFlavor.AMERICAN}
                                 control={<Radio />}
                                 onChange={handleChangeFlavor.bind(null, OptionFlavor.AMERICAN)}
+                            />
+                            <FormControlLabel
+                                key={`option-flavor-european`}
+                                label="European"
+                                value={OptionFlavor.EUROPEAN}
+                                onChange={handleChangeFlavor.bind(null, OptionFlavor.EUROPEAN)}
+                                control={<Radio />}
                             />
                         </RadioGroup>
                     </FormControl>
@@ -247,7 +248,7 @@ function CreateOption() {
                     {formState.asset ? (
                         <img src={formState.asset.image} alt="" />
                     ) : (
-                        Array.from({ length: 3 }).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
+                        Array.from({length: 3}).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
                     )}
                 </div>
             </div>

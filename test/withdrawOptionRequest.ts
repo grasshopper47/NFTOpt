@@ -13,7 +13,7 @@ import {
 
 describe("withdrawOptionRequest", function () {
 
-    this.beforeAll("deploy", async function () {
+    before("deploy", async function () {
         await initializer();
 
         await publishDummyOptionRequest();
@@ -37,7 +37,7 @@ describe("withdrawOptionRequest", function () {
             .createOption(1, { value: dummyOptionRequest.strikePrice }))
             .to.emit(
                 NFTOptCTR,
-                "Filled"
+                "Opened"
             );
 
         await expect(NFTOptCTR.connect(buyer)

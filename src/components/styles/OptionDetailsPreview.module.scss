@@ -89,6 +89,12 @@ div.field {
     }
 }
 
+.field {
+    span.flavor {
+        color: $color-secondary !important;
+    }
+}
+
 button.goBackBtn {
     border-radius: 6px;
     border: 2px solid $text-tertiary;

@@ -4,63 +4,55 @@ type Social = {
 };
 
 export type Person = {
-    name: string;
-    social: Social[];
+    name?: string;
+    social?: Social[];
     image: string;
 };
 
 export const team: Person[] = [
     {
         name: "Shabab A",
-        social: [{name: "Your social ref here", url: "Your social url here"}],
         image: "shabab.jpg",
     },
 
     {
         name: "Stefana M",
-        social: [{name: "Your social ref here", url: "Your social url here"}],
         image: "stef.jpg",
     },
 
     {
         name: "Luis I",
-        social: [{name: "Your social ref here", url: "Your social url here"}],
         image: "luis.jpg",
     },
 
     {
         name: "Greg v. D",
-        social: [{name: "Your social ref here", url: "Your social url here"}],
         image: "greg.jpg",
     },
 
     {
-        name: "..  ✨ NFT-OթͲ ✨ ..",
-        social: [],
-        image: "placeholder.jpg",
+        // name: "..  ✨ NFT-OթͲ ✨ ..",
+        social: [{name: "Visit our repo", url: "https://github.com/grasshopper47/NFTOpt"}],
+        image: "github2.jpg",
     },
 
     {
         name: "Peter A",
-        social: [{name: "Your social ref here", url: "Your social url here"}],
         image: "peter.jpg",
     },
 
     {
         name: "Coach - Shubham",
-        social: [{name: "Your social ref here", url: "Your social url here"}],
         image: "shubham.jpg",
     },
 
     {
         name: "Guide - Preethi",
-        social: [{name: "Your social ref here", url: "Your social url here"}],
         image: "preethi.jpg",
     },
 
     {
         name: "Coach - Rahul",
-        social: [{name: "Your social ref here", url: "Your social url here"}],
         image: "rahul.jpg",
     },
 ];

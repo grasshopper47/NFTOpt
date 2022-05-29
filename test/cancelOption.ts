@@ -1,5 +1,5 @@
-import {expect} from "chai";
-import {OptionState} from "../src/utils/types";
+import { expect } from "chai";
+import { OptionState } from "../src/utils/types";
 import {
     buyer,
     seller,
@@ -13,10 +13,10 @@ import {
     dummyOptionRequest,
     publishDummyOptionRequest,
 } from "../src/utils/backend";
-import {SECONDS_IN_A_DAY} from "../src/utils/constants";
+import { SECONDS_IN_A_DAY } from "../src/utils/constants";
 
 describe("cancelOption", function () {
-    this.beforeAll("deploy", async function () {
+    before("deploy", async function () {
         await initializer();
     });
 
@@ -40,8 +40,8 @@ describe("cancelOption", function () {
         await publishDummyOptionRequest();
 
         // Fill option
-        await expect(NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice}))
-            .to.emit(NFTOptCTR, "Filled")
+        await expect(NFTOptCTR.connect(seller).createOption(1, { value: dummyOptionRequest.strikePrice }))
+            .to.emit(NFTOptCTR, "Opened")
             .withArgs(seller.address, 1);
 
         // Fast-foward EVM by exercise date (interval 6 days) for european contract
@@ -67,8 +67,8 @@ describe("cancelOption", function () {
         await publishDummyOptionRequest();
 
         // Fill option
-        await expect(NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice}))
-            .to.emit(NFTOptCTR, "Filled")
+        await expect(NFTOptCTR.connect(seller).createOption(1, { value: dummyOptionRequest.strikePrice }))
+            .to.emit(NFTOptCTR, "Opened")
             .withArgs(seller.address, 1);
 
         // Fast-foward EVM by 2 days
@@ -92,8 +92,8 @@ describe("cancelOption", function () {
         await publishDummyOptionRequest();
 
         // Fill option
-        await expect(NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice}))
-            .to.emit(NFTOptCTR, "Filled")
+        await expect(NFTOptCTR.connect(seller).createOption(1, { value: dummyOptionRequest.strikePrice }))
+            .to.emit(NFTOptCTR, "Opened")
             .withArgs(seller.address, 1);
 
         // Try to cancel
@@ -116,8 +116,8 @@ describe("cancelOption", function () {
         await publishDummyOptionRequest();
 
         // Fill option
-        await expect(NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice}))
-            .to.emit(NFTOptCTR, "Filled")
+        await expect(NFTOptCTR.connect(seller).createOption(1, { value: dummyOptionRequest.strikePrice }))
+            .to.emit(NFTOptCTR, "Opened")
             .withArgs(seller.address, 1);
 
         // Fast-foward EVM by 2 days; before expiry
@@ -136,8 +136,8 @@ describe("cancelOption", function () {
         await publishDummyOptionRequest();
 
         // Fill option
-        await expect(NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice}))
-            .to.emit(NFTOptCTR, "Filled")
+        await expect(NFTOptCTR.connect(seller).createOption(1, { value: dummyOptionRequest.strikePrice }))
+            .to.emit(NFTOptCTR, "Opened")
             .withArgs(seller.address, 1);
 
         const sellerBalance0 = await seller.getBalance();
@@ -161,8 +161,8 @@ describe("cancelOption", function () {
         await publishDummyOptionRequest();
 
         // Fill option
-        await expect(NFTOptCTR.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice}))
-            .to.emit(NFTOptCTR, "Filled")
+        await expect(NFTOptCTR.connect(seller).createOption(1, { value: dummyOptionRequest.strikePrice }))
+            .to.emit(NFTOptCTR, "Opened")
             .withArgs(seller.address, 1);
 
         // Cancel the option
