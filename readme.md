@@ -1,4 +1,4 @@
-[![CI/CD](https://github.com/grasshopper47/NFTOpt/actions/workflows/ci.cd.js.yml/badge.svg)](https://github.com/grasshopper47/NFTOpt/actions/workflows/ci.cd.js.yml)
+[![CI/CD](https://github.com/grasshopper47/NFTOpt/actions/workflows/ci.cd.js.yml/badge.svg?branch=main)](https://github.com/grasshopper47/NFTOpt/actions/workflows/ci.cd.js.yml)
 
 <br />
 
