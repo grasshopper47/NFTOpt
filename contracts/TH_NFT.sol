@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract JWNFT is ERC721("NFT_APlus", "Beaut NFTs by TH"), Ownable {
+contract TH_NFT is ERC721("Tony Han's Chinese Zodiac NFT", "TH_NFT"), Ownable {
     uint256 public MAX_MINTABLE_TOKENS = 5;
 
     constructor (address _buyer)

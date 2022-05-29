@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { NFTOpt, CIRCLES_NFT } from "../../typechain-types";
+import { NFTOpt, NK_NFT } from "../../typechain-types";
 import { ethers } from "hardhat";
 import { Option_SOLIDITY, OptionState, OptionFlavor } from "./types";
 import { addressEmpty, SECONDS_IN_A_DAY } from "./constants";
@@ -11,7 +11,7 @@ export let seller: SignerWithAddress;
 export let nonParticipant: SignerWithAddress;
 export let InterfaceDetectorAddress: string;
 export let NFTOptCTR: NFTOpt;
-export let NFTDummyCTR: CIRCLES_NFT;
+export let NFTDummyCTR: NK_NFT;
 
 export let dummyOptionRequest: Option_SOLIDITY;
 
@@ -50,7 +50,7 @@ export async function deployNFTOptContract() {
 
 export async function deployNFTDummyContract() {
     // Deploy dummy NFT contract and mint 20 nfts to buyer
-    const NFTDummyFactory = await ethers.getContractFactory("CIRCLES_NFT");
+    const NFTDummyFactory = await ethers.getContractFactory("NK_NFT");
     // @ts-ignore
     NFTDummyCTR = await NFTDummyFactory.deploy(buyer.address);
     await NFTDummyCTR.deployed();

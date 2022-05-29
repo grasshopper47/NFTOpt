@@ -21,7 +21,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
 
-contract CIRCLES_NFT is ERC721("Circles NFT Collection", "PINFT"), Ownable {
+contract NK_NFT is ERC721("Nikita's ART", "NART"), Ownable {
     uint256 public MAX_MINTABLE_TOKENS = 5;
 
     constructor (address _buyer)
