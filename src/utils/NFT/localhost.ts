@@ -3,6 +3,7 @@ import { NFTAsset, Option, OptionWithAsset } from "../types";
 import { getSignedContract, getTXOptions } from "../metamask";
 import addresses from "../../../addresses.json";
 import { MAX_MINTABLE_TOKENS } from "../constants";
+import { fetchNFTImage } from "../options";
 
 const abi_IERC721 = [
     {
@@ -57,14 +58,6 @@ const abi_IERC721 = [
         "type": "function",
     },
 ];
-
-export async function fetchNFTImage(address: string, id: BigNumber) {
-    let NFTContract = getSignedContract(address, abi_IERC721);
-
-    var data = await NFTContract.tokenURI(id, await getTXOptions());
-
-    return JSON.parse(atob(data.slice(29))).image;
-}
 
 export async function fetchAssetsForAddress(account: string, setAssetsCallback: (assets: NFTAsset[]) => void) {
     const assets: NFTAsset[] = [];

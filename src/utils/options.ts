@@ -1,8 +1,7 @@
 import { BigNumber } from "ethers";
-import { NFTOpt } from "../../typechain-types/contracts/NFTOpt";
+import { NFTOpt, ERC721 } from "../../typechain-types";
 import { NFTAsset, Option, OptionWithAsset, Option_SOLIDITY } from "./types";
 import { ADDRESS0, SECONDS_IN_A_DAY } from "./constants";
-import { fetchNFTImage } from "./NFT/localhost";
 import { getSignedContract } from "./metamask";
 
 function isOptionValid(option: any): boolean {
@@ -57,10 +56,37 @@ export async function loadOptions(contract: NFTOpt): Promise<Option[]> {
     return options;
 }
 
-export async function loadAsset(contract: NFTOpt, optionId: number): Promise<NFTAsset> {
-    const optionSolidity = await contract.options(optionId) as unknown as Option_SOLIDITY;
+export async function fetchNFTImage(address: string, id: BigNumber) {
+    const abi_IERC721 = [
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256",
+                },
+            ],
+            "name": "tokenURI",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string",
+                },
+            ],
+            "stateMutability": "view",
+            "type": "function",
+        },
+    ];
 
-    if (!isOptionValid(optionSolidity)) { return; }
+    let NFTContract = getSignedContract(address, abi_IERC721);
+
+    var data = await NFTContract.tokenURI(id);
+
+    return JSON.parse(atob(data.slice(29))).image;
+}
+
+export async function loadAsset(contractAddress: string, tokenId: BigNumber, id: number): Promise<NFTAsset> {
 
     const abi_IERC721 = [
         {
@@ -76,27 +102,47 @@ export async function loadAsset(contract: NFTOpt, optionId: number): Promise<NFT
             "stateMutability": "view",
             "type": "function",
         },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256",
+                },
+            ],
+            "name": "tokenURI",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string",
+                },
+            ],
+            "stateMutability": "view",
+            "type": "function",
+        },
     ];
 
-    const NFTContract = getSignedContract(optionSolidity.nftContract, abi_IERC721);
+    const NFTContract = getSignedContract(contractAddress, abi_IERC721);
+
+    var data = await NFTContract.tokenURI(id);
 
     return {
-        id: optionId,
-        tokenId: optionSolidity.nftId,
-        address: optionSolidity.nftContract,
-        name: (await NFTContract.name()) + " - " + optionSolidity.nftId.toString(),
-        image: await fetchNFTImage(optionSolidity.nftContract, optionSolidity.nftId),
+        id: id,
+        tokenId: tokenId,
+        address: contractAddress,
+        name: (await NFTContract.name()) + " - " + tokenId.toString(),
+        image: JSON.parse(atob(data.slice(29))).image,
     };
 }
 
-export async function loadOptionWithAsset(contract: NFTOpt, optionId: number): Promise<OptionWithAsset> {
-    let option = await loadOption(contract, optionId);
+export async function loadOptionWithAsset(contract: NFTOpt, id: number): Promise<OptionWithAsset> {
+    let option: Option = await loadOption(contract, id);
 
     if (!option) { return null; }
 
     return {
-        id: optionId,
         ...option,
-        asset: await loadAsset(contract, optionId),
+        asset: await loadAsset(option.nftContract, option.nftId, option.id),
     }
 }

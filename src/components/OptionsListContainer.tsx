@@ -6,9 +6,8 @@ import OptionListItemPreview from "./OptionListItemPreview";
 import classes from "./styles/OptionsListContainer.module.scss";
 import { useAccount, useContracts } from "../providers/contexts";
 import toast from "react-hot-toast";
-import { loadContractOptions, loadOptions, loadOptionWithAsset } from "../utils/options";
+import { loadOptions, loadOptionWithAsset } from "../utils/options";
 import { fetchNFTDetailsForMultipleOptions } from "../utils/NFT/localhost";
-import { getCurrentProvider } from "../utils/metamask";
 
 type OptionsListContainerProps = {
     title: string;
