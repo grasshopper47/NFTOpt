@@ -111,7 +111,8 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
         try {
             if (!approvedNFT) {
                 let NFTContract = getSignedContract(option.asset.address, abi_IERC721);
-                NFTContract.connect(getCurrentProvider().getSigner()).approve(nftOpt.address, option.asset.tokenId, await getTXOptions());
+                NFTContract.connect(getCurrentProvider().getSigner())
+                    .approve(nftOpt.address, option.asset.tokenId, await getTXOptions());
             }
             else {
                 await nftOpt.exerciseOption(option.id, await getTXOptions());

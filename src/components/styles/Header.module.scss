@@ -14,7 +14,7 @@
     margin-left: 30px;
     text-decoration: none;
     color: $text-primary;
-    font-weight: 500;
+    font-weight: 800;
     letter-spacing: 0.5px;
 }
 
@@ -25,7 +25,7 @@ button.connectBtn {
     font-size: 10pt;
     font-weight: 500;
 
-    background: $color-secondary;
+    background: $color-primary;
 
     &:hover {
         background: $color-primary;
@@ -53,8 +53,7 @@ button.connectBtn {
 }
 
 .active {
-    font-weight: 800;
-    color: $color-primary;
+    color: $color-tertiary;
     padding-bottom: 6px;
     border-bottom: 2px solid $color-tertiary;
 }

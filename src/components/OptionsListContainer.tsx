@@ -1,13 +1,14 @@
-import { Tab, Tabs } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { OptionFilterOwnership, OptionState, OptionWithAsset } from "../utils/types";
+import {Tab, Tabs} from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {OptionFilterOwnership, OptionState, OptionWithAsset} from "../utils/types";
 import OptionDetailsPreview from "./OptionDetailsPreview";
 import OptionListItemPreview from "./OptionListItemPreview";
 import classes from "./styles/OptionsListContainer.module.scss";
-import { useAccount, useContracts } from "../providers/contexts";
+import {useAccount, useContracts} from "../providers/contexts";
 import toast from "react-hot-toast";
-import { loadContractOptions, loadOptionWithAsset } from "../utils/options";
-import { fetchNFTDetailsForMultipleOptions } from "../utils/NFT/localhost";
+import {loadContractOptions, loadOptionWithAsset} from "../utils/options";
+import {fetchNFTDetailsForMultipleOptions} from "../utils/NFT/localhost";
+import {getCurrentProvider} from "../utils/metamask";
 
 type OptionsListContainerProps = {
     title: string;
@@ -35,10 +36,10 @@ const optionStateTabs: OptionStateTab[] = [
 ];
 
 function OptionsListContainer(props: OptionsListContainerProps) {
-    const { title, filterOwnership } = props;
+    const {title, filterOwnership} = props;
 
     const account = useAccount();
-    const { nftOpt } = useContracts();
+    const {nftOpt} = useContracts();
 
     const [activeTabIndex, setActiveTabIndex] = useState(0);
 
@@ -80,11 +81,18 @@ function OptionsListContainer(props: OptionsListContainerProps) {
     };
 
     const success = async (message: string, tx) => {
+        let newBlockNo = await getCurrentProvider().getBlockNumber();
+
+        const localStorageExists = localStorage.getItem(`${account}-blockno-${newBlockNo}-emitted`);
+        if (localStorageExists) {
+            return;
+        }
         const optionId = tx?.args?.[1]?.toNumber();
         if (optionId != null) {
             handleUpdateOption(optionId);
         }
         toast.success("Successfully " + message);
+        localStorage.setItem(`${account}-blockno-${newBlockNo}-emitted`, "true");
     };
 
     const attachEventListeners = () => {
@@ -107,7 +115,7 @@ function OptionsListContainer(props: OptionsListContainerProps) {
     };
 
     useEffect(() => {
-        if (!nftOpt) {
+        if (!nftOpt || !account) {
             return;
         }
         attachEventListeners();
@@ -115,7 +123,7 @@ function OptionsListContainer(props: OptionsListContainerProps) {
         return () => {
             nftOpt?.removeAllListeners();
         };
-    }, [nftOpt]);
+    }, [nftOpt, account]);
 
     const handleChangeTab = (_, tabIndex: number) => {
         setActiveTabIndex(tabIndex);
