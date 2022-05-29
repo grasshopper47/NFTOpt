@@ -1,15 +1,15 @@
-import {ArrowBackIosRounded} from "@mui/icons-material";
-import {Button, IconButton} from "@mui/material";
-import {endOfDay, isBefore, isSameDay} from "date-fns";
-import {ethers} from "ethers";
+import { ArrowBackIosRounded } from "@mui/icons-material";
+import { Button, IconButton } from "@mui/material";
+import { endOfDay, isBefore, isSameDay } from "date-fns";
+import { ethers } from "ethers";
 import toast from "react-hot-toast";
-import {useContracts} from "../providers/contexts";
-import {getCurrentProvider, getSignedContract, getTXOptions} from "../utils/metamask";
-import {getAccountDisplayValue, getCorrectPlural, showToast} from "../utils/frontend";
-import {OptionFlavor, OptionState, OptionWithAsset} from "../utils/types";
+import { useContracts } from "../providers/contexts";
+import { getCurrentProvider, getSignedContract, getTXOptions } from "../utils/metamask";
+import { getAccountDisplayValue, getCorrectPlural, showToast } from "../utils/frontend";
+import { OptionFlavor, OptionState, OptionWithAsset } from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
-import {addressEmpty, SECONDS_IN_A_DAY} from "../utils/constants";
-import {useState} from "react";
+import { addressEmpty, SECONDS_IN_A_DAY } from "../utils/constants";
+import { useState } from "react";
 
 type OptionDetailsPreviewProps = {
     currentAccount: string;
@@ -19,13 +19,16 @@ type OptionDetailsPreviewProps = {
 };
 
 function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
-    const {currentAccount, option, onSelectOption, lastSelectedOptionId} = props;
+    const { currentAccount, option, onSelectOption, lastSelectedOptionId } = props;
 
-    const {nftOpt} = useContracts();
+    const { nftOpt } = useContracts();
 
     const [approvedNFT, setApprovedNFT] = useState(true);
 
-    let abi_IERC721;
+    let canceledOption = false;
+
+    let abi_IERC721: any = [];
+
     const handleCheckApproved = async () => {
         if (option.state === OptionState.OPEN) {
             abi_IERC721 = [
@@ -108,7 +111,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     const handleConfirmedTransaction = () => {
         showToast("sent");
 
-        if (approvedNFT) {
+        if (approvedNFT || canceledOption) {
             lastSelectedOptionId.current = option.id;
 
             // Reset panel to list view
@@ -139,6 +142,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     const handleCancelOption = async () => {
         try {
             await nftOpt.cancelOption(option.id, await getTXOptions());
+            canceledOption = true;
             handleConfirmedTransaction();
         } catch (error) {
             handleError(error);
@@ -250,7 +254,7 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
             </IconButton>
             <div className={classes.detailsContainer}>
                 <div>
-                    <img style={{backgroundImage: `url(${option.asset.image})`}} alt="" />
+                    <img style={{ backgroundImage: `url(${option.asset.image})` }} alt="" />
                 </div>
                 <div>
                     <p className={classes.title}>{option.asset.name}</p>
@@ -304,10 +308,10 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
                         {option.state === OptionState.CLOSED
                             ? null
                             : option.state === OptionState.REQUEST
-                            ? actionsForRequestState
-                            : option.state === OptionState.OPEN
-                            ? actionsForOpenState
-                            : null}
+                                ? actionsForRequestState
+                                : option.state === OptionState.OPEN
+                                    ? actionsForOpenState
+                                    : null}
                     </div>
                 </div>
             </div>
