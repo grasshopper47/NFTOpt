@@ -28,8 +28,8 @@ contract NFTOpt {
     }
 
     /// @dev -- STACK ---------------------------------
-    string constant private _msg_OnlyBuyerCanCall = "Only Buyer can call this method";
-    string constant private _msg_OnlyBuyerOrSellerCanCall = "Only Buyer or Seller can call this method";
+    string constant            private _msg_OnlyBuyerCanCall         = "Only Buyer can call this method";
+    string constant            private _msg_OnlyBuyerOrSellerCanCall = "Only Buyer or Seller can call this method";
     uint256                    public optionID;
     mapping(uint256 => Option) public options;
 
