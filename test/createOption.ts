@@ -1,7 +1,7 @@
-import {expect} from "chai";
-import {OptionState} from "../src/utils/types";
-import {buyer, seller, initializer, dummyOptionRequest, publishDummyOptionRequest} from "../src/utils/backend";
-import {NFTOptContract, deployMainContract} from "../src/utils/deployment";
+import { expect } from "chai";
+import { OptionState } from "../src/utils/types";
+import { buyer, seller, initializer, dummyOptionRequest, publishDummyOptionRequest } from "../src/utils/backend";
+import { NFTOptContract, deployMainContract } from "../src/utils/deployment";
 
 describe("createOption", function () {
     before("prepareEnv", async function () {
@@ -9,20 +9,21 @@ describe("createOption", function () {
     });
 
     it("reverts with non-existent optionID", async function () {
-        await expect(NFTOptContract.connect(seller).createOption(9999)).to.be.revertedWith("INVALID_OPTION_ID");
+        await expect(NFTOptContract.connect(seller)
+            .createOption(9999))
+            .to.be.revertedWith("INVALID_OPTION_ID");
     });
 
     it("reverts when the option is already fulfilled by a seller", async function () {
         await publishDummyOptionRequest();
 
-        await expect(NFTOptContract.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice})).to.emit(
-            NFTOptContract,
-            "Opened"
-        );
+        await expect(NFTOptContract.connect(seller)
+            .createOption(0, { value: dummyOptionRequest.strikePrice }))
+            .to.emit(NFTOptContract, "Opened");
 
-        await expect(
-            NFTOptContract.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice})
-        ).to.be.revertedWith("OPTION_REQUEST_ALREADY_FULFILLED");
+        await expect(NFTOptContract.connect(seller)
+            .createOption(0, { value: dummyOptionRequest.strikePrice }))
+            .to.be.revertedWith("OPTION_REQUEST_ALREADY_FULFILLED");
 
         // Reset the state
         await deployMainContract();
@@ -31,9 +32,13 @@ describe("createOption", function () {
     it("reverts when the option is not in REQUEST state", async function () {
         await publishDummyOptionRequest();
 
-        await expect(NFTOptContract.connect(buyer).withdrawOptionRequest(1)).to.not.be.reverted;
+        await expect(NFTOptContract.connect(buyer)
+            .withdrawOptionRequest(0))
+            .to.emit(NFTOptContract, "Withdrawn");
 
-        await expect(NFTOptContract.connect(seller).createOption(1)).to.be.revertedWith("INVALID_OPTION_STATE");
+        await expect(NFTOptContract.connect(seller)
+            .createOption(0))
+            .to.be.revertedWith("INVALID_OPTION_STATE");
 
         // Reset the state
         await deployMainContract();
@@ -42,7 +47,9 @@ describe("createOption", function () {
     it("reverts when the option seller is the same as the option buyer", async function () {
         await publishDummyOptionRequest();
 
-        await expect(NFTOptContract.connect(buyer).createOption(1)).to.be.revertedWith("BUYER_MUST_DIFFER_FROM_SELLER");
+        await expect(NFTOptContract.connect(buyer)
+            .createOption(0))
+            .to.be.revertedWith("BUYER_MUST_DIFFER_FROM_SELLER");
 
         // Reset the state
         await deployMainContract();
@@ -51,9 +58,9 @@ describe("createOption", function () {
     it("reverts when the wrong strike price is provided by the seller", async function () {
         await publishDummyOptionRequest();
 
-        await expect(
-            NFTOptContract.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice.sub(1)})
-        ).to.be.revertedWith("INVALID_STRIKE_PRICE_AMOUNT");
+        await expect(NFTOptContract.connect(seller)
+            .createOption(0, { value: dummyOptionRequest.strikePrice.sub(1) }))
+            .to.be.revertedWith("INVALID_STRIKE_PRICE_AMOUNT");
 
         // Reset the state
         await deployMainContract();
@@ -73,7 +80,7 @@ describe("createOption", function () {
         // Seller responds to request and creates an option
         let sellerBalance0 = await seller.getBalance();
 
-        let tx = NFTOptContract.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice});
+        let tx = NFTOptContract.connect(seller).createOption(0, { value: dummyOptionRequest.strikePrice });
 
         let transaction = await tx;
         let transactionReceipt = await transaction.wait();
@@ -89,7 +96,7 @@ describe("createOption", function () {
         contractBalance = await NFTOptContract.getBalance();
         expect(contractBalance).to.equal(dummyOptionRequest.strikePrice);
 
-        const updatedOption = await NFTOptContract.connect(seller).options(1);
+        const updatedOption = await NFTOptContract.connect(seller).options(0);
 
         expect(updatedOption.startDate).to.not.equal(0);
         expect(updatedOption.seller).to.equal(seller.address);
@@ -112,9 +119,10 @@ describe("createOption", function () {
     it("emits 'Filled' event when succeeded", async function () {
         await publishDummyOptionRequest();
 
-        await expect(NFTOptContract.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice}))
+        await expect(NFTOptContract.connect(seller)
+            .createOption(0, { value: dummyOptionRequest.strikePrice }))
             .to.emit(NFTOptContract, "Opened")
-            .withArgs(seller.address, 1);
+            .withArgs(0);
 
         // Reset the state
         await deployMainContract();

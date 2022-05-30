@@ -5,9 +5,7 @@ import OptionDetailsPreview from "./OptionDetailsPreview";
 import OptionListItemPreview from "./OptionListItemPreview";
 import classes from "./styles/OptionsListContainer.module.scss";
 import { useAccount, useContracts } from "../providers/contexts";
-import toast from "react-hot-toast";
-import { loadOptions, loadOptionWithAsset } from "../utils/options";
-import { fetchNFTDetailsForMultipleOptions } from "../utils/NFT/localhost";
+import { loadOptionsWithAsset, loadOptions } from "../utils/options";
 
 type OptionsListContainerProps = {
     title: string;
@@ -47,9 +45,20 @@ function OptionsListContainer(props: OptionsListContainerProps) {
     const [selectedOptionForPreview, setSelectedOptionForPreview] = useState<OptionWithAsset | null>(null);
     const lastSelectedOptionId = useRef<number | null>(null); // TODO: make an array for options in progress
 
+    useEffect(() => {
+        if (!nftOpt || !account) { return; }
+
+        loadOptionsWithAsset(nftOpt)
+        .then( (options) => {
+            console.log("loaded", options);
+            setOptionsWithAsset(options);
+        });
+    }, [loadOptions] );
+
     // Filter by active tab
     useEffect(() => {
         const state = optionStateTabs[activeTabIndex].optionState;
+
         setFilteredOptions(
             optionsWithAsset?.filter((option) =>
                 state === OptionState.OPEN || state === OptionState.REQUEST
@@ -57,76 +66,12 @@ function OptionsListContainer(props: OptionsListContainerProps) {
                     : option.state === OptionState.WITHDRAWN || option.state === OptionState.CLOSED
             )
         );
-        if (selectedOptionForPreview) {
-            setSelectedOptionForPreview(null);
-        }
+
+        if (selectedOptionForPreview) { setSelectedOptionForPreview(null); }
     }, [activeTabIndex, optionsWithAsset]);
 
-    const handleLoadOptions = async () => {
-        const options = await loadOptions(nftOpt);
-        const optionsWithAsset = await fetchNFTDetailsForMultipleOptions(options);
-        setOptionsWithAsset(optionsWithAsset);
-    };
 
-    useEffect(() => {
-        if (!nftOpt || !account) {
-            return;
-        }
-        handleLoadOptions();
-    }, [nftOpt, account, filterOwnership]);
-
-    const handleUpdateOption = async (optionId: number) => {
-        const updatedOption = await loadOptionWithAsset(nftOpt, optionId);
-        setOptionsWithAsset((prev) => [...prev.filter((x) => x.id !== optionId), updatedOption]);
-    };
-
-    const success = async (message: string, tabIndex: number, optionId: number) => {
-        if (lastSelectedOptionId.current == null || optionId !== lastSelectedOptionId.current) {
-            return;
-        }
-
-        setActiveTabIndex(tabIndex);
-
-        if (optionId != null) {
-            handleUpdateOption(optionId);
-        }
-        toast.success("Successfully " + message);
-        // TODO: remove from the ref array the current updated option
-    };
-
-    const attachEventListeners = () => {
-        nftOpt.on("Exercised", (from, tx) => {
-            const optionId = tx?.args?.[0]?.toNumber();
-            success("exercised the option request", 2, optionId);
-        });
-        nftOpt.on("Opened", (from, amount, tx) => {
-            const optionId = tx?.args?.[1]?.toNumber();
-            success("opened the option request", 1, optionId);
-        });
-        nftOpt.on("Canceled", (from, amount, tx) => {
-            const optionId = tx?.args?.[1]?.toNumber();
-            success("canceled the option request", 2, optionId);
-        });
-        nftOpt.on("Withdrawn", (from, amount, tx) => {
-            const optionId = tx?.args?.[1]?.toNumber();
-            success("withdrawn the option request", 0, optionId);
-        });
-    };
-
-    useEffect(() => {
-        if (!nftOpt || !account) {
-            return;
-        }
-        attachEventListeners();
-
-        return () => {
-            nftOpt?.removeAllListeners();
-        };
-    }, [nftOpt, account]);
-
-    const handleChangeTab = (_, tabIndex: number) => {
-        setActiveTabIndex(tabIndex);
-    };
+    const handleChangeTab = (_, tabIndex: number) => setActiveTabIndex(tabIndex);
 
     return (
         <div className={classes.root}>

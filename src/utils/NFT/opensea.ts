@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 import { NFTAsset, Option, OptionWithAsset } from "../types";
 
-export async function fetchAssetsForAddress(account: string, setAssetsCallback: (assets: NFTAsset[]) => void) {
+export async function fetchAssetsOfAccount(account: string, setAssetsCallback: (assets: NFTAsset[]) => void) {
     const assets: NFTAsset[] = [];
 
     await fetch(`https://api.opensea.io/api/v1/assets?owner=${account}&limit=30`)

@@ -1,15 +1,14 @@
 import { ArrowBackIosRounded } from "@mui/icons-material";
 import { Button, IconButton } from "@mui/material";
-import { endOfDay, isBefore, isSameDay } from "date-fns";
 import { ethers } from "ethers";
-import toast from "react-hot-toast";
 import { useContracts } from "../providers/contexts";
-import { getCurrentProvider, getSignedContract, getTXOptions } from "../utils/metamask";
-import { getAccountDisplayValue, getCorrectPlural, showToast } from "../utils/frontend";
+import { getCurrentProvider, getSignedContract } from "../utils/metamask";
+import { getAccountDisplayValue, getCorrectPlural, dismissLastToast, showToast } from "../utils/frontend";
 import { OptionFlavor, OptionState, OptionWithAsset } from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
 import { ADDRESS0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { useState } from "react";
+import { ERC721 } from "../../typechain-types";
 
 type OptionDetailsPreviewProps = {
     currentAccount: string;
@@ -20,96 +19,90 @@ type OptionDetailsPreviewProps = {
 
 function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     const { currentAccount, option, onSelectOption, lastSelectedOptionId } = props;
-
     const { nftOpt } = useContracts();
-
-    const [approvedNFT, setApprovedNFT] = useState(true);
+    const [approvedNFT, setApprovedNFT] = useState(false);
 
     let canceledOption = false;
 
-    let abi_IERC721: any = [];
-
-    const handleCheckApproved = async () => {
-        if (option.state === OptionState.OPEN) {
-            abi_IERC721 = [
+    let abi_IERC721: any = [
+        {
+            inputs: [
                 {
-                    inputs: [
-                        {
-                            internalType: "address",
-                            name: "to",
-                            type: "address",
-                        },
-                        {
-                            internalType: "uint256",
-                            name: "tokenId",
-                            type: "uint256",
-                        },
-                    ],
-                    name: "approve",
-                    outputs: [],
-                    stateMutability: "nonpayable",
-                    type: "function",
+                    internalType: "address",
+                    name: "to",
+                    type: "address",
                 },
                 {
-                    inputs: [
-                        {
-                            internalType: "uint256",
-                            name: "tokenId",
-                            type: "uint256",
-                        },
-                    ],
-                    name: "getApproved",
-                    outputs: [
-                        {
-                            internalType: "address",
-                            name: "",
-                            type: "address",
-                        },
-                    ],
-                    stateMutability: "view",
-                    type: "function",
+                    internalType: "uint256",
+                    name: "tokenId",
+                    type: "uint256",
+                },
+            ],
+            name: "approve",
+            outputs: [],
+            stateMutability: "nonpayable",
+            type: "function",
+        },
+        {
+            inputs: [
+                {
+                    internalType: "uint256",
+                    name: "tokenId",
+                    type: "uint256",
+                },
+            ],
+            name: "getApproved",
+            outputs: [
+                {
+                    internalType: "address",
+                    name: "",
+                    type: "address",
+                },
+            ],
+            stateMutability: "view",
+            type: "function",
+        },
+        {
+            anonymous: false,
+            inputs: [
+                {
+                    indexed: true,
+                    internalType: "address",
+                    name: "owner",
+                    type: "address",
                 },
                 {
-                    anonymous: false,
-                    inputs: [
-                        {
-                            indexed: true,
-                            internalType: "address",
-                            name: "owner",
-                            type: "address",
-                        },
-                        {
-                            indexed: true,
-                            internalType: "address",
-                            name: "approved",
-                            type: "address",
-                        },
-                        {
-                            indexed: true,
-                            internalType: "uint256",
-                            name: "tokenId",
-                            type: "uint256",
-                        },
-                    ],
-                    name: "Approval",
-                    type: "event",
+                    indexed: true,
+                    internalType: "address",
+                    name: "approved",
+                    type: "address",
                 },
-            ];
+                {
+                    indexed: true,
+                    internalType: "uint256",
+                    name: "tokenId",
+                    type: "uint256",
+                },
+            ],
+            name: "Approval",
+            type: "event",
+        },
+    ];
 
-            let NFTContract = getSignedContract(option.asset.address, abi_IERC721);
+    const NFTContract : ERC721 = getSignedContract(option.asset.address, abi_IERC721) as ERC721;
 
-            await NFTContract.getApproved(option.asset.tokenId).then((res) => {
-                if (res != nftOpt.address) {
-                    setApprovedNFT(false);
-                }
-            });
-        }
-    };
+    NFTContract.getApproved(option.asset.tokenId)
+    .then((res) => { if (res === nftOpt.address) { setApprovedNFT(true); } });
 
-    handleCheckApproved();
+    NFTContract.on("Approval", () => {
+        if (approvedNFT) { return; }
+
+        dismissLastToast();
+        setApprovedNFT(true);
+    });
 
     const handleConfirmedTransaction = () => {
-        showToast("sent");
+        dismissLastToast();
 
         if (approvedNFT || canceledOption) {
             lastSelectedOptionId.current = option.id;
@@ -119,74 +112,43 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
         }
     };
 
-    const handleError = (error) => {
-        if (error.code === 4001) {
-            // Metamask TX Cancel
-            toast.error("User canceled");
-            return;
+    const handleWithdrawOption = () => showToast( nftOpt.withdrawOptionRequest(option.id).then(handleConfirmedTransaction) );
+    const handleCreateOption = () => showToast( nftOpt.createOption(option.id, { value: option.strikePrice }).then(handleConfirmedTransaction) );
+    const handleCancelOption = () => showToast( nftOpt.cancelOption(option.id).then(handleConfirmedTransaction) );
+
+    const handleExerciseOption = () => {
+        const promise = { current : null };
+
+        // Exercise the option (step 2)
+        if (approvedNFT)
+        {
+            promise.current = nftOpt.exerciseOption(option.id);
+        }
+        // Approve NFT (step 1)
+        else
+        {
+            promise.current = NFTContract.connect(getCurrentProvider().getSigner())
+                                         .approve(nftOpt.address, option.asset.tokenId);
         }
 
-        showToast("failed");
-        console.error(error);
+        promise.current.then(handleConfirmedTransaction);
+        showToast(promise.current);
     };
 
-    const handleWithdrawOption = async () => {
-        try {
-            await nftOpt.withdrawOptionRequest(option.id, await getTXOptions());
-            handleConfirmedTransaction();
-        } catch (error) {
-            handleError(error);
-        }
-    };
+    const isExerciseWindowClosed = () => {
+        if (option.buyer !== currentAccount || !option.startDate) { return false; }
 
-    const handleCancelOption = async () => {
-        try {
-            await nftOpt.cancelOption(option.id, await getTXOptions());
-            canceledOption = true;
-            handleConfirmedTransaction();
-        } catch (error) {
-            handleError(error);
-        }
-    };
+        const timeNow = new Date().getTime() / 1000;
+        const timeOption = parseInt(option.startDate.toString()) + (option.interval * SECONDS_IN_A_DAY);
+        const diff = timeOption - timeNow;
 
-    const handleExerciseOption = async () => {
-        try {
-            if (!approvedNFT) {
-                let NFTContract = getSignedContract(option.asset.address, abi_IERC721);
+        // Can exercise only on the end day (both EUROPEAN and AMERICAN)
+        if (diff > -1 && diff <= SECONDS_IN_A_DAY ) { return true; }
 
-                NFTContract.on("Approval", () => {
-                    if (!approvedNFT) {
-                        setApprovedNFT(true);
-                    }
-                });
+        // Can exercise any time before & including the end day (AMERICAN)
+        if (option.flavor === OptionFlavor.AMERICAN) { return diff > 0; }
 
-                await NFTContract.connect(getCurrentProvider().getSigner()).approve(
-                    nftOpt.address,
-                    option.asset.tokenId,
-                    await getTXOptions()
-                );
-            } else {
-                await nftOpt.exerciseOption(option.id, await getTXOptions());
-            }
-
-            handleConfirmedTransaction();
-        } catch (error) {
-            handleError(error);
-        }
-    };
-
-    const handleCreateOption = async () => {
-        const txOptions = {
-            value: option.strikePrice.toString(),
-            nonce: (await getTXOptions()).nonce,
-        };
-
-        try {
-            await nftOpt.createOption(option.id, txOptions);
-            handleConfirmedTransaction();
-        } catch (error) {
-            handleError(error);
-        }
+        return false;
     };
 
     const actionsForRequestState = (
@@ -203,31 +165,10 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
         </>
     );
 
-    const canExerciseOption = () => {
-        if (option.buyer !== currentAccount || !option.startDate) {
-            return false;
-        }
-
-        const today = endOfDay(new Date());
-        let end_day = new Date((option.startDate + option.interval * SECONDS_IN_A_DAY) * 1000);
-
-        // Can exercise only on the end day (both EUROPEAN and AMERICAN)
-        if (isSameDay(end_day, today)) {
-            return true;
-        }
-
-        // Can exercise any time before & including the end day
-        if (option.flavor === OptionFlavor.AMERICAN) {
-            return isBefore(today, end_day);
-        }
-
-        return false;
-    };
-
     const actionsForOpenState = (
         <>
             {option.buyer === currentAccount ? (
-                canExerciseOption() ? (
+                isExerciseWindowClosed() ? (
                     <>
                         {approvedNFT ? null : (
                             <Button variant="outlined" className={classes.btnSecondary} onClick={handleCancelOption}>

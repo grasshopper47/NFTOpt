@@ -1,7 +1,7 @@
 import React from "react";
 import Layout from "../components/Layout";
 import OptionsListContainer from "../components/OptionsListContainer";
-import {OptionFilterOwnership} from "../utils/types";
+import { OptionFilterOwnership } from "../utils/types";
 
 function ExploreOptions() {
     return (

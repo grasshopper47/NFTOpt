@@ -39,19 +39,6 @@ export type Option = {
     state: OptionState;
 };
 
-// export interface Option_SOLIDITY {
-//     buyer: string;
-//     seller: string;
-//     nftContract: string;
-//     nftId: BigNumber;
-//     startDate: number;
-//     interval: number;
-//     premium: BigNumber;
-//     strikePrice: BigNumber;
-//     flavor: OptionFlavor;
-//     state: OptionState;
-// }
-
 export type WithChildren = {
     children?: React.ReactNode | React.ReactNode[];
 };
