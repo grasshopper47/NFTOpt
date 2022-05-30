@@ -5,8 +5,7 @@ import OptionDetailsPreview from "./OptionDetailsPreview";
 import OptionListItemPreview from "./OptionListItemPreview";
 import classes from "./styles/OptionsListContainer.module.scss";
 import { useAccount, useContracts } from "../providers/contexts";
-import toast from "react-hot-toast";
-import { loadOptionsWithAsset, loadOptions, loadOptionWithAsset } from "../utils/options";
+import { loadOptionsWithAsset, loadOptions } from "../utils/options";
 
 type OptionsListContainerProps = {
     title: string;

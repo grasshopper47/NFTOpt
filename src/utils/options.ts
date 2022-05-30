@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { NFTOpt, ERC721 } from "../../typechain-types";
+import { NFTOpt } from "../../typechain-types";
 import { NFTAsset, Option, OptionWithAsset, Option_SOLIDITY } from "./types";
 import { ADDRESS0, SECONDS_IN_A_DAY } from "./constants";
 import { getSignedContract } from "./metamask";

@@ -6,7 +6,7 @@ import { getCurrentProvider, getSignedContract } from "../utils/metamask";
 import { getAccountDisplayValue, getCorrectPlural, dismissLastToast, showToast } from "../utils/frontend";
 import { OptionFlavor, OptionState, OptionWithAsset } from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
-import { ADDRESS0, networkName, SECONDS_IN_A_DAY } from "../utils/constants";
+import { ADDRESS0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { useState } from "react";
 import { ERC721 } from "../../typechain-types";
 

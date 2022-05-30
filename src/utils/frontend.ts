@@ -1,5 +1,3 @@
-import { Transaction } from "ethers";
-import error from "next/error";
 import toast from "react-hot-toast";
 import { networkName, TOAST_DURATION } from "./constants";
 
