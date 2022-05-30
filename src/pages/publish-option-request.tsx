@@ -20,7 +20,6 @@ import { ethers } from "ethers";
 import toast from "react-hot-toast";
 import { showToast } from "../utils/frontend";
 import { fetchAssetsForAddress } from "../utils/NFT/localhost";
-import { getTXOptions } from "../utils/metamask";
 
 type FormState = {
     asset?: NFTAsset;
@@ -45,10 +44,26 @@ function CreateOption() {
     const [assets, setAssets] = useState<NFTAsset[]>([]);
     const [formState, setFormState] = useState<FormState>(defaultFormState);
 
+    const checkFormIsValid = () => {
+        const missingFormFields =
+            Object.values(formState).filter((x) => x != null).length !==
+            Object.keys(formState).filter((x) => x != null).length;
+
+        return (
+            formState.asset != null &&
+            !missingFormFields &&
+            formState.premium != null &&
+            formState.premium != "" &&
+            parseFloat(formState.premium) !== 0 &&
+            formState.strikePrice != null &&
+            formState.strikePrice != "" &&
+            parseFloat(formState.strikePrice) !== 0 &&
+            formState.interval != 0
+        );
+    };
+
     useEffect(() => {
-        if (!account) {
-            return;
-        }
+        if (!account) { return; }
         fetchAssetsForAddress(account, setAssets);
     }, [account]);
 
@@ -78,24 +93,6 @@ function CreateOption() {
         }));
     };
 
-    const checkFormIsValid = () => {
-        const missingFormFields =
-            Object.values(formState).filter((x) => x != null).length !==
-            Object.keys(formState).filter((x) => x != null).length;
-
-        return (
-            formState.asset != null &&
-            !missingFormFields &&
-            formState.premium != null &&
-            formState.premium != "" &&
-            parseFloat(formState.premium) !== 0 &&
-            formState.strikePrice != null &&
-            formState.strikePrice != "" &&
-            parseFloat(formState.strikePrice) !== 0 &&
-            formState.interval != 0
-        );
-    };
-
     const handleChangeInterval = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (!event.target.value) {
             // @ts-ignore
@@ -114,10 +111,6 @@ function CreateOption() {
     };
 
     const handlePublishOption = async () => {
-        const txOptions = {
-            value: ethers.utils.parseEther(`${parseFloat(formState.premium)}`),
-            nonce: (await getTXOptions()).nonce,
-        };
 
         try {
             await nftOpt.publishOptionRequest(
@@ -126,7 +119,7 @@ function CreateOption() {
                 ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
                 formState.interval * SECONDS_IN_A_DAY,
                 formState.flavor,
-                txOptions
+                { value: ethers.utils.parseEther(`${parseFloat(formState.premium)}`) }
             );
 
             showToast("sent");
