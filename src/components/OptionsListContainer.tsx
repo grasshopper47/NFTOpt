@@ -6,8 +6,7 @@ import OptionListItemPreview from "./OptionListItemPreview";
 import classes from "./styles/OptionsListContainer.module.scss";
 import { useAccount, useContracts } from "../providers/contexts";
 import toast from "react-hot-toast";
-import { loadAllOptionsWithAsset, loadOptions, loadOptionWithAsset } from "../utils/options";
-import { fetchNFTDetailsForMultipleOptions } from "../utils/NFT/localhost";
+import { loadOptionsWithAsset, loadOptions, loadOptionWithAsset } from "../utils/options";
 
 type OptionsListContainerProps = {
     title: string;
@@ -50,7 +49,7 @@ function OptionsListContainer(props: OptionsListContainerProps) {
     useEffect(() => {
         if (!nftOpt || !account) { return; }
 
-        loadAllOptionsWithAsset(nftOpt)
+        loadOptionsWithAsset(nftOpt)
         .then( (options) => {
             console.log("loaded", options);
             setOptionsWithAsset(options);
