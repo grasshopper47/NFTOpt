@@ -13,27 +13,19 @@ export async function connectWallet(setAccountCallback: (account: string) => voi
         return;
     }
 
-    window.ethereum.request({ method: "eth_requestAccounts" }).then((res: string) => setAccountCallback(res[0]));
+    window.ethereum.request({ method: "eth_requestAccounts" })
+        .then((res: string) => setAccountCallback(res[0]));
 }
 
-export async function setupWalletConnectivityEventListeners() {
-    if (!provider) {
-        provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+export async function hookUpMetamask() {
 
-        provider.on("network", (newNetwork, oldNetwork) => {
-            if (oldNetwork) {
-                window.location.reload();
-            }
-        });
-    }
+    provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    provider.on("network", (newN, oldN) => { if (oldN) { window.location.reload(); } });
 
-    if (!currentAccount) {
-        await window.ethereum.request({ method: "eth_accounts" }).then((accounts) => (currentAccount = accounts[0]));
-    }
+    let accounts = await window.ethereum.request({ method: "eth_accounts" });
+    currentAccount = accounts[0];
 
-    window.ethereum.on("accountsChanged", async () => {
-        window.location.reload();
-    });
+    window.ethereum.on("accountsChanged", async () => { window.location.reload(); });
 }
 
 export function getEthereumObject() {
@@ -51,11 +43,12 @@ export function getCurrentAccount() {
 }
 
 export function getSignedContract(address: string, abi: any) {
-    return new ethers.Contract(address, abi, provider.getSigner());
+    return new ethers.Contract(address, abi, getCurrentProvider().getSigner());
 }
 
 export async function getTXOptions() {
-    return {
-        nonce: (await getCurrentProvider().getTransactionCount(getCurrentAccount())) + 1,
-    };
+    // return {
+    //     nonce: (await getCurrentProvider().getTransactionCount(getCurrentAccount())) + 1,
+    // };
+    return null;
 }
