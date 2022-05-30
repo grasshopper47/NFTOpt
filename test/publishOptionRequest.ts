@@ -1,5 +1,5 @@
-import {expect} from "chai";
-import {NFTOptContract, deployMainContract} from "../src/utils/deployment";
+import { expect } from "chai";
+import { NFTOptContract, deployMainContract } from "../src/utils/deployment";
 import {
     buyer,
     initializer,
@@ -14,15 +14,15 @@ describe("publishOptionRequest", function () {
     });
 
     it("reverts when called with an invalid (non ERC-721 compliant) NFT Contract", async function () {
-        await expect(NFTOptContract.connect(buyer).publishOptionRequest(buyer.address, 1, 0, 0, 0)).to.be.revertedWith(
-            "NOT_AN_INTERFACE_OF"
-        );
+        await expect(NFTOptContract.connect(buyer)
+            .publishOptionRequest(buyer.address, 1, 0, 0, 0))
+            .to.be.revertedWith("NOT_AN_INTERFACE_OF");
     });
 
     it("reverts when called with 0 as NFT Token ID", async function () {
-        await expect(
-            NFTOptContract.connect(buyer).publishOptionRequest(NFTDummyContract.address, 0, 0, 0, 0)
-        ).to.be.revertedWith("INVALID_TOKEN_ID");
+        await expect(NFTOptContract.connect(buyer)
+            .publishOptionRequest(NFTDummyContract.address, 0, 0, 0, 0))
+            .to.be.revertedWith("INVALID_TOKEN_ID");
     });
 
     it("reverts when NFT Token ID is under different ownership than the caller's", async function () {
@@ -31,27 +31,27 @@ describe("publishOptionRequest", function () {
         expect(owner).to.be.equal(NFTDummyContract.address);
 
         // Can't publish option request when not an owner
-        await expect(
-            NFTOptContract.connect(buyer).publishOptionRequest(NFTDummyContract.address, 9999, 0, 0, 0)
-        ).to.be.revertedWith("NFT_NOT_OWNER");
+        await expect(NFTOptContract.connect(buyer)
+            .publishOptionRequest(NFTDummyContract.address, 9999, 0, 0, 0))
+            .to.be.revertedWith("NFT_NOT_OWNER");
     });
 
     it("reverts when called without a premium (transaction value)", async function () {
-        await expect(
-            NFTOptContract.connect(buyer).publishOptionRequest(NFTDummyContract.address, 1, 0, 0, 0)
-        ).to.be.revertedWith("INVALID_PREMIUM_AMOUNT");
+        await expect(NFTOptContract.connect(buyer)
+            .publishOptionRequest(NFTDummyContract.address, 1, 0, 0, 0))
+            .to.be.revertedWith("INVALID_PREMIUM_AMOUNT");
     });
 
     it("reverts when called with 0 as Strike Price", async function () {
-        await expect(
-            NFTOptContract.connect(buyer).publishOptionRequest(NFTDummyContract.address, 1, 0, 0, 0, {value: 1})
-        ).to.be.revertedWith("INVALID_STRIKE_PRICE_AMOUNT");
+        await expect(NFTOptContract.connect(buyer)
+            .publishOptionRequest(NFTDummyContract.address, 1, 0, 0, 0, { value: 1 }))
+            .to.be.revertedWith("INVALID_STRIKE_PRICE_AMOUNT");
     });
 
     it("reverts when called with 0 as Interval", async function () {
-        await expect(
-            NFTOptContract.connect(buyer).publishOptionRequest(NFTDummyContract.address, 1, 1, 0, 0, {value: 1})
-        ).to.be.revertedWith("INVALID_EXPIRATION_INTERVAL");
+        await expect(NFTOptContract.connect(buyer)
+            .publishOptionRequest(NFTDummyContract.address, 1, 1, 0, 0, { value: 1 }))
+            .to.be.revertedWith("INVALID_EXPIRATION_INTERVAL");
     });
 
     it("succeeds when called with valid values", async function () {
@@ -70,7 +70,7 @@ describe("publishOptionRequest", function () {
         expect(optionID1).to.equal(1);
 
         // Check that details of the option data match those sent
-        const option = await NFTOptContract.options(1);
+        const option = await NFTOptContract.options(0);
 
         expect(option.buyer).to.equal(dummyOptionRequest.buyer);
         expect(option.seller).to.equal(dummyOptionRequest.seller);
@@ -95,11 +95,11 @@ describe("publishOptionRequest", function () {
                 dummyOptionRequest.strikePrice,
                 dummyOptionRequest.interval,
                 dummyOptionRequest.flavor,
-                {value: 1}
+                { value: 1 }
             )
         )
             .to.emit(NFTOptContract, "NewRequest")
-            .withArgs(buyer.address, 1);
+            .withArgs(buyer.address, 0);
 
         // Reset the state
         await deployMainContract();

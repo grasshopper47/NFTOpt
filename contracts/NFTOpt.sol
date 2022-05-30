@@ -94,7 +94,7 @@ contract NFTOpt {
             revert INVALID_EXPIRATION_INTERVAL(0);
         }
 
-        options[optionID++] =
+        options[optionID] =
         Option
         ({
             buyer       : payable(msg.sender)
@@ -110,6 +110,8 @@ contract NFTOpt {
         });
 
         emit NewRequest(msg.sender, optionID);
+
+        ++optionID;
     }
 
     /// @custom:author GregVanDell and LuisImagiire

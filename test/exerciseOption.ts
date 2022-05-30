@@ -1,5 +1,5 @@
-import {expect} from "chai";
-import {OptionFlavor} from "../src/utils/types";
+import { expect } from "chai";
+import { OptionFlavor } from "../src/utils/types";
 import {
     buyer,
     seller,
@@ -9,8 +9,8 @@ import {
     dummyOptionRequest,
     publishDummyOptionRequest,
 } from "../src/utils/backend";
-import {SECONDS_IN_A_DAY} from "../src/utils/constants";
-import {NFTOptContract} from "../src/utils/deployment";
+import { SECONDS_IN_A_DAY } from "../src/utils/constants";
+import { NFTOptContract } from "../src/utils/deployment";
 
 let optionAmerican: any;
 let optionEuropean: any;
@@ -26,7 +26,7 @@ describe("exerciseOption", function () {
             dummyOptionRequest.strikePrice,
             dummyOptionRequest.interval,
             OptionFlavor.AMERICAN,
-            {value: dummyOptionRequest.premium}
+            { value: dummyOptionRequest.premium }
         );
 
         // Publish European option
@@ -36,26 +36,30 @@ describe("exerciseOption", function () {
             dummyOptionRequest.strikePrice,
             dummyOptionRequest.interval,
             dummyOptionRequest.flavor,
-            {value: dummyOptionRequest.premium}
+            { value: dummyOptionRequest.premium }
         );
 
         await publishDummyOptionRequest();
 
         // Fill option requests
-        await NFTOptContract.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice});
-        await NFTOptContract.connect(seller).createOption(2, {value: dummyOptionRequest.strikePrice});
+        await NFTOptContract.connect(seller).createOption(0, { value: dummyOptionRequest.strikePrice });
+        await NFTOptContract.connect(seller).createOption(1, { value: dummyOptionRequest.strikePrice });
 
         // Load option details -- TODO: store as Option struct; need to transform, as Solidity returns tuples
-        optionAmerican = await NFTOptContract.options(1);
-        optionEuropean = await NFTOptContract.options(2);
+        optionAmerican = await NFTOptContract.options(0);
+        optionEuropean = await NFTOptContract.options(1);
     });
 
     it("reverts with non-existent optionID", async function () {
-        await expect(NFTOptContract.connect(buyer).exerciseOption(9999)).to.be.revertedWith("INVALID_OPTION_ID");
+        await expect(NFTOptContract.connect(buyer)
+            .exerciseOption(9999))
+            .to.be.revertedWith("INVALID_OPTION_ID");
     });
 
     it("reverts when msg.sender isn't the buyer", async function () {
-        await expect(NFTOptContract.connect(seller).exerciseOption(1)).to.be.revertedWith("NOT_AUTHORIZED");
+        await expect(NFTOptContract.connect(seller)
+            .exerciseOption(0))
+            .to.be.revertedWith("NOT_AUTHORIZED");
     });
 
     it("reverts when buyer isn't the owner of option NFT after option is in effect", async function () {
@@ -63,25 +67,33 @@ describe("exerciseOption", function () {
         await NFTDummyContract.connect(buyer).transferFrom(buyer.address, seller.address, optionAmerican.nftId);
 
         // Exercise option
-        await expect(NFTOptContract.connect(buyer).exerciseOption(1)).to.be.revertedWith("NFT_NOT_OWNER");
+        await expect(NFTOptContract.connect(buyer)
+            .exerciseOption(0))
+            .to.be.revertedWith("NFT_NOT_OWNER");
     });
 
     it("reverts when option state is not OPEN", async function () {
-        await expect(NFTOptContract.connect(buyer).exerciseOption(3)).to.be.revertedWith("INVALID_OPTION_STATE");
+        await expect(NFTOptContract.connect(buyer)
+            .exerciseOption(2))
+            .to.be.revertedWith("INVALID_OPTION_STATE");
     });
 
     it("fails when contract address is not approved to transfer NFT", async function () {
-        await expect(NFTOptContract.connect(buyer).exerciseOption(1)).to.be.revertedWith(
-            "NOT_APPROVED_TO_TRANSFER_NFT"
-        );
+        await expect(NFTOptContract.connect(buyer)
+            .exerciseOption(0))
+            .to.be.revertedWith("NOT_APPROVED_TO_TRANSFER_NFT");
     });
 
     it("succeeds when contract address is approved to transfer NFT", async function () {
         // Approve contract to transfer NFT
-        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, dummyOptionRequest.nftId);
+        await NFTDummyContract.connect(buyer)
+            .approve(NFTOptContract.address, dummyOptionRequest.nftId);
 
         // Exercise option
-        await expect(NFTOptContract.connect(buyer).exerciseOption(1)).to.emit(NFTOptContract, "Exercised").withArgs(1);
+        await expect(NFTOptContract.connect(buyer)
+            .exerciseOption(0))
+            .to.emit(NFTOptContract, "Exercised")
+            .withArgs(0);
     });
 
     it("fails when european option is exercised before the expiration day", async function () {
@@ -89,7 +101,9 @@ describe("exerciseOption", function () {
         await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, optionEuropean.nftId);
 
         // Exercise option
-        await expect(NFTOptContract.connect(buyer).exerciseOption(2)).to.be.revertedWith("EXERCISE_WINDOW_IS_CLOSED");
+        await expect(NFTOptContract.connect(buyer)
+            .exerciseOption(1))
+            .to.be.revertedWith("EXERCISE_WINDOW_IS_CLOSED");
     });
 
     it("succeeds when european option is exercised on expiration day", async function () {
@@ -100,7 +114,10 @@ describe("exerciseOption", function () {
         await addDaysToEVM(dummyOptionRequest.interval / SECONDS_IN_A_DAY - 1);
 
         // Exercise option
-        await expect(NFTOptContract.connect(buyer).exerciseOption(2)).to.emit(NFTOptContract, "Exercised").withArgs(2);
+        await expect(NFTOptContract.connect(buyer)
+            .exerciseOption(1))
+            .to.emit(NFTOptContract, "Exercised")
+            .withArgs(1);
     });
 
     it("succeeds when american option is exercised on expiration day", async function () {
@@ -111,7 +128,10 @@ describe("exerciseOption", function () {
         await addDaysToEVM(2);
 
         // Exercise option
-        await expect(NFTOptContract.connect(buyer).exerciseOption(1)).to.emit(NFTOptContract, "Exercised").withArgs(1);
+        await expect(NFTOptContract.connect(buyer)
+            .exerciseOption(0))
+            .to.emit(NFTOptContract, "Exercised")
+            .withArgs(0);
     });
 
     it("succeeds when exercised and buyer's ETH balance has increased by strike price", async function () {
@@ -121,10 +141,10 @@ describe("exerciseOption", function () {
         let buyerBalance0 = await buyer.getBalance();
 
         // Exercise option (promise)
-        let tx = NFTOptContract.connect(buyer).exerciseOption(1);
+        let tx = NFTOptContract.connect(buyer).exerciseOption(0);
 
         // Exercise option
-        await expect(tx).to.emit(NFTOptContract, "Exercised").withArgs(1);
+        await expect(tx).to.emit(NFTOptContract, "Exercised").withArgs(0);
 
         let transaction = await tx;
         let transactionReceipt = await transaction.wait();
@@ -143,7 +163,7 @@ describe("exerciseOption", function () {
     });
 
     it("succeeds when exercised and seller has ownership of NFT transfered ", async function () {
-        const id = 1;
+        const id = 0;
 
         // Load option
         const option = await NFTOptContract.options(id);
@@ -152,7 +172,8 @@ describe("exerciseOption", function () {
         await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, option.nftId);
 
         // Exercise option
-        await expect(NFTOptContract.connect(buyer).exerciseOption(id))
+        await expect(NFTOptContract.connect(buyer)
+            .exerciseOption(id))
             .to.emit(NFTOptContract, "Exercised")
             .withArgs(id);
 
