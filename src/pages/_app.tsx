@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { AppProps } from "next/app";
 import "./_app.scss";
 import { AccountContext, ContractsContext } from "../providers/contexts";
-import { networkName } from "../utils/constants";
+import { networkName, TOAST_DURATION } from "../utils/constants";
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
 import addresses from "../../addresses.json";
 import Header from "../components/Header";
@@ -16,7 +16,7 @@ import {
     connectWallet,
     getCurrentProvider,
 } from "../utils/metamask";
-import { setWaitingToastId, getWaitingToastId } from "../utils/frontend";
+import { dismissLastToast } from "../utils/frontend";
 
 export default function App({ Component, pageProps }: AppProps) {
     const [account, setAccount] = useState(null);
@@ -25,44 +25,27 @@ export default function App({ Component, pageProps }: AppProps) {
     const blockNo = useRef<number>(0);
 
     const success = (message: string, newBlockNo: number = 0) => {
-        // Dismiss toast
-        if (getWaitingToastId())
-        {
-            toast.dismiss(getWaitingToastId());
-            setWaitingToastId("");
-        }
+        dismissLastToast();
 
         // Filter out old events which are re-emitted when intitialized, then emitted new event
         if (blockNo.current < newBlockNo) {
             blockNo.current = newBlockNo;
-            toast.success("Successfully " + message, { duration: 2000 });
+            toast.success("Successfully " + message, { duration: TOAST_DURATION });
         }
     };
 
-    const attachEventListeners = (contract: NFTOpt) => {
-        contract.on("NewRequest", (id, tx) => {
-            success("published an option request", tx.blockNumber);
-            console.log(1);
-        });
-        contract.on("Withdrawn", (id, tx) => {
-            success("withdrawn an option request", tx.blockNumber);
-            console.log(2);
-        });
-        contract.on("Opened", (id, tx) => {
-            success("opened an option", tx.blockNumber);
-            console.log(3);
-        });
-        contract.on("Opened", (id, tx) => {
-            success("closed an option", tx.blockNumber);
-            console.log(4);
-        });
-        contract.on("Exercised", (id, tx) => {
-            success("exercised an option", tx.blockNumber);
-            console.log(5);
-        });
-    };
+    let onContractEvent = (action: string, blockNo: number) => {
+        success(`${action} request`, blockNo);
+        console.log(action);
+    }
 
-    console.log("x");
+    const attachEventListeners = (contract: NFTOpt) => {
+        contract.on("NewRequest", (id, tx) => onContractEvent("published", tx.blockNumber) );
+        contract.on("Withdrawn" , (id, tx) => onContractEvent("withdrawn", tx.blockNumber) );
+        contract.on("Opened"    , (id, tx) => onContractEvent("opened"   , tx.blockNumber) );
+        contract.on("Canceled"  , (id, tx) => onContractEvent("canceled" , tx.blockNumber) );
+        contract.on("Exercised" , (id, tx) => onContractEvent("exercised", tx.blockNumber) );
+    };
 
     useEffect(() => {
         hookUpMetamask()

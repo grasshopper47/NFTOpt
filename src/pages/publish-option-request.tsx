@@ -17,9 +17,8 @@ import { floatNumberRegex, networkName, SECONDS_IN_A_DAY } from "../utils/consta
 import { NFTAsset, OptionFlavor } from "../utils/types";
 import classes from "./styles/CreateOption.module.scss";
 import { ethers } from "ethers";
-import toast from "react-hot-toast";
 import { fetchAssetsOfAccount, fetchNFTImage } from "../utils/NFT/localhost";
-import { setWaitingToastId } from "../utils/frontend";
+import { showToast } from "../utils/frontend";
 
 type FormState = {
     asset?: NFTAsset;
@@ -91,7 +90,6 @@ function CreateOption() {
     };
 
     const handlePublishOption = async () => {
-
         let promise = nftOpt.publishOptionRequest(
             formState.asset.address,
             formState.asset.tokenId,
@@ -102,24 +100,7 @@ function CreateOption() {
         )
         .then( () => setFormState(defaultFormState) );
 
-        toast.promise(
-            promise,
-            {
-                loading: "Waiting for user to confirm...",
-                success:
-                () => {
-                    setTimeout( () => setWaitingToastId(toast.loading(`Waiting for ${networkName} to confirm...`)), 2000);
-
-                    return "Transaction sent";
-                },
-                error: "User canceled",
-            },
-            {
-                loading: { duration: Infinity },
-                success: { duration: 2000     },
-                error:   { duration: 0        }
-            },
-        );
+        showToast(promise);
     };
 
     return (
