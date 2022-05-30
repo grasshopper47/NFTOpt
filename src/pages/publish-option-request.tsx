@@ -13,12 +13,13 @@ import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { useAccount, useContracts } from "../providers/contexts";
-import { floatNumberRegex, SECONDS_IN_A_DAY, TOAST_DURATION } from "../utils/constants";
+import { floatNumberRegex, networkName, SECONDS_IN_A_DAY } from "../utils/constants";
 import { NFTAsset, OptionFlavor } from "../utils/types";
 import classes from "./styles/CreateOption.module.scss";
 import { ethers } from "ethers";
 import toast from "react-hot-toast";
 import { fetchAssetsOfAccount, fetchNFTImage } from "../utils/NFT/localhost";
+import { setWaitingToastId } from "../utils/frontend";
 
 type FormState = {
     asset?: NFTAsset;
@@ -104,13 +105,18 @@ function CreateOption() {
         toast.promise(
             promise,
             {
-                loading: 'Waiting for user to comfirm transaction...',
-                success: "Transaction sent",
+                loading: "Waiting for user to confirm...",
+                success:
+                () => {
+                    setTimeout( () => setWaitingToastId(toast.loading(`Waiting for ${networkName} to confirm...`)), 2000);
+
+                    return "Transaction sent";
+                },
                 error: "User canceled",
             },
             {
                 loading: { duration: Infinity },
-                success: { duration: 0        },
+                success: { duration: 2000     },
                 error:   { duration: 0        }
             },
         );

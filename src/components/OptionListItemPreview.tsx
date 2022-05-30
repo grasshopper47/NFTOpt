@@ -17,7 +17,7 @@ function OptionListItemPreview(props: OptionListItemPreviewProps) {
         <div className={classes.card} onClick={onSelectOptionForPreview.bind(null, option)}>
             <img style={{backgroundImage: `url(${option.asset.image})`}} alt="" />
             <div className={classes.content}>
-                <p className={classes.title}>#{option.id}</p>
+                <p className={classes.title}>#{option.id + 1}</p>
                 <p className={classes.title}>{option.asset.name}</p>
                 <div className={classes.moreInfoContainer}>
                     <p>{ethers.utils.formatEther(option.strikePrice)} ETH</p>

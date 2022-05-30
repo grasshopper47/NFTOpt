@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { AppProps } from "next/app";
 import "./_app.scss";
 import { AccountContext, ContractsContext } from "../providers/contexts";
-import { networkName, TOAST_DURATION } from "../utils/constants";
+import { networkName } from "../utils/constants";
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
 import addresses from "../../addresses.json";
 import Header from "../components/Header";
@@ -16,6 +16,7 @@ import {
     connectWallet,
     getCurrentProvider,
 } from "../utils/metamask";
+import { setWaitingToastId, getWaitingToastId } from "../utils/frontend";
 
 export default function App({ Component, pageProps }: AppProps) {
     const [account, setAccount] = useState(null);
@@ -24,10 +25,17 @@ export default function App({ Component, pageProps }: AppProps) {
     const blockNo = useRef<number>(0);
 
     const success = (message: string, newBlockNo: number = 0) => {
+        // Dismiss toast
+        if (getWaitingToastId())
+        {
+            toast.dismiss(getWaitingToastId());
+            setWaitingToastId("");
+        }
+
         // Filter out old events which are re-emitted when intitialized, then emitted new event
         if (blockNo.current < newBlockNo) {
             blockNo.current = newBlockNo;
-            toast.success("Successfully " + message, { duration: TOAST_DURATION });
+            toast.success("Successfully " + message, { duration: 2000 });
         }
     };
 
@@ -75,7 +83,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <AccountContext.Provider value={account}>
             <ContractsContext.Provider value={contracts}>
                 <RouteGuard account={account} loaded={loaded}>
-                    <Toaster toastOptions={{ duration: TOAST_DURATION }} containerClassName={"toast-container"} />
+                    <Toaster containerClassName={"toast-container"} />
                     <Header account={account} onConnectAccount={connectWallet.bind(null, setAccount)} />
                     <Component {...pageProps} />
                 </RouteGuard>
