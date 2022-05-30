@@ -71,38 +71,6 @@ function OptionsListContainer(props: OptionsListContainerProps) {
         if (selectedOptionForPreview) { setSelectedOptionForPreview(null); }
     }, [activeTabIndex, optionsWithAsset]);
 
-    const success = async (message: string, tabIndex: number, optionId: number) => {
-        if (lastSelectedOptionId.current == null || optionId !== lastSelectedOptionId.current) { return; }
-
-        setActiveTabIndex(tabIndex);
-
-        if (optionId != null) {
-            const updatedOption = await loadOptionWithAsset(nftOpt, optionId);
-            setOptionsWithAsset((prev) => [...prev.filter((x) => x.id !== optionId), updatedOption]);
-        }
-
-        toast.success("Successfully " + message);
-        // TODO: remove from the ref array the current updated option
-    };
-
-    const attachEventListeners = () => {
-        // nftOpt.on("Exercised", (from, tx) => {
-        //     const optionId = tx?.args?.[0]?.toNumber();
-        //     success("exercised the option request", 2, optionId);
-        // });
-        // nftOpt.on("Opened", (from, amount, tx) => {
-        //     const optionId = tx?.args?.[1]?.toNumber();
-        //     success("opened the option request", 1, optionId);
-        // });
-        // nftOpt.on("Canceled", (from, amount, tx) => {
-        //     const optionId = tx?.args?.[1]?.toNumber();
-        //     success("canceled the option request", 2, optionId);
-        // });
-        // nftOpt.on("Withdrawn", (from, amount, tx) => {
-        //     const optionId = tx?.args?.[1]?.toNumber();
-        //     success("withdrawn the option request", 0, optionId);
-        // });
-    };
 
     const handleChangeTab = (_, tabIndex: number) => setActiveTabIndex(tabIndex);
 
