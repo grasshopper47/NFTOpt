@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {useRouter} from "next/router";
 import Link from "next/link";
 import classes from "./styles/Header.module.scss";
@@ -6,6 +6,7 @@ import clsx from "clsx";
 import Button from "@mui/material/Button";
 import ThemeSwitch from "./ThemeSwitch";
 import {getAccountDisplayValue} from "../utils/frontend";
+import {useRandomNumber} from "../providers/RandomProvider";
 
 type Route = {
     href: string;
@@ -40,6 +41,12 @@ function Header(props: HeaderProps) {
     const {account, onConnectAccount} = props;
 
     const router = useRouter();
+
+    const {randomNumber} = useRandomNumber();
+
+    useEffect(() => {
+        console.log("this is the value provided in header", randomNumber);
+    }, [randomNumber]);
 
     return (
         <div className={classes.root}>

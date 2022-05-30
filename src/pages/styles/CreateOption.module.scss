@@ -33,6 +33,13 @@
 }
 
 .field {
+    input:-webkit-autofill {
+        box-shadow:  0 0 0px 1000px $background-surface-0 inset;
+        -webkit-box-shadow: 0 0 0px 1000px $background-surface-0 inset;
+        color: $text-primary;
+        -webkit-text-fill-color: $text-primary;
+        caret-color: $text-primary;
+    }
     label:global(.MuiFormLabel-root) {
         color: $text-primary;
         margin-top: 10px;
