@@ -217,7 +217,7 @@ function CreateOption() {
                     </Button>
                 </div>
                 <div className={clsx(classes.imageContainer, !formState.asset && classes.dummyImageContainer)}>
-                    {formState.asset.image ? (
+                    {formState.asset ? (
                         <img src={formState.asset.image} alt="" />
                     ) : (
                         Array.from({ length: 3 }).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
