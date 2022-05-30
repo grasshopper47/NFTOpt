@@ -1,6 +1,5 @@
 import { ArrowBackIosRounded } from "@mui/icons-material";
 import { Button, IconButton } from "@mui/material";
-import { endOfDay, isBefore, isSameDay } from "date-fns";
 import { ethers } from "ethers";
 import toast from "react-hot-toast";
 import { useContracts } from "../providers/contexts";
@@ -176,13 +175,8 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     };
 
     const handleCreateOption = async () => {
-        const txOptions = {
-            value: option.strikePrice.toString(),
-            nonce: (await getTXOptions()).nonce,
-        };
-
         try {
-            await nftOpt.createOption(option.id, txOptions);
+            await nftOpt.createOption(option.id, { value: option.strikePrice });
             handleConfirmedTransaction();
         } catch (error) {
             handleError(error);
@@ -204,22 +198,17 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     );
 
     const canExerciseOption = () => {
-        if (option.buyer !== currentAccount || !option.startDate) {
-            return false;
-        }
+        if (option.buyer !== currentAccount || !option.startDate) { return false; }
 
-        const today = endOfDay(new Date());
-        let end_day = new Date((option.startDate + option.interval * SECONDS_IN_A_DAY) * 1000);
+        const timeNow = new Date().getTime() / 1000;
+        const timeOption = parseInt(option.startDate.toString()) + (option.interval * SECONDS_IN_A_DAY);
+        const diff = timeOption - timeNow;
 
         // Can exercise only on the end day (both EUROPEAN and AMERICAN)
-        if (isSameDay(end_day, today)) {
-            return true;
-        }
+        if (diff > -1 && diff <= SECONDS_IN_A_DAY ) { return true; }
 
-        // Can exercise any time before & including the end day
-        if (option.flavor === OptionFlavor.AMERICAN) {
-            return isBefore(today, end_day);
-        }
+        // Can exercise any time before & including the end day (AMERICAN)
+        if (option.flavor === OptionFlavor.AMERICAN) { return diff > 0; }
 
         return false;
     };
