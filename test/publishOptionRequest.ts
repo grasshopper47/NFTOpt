@@ -99,7 +99,7 @@ describe("publishOptionRequest", function () {
             )
         )
             .to.emit(NFTOptContract, "NewRequest")
-            .withArgs(buyer.address, 0);
+            .withArgs(0);
 
         // Reset the state
         await deployMainContract();

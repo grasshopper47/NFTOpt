@@ -34,11 +34,11 @@ contract NFTOpt {
     mapping(uint256 => Option) public options;
 
     /// @dev -- EVENTS --------------------------------
-    event NewRequest(address, uint256);
+    event NewRequest(uint256);
     event Exercised (uint256);
-    event Opened    (address, uint256);
-    event Canceled  (address, uint256);
-    event Withdrawn (address, uint256);
+    event Opened    (uint256);
+    event Canceled  (uint256);
+    event Withdrawn (uint256);
 
     /// @dev -- METHODS -------------------------------
     function getBalance() public view returns (uint256)
@@ -109,7 +109,7 @@ contract NFTOpt {
         ,   state       : OptionState.REQUEST
         });
 
-        emit NewRequest(msg.sender, optionID);
+        emit NewRequest(optionID);
 
         ++optionID;
     }
@@ -159,7 +159,7 @@ contract NFTOpt {
 
         options[_optionId].state = OptionState.WITHDRAWN;
 
-        emit Withdrawn(msg.sender, _optionId);
+        emit Withdrawn(_optionId);
     }
 
     /// @custom:author StefanaM
@@ -227,7 +227,7 @@ contract NFTOpt {
             revert FUNDS_TRANSFER_FAILED();
         }
 
-        emit Opened(msg.sender, _optionId);
+        emit Opened(_optionId);
     }
 
     /// @custom:author ShababAli
@@ -292,7 +292,7 @@ contract NFTOpt {
 
         options[_optionId].state = OptionState.CLOSED;
 
-        emit Canceled(msg.sender, _optionId);
+        emit Canceled(_optionId);
     }
 
     /// @custom:author LuisImagiire

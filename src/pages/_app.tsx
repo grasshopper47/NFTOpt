@@ -40,7 +40,7 @@ export default function App({ Component, pageProps }: AppProps) {
     };
 
     const attachEventListeners = (contract: NFTOpt) => {
-        contract.on("NewRequest", (from, id, tx) => {
+        contract.on("NewRequest", (id, tx) => {
             success("published an option request", tx.blockNumber);
             console.log(1);
         });
@@ -48,15 +48,15 @@ export default function App({ Component, pageProps }: AppProps) {
             success("withdrawn an option request", tx.blockNumber);
             console.log(2);
         });
-        contract.on("Opened", (from, id, tx) => {
+        contract.on("Opened", (id, tx) => {
             success("opened an option", tx.blockNumber);
             console.log(3);
         });
-        contract.on("Opened", (from, id, tx) => {
+        contract.on("Opened", (id, tx) => {
             success("closed an option", tx.blockNumber);
             console.log(4);
         });
-        contract.on("Exercised", (from, id, tx) => {
+        contract.on("Exercised", (id, tx) => {
             success("exercised an option", tx.blockNumber);
             console.log(5);
         });

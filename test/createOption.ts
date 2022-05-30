@@ -122,7 +122,7 @@ describe("createOption", function () {
         await expect(NFTOptContract.connect(seller)
             .createOption(0, { value: dummyOptionRequest.strikePrice }))
             .to.emit(NFTOptContract, "Opened")
-            .withArgs(seller.address, 0);
+            .withArgs(0);
 
         // Reset the state
         await deployMainContract();
