@@ -48,7 +48,6 @@ function OptionViewContainer(props: OptionViewContainerProps) {
     const [selectedOption, setSelectedOption] = useState<OptionWithAsset | null>(null);
     const lastSelectedOptionId = useRef<number | null>(null); // TODO: make an array for options in progress
 
-    console.log("X");
     useEffect
     (
         () =>
