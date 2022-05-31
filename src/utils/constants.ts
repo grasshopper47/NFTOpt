@@ -13,6 +13,7 @@ export const ADDRESS0: string = "0x0000000000000000000000000000000000000000";
 export const networkName: string = _networks[_network_id];
 export const SECONDS_IN_A_DAY = 86400;
 export const TOAST_DURATION = 2000;
+export const TOAST_DELAY = 333;
 export const MAX_MINTABLE_TOKENS = 5;
 
 export const ABIs =
