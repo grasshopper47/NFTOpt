@@ -4,12 +4,14 @@ import { getCorrectPlural } from "../utils/frontend";
 import { OptionWithAsset } from "../utils/types";
 import classes from "./styles/OptionListItemPreview.module.scss";
 
-type OptionListItemPreviewProps = {
+type OptionListItemPreviewProps =
+{
     option: OptionWithAsset;
     onSelectOptionForPreview: (OptionWithAsset: OptionWithAsset | null) => void;
 };
 
-function OptionListItemPreview(props: OptionListItemPreviewProps) {
+function OptionListItemPreview(props: OptionListItemPreviewProps)
+{
     const { option, onSelectOptionForPreview } = props;
 
     return (

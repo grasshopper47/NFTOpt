@@ -10,11 +10,12 @@ import { ADDRESS0, ABIs, SECONDS_IN_A_DAY } from "../utils/constants";
 import { useState } from "react";
 import { ERC721 } from "../../typechain-types";
 
-type OptionDetailsPreviewProps = {
-    currentAccount: string;
-    option: OptionWithAsset;
-    onSelectOption: (OptionWithAsset: OptionWithAsset | null) => void;
-    lastSelectedOptionId: React.MutableRefObject<number | null>;
+type OptionDetailsPreviewProps =
+{
+    currentAccount       : string;
+    option               : OptionWithAsset;
+    onSelectOption       : (OptionWithAsset: OptionWithAsset | null) => void;
+    lastSelectedOptionId : React.MutableRefObject<number | null>;
 };
 
 function OptionDetailsPreview(props: OptionDetailsPreviewProps) {

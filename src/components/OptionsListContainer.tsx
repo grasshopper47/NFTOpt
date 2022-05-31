@@ -5,19 +5,22 @@ import OptionDetailsPreview from "./OptionDetailsPreview";
 import OptionListItemPreview from "./OptionListItemPreview";
 import classes from "./styles/OptionsListContainer.module.scss";
 import { useAccount, useContracts } from "../providers/contexts";
-import { loadOptionsWithAsset, loadOptions } from "../utils/options";
+import { loadOptionsWithAsset } from "../utils/options";
 
-type OptionsListContainerProps = {
+type OptionsListContainerProps =
+{
     title: string;
     filterOwnership: OptionFilterOwnership;
 };
 
-type OptionStateTab = {
+type OptionStateTab =
+{
     name: string;
     optionState: OptionState;
 };
 
-const optionStateTabs: OptionStateTab[] = [
+const optionStateTabs: OptionStateTab[] =
+[
     {
         name: "Requests",
         optionState: OptionState.REQUEST,
@@ -45,31 +48,48 @@ function OptionsListContainer(props: OptionsListContainerProps) {
     const [selectedOptionForPreview, setSelectedOptionForPreview] = useState<OptionWithAsset | null>(null);
     const lastSelectedOptionId = useRef<number | null>(null); // TODO: make an array for options in progress
 
-    useEffect(() => {
-        if (!nftOpt || !account) { return; }
-
-        loadOptionsWithAsset(nftOpt)
-        .then( (options) => {
-            console.log("loaded", options);
-            setOptionsWithAsset(options);
-        });
-    }, [loadOptions] );
+    useEffect
+    (
+        () =>
+        {
+            loadOptionsWithAsset(nftOpt)
+            .then
+            (
+                (options) =>
+                {
+                    console.log("loaded", options);
+                    setOptionsWithAsset(options);
+                }
+            );
+        },
+    []
+    );
 
     // Filter by active tab
-    useEffect(() => {
-        const state = optionStateTabs[activeTabIndex].optionState;
+    useEffect
+    (
+        () =>
+        {
+            const state = optionStateTabs[activeTabIndex].optionState;
 
-        setFilteredOptions(
-            optionsWithAsset?.filter((option) =>
-                state === OptionState.OPEN || state === OptionState.REQUEST
-                    ? option.state === state
-                    : option.state === OptionState.WITHDRAWN || option.state === OptionState.CLOSED
-            )
-        );
+            setFilteredOptions
+            (
+                optionsWithAsset?.filter
+                (
+                    (option) =>
+                    state === OptionState.OPEN || state === OptionState.REQUEST
+                        ? option.state === state
+                        : option.state === OptionState.WITHDRAWN || option.state === OptionState.CLOSED
+                )
+            );
 
-        if (selectedOptionForPreview) { setSelectedOptionForPreview(null); }
-    }, [activeTabIndex, optionsWithAsset]);
-
+            if (selectedOptionForPreview) { setSelectedOptionForPreview(null); }
+        },
+    [
+        activeTabIndex,
+        optionsWithAsset
+    ]
+    );
 
     const handleChangeTab = (_, tabIndex: number) => setActiveTabIndex(tabIndex);
 
