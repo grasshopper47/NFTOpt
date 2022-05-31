@@ -1,55 +1,69 @@
 import toast from "react-hot-toast";
 import { networkName, TOAST_DURATION } from "./constants";
 
-export function getCorrectPlural(word: string, count: number) {
+export function getCorrectPlural(word: string, count: number)
+{
     return word + (count > 1 ? "s" : "");
 }
 
-export function getAccountDisplayValue(account: string) {
+export function getAccountDisplayValue(account: string)
+{
     return account?.slice(0, 6) + "..." + account?.slice(-4);
 }
 
-let waitingToastIds : string[] = [];
+const waitingToastIds : string[] = [];
 
-function getWaitingToastId() {
+function getWaitingToastId()
+{
     return waitingToastIds.shift();
 }
 
-function setWaitingToastId(id: string) {
+function setWaitingToastId(id: string)
+{
     if (id === "") { return; }
 
     waitingToastIds.push(id);
 }
 
-export function showToast(promise:Promise<any>) {
-    toast.promise(
-        promise,
+export function showToast(aPromise:Promise<any>)
+{
+    toast.promise
+    (
+        aPromise,
         {
             loading: "Waiting for user to confirm...",
             success:
-            () => {
-                setTimeout( () => setWaitingToastId(toast.loading(`Waiting for ${networkName} to confirm...`)), 2000);
+            () =>
+            {
+                setTimeout
+                (
+                    () => setWaitingToastId(toast.loading(`Waiting for ${networkName} to confirm...`)),
+                    TOAST_DURATION
+                );
 
                 return "Transaction sent";
             },
+
             error:
-            (...err) => {
+            (...err) =>
+            {
                 if (err[0]?.error?.code)
                 {
                     return "Transaction error\n\n" + err[0]?.code;
                 }
 
-                if (err[0]?.code === 4001) { return "User rejected transaction"; }
+                if (err[0]?.code === 4001)   { return "User rejected transaction"; }
                 if (err[0]?.code === -32603) { return "Invalid transaction!"; }
 
                 console.log(err[0]);
                 return err[0].message.toString();
             },
         },
+
         {
             loading: { duration: Infinity },
             success: { duration: TOAST_DURATION },
-            error:   { duration: 0        }
+            error:   { duration: 0 }
         },
     );
 }
