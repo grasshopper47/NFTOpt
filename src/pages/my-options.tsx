@@ -1,12 +1,12 @@
 import React from "react";
 import Layout from "../components/Layout";
-import OptionsListContainer from "../components/OptionsListContainer";
+import OptionListView from "../components/OptionListView";
 import {OptionFilterOwnership} from "../utils/types";
 
 function MyOptions() {
     return (
         <Layout>
-            <OptionsListContainer
+            <OptionListView
                 key={`my-options-list`}
                 title={"Your NFT Options"}
                 filterOwnership={OptionFilterOwnership.PERSONAL}

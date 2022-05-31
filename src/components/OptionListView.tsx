@@ -3,11 +3,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { OptionFilterOwnership, OptionState, OptionWithAsset } from "../utils/types";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
-import classes from "./styles/OptionsListContainer.module.scss";
+import classes from "./styles/OptionListView.module.scss";
 import { useAccount, useContracts } from "../providers/contexts";
 import { loadOptionsWithAsset } from "../utils/options";
 
-type OptionsListContainerProps =
+type OptionListViewProps =
 {
     title: string;
     filterOwnership: OptionFilterOwnership;
@@ -35,7 +35,7 @@ const optionStateTabs: OptionStateTab[] =
     },
 ];
 
-function OptionsListContainer(props: OptionsListContainerProps) {
+function OptionListView(props: OptionListViewProps) {
     const { title, filterOwnership } = props;
 
     const account = useAccount();
@@ -131,4 +131,4 @@ function OptionsListContainer(props: OptionsListContainerProps) {
     );
 }
 
-export default OptionsListContainer;
+export default OptionListView;
