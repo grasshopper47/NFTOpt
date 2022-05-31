@@ -1,7 +1,7 @@
 import { Tab, Tabs } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { OptionFilterOwnership, OptionState, OptionWithAsset } from "../utils/types";
-import OptionDetailsPreview from "./OptionDetailsPreview";
+import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemPreview from "./OptionListItemPreview";
 import classes from "./styles/OptionsListContainer.module.scss";
 import { useAccount, useContracts } from "../providers/contexts";
@@ -104,7 +104,7 @@ function OptionsListContainer(props: OptionsListContainerProps) {
 
             {selectedOptionForPreview ? (
                 <div className={classes.containerItem}>
-                    <OptionDetailsPreview
+                    <OptionDetailsView
                         key={`option-details-preview-${selectedOptionForPreview.id}`}
                         currentAccount={account}
                         option={selectedOptionForPreview}

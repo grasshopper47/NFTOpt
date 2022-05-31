@@ -5,12 +5,12 @@ import { useContracts } from "../providers/contexts";
 import { getCurrentProvider, getSignedContract } from "../utils/metamask";
 import { getAccountDisplayValue, getCorrectPlural, dismissLastToast, showToast } from "../utils/frontend";
 import { OptionFlavor, OptionState, OptionWithAsset } from "../utils/types";
-import classes from "./styles/OptionDetailsPreview.module.scss";
+import classes from "./styles/OptionDetailsView.module.scss";
 import { ADDRESS0, ABIs, SECONDS_IN_A_DAY } from "../utils/constants";
 import { useState } from "react";
 import { ERC721 } from "../../typechain-types";
 
-type OptionDetailsPreviewProps =
+type OptionDetailsViewProps =
 {
     currentAccount       : string;
     option               : OptionWithAsset;
@@ -18,7 +18,7 @@ type OptionDetailsPreviewProps =
     lastSelectedOptionId : React.MutableRefObject<number | null>;
 };
 
-function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
+function OptionDetailsView(props: OptionDetailsViewProps) {
     const { currentAccount, option, onSelectOption, lastSelectedOptionId } = props;
     const { nftOpt } = useContracts();
     const [approvedNFT, setApprovedNFT] = useState(false);
@@ -219,4 +219,4 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     );
 }
 
-export default OptionDetailsPreview;
+export default OptionDetailsView;
