@@ -7,7 +7,7 @@ import { getAccountDisplayValue, getCorrectPlural, dismissLastToast, showToast }
 import { OptionFlavor, OptionState, OptionWithAsset } from "../utils/types";
 import classes from "./styles/OptionDetailsView.module.scss";
 import { ADDRESS0, ABIs, SECONDS_IN_A_DAY } from "../utils/constants";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ERC721 } from "../../typechain-types";
 import toast from "react-hot-toast";
 
@@ -25,8 +25,6 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
     const isApproved = useRef<boolean>(false);
     const NFTContract = useRef<ERC721 | null>(null);
     const [, doRender ] = useState(0);
-
-    const forceRepaint = useCallback( () => doRender(tick => tick + 1), []);
 
     useEffect
     (
@@ -46,63 +44,62 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
 
             const afterGetApproved = (address) =>
             {
-                if (address !== nftOpt.address) { return; }
+                if (address !== nftOpt.address)
+                {
+                    // Listen to "Approval" event
+                    NFTContract.current.on
+                    (
+                        "Approval",
+                        () =>
+                        {
+                            if (isApproved.current) { return; }
+                            isApproved.current = true;
+
+                            dismissLastToast();
+                            toast.success("Approved to transfer NFT");
+                            console.log("approved NFT");
+
+                            doRender(undefined);
+                        }
+                    );
+
+                    return;
+                }
 
                 isApproved.current = true;
-                forceRepaint();
+                doRender(undefined);
             }
+
+            isApproved.current = false;
 
             // Check that NFTOpt is approved to transfer tokenId
             NFTContract.current.getApproved(option.asset.tokenId)
                                .then(afterGetApproved);
-
-            isApproved.current = false;
-
-            // Listen to "Approval" event
-            NFTContract.current.on
-            (
-                "Approval",
-                () =>
-                {
-                    if (isApproved.current) { return; }
-                    isApproved.current = true;
-
-                    dismissLastToast();
-                    toast.success("Approved to transfer NFT!");
-                    console.log("approved NFT");
-
-                    forceRepaint();
-                }
-            );
         },
         []
     );
 
-    const handleConfirmedTransaction = () =>
-    {
-        dismissLastToast();
+    const showListView = () => { onSelectOption(undefined); };
 
-        // Reset list view to item view
-        onSelectOption(undefined);
-    };
-
-    const handleWithdrawOption = () => showToast( nftOpt.withdrawOptionRequest(option.id).then(handleConfirmedTransaction) );
-    const handleCreateOption   = () => showToast( nftOpt.createOption(option.id, { value: option.strikePrice }).then(handleConfirmedTransaction) );
-    const handleCancelOption   = () => showToast( nftOpt.cancelOption(option.id).then(handleConfirmedTransaction) );
+    const handleWithdrawOption = () => showToast( nftOpt.withdrawOptionRequest(option.id).then(showListView) );
+    const handleCreateOption   = () => showToast( nftOpt.createOption(option.id, { value: option.strikePrice }).then(showListView) );
+    const handleCancelOption   = () => showToast( nftOpt.cancelOption(option.id).then(showListView) );
 
     const handleExerciseOption = () =>
     {
         const promise = { current : null };
 
         // Approve contract to transfer NFT (step 1)
-        promise.current = NFTContract.current.connect(getCurrentProvider().getSigner())
-                                             .approve(nftOpt.address, option.asset.tokenId);
-
-        // Exercise the option when NFT is already approved (step 2)
-        if (isApproved.current)
+        if (!isApproved.current)
         {
+            promise.current = NFTContract.current.connect(getCurrentProvider().getSigner())
+                                                 .approve(nftOpt.address, option.asset.tokenId);
+        }
+        else
+        {
+            // Exercise the option when NFT is already approved (step 2)
             promise.current = nftOpt.exerciseOption(option.id)
-                                    .then(handleConfirmedTransaction);
+                                    .then(showListView);
         }
 
         showToast(promise.current);
