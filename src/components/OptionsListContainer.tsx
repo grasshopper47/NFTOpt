@@ -2,7 +2,7 @@ import { Tab, Tabs } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { OptionFilterOwnership, OptionState, OptionWithAsset } from "../utils/types";
 import OptionDetailsView from "./OptionDetailsView";
-import OptionListItemPreview from "./OptionListItemPreview";
+import OptionListItemView from "./OptionListItemView";
 import classes from "./styles/OptionsListContainer.module.scss";
 import { useAccount, useContracts } from "../providers/contexts";
 import { loadOptionsWithAsset } from "../utils/options";
@@ -116,7 +116,7 @@ function OptionsListContainer(props: OptionsListContainerProps) {
                 <div className={classes.containerGrid}>
                     {filteredOptions?.length ? (
                         filteredOptions?.map((option, index) => (
-                            <OptionListItemPreview
+                            <OptionListItemView
                                 key={`option-preview-${activeTabIndex}-${index}`}
                                 option={option}
                                 onSelectOptionForPreview={setSelectedOptionForPreview}

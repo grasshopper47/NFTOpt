@@ -2,15 +2,15 @@ import { AccessTime } from "@mui/icons-material";
 import { ethers } from "ethers";
 import { getCorrectPlural } from "../utils/frontend";
 import { OptionWithAsset } from "../utils/types";
-import classes from "./styles/OptionListItemPreview.module.scss";
+import classes from "./styles/OptionListItemView.module.scss";
 
-type OptionListItemPreviewProps =
+type OptionListItemViewProps =
 {
     option: OptionWithAsset;
     onSelectOptionForPreview: (OptionWithAsset: OptionWithAsset | null) => void;
 };
 
-function OptionListItemPreview(props: OptionListItemPreviewProps)
+function OptionListItemView(props: OptionListItemViewProps)
 {
     const { option, onSelectOptionForPreview } = props;
 
@@ -35,4 +35,4 @@ function OptionListItemPreview(props: OptionListItemPreviewProps)
     );
 }
 
-export default OptionListItemPreview;
+export default OptionListItemView;
