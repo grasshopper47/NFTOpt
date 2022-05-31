@@ -15,15 +15,12 @@ type OptionDetailsViewProps =
     currentAccount       : string;
     option               : OptionWithAsset;
     onSelectOption       : (OptionWithAsset: OptionWithAsset | null) => void;
-    lastSelectedOptionId : React.MutableRefObject<number | null>;
 };
 
 function OptionDetailsView(props: OptionDetailsViewProps) {
-    const { currentAccount, option, onSelectOption, lastSelectedOptionId } = props;
+    const { currentAccount, option, onSelectOption } = props;
     const { nftOpt } = useContracts();
     const [approvedNFT, setApprovedNFT] = useState(false);
-
-    let canceledOption = false;
 
     // Create an instance of the NFT contract
     const NFTContract : ERC721 =
@@ -58,13 +55,10 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
     {
         dismissLastToast();
 
-        if (approvedNFT || canceledOption)
-        {
-            lastSelectedOptionId.current = option.id;
+        console.log("Y");
 
-            // Reset panel to list view
-            onSelectOption(undefined);
-        }
+        // Reset list view to item view
+        onSelectOption(undefined);
     };
 
     const handleWithdrawOption = () => showToast( nftOpt.withdrawOptionRequest(option.id).then(handleConfirmedTransaction) );

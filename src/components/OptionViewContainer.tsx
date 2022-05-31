@@ -3,11 +3,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { OptionFilterOwnership, OptionState, OptionWithAsset } from "../utils/types";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
-import classes from "./styles/OptionListView.module.scss";
+import classes from "./styles/OptionViewContainer.module.scss";
 import { useAccount, useContracts } from "../providers/contexts";
 import { loadOptionsWithAsset } from "../utils/options";
 
-type OptionListViewProps =
+type OptionViewContainerProps =
 {
     title: string;
     filterOwnership: OptionFilterOwnership;
@@ -35,7 +35,7 @@ const optionStateTabs: OptionStateTab[] =
     },
 ];
 
-function OptionListView(props: OptionListViewProps) {
+function OptionViewContainer(props: OptionViewContainerProps) {
     const { title, filterOwnership } = props;
 
     const account = useAccount();
@@ -45,9 +45,10 @@ function OptionListView(props: OptionListViewProps) {
 
     const [optionsWithAsset, setOptionsWithAsset] = useState<OptionWithAsset[]>([]);
     const [filteredOptions, setFilteredOptions] = useState<OptionWithAsset[]>([]);
-    const [selectedOptionForPreview, setSelectedOptionForPreview] = useState<OptionWithAsset | null>(null);
+    const [selectedOption, setSelectedOption] = useState<OptionWithAsset | null>(null);
     const lastSelectedOptionId = useRef<number | null>(null); // TODO: make an array for options in progress
 
+    console.log("X");
     useEffect
     (
         () =>
@@ -83,7 +84,7 @@ function OptionListView(props: OptionListViewProps) {
                 )
             );
 
-            if (selectedOptionForPreview) { setSelectedOptionForPreview(null); }
+            if (selectedOption) { setSelectedOption(null); }
         },
     [
         activeTabIndex,
@@ -102,14 +103,13 @@ function OptionListView(props: OptionListViewProps) {
                 ))}
             </Tabs>
 
-            {selectedOptionForPreview ? (
+            {selectedOption ? (
                 <div className={classes.containerItem}>
                     <OptionDetailsView
-                        key={`option-details-preview-${selectedOptionForPreview.id}`}
+                        key={`option-details-preview-${selectedOption.id}`}
                         currentAccount={account}
-                        option={selectedOptionForPreview}
-                        onSelectOption={setSelectedOptionForPreview}
-                        lastSelectedOptionId={lastSelectedOptionId}
+                        option={selectedOption}
+                        onSelectOption={setSelectedOption}
                     />
                 </div>
             ) : (
@@ -119,7 +119,7 @@ function OptionListView(props: OptionListViewProps) {
                             <OptionListItemView
                                 key={`option-preview-${activeTabIndex}-${index}`}
                                 option={option}
-                                onSelectOptionForPreview={setSelectedOptionForPreview}
+                                onViewOptionDetails={setSelectedOption}
                             />
                         ))
                     ) : (
@@ -131,4 +131,4 @@ function OptionListView(props: OptionListViewProps) {
     );
 }
 
-export default OptionListView;
+export default OptionViewContainer;

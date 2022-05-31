@@ -7,16 +7,16 @@ import classes from "./styles/OptionListItemView.module.scss";
 type OptionListItemViewProps =
 {
     option: OptionWithAsset;
-    onSelectOptionForPreview: (OptionWithAsset: OptionWithAsset | null) => void;
+    onViewOptionDetails: (OptionWithAsset: OptionWithAsset | null) => void;
 };
 
 function OptionListItemView(props: OptionListItemViewProps)
 {
-    const { option, onSelectOptionForPreview } = props;
+    const { option, onViewOptionDetails } = props;
 
     return (
         // TODO overlay
-        <div className={classes.card} onClick={onSelectOptionForPreview.bind(null, option)}>
+        <div className={classes.card} onClick={onViewOptionDetails.bind(null, option)}>
             <img style={{ backgroundImage: `url(${option.asset.image})` }} alt="" />
             <div className={classes.content}>
                 <p className={classes.title}>#{option.id + 1}</p>
