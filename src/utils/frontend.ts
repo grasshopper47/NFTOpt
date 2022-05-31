@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { networkName, TOAST_DELAY, TOAST_DURATION } from "./constants";
+import { NETWORK_NAME, TOAST_DELAY, TOAST_DURATION } from "./constants";
 
 export function getCorrectPlural(word: string, count: number)
 {
@@ -37,7 +37,7 @@ export function showToast(aPromise:Promise<any>)
             {
                 setTimeout
                 (
-                    () => setWaitingToastId(toast.loading(`Waiting for ${networkName} to confirm...`)),
+                    () => setWaitingToastId(toast.loading(`Waiting for ${NETWORK_NAME} to confirm...`)),
                     TOAST_DURATION + TOAST_DELAY
                 );
 
