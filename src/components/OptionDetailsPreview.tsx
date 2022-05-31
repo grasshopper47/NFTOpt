@@ -31,7 +31,8 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
         option.asset.address,
         [
             ABIs.ERC721.getApproved,
-            ABIs.ERC721.Event_Approval
+            ABIs.ERC721.approve,
+            ABIs.ERC721.Events.Approval
         ]
     ) as ERC721;
 
@@ -43,7 +44,8 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     NFTContract.on
     (
         "Approval",
-        () => {
+        () =>
+        {
             if (approvedNFT) { return; }
 
             dismissLastToast();
@@ -51,10 +53,12 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
         }
     );
 
-    const handleConfirmedTransaction = () => {
+    const handleConfirmedTransaction = () =>
+    {
         dismissLastToast();
 
-        if (approvedNFT || canceledOption) {
+        if (approvedNFT || canceledOption)
+        {
             lastSelectedOptionId.current = option.id;
 
             // Reset panel to list view
@@ -66,7 +70,8 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     const handleCreateOption   = () => showToast( nftOpt.createOption(option.id, { value: option.strikePrice }).then(handleConfirmedTransaction) );
     const handleCancelOption   = () => showToast( nftOpt.cancelOption(option.id).then(handleConfirmedTransaction) );
 
-    const handleExerciseOption = () => {
+    const handleExerciseOption = () =>
+    {
         const promise = { current : null };
 
         // Exercise the option (step 2)
@@ -85,7 +90,8 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
         showToast(promise.current);
     };
 
-    const isExerciseWindowClosed = () => {
+    const isExerciseWindowClosed = () =>
+    {
         if (option.buyer !== currentAccount || !option.startDate) { return false; }
 
         const timeNow = new Date().getTime() / 1000;
@@ -101,7 +107,8 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
         return false;
     };
 
-    const actionsForRequestState = (
+    const actionsForRequestState =
+    (
         <>
             {option.buyer === currentAccount ? (
                 <Button variant="outlined" className={classes.btnSecondary} onClick={handleWithdrawOption}>
@@ -115,7 +122,8 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
         </>
     );
 
-    const actionsForOpenState = (
+    const actionsForOpenState =
+    (
         <>
             {option.buyer === currentAccount ? (
                 isExerciseWindowClosed() ? (
