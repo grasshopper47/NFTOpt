@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { AppProps } from "next/app";
 import "./_app.scss";
 import { AccountContext, ContractsContext } from "../providers/contexts";
-import { networkName, TOAST_DURATION } from "../utils/constants";
+import { NETWORK_NAME, TOAST_DURATION } from "../utils/constants";
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
 import addresses from "../../addresses.json";
 import Header from "../components/Header";
@@ -52,7 +52,7 @@ export default function App({ Component, pageProps }: AppProps) {
         .then( () => {
             getCurrentProvider().getBlockNumber().then(bn => blockNo.current = bn);
 
-            const contract = getSignedContract(addresses[networkName].NFTOpt, NFTOptSolContract.abi) as NFTOpt;
+            const contract = getSignedContract(addresses[NETWORK_NAME].NFTOpt, NFTOptSolContract.abi) as NFTOpt;
 
             attachEventListeners(contract);
 

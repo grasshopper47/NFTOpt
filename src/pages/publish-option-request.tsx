@@ -13,7 +13,7 @@ import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { useAccount, useContracts } from "../providers/contexts";
-import { floatNumberRegex, networkName, SECONDS_IN_A_DAY } from "../utils/constants";
+import { floatNumberRegex, NETWORK_NAME, SECONDS_IN_A_DAY } from "../utils/constants";
 import { NFTAsset, OptionFlavor } from "../utils/types";
 import classes from "./styles/CreateOption.module.scss";
 import { ethers } from "ethers";
