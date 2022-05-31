@@ -6,7 +6,7 @@ import { getCurrentProvider, getSignedContract } from "../utils/metamask";
 import { getAccountDisplayValue, getCorrectPlural, dismissLastToast, showToast } from "../utils/frontend";
 import { OptionFlavor, OptionState, OptionWithAsset } from "../utils/types";
 import classes from "./styles/OptionDetailsPreview.module.scss";
-import { ADDRESS0, SECONDS_IN_A_DAY } from "../utils/constants";
+import { ADDRESS0, ABIs, SECONDS_IN_A_DAY } from "../utils/constants";
 import { useState } from "react";
 import { ERC721 } from "../../typechain-types";
 
@@ -24,82 +24,32 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
 
     let canceledOption = false;
 
-    let abi_IERC721: any = [
-        {
-            inputs: [
-                {
-                    internalType: "address",
-                    name: "to",
-                    type: "address",
-                },
-                {
-                    internalType: "uint256",
-                    name: "tokenId",
-                    type: "uint256",
-                },
-            ],
-            name: "approve",
-            outputs: [],
-            stateMutability: "nonpayable",
-            type: "function",
-        },
-        {
-            inputs: [
-                {
-                    internalType: "uint256",
-                    name: "tokenId",
-                    type: "uint256",
-                },
-            ],
-            name: "getApproved",
-            outputs: [
-                {
-                    internalType: "address",
-                    name: "",
-                    type: "address",
-                },
-            ],
-            stateMutability: "view",
-            type: "function",
-        },
-        {
-            anonymous: false,
-            inputs: [
-                {
-                    indexed: true,
-                    internalType: "address",
-                    name: "owner",
-                    type: "address",
-                },
-                {
-                    indexed: true,
-                    internalType: "address",
-                    name: "approved",
-                    type: "address",
-                },
-                {
-                    indexed: true,
-                    internalType: "uint256",
-                    name: "tokenId",
-                    type: "uint256",
-                },
-            ],
-            name: "Approval",
-            type: "event",
-        },
-    ];
+    // Create an instance of the NFT contract
+    const NFTContract : ERC721 =
+    getSignedContract
+    (
+        option.asset.address,
+        [
+            ABIs.ERC721.getApproved,
+            ABIs.ERC721.Event_Approval
+        ]
+    ) as ERC721;
 
-    const NFTContract : ERC721 = getSignedContract(option.asset.address, abi_IERC721) as ERC721;
-
+    // Check that NFTOpt is approved to transfer tokenId
     NFTContract.getApproved(option.asset.tokenId)
-    .then((res) => { if (res === nftOpt.address) { setApprovedNFT(true); } });
+    .then(res => { if (res === nftOpt.address) { setApprovedNFT(true); } });
 
-    NFTContract.on("Approval", () => {
-        if (approvedNFT) { return; }
+    // Listen to "Approval" event
+    NFTContract.on
+    (
+        "Approval",
+        () => {
+            if (approvedNFT) { return; }
 
-        dismissLastToast();
-        setApprovedNFT(true);
-    });
+            dismissLastToast();
+            setApprovedNFT(true);
+        }
+    );
 
     const handleConfirmedTransaction = () => {
         dismissLastToast();
@@ -113,8 +63,8 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     };
 
     const handleWithdrawOption = () => showToast( nftOpt.withdrawOptionRequest(option.id).then(handleConfirmedTransaction) );
-    const handleCreateOption = () => showToast( nftOpt.createOption(option.id, { value: option.strikePrice }).then(handleConfirmedTransaction) );
-    const handleCancelOption = () => showToast( nftOpt.cancelOption(option.id).then(handleConfirmedTransaction) );
+    const handleCreateOption   = () => showToast( nftOpt.createOption(option.id, { value: option.strikePrice }).then(handleConfirmedTransaction) );
+    const handleCancelOption   = () => showToast( nftOpt.cancelOption(option.id).then(handleConfirmedTransaction) );
 
     const handleExerciseOption = () => {
         const promise = { current : null };

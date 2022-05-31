@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 import { NFTOpt } from "../../typechain-types";
 import { NFTAsset, Option, OptionWithAsset, Option_SOLIDITY } from "./types";
-import { ADDRESS0, SECONDS_IN_A_DAY } from "./constants";
+import { ADDRESS0, ABIs, SECONDS_IN_A_DAY } from "./constants";
 import { getSignedContract } from "./metamask";
 
 function isOptionValid(option: any): boolean {
@@ -56,44 +56,9 @@ export async function loadOptions(contract: NFTOpt): Promise<Option[]> {
     return options;
 }
 
-export async function loadAssetForOption(option: Option): Promise<NFTAsset> {
-
-    const abi_IERC721 = [
-        {
-            "inputs": [],
-            "name": "name",
-            "outputs": [
-                {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string",
-                },
-            ],
-            "stateMutability": "view",
-            "type": "function",
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "tokenId",
-                    "type": "uint256",
-                },
-            ],
-            "name": "tokenURI",
-            "outputs": [
-                {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string",
-                },
-            ],
-            "stateMutability": "view",
-            "type": "function",
-        },
-    ];
-
-    const NFTContract = getSignedContract(option.nftContract, abi_IERC721);
+export async function loadAssetForOption(option: Option): Promise<NFTAsset>
+{
+    const NFTContract = getSignedContract(option.nftContract, [ ABIs.ERC721.name, ABIs.ERC721.tokenURI ]);
 
     const name = (await NFTContract.name()) + " - " + option.nftId.toString();
     const data = await NFTContract.tokenURI(option.nftId);
@@ -107,9 +72,9 @@ export async function loadAssetForOption(option: Option): Promise<NFTAsset> {
     };
 }
 
-export async function loadOptionWithAsset(contract: NFTOpt, id: number): Promise<OptionWithAsset> {
-    let option: Option = await loadOption(contract, id);
-
+export async function loadOptionWithAsset(contract: NFTOpt, id: number): Promise<OptionWithAsset>
+{
+    const option: Option = await loadOption(contract, id);
     if (!option) { return null; }
 
     return {
@@ -118,23 +83,23 @@ export async function loadOptionWithAsset(contract: NFTOpt, id: number): Promise
     }
 }
 
-export async function loadOptionsWithAsset(contract: NFTOpt): Promise<OptionWithAsset[]> {
-
+export async function loadOptionsWithAsset(contract: NFTOpt): Promise<OptionWithAsset[]>
+{
     const options: OptionWithAsset[] = [];
 
     const optionIDPromise = await contract.optionID();
-
     if (!optionIDPromise) { return; }
 
     // TODO: handle optionsLength > 2^53
     const optionsLength = optionIDPromise.toNumber();
 
-    for (let id = 0; id !== optionsLength; ++id) {
-
-        const option = await loadOption(contract, id)
+    for (let id = 0; id !== optionsLength; ++id)
+    {
+        const option = await loadOption(contract, id);
         if (!option) { continue; }
 
-        options.push({
+        options.push
+        ({
             ...option,
             asset: await loadAssetForOption(option)
         });
