@@ -1,23 +1,26 @@
 import { Tab, Tabs } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { OptionFilterOwnership, OptionState, OptionWithAsset } from "../utils/types";
-import OptionDetailsPreview from "./OptionDetailsPreview";
-import OptionListItemPreview from "./OptionListItemPreview";
-import classes from "./styles/OptionsListContainer.module.scss";
+import OptionDetailsView from "./OptionDetailsView";
+import OptionListItemView from "./OptionListItemView";
+import classes from "./styles/OptionViewContainer.module.scss";
 import { useAccount, useContracts } from "../providers/contexts";
-import { loadOptionsWithAsset, loadOptions } from "../utils/options";
+import { loadOptionsWithAsset } from "../utils/options";
 
-type OptionsListContainerProps = {
+type OptionViewContainerProps =
+{
     title: string;
     filterOwnership: OptionFilterOwnership;
 };
 
-type OptionStateTab = {
+type OptionStateTab =
+{
     name: string;
     optionState: OptionState;
 };
 
-const optionStateTabs: OptionStateTab[] = [
+const optionStateTabs: OptionStateTab[] =
+[
     {
         name: "Requests",
         optionState: OptionState.REQUEST,
@@ -32,7 +35,7 @@ const optionStateTabs: OptionStateTab[] = [
     },
 ];
 
-function OptionsListContainer(props: OptionsListContainerProps) {
+function OptionViewContainer(props: OptionViewContainerProps) {
     const { title, filterOwnership } = props;
 
     const account = useAccount();
@@ -42,34 +45,51 @@ function OptionsListContainer(props: OptionsListContainerProps) {
 
     const [optionsWithAsset, setOptionsWithAsset] = useState<OptionWithAsset[]>([]);
     const [filteredOptions, setFilteredOptions] = useState<OptionWithAsset[]>([]);
-    const [selectedOptionForPreview, setSelectedOptionForPreview] = useState<OptionWithAsset | null>(null);
+    const [selectedOption, setSelectedOption] = useState<OptionWithAsset | null>(null);
     const lastSelectedOptionId = useRef<number | null>(null); // TODO: make an array for options in progress
 
-    useEffect(() => {
-        if (!nftOpt || !account) { return; }
-
-        loadOptionsWithAsset(nftOpt)
-        .then( (options) => {
-            console.log("loaded", options);
-            setOptionsWithAsset(options);
-        });
-    }, [loadOptions] );
+    useEffect
+    (
+        () =>
+        {
+            loadOptionsWithAsset(nftOpt)
+            .then
+            (
+                (options) =>
+                {
+                    console.log("loaded", options);
+                    setOptionsWithAsset(options);
+                }
+            );
+        },
+    []
+    );
 
     // Filter by active tab
-    useEffect(() => {
-        const state = optionStateTabs[activeTabIndex].optionState;
+    useEffect
+    (
+        () =>
+        {
+            const state = optionStateTabs[activeTabIndex].optionState;
 
-        setFilteredOptions(
-            optionsWithAsset?.filter((option) =>
-                state === OptionState.OPEN || state === OptionState.REQUEST
-                    ? option.state === state
-                    : option.state === OptionState.WITHDRAWN || option.state === OptionState.CLOSED
-            )
-        );
+            setFilteredOptions
+            (
+                optionsWithAsset?.filter
+                (
+                    (option) =>
+                    state === OptionState.OPEN || state === OptionState.REQUEST
+                        ? option.state === state
+                        : option.state === OptionState.WITHDRAWN || option.state === OptionState.CLOSED
+                )
+            );
 
-        if (selectedOptionForPreview) { setSelectedOptionForPreview(null); }
-    }, [activeTabIndex, optionsWithAsset]);
-
+            if (selectedOption) { setSelectedOption(null); }
+        },
+    [
+        activeTabIndex,
+        optionsWithAsset
+    ]
+    );
 
     const handleChangeTab = (_, tabIndex: number) => setActiveTabIndex(tabIndex);
 
@@ -82,24 +102,23 @@ function OptionsListContainer(props: OptionsListContainerProps) {
                 ))}
             </Tabs>
 
-            {selectedOptionForPreview ? (
+            {selectedOption ? (
                 <div className={classes.containerItem}>
-                    <OptionDetailsPreview
-                        key={`option-details-preview-${selectedOptionForPreview.id}`}
+                    <OptionDetailsView
+                        key={`option-details-preview-${selectedOption.id}`}
                         currentAccount={account}
-                        option={selectedOptionForPreview}
-                        onSelectOption={setSelectedOptionForPreview}
-                        lastSelectedOptionId={lastSelectedOptionId}
+                        option={selectedOption}
+                        onSelectOption={setSelectedOption}
                     />
                 </div>
             ) : (
                 <div className={classes.containerGrid}>
                     {filteredOptions?.length ? (
                         filteredOptions?.map((option, index) => (
-                            <OptionListItemPreview
+                            <OptionListItemView
                                 key={`option-preview-${activeTabIndex}-${index}`}
                                 option={option}
-                                onSelectOptionForPreview={setSelectedOptionForPreview}
+                                onViewOptionDetails={setSelectedOption}
                             />
                         ))
                     ) : (
@@ -111,4 +130,4 @@ function OptionsListContainer(props: OptionsListContainerProps) {
     );
 }
 
-export default OptionsListContainer;
+export default OptionViewContainer;

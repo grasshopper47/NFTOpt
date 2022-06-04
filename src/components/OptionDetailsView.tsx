@@ -5,88 +5,103 @@ import { useContracts } from "../providers/contexts";
 import { getCurrentProvider, getSignedContract } from "../utils/metamask";
 import { getAccountDisplayValue, getCorrectPlural, dismissLastToast, showToast } from "../utils/frontend";
 import { OptionFlavor, OptionState, OptionWithAsset } from "../utils/types";
-import classes from "./styles/OptionDetailsPreview.module.scss";
+import classes from "./styles/OptionDetailsView.module.scss";
 import { ADDRESS0, ABIs, SECONDS_IN_A_DAY } from "../utils/constants";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ERC721 } from "../../typechain-types";
+import toast from "react-hot-toast";
 
-type OptionDetailsPreviewProps = {
-    currentAccount: string;
-    option: OptionWithAsset;
-    onSelectOption: (OptionWithAsset: OptionWithAsset | null) => void;
-    lastSelectedOptionId: React.MutableRefObject<number | null>;
+type OptionDetailsViewProps =
+{
+    currentAccount : string;
+    option         : OptionWithAsset;
+    onSelectOption : (OptionWithAsset: OptionWithAsset | null) => void;
 };
 
-function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
-    const { currentAccount, option, onSelectOption, lastSelectedOptionId } = props;
+function OptionDetailsView(props: OptionDetailsViewProps) {
+    const { currentAccount, option, onSelectOption } = props;
     const { nftOpt } = useContracts();
-    const [approvedNFT, setApprovedNFT] = useState(false);
 
-    let canceledOption = false;
+    const isApproved = useRef<boolean>(false);
+    const NFTContract = useRef<ERC721 | null>(null);
+    const [, doRender ] = useState(0);
 
-    // Create an instance of the NFT contract
-    const NFTContract : ERC721 =
-    getSignedContract
+    useEffect
     (
-        option.asset.address,
-        [
-            ABIs.ERC721.getApproved,
-            ABIs.ERC721.approve,
-            ABIs.ERC721.Events.Approval
-        ]
-    ) as ERC721;
-
-    // Check that NFTOpt is approved to transfer tokenId
-    NFTContract.getApproved(option.asset.tokenId)
-    .then(res => { if (res === nftOpt.address) { setApprovedNFT(true); } });
-
-    // Listen to "Approval" event
-    NFTContract.on
-    (
-        "Approval",
         () =>
         {
-            if (approvedNFT) { return; }
+            // Create an instance of the NFT contract
+            NFTContract.current =
+            getSignedContract
+            (
+                option.asset.address,
+                [
+                    ABIs.ERC721.getApproved,
+                    ABIs.ERC721.approve,
+                    ABIs.ERC721.Events.Approval
+                ]
+            ) as ERC721;
 
-            dismissLastToast();
-            setApprovedNFT(true);
-        }
+            const afterGetApproved = (address) =>
+            {
+                if (address !== nftOpt.address)
+                {
+                    // Listen to "Approval" event
+                    NFTContract.current.on
+                    (
+                        "Approval",
+                        () =>
+                        {
+                            if (isApproved.current) { return; }
+                            isApproved.current = true;
+
+                            dismissLastToast();
+                            toast.success("Approved to transfer NFT");
+                            console.log("approved NFT");
+
+                            doRender(undefined);
+                        }
+                    );
+
+                    return;
+                }
+
+                isApproved.current = true;
+                doRender(undefined);
+            }
+
+            isApproved.current = false;
+
+            // Check that NFTOpt is approved to transfer tokenId
+            NFTContract.current.getApproved(option.asset.tokenId)
+                               .then(afterGetApproved);
+        },
+        []
     );
 
-    const handleConfirmedTransaction = () =>
-    {
-        dismissLastToast();
+    const showListView = () => { onSelectOption(undefined); };
 
-        if (approvedNFT || canceledOption)
-        {
-            lastSelectedOptionId.current = option.id;
-
-            // Reset panel to list view
-            onSelectOption(undefined);
-        }
-    };
-
-    const handleWithdrawOption = () => showToast( nftOpt.withdrawOptionRequest(option.id).then(handleConfirmedTransaction) );
-    const handleCreateOption   = () => showToast( nftOpt.createOption(option.id, { value: option.strikePrice }).then(handleConfirmedTransaction) );
-    const handleCancelOption   = () => showToast( nftOpt.cancelOption(option.id).then(handleConfirmedTransaction) );
+    const handleWithdrawOption = () => showToast( nftOpt.withdrawOptionRequest(option.id).then(showListView) );
+    const handleCreateOption   = () => showToast( nftOpt.createOption(option.id, { value: option.strikePrice }).then(showListView) );
+    const handleCancelOption   = () => showToast( nftOpt.cancelOption(option.id).then(showListView) );
 
     const handleExerciseOption = () =>
     {
         const promise = { current : null };
 
-        // Exercise the option (step 2)
-        if (approvedNFT)
+        // Approve contract to transfer NFT (step 1)
+        if (!isApproved.current)
         {
-            promise.current = nftOpt.exerciseOption(option.id);
+            promise.current = NFTContract.current.connect(getCurrentProvider().getSigner())
+                                                 .approve(nftOpt.address, option.asset.tokenId);
         }
-        // Approve NFT (step 1)
         else
         {
-            promise.current = NFTContract.connect(getCurrentProvider().getSigner())
-                                         .approve(nftOpt.address, option.asset.tokenId);
+            // Exercise the option when NFT is already approved (step 2)
+            promise.current = nftOpt.exerciseOption(option.id)
+                                    .then(showListView);
         }
 
-        promise.current.then(handleConfirmedTransaction);
         showToast(promise.current);
     };
 
@@ -128,16 +143,16 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
             {option.buyer === currentAccount ? (
                 isExerciseWindowClosed() ? (
                     <>
-                        {approvedNFT ? null : (
+                        {isApproved.current ? null : (
                             <Button variant="outlined" className={classes.btnSecondary} onClick={handleCancelOption}>
                                 Cancel option
                             </Button>
                         )}
                         <Button variant="contained" className={classes.btnPrimary} onClick={handleExerciseOption}>
-                            {approvedNFT ? "Exercise Option" : "Approve NFT"}
+                            {isApproved.current ? "Exercise Option" : "Approve NFT"}
                         </Button>
                     </>
-                ) : approvedNFT ? null : (
+                ) : isApproved.current ? null : (
                     <Button variant="outlined" className={classes.btnSecondary} onClick={handleCancelOption}>
                         Cancel option
                     </Button>
@@ -218,4 +233,4 @@ function OptionDetailsPreview(props: OptionDetailsPreviewProps) {
     );
 }
 
-export default OptionDetailsPreview;
+export default OptionDetailsView;

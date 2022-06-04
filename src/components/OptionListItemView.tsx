@@ -2,19 +2,21 @@ import { AccessTime } from "@mui/icons-material";
 import { ethers } from "ethers";
 import { getCorrectPlural } from "../utils/frontend";
 import { OptionWithAsset } from "../utils/types";
-import classes from "./styles/OptionListItemPreview.module.scss";
+import classes from "./styles/OptionListItemView.module.scss";
 
-type OptionListItemPreviewProps = {
+type OptionListItemViewProps =
+{
     option: OptionWithAsset;
-    onSelectOptionForPreview: (OptionWithAsset: OptionWithAsset | null) => void;
+    onViewOptionDetails: (OptionWithAsset: OptionWithAsset | null) => void;
 };
 
-function OptionListItemPreview(props: OptionListItemPreviewProps) {
-    const { option, onSelectOptionForPreview } = props;
+function OptionListItemView(props: OptionListItemViewProps)
+{
+    const { option, onViewOptionDetails } = props;
 
     return (
         // TODO overlay
-        <div className={classes.card} onClick={onSelectOptionForPreview.bind(null, option)}>
+        <div className={classes.card} onClick={onViewOptionDetails.bind(null, option)}>
             <img style={{ backgroundImage: `url(${option.asset.image})` }} alt="" />
             <div className={classes.content}>
                 <p className={classes.title}>#{option.id + 1}</p>
@@ -33,4 +35,4 @@ function OptionListItemPreview(props: OptionListItemPreviewProps) {
     );
 }
 
-export default OptionListItemPreview;
+export default OptionListItemView;
