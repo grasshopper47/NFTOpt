@@ -55,8 +55,8 @@ export default function App({ Component, pageProps }: AppProps) {
 
             if (action[0] === "w") { o.state = OptionState.WITHDRAWN; break; }
             if (action[0] === "o") { o.state = OptionState.OPEN; break; }
-            if (action[0] === "c") { o.state = OptionState.CLOSED; break; }
-            if (action[0] === "e") { o.state = OptionState.CLOSED; break; }
+            if (action[0] === "c") { o.state = OptionState.CANCELED; break; }
+            if (action[0] === "e") { o.state = OptionState.EXERCISED; break; }
         }
 
         setOptionsAndUpdateListeners([...options]);
@@ -64,11 +64,11 @@ export default function App({ Component, pageProps }: AppProps) {
 
     function attachEventListeners(contract: NFTOpt)
     {
-        contract.on("NewRequest", (id, tx) => onContractEvent(contract, "published", id.toNumber(), tx.blockNumber));
-        contract.on("Withdrawn" , (id, tx) => onContractEvent(contract, "withdrawn", id.toNumber(), tx.blockNumber));
-        contract.on("Opened"    , (id, tx) => onContractEvent(contract, "opened"   , id.toNumber(), tx.blockNumber));
-        contract.on("Canceled"  , (id, tx) => onContractEvent(contract, "canceled" , id.toNumber(), tx.blockNumber));
-        contract.on("Exercised" , (id, tx) => onContractEvent(contract, "exercised", id.toNumber(), tx.blockNumber));
+        contract.on("Published", (id, tx) => onContractEvent(contract, "published", id.toNumber(), tx.blockNumber));
+        contract.on("Withdrawn", (id, tx) => onContractEvent(contract, "withdrawn", id.toNumber(), tx.blockNumber));
+        contract.on("Opened"   , (id, tx) => onContractEvent(contract, "opened"   , id.toNumber(), tx.blockNumber));
+        contract.on("Canceled" , (id, tx) => onContractEvent(contract, "canceled" , id.toNumber(), tx.blockNumber));
+        contract.on("Exercised", (id, tx) => onContractEvent(contract, "exercised", id.toNumber(), tx.blockNumber));
     };
 
     function setOptionsAndUpdateListeners(options)

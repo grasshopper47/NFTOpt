@@ -45,7 +45,7 @@ export const initializer = async () => {
         premium: ethers.utils.parseEther("1"),
         strikePrice: ethers.utils.parseEther("50"),
         flavor: OptionFlavor.EUROPEAN,
-        state: OptionState.REQUEST,
+        state: OptionState.PUBLISHED,
     };
 
     await deployMainContractLibraries();
@@ -63,7 +63,7 @@ export let publishDummyOptionRequest = async () => {
             dummyOptionRequest.flavor,
             { value: dummyOptionRequest.premium }
         )
-    ).to.emit(NFTOptContract, "NewRequest");
+    ).to.emit(NFTOptContract, "Published");
 };
 
 export async function addDaysToEVM(days: number) {
