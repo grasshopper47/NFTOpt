@@ -10,7 +10,7 @@ import {
     TextField,
 } from "@mui/material";
 import clsx from "clsx";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { useAccount, useContracts } from "../providers/contexts";
 import { floatNumberRegex, NETWORK_NAME, SECONDS_IN_A_DAY } from "../utils/constants";
@@ -40,8 +40,8 @@ function CreateOption() {
     const account = useAccount();
     const { nftOpt } = useContracts();
 
-    const [assets, setAssets] = useState<NFTAsset[]>([]);
-    const [formState, setFormState] = useState<FormState>(defaultFormState);
+    const [ assets, setAssets ] = useState<NFTAsset[]>([]);
+    const [ formState, setFormState ] = useState<FormState>(defaultFormState);
 
     const checkFormIsValid = () => {
         const missingFormFields =
