@@ -49,14 +49,20 @@ export default function App({ Component, pageProps }: AppProps) {
         }
 
         // For existing options, update state
+        let state = 0;
+
+        if (action[0] === "w") { state =  OptionState.WITHDRAWN; }
+        if (action[0] === "o") { state =  OptionState.OPEN; }
+        if (action[0] === "c") { state =  OptionState.CANCELED; }
+        if (action[0] === "e") { state =  OptionState.EXERCISED; }
+
         for (const o of options)
         {
             if (o.id !== optionID) { continue; }
 
-            if (action[0] === "w") { o.state = OptionState.WITHDRAWN; break; }
-            if (action[0] === "o") { o.state = OptionState.OPEN; break; }
-            if (action[0] === "c") { o.state = OptionState.CANCELED; break; }
-            if (action[0] === "e") { o.state = OptionState.EXERCISED; break; }
+            o.state = state;
+
+            break;
         }
 
         setOptionsAndUpdateListeners([...options]);
@@ -75,7 +81,7 @@ export default function App({ Component, pageProps }: AppProps) {
     {
         setOptions([...options]);
 
-        if (!contracts.nftOpt) { return; }
+        if (!contracts) { return; }
 
         contracts.nftOpt.removeAllListeners();
         attachEventListeners(contracts.nftOpt);
