@@ -16,8 +16,8 @@ import { loadOptionWithAssetDetails, loadOptionsWithAsset } from "../utils/optio
 
 export default function App({ Component, pageProps }: AppProps) {
     const [loaded, setLoaded] = useState(false);
-    const [account, setAccount] = useState(null);
-    const [contracts, setContracts] = useState(null);
+    const [account, setAccount] = useState("");
+    const [contracts, setContracts] = useState<{ nftOpt : NFTOpt }>({ nftOpt : null });
     const [options, setOptions] = useState<OptionWithAsset[]>([]);
     const blockNo = useRef<number>(0);
 
@@ -63,7 +63,7 @@ export default function App({ Component, pageProps }: AppProps) {
     }
 
     function attachEventListeners(contract: NFTOpt)
-    {``
+    {
         contract.on("NewRequest", (id, tx) => onContractEvent(contract, "published", id.toNumber(), tx.blockNumber));
         contract.on("Withdrawn" , (id, tx) => onContractEvent(contract, "withdrawn", id.toNumber(), tx.blockNumber));
         contract.on("Opened"    , (id, tx) => onContractEvent(contract, "opened"   , id.toNumber(), tx.blockNumber));
@@ -75,7 +75,7 @@ export default function App({ Component, pageProps }: AppProps) {
     {
         setOptions([...options]);
 
-        if (!contracts) { return; }
+        if (!contracts.nftOpt) { return; }
 
         contracts.nftOpt.removeAllListeners();
         attachEventListeners(contracts.nftOpt);
