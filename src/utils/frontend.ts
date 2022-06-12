@@ -18,6 +18,8 @@ function getWaitingToastId()
     return waitingToastIds.shift();
 }
 
+let showLoad = false;
+
 function setWaitingToastId(id: string)
 {
     if (id === "") { return; }
@@ -37,10 +39,16 @@ export function showToast(aPromise:Promise<any>)
             {
                 setTimeout
                 (
-                    () => setWaitingToastId(toast.loading(`Waiting for ${NETWORK_NAME} to confirm...`)),
+                    () =>
+                    {
+                        if (!showLoad) { return; }
+
+                        setWaitingToastId(toast.loading(`Waiting for ${NETWORK_NAME} to confirm...`));
+                    },
                     TOAST_DURATION + TOAST_DELAY
                 );
 
+                showLoad = true;
                 return "Transaction sent";
             },
 
@@ -72,7 +80,12 @@ export function dismissLastToast()
 {
     const lastId = getWaitingToastId();
 
-    if (!lastId) { return; }
+    if (!lastId)
+    {
+        if(showLoad) { showLoad = false; }
+
+        return;
+    }
 
     toast.dismiss(lastId);
     setWaitingToastId("");
