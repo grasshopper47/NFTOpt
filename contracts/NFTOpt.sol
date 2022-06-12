@@ -95,7 +95,10 @@ contract NFTOpt {
             revert INVALID_EXPIRATION_INTERVAL(0);
         }
 
-        options[optionID] =
+        /// @dev Optimize for gas by caching id
+        uint256 _optionID = optionID;
+
+        options[_optionID] =
         Option
         ({
             buyer       : payable(msg.sender)
@@ -110,7 +113,7 @@ contract NFTOpt {
         ,   state       : OptionState.PUBLISHED
         });
 
-        emit Published(optionID);
+        emit Published(_optionID);
 
         ++optionID;
     }
