@@ -72,10 +72,10 @@ export async function loadAssetForOption(option: Option): Promise<NFTAsset>
     };
 }
 
-export async function loadOptionWithAsset(contract: NFTOpt, id: number): Promise<OptionWithAsset>
+export async function loadOptionWithAssetDetails(contract: NFTOpt, id: number): Promise<OptionWithAsset>
 {
     const option: Option = await loadOption(contract, id);
-    if (!option) { return null; }
+    if (!option) { return option; }
 
     return {
         ...option,
