@@ -88,7 +88,7 @@ export async function loadOptionsWithAsset(contract: NFTOpt): Promise<OptionWith
     const options: OptionWithAsset[] = [];
 
     const optionIDPromise = await contract.optionID();
-    if (!optionIDPromise) { return; }
+    if (!optionIDPromise) { return options; }
 
     // TODO: handle optionsLength > 2^53
     const optionsLength = optionIDPromise.toNumber();
