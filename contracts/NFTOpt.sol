@@ -47,6 +47,17 @@ contract NFTOpt {
         return address(this).balance;
     }
 
+    function _exists(Option memory _option)
+    private pure
+    returns (bool)
+    {
+        return _option.buyer       != address(0) &&
+               _option.nftContract != address(0) &&
+               _option.nftId       != 0          &&
+               _option.interval    != 0          &&
+               _option.premium     != 0          &&
+               _option.strikePrice != 0;
+    }
     /// @custom:author PeterA
     /// @notice Publishes a request for an option in the marketplace
     /// @param _nftContract: address of NFT contract of token
@@ -127,15 +138,7 @@ contract NFTOpt {
     {
         Option memory option = options[_optionId];
 
-        if
-        (
-            option.buyer       == address(0) ||
-            option.nftContract == address(0) ||
-            option.nftId       == 0          ||
-            option.interval    == 0          ||
-            option.premium     == 0          ||
-            option.strikePrice == 0
-        )
+        if(!_exists(option))
         {
             revert INVALID_OPTION_ID(_optionId);
         }
@@ -176,15 +179,7 @@ contract NFTOpt {
     {
         Option memory option = options[_optionId];
 
-        if
-        (
-            option.buyer       == address(0) ||
-            option.nftContract == address(0) ||
-            option.nftId       == 0          ||
-            option.interval    == 0          ||
-            option.premium     == 0          ||
-            option.strikePrice == 0
-        )
+        if(!_exists(option))
         {
             revert INVALID_OPTION_ID(_optionId);
         }
@@ -243,15 +238,7 @@ contract NFTOpt {
     {
         Option memory option = options[_optionId];
 
-        if
-        (
-            option.buyer       == address(0) ||
-            option.nftContract == address(0) ||
-            option.nftId       == 0          ||
-            option.interval    == 0          ||
-            option.premium     == 0          ||
-            option.strikePrice == 0
-        )
+        if(!_exists(option))
         {
             revert INVALID_OPTION_ID(_optionId);
         }
