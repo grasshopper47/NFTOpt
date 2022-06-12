@@ -29,7 +29,7 @@ describe("cancelOption", function () {
         await publishDummyOptionRequest();
 
         var publishedOption = await NFTOptContract.connect(buyer).options(0);
-        expect(publishedOption.state).to.equal(OptionState.REQUEST);
+        expect(publishedOption.state).to.equal(OptionState.PUBLISHED);
 
         await expect(NFTOptContract.connect(buyer)
             .cancelOption(0))
@@ -62,7 +62,7 @@ describe("cancelOption", function () {
             .withArgs(0);
 
         const option = await NFTOptContract.connect(buyer).options(0);
-        expect(option.state).to.equal(OptionState.CLOSED);
+        expect(option.state).to.equal(OptionState.EXERCISED);
 
         await expect(NFTOptContract.connect(buyer)
             .cancelOption(0))
@@ -150,7 +150,7 @@ describe("cancelOption", function () {
         // Reset the state
         await deployMainContract();
         await deployHardHatDummyNFTCollection();
-    }); //.after("", () => { });
+    });
 
     it("sends the collateral back to the seller", async function () {
         await publishDummyOptionRequest();
@@ -194,7 +194,7 @@ describe("cancelOption", function () {
             .withArgs(0);
 
         let cancelledOption = await NFTOptContract.connect(buyer).options(0);
-        expect(cancelledOption.state).to.equal(OptionState.CLOSED);
+        expect(cancelledOption.state).to.equal(OptionState.CANCELED);
 
         // Reset the state
         await deployMainContract();

@@ -11,7 +11,7 @@ contract NFTOpt {
     using InterfaceDetector for address;
 
     /// @dev -- SCAFFOLDING ---------------------------
-    enum OptionState  { REQUEST, OPEN, CLOSED, WITHDRAWN }
+    enum OptionState  { PUBLISHED, WITHDRAWN, OPEN, CANCELED, EXERCISED }
     enum OptionFlavor { EUROPEAN, AMERICAN }
 
     struct Option {
@@ -30,11 +30,12 @@ contract NFTOpt {
     /// @dev -- STACK ---------------------------------
     string constant            private _msg_OnlyBuyerCanCall         = "Only Buyer can call this method";
     string constant            private _msg_OnlyBuyerOrSellerCanCall = "Only Buyer or Seller can call this method";
+
     uint256                    public optionID;
     mapping(uint256 => Option) public options;
 
     /// @dev -- EVENTS --------------------------------
-    event NewRequest(uint256);
+    event Published (uint256);
     event Exercised (uint256);
     event Opened    (uint256);
     event Canceled  (uint256);
@@ -44,6 +45,21 @@ contract NFTOpt {
     function getBalance() public view returns (uint256)
     {
         return address(this).balance;
+    }
+
+    /// @custom:author PeterA
+    /// @notice Checks if the supplied option has valid field values
+    /// @param _option: the Option instance to check
+    function _exists(Option memory _option)
+    private pure
+    returns (bool)
+    {
+        return _option.buyer       != address(0) &&
+               _option.nftContract != address(0) &&
+               _option.nftId       != 0          &&
+               _option.interval    != 0          &&
+               _option.premium     != 0          &&
+               _option.strikePrice != 0;
     }
 
     /// @custom:author PeterA
@@ -94,7 +110,10 @@ contract NFTOpt {
             revert INVALID_EXPIRATION_INTERVAL(0);
         }
 
-        options[optionID] =
+        /// @dev Optimize for gas by caching id
+        uint256 _optionID = optionID;
+
+        options[_optionID] =
         Option
         ({
             buyer       : payable(msg.sender)
@@ -106,10 +125,10 @@ contract NFTOpt {
         ,   premium     : msg.value
         ,   strikePrice : _strikePrice
         ,   flavor      : OptionFlavor(_flavor)
-        ,   state       : OptionState.REQUEST
+        ,   state       : OptionState.PUBLISHED
         });
 
-        emit NewRequest(optionID);
+        emit Published(_optionID);
 
         ++optionID;
     }
@@ -123,22 +142,14 @@ contract NFTOpt {
     {
         Option memory option = options[_optionId];
 
-        if
-        (
-            option.buyer       == address(0) ||
-            option.nftContract == address(0) ||
-            option.nftId       == 0          ||
-            option.interval    == 0          ||
-            option.premium     == 0          ||
-            option.strikePrice == 0
-        )
+        if(!_exists(option))
         {
             revert INVALID_OPTION_ID(_optionId);
         }
 
-        if (option.state != OptionState.REQUEST)
+        if (option.state != OptionState.PUBLISHED)
         {
-            revert INVALID_OPTION_STATE(option.state, OptionState.REQUEST);
+            revert INVALID_OPTION_STATE(option.state, OptionState.PUBLISHED);
         }
 
         if (option.buyer != msg.sender)
@@ -172,15 +183,7 @@ contract NFTOpt {
     {
         Option memory option = options[_optionId];
 
-        if
-        (
-            option.buyer       == address(0) ||
-            option.nftContract == address(0) ||
-            option.nftId       == 0          ||
-            option.interval    == 0          ||
-            option.premium     == 0          ||
-            option.strikePrice == 0
-        )
+        if(!_exists(option))
         {
             revert INVALID_OPTION_ID(_optionId);
         }
@@ -190,9 +193,9 @@ contract NFTOpt {
             revert OPTION_REQUEST_ALREADY_FULFILLED(option.seller);
         }
 
-        if (option.state != OptionState.REQUEST)
+        if (option.state != OptionState.PUBLISHED)
         {
-            revert INVALID_OPTION_STATE(option.state, OptionState.REQUEST);
+            revert INVALID_OPTION_STATE(option.state, OptionState.PUBLISHED);
         }
 
         if (option.buyer == msg.sender)
@@ -239,15 +242,7 @@ contract NFTOpt {
     {
         Option memory option = options[_optionId];
 
-        if
-        (
-            option.buyer       == address(0) ||
-            option.nftContract == address(0) ||
-            option.nftId       == 0          ||
-            option.interval    == 0          ||
-            option.premium     == 0          ||
-            option.strikePrice == 0
-        )
+        if(!_exists(option))
         {
             revert INVALID_OPTION_ID(_optionId);
         }
@@ -290,7 +285,7 @@ contract NFTOpt {
             revert FUNDS_TRANSFER_FAILED();
         }
 
-        options[_optionId].state = OptionState.CLOSED;
+        options[_optionId].state = OptionState.CANCELED;
 
         emit Canceled(_optionId);
     }
@@ -367,7 +362,7 @@ contract NFTOpt {
         ,   tokenId : option.nftId
         });
 
-        options[_optionId].state = OptionState.CLOSED;
+        options[_optionId].state = OptionState.EXERCISED;
 
         emit Exercised(_optionId);
     }

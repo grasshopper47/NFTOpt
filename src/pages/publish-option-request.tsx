@@ -1,3 +1,4 @@
+import classes from "./styles/CreateOption.module.scss";
 import {
     Button,
     FormControl,
@@ -7,15 +8,14 @@ import {
     Radio,
     RadioGroup,
     Select,
-    TextField,
+    TextField
 } from "@mui/material";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { useAccount, useContracts } from "../providers/contexts";
-import { floatNumberRegex, NETWORK_NAME, SECONDS_IN_A_DAY } from "../utils/constants";
+import { floatNumberRegex, SECONDS_IN_A_DAY } from "../utils/constants";
 import { NFTAsset, OptionFlavor } from "../utils/types";
-import classes from "./styles/CreateOption.module.scss";
 import { ethers } from "ethers";
 import { fetchAssetsOfAccount, fetchNFTImage } from "../utils/NFT/localhost";
 import { showToast } from "../utils/frontend";
@@ -91,12 +91,12 @@ function CreateOption() {
 
     const handlePublishOption = async () => {
         let promise = nftOpt.publishOptionRequest(
-            formState.asset.address,
-            formState.asset.tokenId,
-            ethers.utils.parseEther(`${parseFloat(formState.strikePrice)}`),
+            formState.asset ? formState.asset.address : "",
+            formState.asset ? formState.asset.tokenId : "",
+            ethers.utils.parseEther(`${parseFloat(formState.strikePrice ?? "0")}`),
             formState.interval * SECONDS_IN_A_DAY,
-            formState.flavor,
-            { value: ethers.utils.parseEther(`${parseFloat(formState.premium)}`) }
+            formState.flavor ?? OptionFlavor.AMERICAN,
+            { value: ethers.utils.parseEther(`${parseFloat(formState.premium ?? "0")}`) }
         )
         .then( () => setFormState(defaultFormState) );
 

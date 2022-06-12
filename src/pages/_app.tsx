@@ -16,8 +16,8 @@ import { loadOptionWithAssetDetails, loadOptionsWithAsset } from "../utils/optio
 
 export default function App({ Component, pageProps }: AppProps) {
     const [loaded, setLoaded] = useState(false);
-    const [account, setAccount] = useState(null);
-    const [contracts, setContracts] = useState(null);
+    const [account, setAccount] = useState("");
+    const [contracts, setContracts] = useState<{ nftOpt : NFTOpt }>({ nftOpt : null });
     const [options, setOptions] = useState<OptionWithAsset[]>([]);
     const blockNo = useRef<number>(0);
 
@@ -49,26 +49,32 @@ export default function App({ Component, pageProps }: AppProps) {
         }
 
         // For existing options, update state
+        let state = 0;
+
+        if (action[0] === "w") { state =  OptionState.WITHDRAWN; }
+        if (action[0] === "o") { state =  OptionState.OPEN; }
+        if (action[0] === "c") { state =  OptionState.CANCELED; }
+        if (action[0] === "e") { state =  OptionState.EXERCISED; }
+
         for (const o of options)
         {
             if (o.id !== optionID) { continue; }
 
-            if (action[0] === "w") { o.state = OptionState.WITHDRAWN; break; }
-            if (action[0] === "o") { o.state = OptionState.OPEN; break; }
-            if (action[0] === "c") { o.state = OptionState.CLOSED; break; }
-            if (action[0] === "e") { o.state = OptionState.CLOSED; break; }
+            o.state = state;
+
+            break;
         }
 
         setOptionsAndUpdateListeners([...options]);
     }
 
     function attachEventListeners(contract: NFTOpt)
-    {``
-        contract.on("NewRequest", (id, tx) => onContractEvent(contract, "published", id.toNumber(), tx.blockNumber));
-        contract.on("Withdrawn" , (id, tx) => onContractEvent(contract, "withdrawn", id.toNumber(), tx.blockNumber));
-        contract.on("Opened"    , (id, tx) => onContractEvent(contract, "opened"   , id.toNumber(), tx.blockNumber));
-        contract.on("Canceled"  , (id, tx) => onContractEvent(contract, "canceled" , id.toNumber(), tx.blockNumber));
-        contract.on("Exercised" , (id, tx) => onContractEvent(contract, "exercised", id.toNumber(), tx.blockNumber));
+    {
+        contract.on("Published", (id, tx) => onContractEvent(contract, "published", id.toNumber(), tx.blockNumber));
+        contract.on("Withdrawn", (id, tx) => onContractEvent(contract, "withdrawn", id.toNumber(), tx.blockNumber));
+        contract.on("Opened"   , (id, tx) => onContractEvent(contract, "opened"   , id.toNumber(), tx.blockNumber));
+        contract.on("Canceled" , (id, tx) => onContractEvent(contract, "canceled" , id.toNumber(), tx.blockNumber));
+        contract.on("Exercised", (id, tx) => onContractEvent(contract, "exercised", id.toNumber(), tx.blockNumber));
     };
 
     function setOptionsAndUpdateListeners(options)

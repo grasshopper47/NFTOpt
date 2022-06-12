@@ -219,9 +219,9 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
                     </div>
 
                     <div className={classes.buttonsContainer}>
-                        {option.state === OptionState.CLOSED
+                        {option.state === OptionState.CANCELED
                             ? null
-                            : option.state === OptionState.REQUEST
+                            : option.state === OptionState.PUBLISHED
                                 ? actionsForRequestState
                                 : option.state === OptionState.OPEN
                                     ? actionsForOpenState

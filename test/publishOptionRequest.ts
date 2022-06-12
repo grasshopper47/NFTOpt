@@ -87,7 +87,7 @@ describe("publishOptionRequest", function () {
         await deployMainContract();
     });
 
-    it("emits 'NewRequest' event when succeeded", async function () {
+    it("emits 'Published' event when succeeded", async function () {
         await expect(
             NFTOptContract.connect(buyer).publishOptionRequest(
                 dummyOptionRequest.nftContract,
@@ -98,7 +98,7 @@ describe("publishOptionRequest", function () {
                 { value: 1 }
             )
         )
-            .to.emit(NFTOptContract, "NewRequest")
+            .to.emit(NFTOptContract, "Published")
             .withArgs(0);
 
         // Reset the state

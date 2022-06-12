@@ -6,10 +6,11 @@ export enum OptionFlavor {
 }
 
 export enum OptionState {
-    REQUEST,
-    OPEN,
-    CLOSED,
+    PUBLISHED,
     WITHDRAWN,
+    OPEN,
+    CANCELED,
+    EXERCISED
 }
 
 export enum OptionFilterOwnership {

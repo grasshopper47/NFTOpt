@@ -22,7 +22,7 @@ const tabs: ViewTab[] =
 [
     {
         name  : "Requests",
-        value : OptionState.REQUEST,
+        value : OptionState.PUBLISHED,
     },
     {
         name  : "Open",
@@ -30,7 +30,7 @@ const tabs: ViewTab[] =
     },
     {
         name  : "Closed",
-        value : OptionState.CLOSED,
+        value : OptionState.CANCELED,
     },
 ];
 
@@ -56,12 +56,12 @@ function OptionViewContainer(props: OptionViewContainerProps)
             const filter =
             (option : OptionWithAsset) =>
             {
-                if (state === OptionState.OPEN || state === OptionState.REQUEST)
+                if (state === OptionState.OPEN || state === OptionState.PUBLISHED)
                 {
                     return option.state === state;
                 }
 
-                return option.state === OptionState.WITHDRAWN || option.state === OptionState.CLOSED;
+                return option.state === OptionState.WITHDRAWN || option.state === OptionState.CANCELED;
             };
 
             setOptionsDisplayed(options.filter(filter));
