@@ -47,6 +47,9 @@ contract NFTOpt {
         return address(this).balance;
     }
 
+    /// @custom:author PeterA
+    /// @notice Checks if the supplied option has valid field values
+    /// @param _option: the Option instance to check
     function _exists(Option memory _option)
     private pure
     returns (bool)
@@ -58,6 +61,7 @@ contract NFTOpt {
                _option.premium     != 0          &&
                _option.strikePrice != 0;
     }
+
     /// @custom:author PeterA
     /// @notice Publishes a request for an option in the marketplace
     /// @param _nftContract: address of NFT contract of token
