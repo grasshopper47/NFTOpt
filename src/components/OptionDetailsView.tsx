@@ -23,7 +23,7 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
     const { nftOpt } = useContracts();
 
     const isApproved = useRef<boolean>(false);
-    const NFTContract = useRef<ERC721 | null>(null);
+    const NFTContract = useRef<ERC721>(null);
     const [, doRender ] = useState(0);
 
     useEffect
@@ -59,7 +59,7 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
                             toast.success("Approved to transfer NFT");
                             console.log("approved NFT");
 
-                            doRender(undefined);
+                            doRender(0);
                         }
                     );
 
@@ -67,7 +67,7 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
                 }
 
                 isApproved.current = true;
-                doRender(undefined);
+                doRender(0);
             }
 
             isApproved.current = false;
@@ -79,7 +79,7 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
         []
     );
 
-    const showListView = () => { onSelectOption(undefined); };
+    const showListView = () => { onSelectOption(null); };
 
     const handleWithdrawOption = () => showToast( nftOpt.withdrawOptionRequest(option.id).then(showListView) );
     const handleCreateOption   = () => showToast( nftOpt.createOption(option.id, { value: option.strikePrice }).then(showListView) );
