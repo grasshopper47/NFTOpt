@@ -80,35 +80,16 @@ contract NFTOpt {
     external
     payable
     {
-        if (!_nftContract.isInterfaceOf_ERC721())
-        {
-            revert NOT_AN_INTERFACE_OF("ERC-721", _nftContract);
-        }
+        if (_nftTokenID == 0)                             { revert INVALID_TOKEN_ID(_nftTokenID); }
+        if (!_nftContract.isInterfaceOf_ERC721())         { revert NOT_AN_INTERFACE_OF("ERC-721", _nftContract); }
 
-        if (_nftTokenID == 0)
-        {
-            revert INVALID_TOKEN_ID(_nftTokenID);
-        }
+        /// @dev Check for NFT ownership
+        IERC721 _instance = IERC721(_nftContract);
+        if (_instance.ownerOf(_nftTokenID) != msg.sender) { revert NFT_NOT_OWNER(msg.sender); }
 
-        if (IERC721(_nftContract).ownerOf(_nftTokenID) != msg.sender)
-        {
-            revert NFT_NOT_OWNER(msg.sender);
-        }
-
-        if (msg.value == 0)
-        {
-            revert INVALID_PREMIUM_AMOUNT(0);
-        }
-
-        if (_strikePrice == 0)
-        {
-            revert INVALID_STRIKE_PRICE_AMOUNT(0);
-        }
-
-        if (_interval == 0)
-        {
-            revert INVALID_EXPIRATION_INTERVAL(0);
-        }
+        if (msg.value == 0)                               { revert INVALID_PREMIUM_AMOUNT(0); }
+        if (_strikePrice == 0)                            { revert INVALID_STRIKE_PRICE_AMOUNT(0); }
+        if (_interval == 0)                               { revert INVALID_EXPIRATION_INTERVAL(0); }
 
         /// @dev Optimize for gas by caching id
         uint256 _optionID = optionID;
@@ -141,31 +122,13 @@ contract NFTOpt {
     {
         Option memory option = options[_optionId];
 
-        if(!_exists(option))
-        {
-            revert INVALID_OPTION_ID(_optionId);
-        }
-
-        if (option.state != OptionState.PUBLISHED)
-        {
-            revert INVALID_OPTION_STATE(option.state, OptionState.PUBLISHED);
-        }
-
-        if (option.buyer != msg.sender)
-        {
-            revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall);
-        }
-
-        if (getBalance() < option.premium)
-        {
-            revert INSUFFICIENT_FUNDS();
-        }
+        if(!_exists(option))                        { revert INVALID_OPTION_ID(_optionId); }
+        if (option.state != OptionState.PUBLISHED)  { revert INVALID_OPTION_STATE(option.state, OptionState.PUBLISHED); }
+        if (option.buyer != msg.sender)             { revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall); }
+        if (getBalance() < option.premium)          { revert INSUFFICIENT_FUNDS(); }
 
         (bool success,) = option.buyer.call{value: option.premium}("");
-        if (!success)
-        {
-            revert FUNDS_TRANSFER_FAILED();
-        }
+        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
 
         options[_optionId].state = OptionState.WITHDRAWN;
 
@@ -182,40 +145,13 @@ contract NFTOpt {
     {
         Option memory option = options[_optionId];
 
-        if(!_exists(option))
-        {
-            revert INVALID_OPTION_ID(_optionId);
-        }
-
-        if (option.seller != address(0))
-        {
-            revert OPTION_REQUEST_ALREADY_FULFILLED(option.seller);
-        }
-
-        if (option.state != OptionState.PUBLISHED)
-        {
-            revert INVALID_OPTION_STATE(option.state, OptionState.PUBLISHED);
-        }
-
-        if (option.buyer == msg.sender)
-        {
-            revert BUYER_MUST_DIFFER_FROM_SELLER();
-        }
-
-        if (getBalance() < option.premium)
-        {
-            revert INSUFFICIENT_FUNDS();
-        }
-
-        if (msg.value != option.strikePrice)
-        {
-            revert INVALID_STRIKE_PRICE_AMOUNT(option.strikePrice);
-        }
-
-        if (block.timestamp + option.interval < block.timestamp)
-        {
-            revert UNSIGNED_INTEGER_OVERFLOW();
-        }
+        if (!_exists(option))                                    { revert INVALID_OPTION_ID(_optionId); }
+        if (option.seller != address(0))                         { revert OPTION_REQUEST_ALREADY_FULFILLED(option.seller); }
+        if (option.state != OptionState.PUBLISHED)               { revert INVALID_OPTION_STATE(option.state, OptionState.PUBLISHED); }
+        if (option.buyer == msg.sender)                          { revert BUYER_MUST_DIFFER_FROM_SELLER(); }
+        if (getBalance() < option.premium)                       { revert INSUFFICIENT_FUNDS(); }
+        if (msg.value != option.strikePrice)                     { revert INVALID_STRIKE_PRICE_AMOUNT(option.strikePrice); }
+        if (block.timestamp + option.interval < block.timestamp) { revert UNSIGNED_INTEGER_OVERFLOW(); }
 
         option.seller    = payable(msg.sender);
         option.startDate = block.timestamp;
@@ -240,20 +176,9 @@ contract NFTOpt {
     {
         Option memory option = options[_optionId];
 
-        if(!_exists(option))
-        {
-            revert INVALID_OPTION_ID(_optionId);
-        }
-
-        if (option.state != OptionState.OPEN)
-        {
-            revert INVALID_OPTION_STATE(option.state, OptionState.OPEN);
-        }
-
-        if (option.startDate + option.interval < option.startDate)
-        {
-            revert UNSIGNED_INTEGER_OVERFLOW();
-        }
+        if(!_exists(option))                                        { revert INVALID_OPTION_ID(_optionId); }
+        if (option.state != OptionState.OPEN)                       { revert INVALID_OPTION_STATE(option.state, OptionState.OPEN); }
+        if (option.startDate + option.interval < option.startDate)  { revert UNSIGNED_INTEGER_OVERFLOW(); }
 
         uint256 expirationDate = option.startDate + option.interval;
 
@@ -262,26 +187,17 @@ contract NFTOpt {
         (
             option.buyer != msg.sender &&
             option.seller != msg.sender
-        )
-        {
-            revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerOrSellerCanCall);
-        }
+        )                                                           { revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerOrSellerCanCall); }
 
         /// @dev Restrict calling rights of seller: permit only after expiration
         if
         (
             expirationDate >= block.timestamp &&
             option.buyer != msg.sender
-        )
-        {
-            revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall);
-        }
+        )                                                           { revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall); }
 
         (bool success,) = option.seller.call{value: option.strikePrice}("");
-        if (!success)
-        {
-            revert FUNDS_TRANSFER_FAILED();
-        }
+        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
 
         options[_optionId].state = OptionState.CANCELED;
 
@@ -296,61 +212,33 @@ contract NFTOpt {
     {
         Option memory option = options[_optionId];
 
-        if (option.buyer == address(0))
-        {
-            revert INVALID_OPTION_ID(_optionId);
-        }
-
-        if (option.state != OptionState.OPEN)
-        {
-            revert INVALID_OPTION_STATE(option.state, OptionState.OPEN);
-        }
+        if (option.buyer == address(0))                             { revert INVALID_OPTION_ID(_optionId); }
+        if (option.state != OptionState.OPEN)                       { revert INVALID_OPTION_STATE(option.state, OptionState.OPEN); }
+        if (getBalance() < option.strikePrice)                      { revert INSUFFICIENT_FUNDS(); }
 
         /// @dev Restrict calling rights to buyer only
-        if (option.buyer != msg.sender)
-        {
-            revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall);
-        }
+        if (option.buyer != msg.sender)                             { revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall); }
 
         /// @dev Check for NFT access and ownership
         IERC721 nftContract = IERC721(option.nftContract);
 
-        if (nftContract.ownerOf(option.nftId) != msg.sender)
-        {
-            revert NFT_NOT_OWNER(msg.sender);
-        }
-
-        if (nftContract.getApproved(option.nftId) != address(this))
-        {
-            revert NOT_APPROVED_TO_TRANSFER_NFT(option.nftContract, option.nftId);
-        }
-
-        if (option.startDate + option.interval < option.startDate)
-        {
-            revert UNSIGNED_INTEGER_OVERFLOW();
-        }
+        if (nftContract.ownerOf(option.nftId) != msg.sender)        { revert NFT_NOT_OWNER(msg.sender); }
+        if (nftContract.getApproved(option.nftId) != address(this)) { revert NOT_APPROVED_TO_TRANSFER_NFT(option.nftContract, option.nftId); }
+        if (option.startDate + option.interval < option.startDate)  { revert UNSIGNED_INTEGER_OVERFLOW(); }
 
         /// @dev Check for time restrictions
         uint256 expirationDate = option.startDate + option.interval;
         if
         (
             block.timestamp > expirationDate ||
-            (option.flavor == OptionFlavor.EUROPEAN && (expirationDate - 1 days) > block.timestamp)
-        )
-        {
-            revert EXERCISE_WINDOW_IS_CLOSED(expirationDate);
-        }
-
-        if (getBalance() < option.strikePrice)
-        {
-            revert INSUFFICIENT_FUNDS();
-        }
+            (
+                option.flavor == OptionFlavor.EUROPEAN &&
+                (expirationDate - 1 days) > block.timestamp
+            )
+        )                                                           { revert EXERCISE_WINDOW_IS_CLOSED(expirationDate); }
 
         (bool success,) = msg.sender.call{value: option.strikePrice}("");
-        if (!success)
-        {
-            revert FUNDS_TRANSFER_FAILED();
-        }
+        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
 
         nftContract.transferFrom
         ({
