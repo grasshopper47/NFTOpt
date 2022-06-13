@@ -45,4 +45,7 @@ button.MuiButton-root {
 
 .toast-container {
     margin-top: 60px;
+
+    overflow-y: hidden;
+    max-height: 264px;
 }

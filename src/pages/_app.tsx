@@ -102,6 +102,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 ,   NFTOptSolContract.abi
                 ) as NFTOpt;
 
+                contract.removeAllListeners();
                 attachEventListeners(contract);
                 setContracts({ nftOpt : contract });
 
