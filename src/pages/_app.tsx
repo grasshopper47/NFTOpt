@@ -18,7 +18,8 @@ export default function App({ Component, pageProps }: AppProps) {
     const [loaded, setLoaded] = useState(false);
     const [account, setAccount] = useState("");
     const [contracts, setContracts] = useState<{ nftOpt : NFTOpt }>({ nftOpt : null });
-    const [options, setOptions] = useState<OptionWithAsset[]>([]);
+    const [, reloadOptions] = useState<OptionWithAsset[]>([]);
+    const options = useRef<OptionWithAsset[]>([]);
     const blockNo = useRef<number>(0);
 
     function onContractEvent
@@ -43,7 +44,8 @@ export default function App({ Component, pageProps }: AppProps) {
         // For new options, reload details after publishing
         if (action[0] === "p")
         {
-            loadOptionWithAssetDetails(contract, optionID).then( option => setOptionsAndUpdateListeners([...options, option]) );
+            loadOptionWithAssetDetails(contract, optionID)
+            .then( option => setOptions([...options.current, option]) );
 
             return;
         }
@@ -51,12 +53,12 @@ export default function App({ Component, pageProps }: AppProps) {
         // For existing options, update state
         let state = 0;
 
-        if (action[0] === "w") { state =  OptionState.WITHDRAWN; }
-        if (action[0] === "o") { state =  OptionState.OPEN; }
-        if (action[0] === "c") { state =  OptionState.CANCELED; }
-        if (action[0] === "e") { state =  OptionState.EXERCISED; }
+        if (action[0] === "w") { state = OptionState.WITHDRAWN; }
+        if (action[0] === "o") { state = OptionState.OPEN; }
+        if (action[0] === "c") { state = OptionState.CANCELED; }
+        if (action[0] === "e") { state = OptionState.EXERCISED; }
 
-        for (const o of options)
+        for (let o of options.current)
         {
             if (o.id !== optionID) { continue; }
 
@@ -65,7 +67,7 @@ export default function App({ Component, pageProps }: AppProps) {
             break;
         }
 
-        setOptionsAndUpdateListeners([...options]);
+        setOptions([...options.current]);
     }
 
     function attachEventListeners(contract: NFTOpt)
@@ -77,14 +79,11 @@ export default function App({ Component, pageProps }: AppProps) {
         contract.on("Exercised", (id, tx) => onContractEvent(contract, "exercised", id.toNumber(), tx.blockNumber));
     };
 
-    function setOptionsAndUpdateListeners(options)
+    function setOptions(array: OptionWithAsset[])
     {
-        setOptions([...options]);
+        options.current = [...array];
 
-        if (!contracts) { return; }
-
-        contracts.nftOpt.removeAllListeners();
-        attachEventListeners(contracts.nftOpt);
+        reloadOptions([...options.current]);
     }
 
     useEffect
@@ -103,11 +102,12 @@ export default function App({ Component, pageProps }: AppProps) {
                 ,   NFTOptSolContract.abi
                 ) as NFTOpt;
 
+                attachEventListeners(contract);
                 setContracts({ nftOpt : contract });
 
                 getCurrentProvider().getBlockNumber().then( bn => blockNo.current = bn );
 
-                loadOptionsWithAsset(contract).then( r => setOptionsAndUpdateListeners([...r]) );
+                loadOptionsWithAsset(contract).then( r => setOptions([...r]) );
 
                 setLoaded(true);
             }
@@ -120,7 +120,7 @@ export default function App({ Component, pageProps }: AppProps) {
     return (
         <AccountContext.Provider value={account}>
             <ContractsContext.Provider value={contracts}>
-                <OptionsContext.Provider value={options}>
+                <OptionsContext.Provider value={options.current}>
                     <RouteGuard account={account} loaded={loaded}>
                         <Toaster containerClassName={"toast-container"} />
                         <Header account={account} onConnectAccount={connectWallet.bind(null, setAccount)} />
