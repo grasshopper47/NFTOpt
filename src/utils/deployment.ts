@@ -37,14 +37,11 @@ export async function deployNFTCollectionContract(name: string, cb?: { (r: any):
     let NFTCollectionContract = await NFTCollectionFactory.deploy();
     await NFTCollectionContract.deployed();
 
-    console.log(`Deployed ${name} @ ${NFTCollectionContract.address}`);
     contracts[name].instance = NFTCollectionContract;
 
     const max = await NFTCollectionContract.MAX_MINTABLE_TOKENS();
 
     for (let i = 0; i < max; ++i) { await NFTCollectionContract.connect(accounts[0]).mint(); }
-
-    console.log(`Minted NFTs for ${name}`);
 }
 
 export async function deployLocalDevEnv() {
@@ -63,6 +60,8 @@ export async function deployLocalDevEnv() {
         await deployNFTCollectionContract(name);
 
         addressesJSON[name] = contracts[name].instance.address;
+
+        console.log(`Deployed ${name} @ ${addressesJSON[name]}`);
     }
 
     // Update addresses.json file with published contract addresses
