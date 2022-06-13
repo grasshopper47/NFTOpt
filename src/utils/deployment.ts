@@ -34,10 +34,17 @@ export async function deployNFTCollectionContract(name: string, cb?: { (r: any):
 
     const NFTCollectionFactory = await ethers.getContractFactory(name);
     //@ts-ignore
-    let NFTCollectionContract = await NFTCollectionFactory.deploy(accounts[0].address);
+    let NFTCollectionContract = await NFTCollectionFactory.deploy();
     await NFTCollectionContract.deployed();
 
+    console.log(`Deployed ${name} @ ${NFTCollectionContract.address}`);
     contracts[name].instance = NFTCollectionContract;
+
+    const max = await NFTCollectionContract.MAX_MINTABLE_TOKENS();
+
+    for (let i = 0; i < max; ++i) { await NFTCollectionContract.connect(accounts[0]).mint(); }
+
+    console.log(`Minted NFTs for ${name}`);
 }
 
 export async function deployLocalDevEnv() {
@@ -51,11 +58,11 @@ export async function deployLocalDevEnv() {
 
     console.log("\nDeployed NFTOpt address:", NFTOptContract.address);
 
-    for (const name of Object.keys(contracts)) {
+    for (const name of Object.keys(contracts))
+    {
         await deployNFTCollectionContract(name);
-        addressesJSON[name] = contracts[name].instance.address;
 
-        console.log(`Deployed ${name} @ address:`, addressesJSON[name]);
+        addressesJSON[name] = contracts[name].instance.address;
     }
 
     // Update addresses.json file with published contract addresses

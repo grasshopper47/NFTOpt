@@ -1,21 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.1;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
+import "./CollectionNFT_BASE.sol";
+
 import "@openzeppelin/contracts/utils/Base64.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract TH_NFT is ERC721("Tony Han's Chinese Zodiac NFT", "TH_NFT"), Ownable {
-    uint256 public MAX_MINTABLE_TOKENS = 5;
-
-    constructor (address _buyer)
-    {
-        for (uint i = 1; i <= MAX_MINTABLE_TOKENS; ++i) { _safeMint(_buyer, i); }
-
-        _safeMint(address(this), 9999);
-    }
-
+contract TH_NFT is CollectionNFT_BASE("Tony Han's Chinese Zodiac NFT", "TH_NFT")
+{
     string[] private trigrams_64 = [
         unicode"乾 ䷀",
         unicode"坤 ䷁",
