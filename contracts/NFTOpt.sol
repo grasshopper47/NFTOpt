@@ -160,10 +160,7 @@ contract NFTOpt {
         options[_optionId] = option;
 
         (bool success,) = msg.sender.call{value: option.premium}("");
-        if (!success)
-        {
-            revert FUNDS_TRANSFER_FAILED();
-        }
+        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
 
         emit Opened(_optionId);
     }
