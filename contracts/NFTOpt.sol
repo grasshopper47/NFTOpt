@@ -138,7 +138,6 @@ contract NFTOpt {
     /// @param _optionId: id of the option request to remove
     function withdrawOptionRequest(uint256 _optionId)
     external
-    payable
     {
         Option memory option = options[_optionId];
 
@@ -238,7 +237,6 @@ contract NFTOpt {
     /// @param _optionId: id of the option to cancel
     function cancelOption(uint256 _optionId)
     external
-    payable
     {
         Option memory option = options[_optionId];
 
@@ -295,7 +293,6 @@ contract NFTOpt {
     /// @param _optionId: id of the option to exercise
     function exerciseOption(uint256 _optionId)
     external
-    payable
     {
         Option memory option = options[_optionId];
 
