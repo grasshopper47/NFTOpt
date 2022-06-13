@@ -1,36 +1,13 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.14;
 
-/**
- * @dev An authorization implementation for our smart contract, to restrict access to some functions.
- */
-import "@openzeppelin/contracts/access/Ownable.sol";
-/**
- * @dev OpenZeppelin's implementation of EIP-721 https://eips.ethereum.org/EIPS/eip-721.
- */
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "./CollectionNFT_BASE.sol";
 
-/**
- * @dev String operations.
- */
 import "@openzeppelin/contracts/utils/Strings.sol";
-
-/**
- * @dev Provides a set of functions to operate with Base64 strings.
- */
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-
-contract NK_NFT is ERC721("Nikita's ART", "NART"), Ownable {
-    uint256 public MAX_MINTABLE_TOKENS = 5;
-
-    constructor (address _buyer)
-    {
-        for (uint i = 1; i <= MAX_MINTABLE_TOKENS; ++i) { _safeMint(_buyer, i); }
-
-        _safeMint(address(this), 9999);
-    }
-
+contract NK_NFT is CollectionNFT_BASE("Nikita's ART", "NART")
+{
     string[] private rectColors = [
     "red",
     "green",
