@@ -22,7 +22,7 @@ export default function App({ Component, pageProps }: AppProps) {
     const options = useRef<OptionWithAsset[]>([]);
     const blockNo = useRef<number>(0);
 
-    function onContractEvent
+    async function onContractEvent
     (
         contract   : NFTOpt
     ,   action     : string
@@ -44,8 +44,11 @@ export default function App({ Component, pageProps }: AppProps) {
         // For new options, reload details after publishing
         if (action[0] === "p")
         {
-            loadOptionWithAssetDetails(contract, optionID)
-            .then( option => setOptions([...options.current, option]) );
+            const option = await loadOptionWithAssetDetails(contract, optionID);
+
+            if (!option) { return };
+
+            setOptions([ ...options.current, option ]);
 
             return;
         }
@@ -67,7 +70,7 @@ export default function App({ Component, pageProps }: AppProps) {
             break;
         }
 
-        setOptions([...options.current]);
+        setOptions([ ...options.current ]);
     }
 
     function attachEventListeners(contract: NFTOpt)
@@ -90,30 +93,31 @@ export default function App({ Component, pageProps }: AppProps) {
     (
         () =>
         {
-            const onLoad = async () =>
-            {
-                await hookUpMetamask();
-                setAccount(getCurrentAccount());
+            hookUpMetamask()
+            .then
+            (
+                () =>
+                {
+                    setAccount(getCurrentAccount());
 
-                const contract =
-                getSignedContract
-                (
-                    addresses[NETWORK_NAME].NFTOpt
-                ,   NFTOptSolContract.abi
-                ) as NFTOpt;
+                    const contract =
+                    getSignedContract
+                    (
+                        addresses[NETWORK_NAME].NFTOpt
+                    ,   NFTOptSolContract.abi
+                    ) as NFTOpt;
 
-                contract.removeAllListeners();
-                attachEventListeners(contract);
-                setContracts({ nftOpt : contract });
+                    contract.removeAllListeners();
+                    attachEventListeners(contract);
+                    setContracts({ nftOpt : contract });
 
-                getCurrentProvider().getBlockNumber().then( bn => blockNo.current = bn );
+                    getCurrentProvider().getBlockNumber().then( bn => blockNo.current = bn );
 
-                loadOptionsWithAsset(contract).then( r => setOptions([...r]) );
+                    loadOptionsWithAsset(contract).then( r => setOptions([...r]) );
 
-                setLoaded(true);
-            }
-
-            onLoad();
+                    setLoaded(true);
+                }
+            );
         },
         []
     );
