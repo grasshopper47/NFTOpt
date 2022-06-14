@@ -1,4 +1,7 @@
+
+// @ts-ignore
 import classes from "./styles/CreateOption.module.scss";
+
 import {
     Button,
     FormControl,

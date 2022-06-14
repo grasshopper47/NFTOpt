@@ -1,7 +1,9 @@
+// @ts-ignore
+import classes from "./styles/Header.module.scss";
+
 import React from "react";
 import {useRouter} from "next/router";
 import Link from "next/link";
-import classes from "./styles/Header.module.scss";
 import clsx from "clsx";
 import Button from "@mui/material/Button";
 import ThemeSwitch from "./ThemeSwitch";
