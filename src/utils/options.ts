@@ -58,8 +58,6 @@ export async function loadOptions(contract: NFTOpt): Promise<Option[]> {
 
 export async function loadAssetForOption(option: Option): Promise<NFTAsset>
 {
-    console.log("loadAssetForOption");
-
     const NFTContract = getSignedContract(option.nftContract, [ ABIs.ERC721.name, ABIs.ERC721.tokenURI ]);
 
     const promises = [
@@ -78,8 +76,6 @@ export async function loadAssetForOption(option: Option): Promise<NFTAsset>
 
 export async function loadOptionWithAssetDetails(contract: NFTOpt, id: number): Promise<OptionWithAsset | null>
 {
-    console.log("loadOptionWithAssetDetails");
-
     const option : Option | null = await loadOption(contract, id);
     if (!option) { return option; }
 
@@ -91,8 +87,6 @@ export async function loadOptionWithAssetDetails(contract: NFTOpt, id: number): 
 
 export async function loadOptionsWithAsset(contract: NFTOpt): Promise<OptionWithAsset[]>
 {
-    console.log("loadOptionsWithAsset");
-
     const options: OptionWithAsset[] = [];
 
     const optionIDPromise = await contract.optionID();
