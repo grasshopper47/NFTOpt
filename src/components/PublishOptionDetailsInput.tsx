@@ -1,6 +1,6 @@
 
 // @ts-ignore
-import classes from "./styles/PublishOptionRequest.module.scss";
+import classes from "./styles/PublishOptionDetailsInput.module.scss";
 
 import {
     Button,
@@ -39,7 +39,7 @@ const defaultFormState: FormState = {
     flavor: OptionFlavor.AMERICAN
 };
 
-function CreateOption() {
+function PublishOptionDetailsInput() {
     const account = useAccount();
     const { nftOpt } = useContracts();
 
@@ -218,4 +218,4 @@ function CreateOption() {
     );
 }
 
-export default CreateOption;
+export default PublishOptionDetailsInput;
