@@ -53,7 +53,7 @@ export async function loadOptions(contract: NFTOpt): Promise<Option[]> {
         options.push(option);
     }
 
-    return options;
+    return options.sort( o => o.id );
 }
 
 export async function loadAssetForOption(option: Option): Promise<NFTAsset>
@@ -114,5 +114,5 @@ export async function loadOptionsWithAsset(contract: NFTOpt): Promise<OptionWith
 
     await Promise.allSettled(promises);
 
-    return options;
+    return options.sort( o => o.id );
 }
