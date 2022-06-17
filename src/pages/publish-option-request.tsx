@@ -1,6 +1,6 @@
 
 // @ts-ignore
-import classes from "./styles/CreateOption.module.scss";
+import classes from "./styles/PublishOptionRequest.module.scss";
 
 import {
     Button,
