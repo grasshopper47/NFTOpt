@@ -98,7 +98,10 @@ export default function App({ Component, pageProps }: AppProps) {
             (
                 () =>
                 {
-                    setAccount(getCurrentAccount());
+                    const account = getCurrentAccount();
+                    if (!account) { return; }
+
+                    setAccount(account);
 
                     const contract =
                     getSignedContract
