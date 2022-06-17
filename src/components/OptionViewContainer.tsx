@@ -1,4 +1,6 @@
+// @ts-ignore
 import classes from "./styles/OptionViewContainer.module.scss";
+
 import { Tab, Tabs } from "@mui/material";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";

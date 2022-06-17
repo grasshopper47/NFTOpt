@@ -1,6 +1,8 @@
+// @ts-ignore
+import classes from "./styles/404.module.scss";
+
 import {Button} from "@mui/material";
 import {useRouter} from "next/router";
-import classes from "./styles/404.module.scss";
 
 function NotFound() {
     const router = useRouter();

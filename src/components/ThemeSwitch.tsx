@@ -1,8 +1,10 @@
+// @ts-ignore
+import classes from "./styles/ThemeSwitch.module.scss";
+
 import { useEffect, useState } from "react";
 import { IconButton } from "@mui/material";
 import Sun from "@mui/icons-material/WbSunnyRounded";
 import Moon from "@mui/icons-material/Brightness3Rounded";
-import classes from "./styles/ThemeSwitch.module.scss";
 
 type ThemeState = "white" | "dark";
 

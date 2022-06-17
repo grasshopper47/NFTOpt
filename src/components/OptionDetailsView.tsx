@@ -1,3 +1,6 @@
+// @ts-ignore
+import classes from "./styles/OptionDetailsView.module.scss";
+
 import { ArrowBackIosRounded } from "@mui/icons-material";
 import { Button, IconButton } from "@mui/material";
 import { ethers } from "ethers";
@@ -5,7 +8,6 @@ import { useContracts } from "../providers/contexts";
 import { getCurrentProvider, getSignedContract } from "../utils/metamask";
 import { getAccountDisplayValue, getCorrectPlural, dismissLastToast, showToast } from "../utils/frontend";
 import { OptionFlavor, OptionState, OptionWithAsset } from "../utils/types";
-import classes from "./styles/OptionDetailsView.module.scss";
 import { ADDRESS0, ABIs, SECONDS_IN_A_DAY } from "../utils/constants";
 import { useEffect, useRef, useState } from "react";
 import { ERC721 } from "../../typechain-types";
@@ -23,7 +25,7 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
     const { nftOpt } = useContracts();
 
     const isApproved = useRef<boolean>(false);
-    const NFTContract = useRef<ERC721>(null);
+    const NFTContract = useRef<ERC721|null>(null);
     const [, doRender ] = useState(0);
 
     useEffect
@@ -44,30 +46,35 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
 
             const afterGetApproved = (address) =>
             {
-                if (address !== nftOpt.address)
+                if (!NFTContract.current) { return; }
+
+                isApproved.current = (address === nftOpt.address);
+
+                if (isApproved.current)
                 {
-                    // Listen to "Approval" event
-                    NFTContract.current.on
-                    (
-                        "Approval",
-                        () =>
-                        {
-                            if (isApproved.current) { return; }
-                            isApproved.current = true;
+                    NFTContract.current.removeAllListeners();
 
-                            dismissLastToast();
-                            toast.success("Approved to transfer NFT");
-                            console.log("approved NFT");
-
-                            doRender(0);
-                        }
-                    );
+                    doRender(-1);
 
                     return;
                 }
 
-                isApproved.current = true;
-                doRender(0);
+                // Listen to "Approval" event
+                NFTContract.current.on
+                (
+                    "Approval",
+                    () =>
+                    {
+                        if (isApproved.current) { return; }
+                        isApproved.current = true;
+
+                        dismissLastToast();
+                        toast.success("Approved to transfer NFT");
+                        console.log("approved NFT");
+
+                        doRender(-2);
+                    }
+                );
             }
 
             isApproved.current = false;
@@ -90,7 +97,7 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
         const promise = { current : null };
 
         // Approve contract to transfer NFT (step 1)
-        if (!isApproved.current)
+        if (!isApproved.current && NFTContract.current)
         {
             promise.current = NFTContract.current.connect(getCurrentProvider().getSigner())
                                                  .approve(nftOpt.address, option.asset.tokenId);
@@ -125,39 +132,62 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
     const actionsForRequestState =
     (
         <>
-            {option.buyer === currentAccount ? (
-                <Button variant="outlined" className={classes.btnSecondary} onClick={handleWithdrawOption}>
-                    Withdraw Request
-                </Button>
-            ) : (
-                <Button variant="contained" className={classes.btnPrimary} onClick={handleCreateOption}>
-                    Create Option
-                </Button>
-            )}
+            {
+                option.buyer === currentAccount ?
+                    (
+                        <Button variant="outlined" className={classes.btnSecondary} onClick={handleWithdrawOption}>
+                            Withdraw Request
+                        </Button>
+                    )
+                :
+                    (
+                        <Button variant="contained" className={classes.btnPrimary} onClick={handleCreateOption}>
+                            Create Option
+                        </Button>
+                    )
+            }
         </>
     );
 
     const actionsForOpenState =
     (
         <>
-            {option.buyer === currentAccount ? (
-                isExerciseWindowClosed() ? (
-                    <>
-                        {isApproved.current ? null : (
-                            <Button variant="outlined" className={classes.btnSecondary} onClick={handleCancelOption}>
-                                Cancel option
-                            </Button>
-                        )}
-                        <Button variant="contained" className={classes.btnPrimary} onClick={handleExerciseOption}>
-                            {isApproved.current ? "Exercise Option" : "Approve NFT"}
-                        </Button>
-                    </>
-                ) : isApproved.current ? null : (
-                    <Button variant="outlined" className={classes.btnSecondary} onClick={handleCancelOption}>
-                        Cancel option
-                    </Button>
+            {
+                option.buyer === currentAccount ?
+                (
+                    isExerciseWindowClosed() ?
+                        (
+                            <>
+                                {
+                                    isApproved.current ?
+                                    null
+                                    :
+                                    (
+                                        <Button variant="outlined" className={classes.btnSecondary} onClick={handleCancelOption}>
+                                            Cancel option
+                                        </Button>
+                                    )
+                                }
+
+                                <Button variant="contained" className={classes.btnPrimary} onClick={handleExerciseOption}>
+                                    {isApproved.current ? "Exercise Option" : "Approve NFT"}
+                                </Button>
+                            </>
+                        )
+                    :
+                        (
+                            isApproved.current ?
+                                null
+                            :
+                                (
+                                    <Button variant="outlined" className={classes.btnSecondary} onClick={handleCancelOption}>
+                                        Cancel option
+                                    </Button>
+                                )
+                        )
                 )
-            ) : null}
+                : null
+            }
         </>
     );
 
@@ -219,13 +249,15 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
                     </div>
 
                     <div className={classes.buttonsContainer}>
-                        {option.state === OptionState.CANCELED
-                            ? null
-                            : option.state === OptionState.PUBLISHED
-                                ? actionsForRequestState
-                                : option.state === OptionState.OPEN
-                                    ? actionsForOpenState
-                                    : null}
+                        {
+                            option.state === OptionState.CANCELED ?
+                                null
+                            :
+                                option.state === OptionState.PUBLISHED ?
+                                    actionsForRequestState
+                                :
+                                    option.state === OptionState.OPEN ? actionsForOpenState : null
+                        }
                     </div>
                 </div>
             </div>

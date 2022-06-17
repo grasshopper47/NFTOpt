@@ -127,12 +127,12 @@ contract NFTOpt {
         if (option.buyer != msg.sender)             { revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall); }
         if (getBalance() < option.premium)          { revert INSUFFICIENT_FUNDS(); }
 
-        (bool success,) = option.buyer.call{value: option.premium}("");
-        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
-
         options[_optionId].state = OptionState.WITHDRAWN;
 
         emit Withdrawn(_optionId);
+
+        (bool success,) = option.buyer.call{ value : option.premium }("");
+        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
     }
 
     /// @custom:author StefanaM
@@ -159,10 +159,10 @@ contract NFTOpt {
 
         options[_optionId] = option;
 
-        (bool success,) = msg.sender.call{value: option.premium}("");
-        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
-
         emit Opened(_optionId);
+
+        (bool success,) = msg.sender.call{ value : option.premium }("");
+        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
     }
 
     /// @custom:author ShababAli
@@ -193,12 +193,12 @@ contract NFTOpt {
             option.buyer != msg.sender
         )                                                           { revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall); }
 
-        (bool success,) = option.seller.call{value: option.strikePrice}("");
-        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
-
         options[_optionId].state = OptionState.CANCELED;
 
         emit Canceled(_optionId);
+
+        (bool success,) = option.seller.call{ value : option.strikePrice }("");
+        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
     }
 
     /// @custom:author LuisImagiire
@@ -234,9 +234,6 @@ contract NFTOpt {
             )
         )                                                           { revert EXERCISE_WINDOW_IS_CLOSED(expirationDate); }
 
-        (bool success,) = msg.sender.call{value: option.strikePrice}("");
-        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
-
         nftContract.transferFrom
         ({
             to      : option.seller
@@ -247,6 +244,9 @@ contract NFTOpt {
         options[_optionId].state = OptionState.EXERCISED;
 
         emit Exercised(_optionId);
+
+        (bool success,) = msg.sender.call{ value : option.strikePrice }("");
+        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
     }
 
     /// @dev -- CUSTOM ERRORS -------------------------

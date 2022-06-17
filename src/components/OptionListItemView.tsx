@@ -1,8 +1,10 @@
+// @ts-ignore
+import classes from "./styles/OptionListItemView.module.scss";
+
 import { AccessTime } from "@mui/icons-material";
 import { ethers } from "ethers";
 import { getCorrectPlural } from "../utils/frontend";
 import { OptionWithAsset } from "../utils/types";
-import classes from "./styles/OptionListItemView.module.scss";
 
 type OptionListItemViewProps =
 {

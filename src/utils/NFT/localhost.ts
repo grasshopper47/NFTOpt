@@ -40,7 +40,7 @@ export async function fetchAssetsOfAccount(account: string, setAssetsCallback: (
                     tokenId: _tokenId,
                     address: address,
                     name: await NFTContract.name() + " #" + _tokenId,
-                    image: null,
+                    image: "",
                 });
             }
         }
