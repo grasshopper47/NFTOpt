@@ -16,7 +16,7 @@ type Route = {
 
 const routes: Route[] = [
     {
-        href: "/publish-option",
+        href: "/request-option",
         name: "Publish Option",
     },
     {
