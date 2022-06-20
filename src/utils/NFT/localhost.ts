@@ -13,40 +13,46 @@ export async function fetchNFTImage(address: string, id: BigNumber)
     return JSON.parse(atob(data.slice(29))).image;
 }
 
-export async function fetchAssetsOfAccount(account: string, setAssetsCallback: (assets: NFTAsset[]) => void)
+export async function fetchAssetsOfAccount(account: string)
 {
-    const assets: NFTAsset[] = [];
+    let assets   : NFTAsset[]     = [];
+    let promises : Promise<any>[] = [];
 
     let j = 0;
     for (const name of Object.keys(addresses["localhost"]))
     {
-        if (name === "NFTOpt") { continue; }
+        if (name === "NFTOpt") continue;
 
-        const address = addresses["localhost"][name];
+        const address_    = addresses["localhost"][name];
+        const NFTContract = getSignedContract(address_, [ ABIs.ERC721.name, ABIs.ERC721.ownerOf ]);
 
-        const NFTContract = getSignedContract(address, [ ABIs.ERC721.ownerOf, ABIs.ERC721.name ]);
-
-        for (let i = 1; i < MAX_MINTABLE_TOKENS; ++i)
+        for (let i = 1; i != MAX_MINTABLE_TOKENS; ++i)
         {
-            var data = await NFTContract.ownerOf(i);
+            promises.push
+            (
+                (async () =>
+                {
+                    const owner = await NFTContract.ownerOf(i);
+                    if (owner.toLowerCase() !== account) return;
 
-            data = data.toLowerCase();
+                    const tokenID_ = BigNumber.from(i);
 
-            if (data === account) {
-                const _tokenId = BigNumber.from(i);
-
-                assets.push({
-                    id: i + j * MAX_MINTABLE_TOKENS,
-                    tokenId: _tokenId,
-                    address: address,
-                    name: await NFTContract.name() + " #" + _tokenId,
-                    image: "",
-                });
-            }
+                    assets.push
+                    ({
+                        id      : i + j * MAX_MINTABLE_TOKENS
+                    ,   tokenId : tokenID_
+                    ,   address : address_
+                    ,   name    : await NFTContract.name() + " #" + tokenID_
+                    ,   image   : ""
+                    });
+                })()
+            );
         }
 
         ++j;
     }
 
-    setAssetsCallback(assets);
+    await Promise.allSettled(promises);
+
+    return assets.sort( a => a.id );
 }
