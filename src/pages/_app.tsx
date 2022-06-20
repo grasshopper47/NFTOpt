@@ -12,15 +12,19 @@ import { NFTOpt } from "../../typechain-types";
 import { hookUpMetamask, getSignedContract, getCurrentAccount, getCurrentProvider, connectWallet } from "../utils/metamask";
 import { dismissLastToast } from "../utils/frontend";
 import { OptionState, OptionWithAsset } from "../utils/types";
-import { loadOptionWithAssetDetails, loadOptionsWithAsset } from "../utils/options";
+import { loadOptionWithAsset, loadAllOptionsWithAsset } from "../utils/options";
+
+let index = 0;
 
 export default function App({ Component, pageProps }: AppProps) {
     const [loaded, setLoaded] = useState(false);
     const [account, setAccount] = useState("");
     const [contracts, setContracts] = useState<{ nftOpt : NFTOpt }>({ nftOpt : null });
-    const [, reloadOptions] = useState<OptionWithAsset[]>([]);
     const options = useRef<OptionWithAsset[]>([]);
     const blockNo = useRef<number>(0);
+
+    const [, doReload ] = useState(index);
+    function reload() { index ^= 1; doReload(index); }
 
     async function onContractEvent
     (
@@ -44,7 +48,7 @@ export default function App({ Component, pageProps }: AppProps) {
         // For new options, reload details after publishing
         if (action[0] === "p")
         {
-            const option = await loadOptionWithAssetDetails(contract, optionID);
+            const option = await loadOptionWithAsset(contract, optionID);
 
             if (!option) { return };
 
@@ -86,7 +90,7 @@ export default function App({ Component, pageProps }: AppProps) {
     {
         options.current = [...array];
 
-        reloadOptions([...options.current]);
+        reload();
     }
 
     useEffect
@@ -116,7 +120,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
                     getCurrentProvider().getBlockNumber().then( bn => blockNo.current = bn );
 
-                    loadOptionsWithAsset(contract).then( r => setOptions([...r]) );
+                    loadAllOptionsWithAsset(contract).then( r => setOptions([...r]) );
 
                     setLoaded(true);
                 }
