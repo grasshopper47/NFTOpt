@@ -41,7 +41,7 @@ export async function deployNFTCollectionContract(name: string, cb?: { (r: any):
 
     const max = await NFTCollectionContract.MAX_MINTABLE_TOKENS();
 
-    for (let i = 0; i < max; ++i) { await NFTCollectionContract.connect(accounts[0]).mint(); }
+    for (let i = 0; i !== max; ++i) { await NFTCollectionContract.connect(accounts[0]).mint(); }
 }
 
 export async function deployLocalDevEnv() {
