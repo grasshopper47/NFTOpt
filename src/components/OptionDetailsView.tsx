@@ -26,7 +26,7 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
 
     const isApproved = useRef<boolean>(false);
     const NFTContract = useRef<ERC721|null>(null);
-    const [, doRender ] = useState(0);
+    const [, reload ] = useState(0);
 
     useEffect
     (
@@ -54,7 +54,7 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
                 {
                     NFTContract.current.removeAllListeners();
 
-                    doRender(-1);
+                    reload(-1);
 
                     return;
                 }
@@ -72,7 +72,7 @@ function OptionDetailsView(props: OptionDetailsViewProps) {
                         toast.success("Approved to transfer NFT");
                         console.log("approved NFT");
 
-                        doRender(-2);
+                        reload(-2);
                     }
                 );
             }
