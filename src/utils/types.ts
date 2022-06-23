@@ -11,15 +11,12 @@ export enum OptionState
 ,   EXERCISED
 }
 
-export enum OptionFilterOwnership { ALL, PERSONAL }
-
 export type NFTAsset =
 {
-    id      : number
-,   tokenId : BigNumber
-,   address : string
-,   name    : string
-,   image   : string
+    nftId       : BigNumber
+,   nftContract : string
+,   name        : string
+,   image       : string
 };
 
 export type Option =
@@ -49,5 +46,3 @@ export type OptionRequest =
 
 export type Option_SOLIDITY = Omit<Option, "id">;
 export type OptionWithAsset = Omit<Option, "nftContract" | "nftId"> & { asset: NFTAsset };
-
-export type WithChildren = { children?: React.ReactNode | React.ReactNode[]; };
