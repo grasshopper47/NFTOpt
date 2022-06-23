@@ -1,4 +1,4 @@
-@import "src/styles/variables.scss";
+@import "../variables.scss";
 
 .root {
     max-width: 900px;
@@ -102,7 +102,7 @@ button.submitBtn {
     border-radius: 10px;
     background: $color-secondary;
     &:hover {
-        background: $color-secondary;
+        background: $color-tertiary;
     }
 }
 
@@ -118,7 +118,7 @@ div.menuPaper:global(.MuiPaper-root) {
         }
         &:hover {
             fieldset {
-                border-color: $text-primary !important;
+                border-color: $text-secondary !important;
             }
         }
     }

@@ -1,4 +1,4 @@
-@import "src/styles/variables.scss";
+@import "../variables.scss";
 
 .card {
     border-radius: 8px;
@@ -8,6 +8,7 @@
 
     &:hover {
         border-color: rgb(107 144 128 / 60%);
+        background-color: rgb(107 144 128 / 15%);
         box-shadow: 1px 0px 3px rgb(107 144 128 / 14%), 4px 6px 6px rgb(107 144 128 / 10%);
     }
 
