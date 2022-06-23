@@ -1,18 +1,14 @@
 import React from "react";
 import Layout from "../components/Layout";
 import OptionViewContainer from "../components/OptionViewContainer";
-import { OptionFilterOwnership } from "../utils/types";
 
-function ExploreOptions() {
-    return (
+function ExploreOptions()
+{
+    return <>
         <Layout>
-            <OptionViewContainer
-                key={`explore-options-list`}
-                title={"Explore NFT Options"}
-                filterOwnership={OptionFilterOwnership.ALL}
-            />
+            <OptionViewContainer title={"Explore NFT Options"} key={`explore-options-list`}/>
         </Layout>
-    );
+    </>;
 }
 
 export default ExploreOptions;
