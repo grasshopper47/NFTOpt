@@ -3,37 +3,45 @@ import classes from "../styles/components/OptionViewContainer.module.scss";
 import clsx from "clsx";
 
 import { FormControlLabel, Switch, Tab, Tabs } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { OptionState, OptionWithAsset } from "../utils/types";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
 import { useOptions, useOptionsHash } from "../pages/_app";
-import { account } from "../utils/metamask";
 import { isLoading } from "../utils/options";
+
+enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
 export enum Views { CARDLIST, DETAIL, LISTDETAIL };
 
 type ViewTab =
 {
-    name  : string;
-    value : OptionState;
+    name  : string
+,   value : ViewTabValues
 };
 
-const tabs: ViewTab[] =
+const tabs : ViewTab[] =
 [
     {
-        name  : "Requests",
-        value : OptionState.PUBLISHED,
-    },
-    {
-        name  : "Open",
-        value : OptionState.OPEN,
-    },
-    {
-        name  : "Closed",
-        value : OptionState.CANCELED,
-    },
+        name  : "Requests"
+    ,   value : ViewTabValues.REQUEST
+    }
+,   {
+        name  : "Open"
+    ,   value : ViewTabValues.OPEN
+    }
+,   {
+        name  : "Closed"
+    ,   value : ViewTabValues.CLOSED
+    }
 ];
+
+const defaultOptionsByState =
+{
+    [ViewTabValues.REQUEST] : [] as OptionWithAsset[]
+,   [ViewTabValues.OPEN]    : [] as OptionWithAsset[]
+,   [ViewTabValues.CLOSED]  : [] as OptionWithAsset[]
+};
 
 const viewStates =
 {
@@ -55,6 +63,8 @@ function OptionViewContainer()
     const [ selectedOption, setSelectedOption ] = useState<OptionWithAsset | null>(null);
     const [ checked, setChecked ] = useState(false);
 
+    const optionsByState = useRef(defaultOptionsByState);
+
     const options = useOptions();
     const optionsHash = useOptionsHash();
 
@@ -62,29 +72,26 @@ function OptionViewContainer()
     (
         () =>
         {
-            setViewedOptions
-            (
-                options.filter
-                (
-                    (option : OptionWithAsset) =>
-                    {
-                        let state = tabs[activeTabIndex].value;
+            optionsByState.current = { ...defaultOptionsByState };
 
-                        let cond : boolean;
+            for (let option of options)
+            {
+                if (option.state === OptionState.PUBLISHED) { optionsByState.current[ViewTabValues.REQUEST].push(option); continue; }
+                if (option.state === OptionState.OPEN)      { optionsByState.current[ViewTabValues.OPEN].push(option); continue; }
 
-                        if (state === OptionState.CANCELED)
-                            cond = option.state === OptionState.WITHDRAWN || option.state === OptionState.CANCELED;
-                        else
-                            cond = option.state === state;
+                optionsByState.current[ViewTabValues.CLOSED].push(option);
 
-                        if (checked) cond = cond && (option.buyer === account() || option.seller === account());
+            }
 
-                        return cond;
-                    }
-                )
-            );
+            setViewedOptions(optionsByState.current[tabs[activeTabIndex].value]);
         }
-    ,   [optionsHash, activeTabIndex]
+    ,   [optionsHash]
+    );
+
+    useEffect
+    (
+        () => setViewedOptions(optionsByState.current[tabs[activeTabIndex].value])
+    ,   [activeTabIndex]
     );
 
     useEffect
