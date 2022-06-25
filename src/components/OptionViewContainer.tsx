@@ -49,23 +49,20 @@ const viewStates =
 ,   [Views.LISTDETAIL] : [ "25", "50", "100" ]
 }
 
-export function getViewCSSClass(view : Views, state : number)
-{
-    return viewStates[view][state];
-}
+export const getViewCSSClass = (view : Views, state : number) => viewStates[view][state];
 
 function OptionViewContainer()
 {
-    const [ view, setView ] = useState<Views>(Views.CARDLIST);
-    const [ viewState, setViewState ] = useState(0);
-    const [ activeTabIndex, setActiveTabIndex ] = useState(0);
-    const [ viewedOptions, setViewedOptions ] = useState<OptionWithAsset[]>([]);
-    const [ selectedOption, setSelectedOption ] = useState<OptionWithAsset | null>(null);
-    const [ checked, setChecked ] = useState(false);
+    const [ view           , setView ]           = useState<Views>(Views.CARDLIST);
+    const [ viewState      , setViewState ]      = useState(0);
+    const [ activeTabIndex , setActiveTabIndex ] = useState(0);
+    const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
+    const [ selectedOption , setSelectedOption ] = useState<OptionWithAsset | null>(null);
+    const [ checked        , setChecked ]        = useState(false);
 
     const optionsByState = useRef(defaultOptionsByState);
 
-    const options = useOptions();
+    const options     = useOptions();
     const optionsHash = useOptionsHash();
 
     useEffect
