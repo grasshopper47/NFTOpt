@@ -11,7 +11,7 @@ import { loadOptionWithAsset, options } from "./options";
 export const contracts   = { NFTOpt : null as unknown as NFTOpt };
 export const blockNumber = { current : ~0 };
 
-let _updateOptionsHash : () => void;
+let _updateOptionsHash : (id : number | void) => void;
 
 function onContractEvent
 (
@@ -42,10 +42,10 @@ function onContractEvent
         break;
     }
 
-    _updateOptionsHash();
+    _updateOptionsHash(optionID);
 }
 
-export const createContractInstance = (updateOptionsHash : () => void) =>
+export const createContractInstance = (updateOptionsHash : (id : number | never[] | void) => void) =>
 {
     contracts.NFTOpt?.removeAllListeners();
 

@@ -14,23 +14,33 @@ export const AccountContext = createContext("");
 export const OptionsHashContext = createContext(0);
 export const OptionsContext = createContext<OptionWithAsset[]>([]);
 export const UpdateOptionsHashContext = createContext( () => {} );
+export const OptionsWithIDChangingContext = createContext<number[]>([]);
 
 export function useAccount() { return useContext(AccountContext); }
 export function useOptions() { return useContext(OptionsContext); }
 export function useupdateOptionsHash() { return useContext(UpdateOptionsHashContext); }
 export function useOptionsHash() { return useContext(OptionsHashContext); }
+export function useOptionsWithIDChanging() { return useContext(OptionsWithIDChangingContext); }
 
 export default function App({ Component, pageProps }: AppProps)
 {
+    const optionIDs = useRef([]);
     const optionsHash = useRef(0);
     const [, setOptionsHash ] = useState(0);
-    function updateOptionsHash() { ++optionsHash.current; setOptionsHash(optionsHash.current); }
+
+    function updateOptionsHash(id : number | never[] | void = undefined)
+    {
+        if (id != undefined) optionIDs.current = optionIDs.current.filter( o => o !== id );
+
+        ++optionsHash.current;
+        setOptionsHash(optionsHash.current);
+    }
 
     const [ account, setAccount ] = useState("");
 
     useEffect
     (
-        () => hookMetamask(window, setAccount)
+        () => { optionIDs.current = []; hookMetamask(window, setAccount); }
     ,   []
     );
 
@@ -52,14 +62,16 @@ export default function App({ Component, pageProps }: AppProps)
         <Toaster containerClassName={"toast-container"} />
 
         <AccountContext.Provider value={account}>
-        <OptionsHashContext.Provider value={optionsHash.current}>
         <OptionsContext.Provider value={options}>
+        <OptionsHashContext.Provider value={optionsHash.current}>
         <UpdateOptionsHashContext.Provider value={updateOptionsHash}>
+        <OptionsWithIDChangingContext.Provider value={optionIDs.current}>
             <Header/>
             { connected() ? <Component {...pageProps} /> : <></> }
+        </OptionsWithIDChangingContext.Provider>
         </UpdateOptionsHashContext.Provider>
-        </OptionsContext.Provider>
         </OptionsHashContext.Provider>
+        </OptionsContext.Provider>
         </AccountContext.Provider>
     </>;
 }
