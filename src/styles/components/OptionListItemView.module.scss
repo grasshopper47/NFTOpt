@@ -5,9 +5,11 @@
     100% { opacity: 1; }
 }
 
-@keyframes fadeOut {
+@keyframes change {
     0% { opacity: 1; }
-    100% { opacity: 0; }
+    60% { opacity: 0; }
+    80% { opacity: 0.8; }
+    100% { opacity: 1; }
 }
 
 .card
@@ -20,6 +22,12 @@
     background-color: #3d4a5e;
     overflow:hidden;
     animation: fadeIn 333ms;
+
+    &.changing
+    {
+        animation: change 3996ms;
+        animation-iteration-count: infinite;
+    }
 
     &.S
     {
