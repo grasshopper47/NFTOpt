@@ -7,8 +7,9 @@ import { OptionState, OptionWithAsset } from "../utils/types";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
 import { useOptions, useOptionsHash } from "../pages/_app";
-import { account } from "../utils/metamask";
+import { account, network } from "../utils/metamask";
 import clsx from "clsx";
+import { isLoading } from "../utils/options";
 
 export enum Views { CARDLIST, DETAIL, LISTDETAIL };
 
@@ -157,6 +158,10 @@ function OptionViewContainer()
                 <div className={clsx(classes.containerGrid, viewedOptions.length ? classes[getViewClass(view, viewState)] : classes.empty)}
                 >
                 {
+                    isLoading() && !viewedOptions.length &&
+                    <p className={classes.noOptions}>Loading Options ...</p>
+                }
+                {
                     viewedOptions.map
                     (
                         (option, index) =>
@@ -169,7 +174,7 @@ function OptionViewContainer()
                     )
                 }
                 {
-                    !viewedOptions.length &&
+                    !isLoading() && !viewedOptions.length &&
                     <p className={classes.noOptions}>No Options</p>
                 }
                 </div>
