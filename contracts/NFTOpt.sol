@@ -87,7 +87,7 @@ contract NFTOpt {
         IERC721 _instance = IERC721(_nftContract);
         if (_instance.ownerOf(_nftTokenID) != msg.sender) { revert NFT_NOT_OWNER(msg.sender); }
 
-        if (msg.value == 0)                               { revert INVALID_PREMIUM_AMOUNT(0); }
+        if (msg.value == 0)                                { revert INVALID_PREMIUM_AMOUNT(0); }
         if (_strikePrice == 0)                            { revert INVALID_STRIKE_PRICE_AMOUNT(0); }
         if (_interval == 0)                               { revert INVALID_EXPIRATION_INTERVAL(0); }
 
@@ -175,7 +175,9 @@ contract NFTOpt {
 
         if(!_exists(option))                                        { revert INVALID_OPTION_ID(_optionId); }
         if (option.state != OptionState.OPEN)                       { revert INVALID_OPTION_STATE(option.state, OptionState.OPEN); }
-        if (option.startDate + option.interval < option.startDate)  { revert UNSIGNED_INTEGER_OVERFLOW(); }
+
+        IERC721 nftContract = IERC721(option.nftContract);
+        if (nftContract.getApproved(option.nftId) == address(this)) { revert NOT_AUTHORIZED(msg.sender, "Cancel while approved contract to transfer NFT"); }
 
         uint256 expirationDate = option.startDate + option.interval;
 
@@ -257,6 +259,7 @@ contract NFTOpt {
     error INVALID_PREMIUM_AMOUNT(uint256 premium);
     error INVALID_STRIKE_PRICE_AMOUNT(uint256 strikePrice);
     error INVALID_EXPIRATION_INTERVAL(uint32 interval);
+    error INVALID_OPTION_STATE(OptionState currentState, OptionState neededState);
 
     /// @dev -- Account
     error NOT_AUTHORIZED(address user, string reason);
@@ -267,7 +270,6 @@ contract NFTOpt {
     error BUYER_MUST_DIFFER_FROM_SELLER();
     error EXERCISE_WINDOW_IS_CLOSED(uint256 expirationTimestamp);
     error OPTION_REQUEST_ALREADY_FULFILLED(address fulfillerAddress);
-    error INVALID_OPTION_STATE(OptionState currentState, OptionState neededState);
 
     /// @dev -- Funds-related
     error INSUFFICIENT_FUNDS();
