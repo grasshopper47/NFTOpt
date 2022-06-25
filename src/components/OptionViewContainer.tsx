@@ -69,6 +69,8 @@ function OptionViewContainer()
     (
         () =>
         {
+            if (options.length === 0) return;  // 1st run, skip until options are loaded;
+
             optionsByState.current = { ...defaultOptionsByState };
 
             for (let option of options)
@@ -87,7 +89,12 @@ function OptionViewContainer()
 
     useEffect
     (
-        () => setViewedOptions(optionsByState.current[tabs[activeTabIndex].value])
+        () =>
+        {
+            if (options.length === 0) return;  // 1st run, skip until options are loaded
+
+            setViewedOptions(optionsByState.current[tabs[activeTabIndex].value]);
+        }
     ,   [activeTabIndex]
     );
 
