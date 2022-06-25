@@ -13,7 +13,7 @@ import { contracts } from "../utils/blockchain";
 import TextBox_OptionRequestForm from "../fragments/TextBox.OptionRequest";
 import Radio_OptionRequestForm from "../fragments/Radio.OptionRequest";
 import DropDown_OptionRequestForm from "../fragments/DropDown.OptionRequest";
-import { useupdateOptionsHash } from "../pages/_app";
+import { useUpdateOptionsHash } from "../pages/_app";
 
 const defaultRequest =
 {
@@ -31,7 +31,7 @@ function OptionRequestForm()
 
     const [ image, setImage ] = useState("");
 
-    let updateOptionsHash = useupdateOptionsHash();
+    let updateOptionsHash = useUpdateOptionsHash();
 
     const setAsset = (asset? : NFTAsset | null) =>
     {

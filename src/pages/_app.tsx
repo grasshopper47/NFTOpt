@@ -18,7 +18,7 @@ export const OptionsWithIDChangingContext = createContext<number[]>([]);
 
 export function useAccount() { return useContext(AccountContext); }
 export function useOptions() { return useContext(OptionsContext); }
-export function useupdateOptionsHash() { return useContext(UpdateOptionsHashContext); }
+export function useUpdateOptionsHash() { return useContext(UpdateOptionsHashContext); }
 export function useOptionsHash() { return useContext(OptionsHashContext); }
 export function useOptionsWithIDChanging() { return useContext(OptionsWithIDChangingContext); }
 
