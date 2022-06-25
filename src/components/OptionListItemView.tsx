@@ -1,11 +1,12 @@
 // @ts-ignore
 import classes from "../styles/components/OptionListItemView.module.scss";
+import clsx from "clsx";
 
 import { AccessTime } from "@mui/icons-material";
 import { ethers } from "ethers";
 import { OptionWithAsset } from "../utils/types";
-import clsx from "clsx";
 import { getViewClass, Views } from "./OptionViewContainer";
+import { useOptionsWithIDChanging } from "../pages/_app";
 
 type OptionListItemViewProps =
 {
@@ -23,10 +24,19 @@ function OptionListItemView(props: OptionListItemViewProps)
 {
     const { option, onViewOptionDetails, view } = props;
 
-    return (
-        // TODO overlay
+    const optionIDs = useOptionsWithIDChanging();
+
+    return <>
         <div
-            className={clsx(classes.card, getViewClassListItem(view))}
+            className=
+            {
+                clsx
+                (
+                    classes.card
+                ,   getViewClassListItem(view)
+                ,   optionIDs.filter(o => o === option.id).length !== 0 && classes.changing
+                )
+            }
             onClick={onViewOptionDetails.bind(null, option)}
         >
             <img
@@ -60,7 +70,7 @@ function OptionListItemView(props: OptionListItemViewProps)
             </div>
 
         </div>
-    );
+    </>;
 }
 
 export default OptionListItemView;
