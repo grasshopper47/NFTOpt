@@ -105,51 +105,56 @@ function OptionViewContainer()
         <p className="page-title">Explore NFT Options</p>
 
         <div className={classes.root}>
-            <Tabs
-                className={classes.tabs}
-                value={activeTabIndex}
-                onChange={onSetTab}
-            >
             {
-                tabs.map
-                (
-                    optionStateTab =>
-                    <Tab key={`option-state-tab-${optionStateTab.name}`}
-                        label={optionStateTab.name}
-                        disabled={selectedOption !== null}
-                    />
-                )
-            }
-            </Tabs>
+                viewedOptions.length !== 0 &&
+                <>
+                    <Tabs
+                        className={classes.tabs}
+                        value={activeTabIndex}
+                        onChange={onSetTab}
+                    >
+                    {
+                        tabs.map
+                        (
+                            optionStateTab =>
+                            <Tab key={`option-state-tab-${optionStateTab.name}`}
+                                label={optionStateTab.name}
+                                disabled={selectedOption !== null}
+                            />
+                        )
+                    }
+                    </Tabs>
 
-            <Tabs
-                className={classes.tabsState}
-                value={viewState}
-                onChange={onSetViewState}
-            >
-            {
-                viewStates[view]?.map
-                (
-                    state =>
-                    <Tab key={`option-view-state-tab-${state}`}
-                        label={state}
-                        disabled={selectedOption !== null}
-                    />
-                )
-            }
-            </Tabs>
+                    <Tabs
+                        className={classes.tabsState}
+                        value={viewState}
+                        onChange={onSetViewState}
+                    >
+                    {
+                        viewStates[view]?.map
+                        (
+                            state =>
+                            <Tab key={`option-view-state-tab-${state}`}
+                                label={state}
+                                disabled={selectedOption !== null}
+                            />
+                        )
+                    }
+                    </Tabs>
 
-            <FormControlLabel
-                className={clsx(classes.checkbox, !checked ? classes.unchecked : classes.checked)}
-                control={<Switch checked={checked} onChange={() => setChecked(!checked)}/>}
-                disabled={selectedOption !== null}
-                label={(checked ? "Account's" : "All") + " Options"}
-                labelPlacement="start"
-            />
+                    <FormControlLabel
+                        className={clsx(classes.checkbox, !checked ? classes.unchecked : classes.checked)}
+                        control={<Switch checked={checked} onChange={() => setChecked(!checked)}/>}
+                        disabled={selectedOption !== null}
+                        label={(checked ? "Account's" : "All") + " Options"}
+                        labelPlacement="start"
+                    />
+                </>
+            }
 
             {
                 view == Views.CARDLIST &&
-                <div className={clsx(classes.containerGrid, classes[getViewClass(view, viewState)])}
+                <div className={clsx(classes.containerGrid, viewedOptions.length ? classes[getViewClass(view, viewState)] : classes.empty)}
                 >
                 {
                     viewedOptions.map

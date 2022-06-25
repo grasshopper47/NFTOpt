@@ -3,13 +3,13 @@ import toast from "react-hot-toast";
 import { blockNumber } from "./blockchain";
 
 // MetaMasK is present if this variable exists
-declare var window: Window & { ethereum: any; };
+let _window : Window & { ethereum?: any; };
 
 const _networks : any =
 {
-    "1"     : "mainnet"
-,   "4"     : "rinkeby"
-,   "31337" : "localhost"
+    "31337" : "localhost"
+// ,   "1"     : "mainnet"
+// ,   "4"     : "rinkeby"
 };
 
 let _connected = false;
@@ -17,27 +17,27 @@ let _provider : ethers.providers.Web3Provider;
 
 let _setAccount : (a : string) => void;
 
-function setAccounts(accounts : string[])
+function handleAccountChanged(accounts : string[])
 {
-    console.log("setAccount", account(), network());
+    console.log("handleAccountChanged", account());
 
     _connected = accounts.length !== 0;
 
     if (!_connected) console.log("Connect MetaMasK");
 
-    _setAccount(window.ethereum.selectedAddress);
+    _setAccount(_window.ethereum.selectedAddress);
 }
 
-function setChainID()
+function handleNetworkChanged()
 {
-    window.location.reload();
+    _window.location.reload();
 }
 
 export function connectWallet()
 {
-    window.ethereum
+    _window.ethereum
     .request({ method: "eth_requestAccounts" })
-    .then(setAccounts)
+    .then(handleAccountChanged)
     .catch
     (
         (err) =>
@@ -48,28 +48,39 @@ export function connectWallet()
     );
 }
 
-export function hookMetamask(setAccount : (a : string) => void)
+export function hookMetamask
+(
+    window_    : Window & { ethereum?: any; }
+,   setAccount : (a : string) => void
+)
 {
-    console.log("MetaMasK init");
-
-    if (!window.ethereum) { console.log("Install MetaMasK"); return; }
-
     if (_connected) return;
+
+    if (_window)  throw "Shomething went wrong, should be null";
+    if (!window_) throw "Shomething went wrong, should have a value";
+
+    if (!window_.ethereum) { console.log("Install MetaMasK"); return; }
+
+    _window = window_;      // Used to expose short-hand accessors like account(), network(), connected()
+
+    console.log("MetaMasK init");
 
     _setAccount = setAccount;
 
-    _provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    _provider = new ethers.providers.Web3Provider(_window.ethereum, "any");
     _provider.getBlockNumber().then(r => blockNumber.current = r);
 
-    window.ethereum.on("chainChanged", setChainID);
-    window.ethereum.on('accountsChanged', setAccounts);
+    _window.ethereum.on("chainChanged", handleNetworkChanged);
+    _window.ethereum.on('accountsChanged', handleAccountChanged);
 
     connectWallet();
 }
 
+export const setWindow = (window_ : Window & { ethereum?: any; }) => _window = window_;
+
+export const account   = () => _window?.ethereum.selectedAddress;
+export const network   = () => _networks[_window?.ethereum.networkVersion];
 export const connected = () => _connected;
-export const account   = () => window.ethereum.selectedAddress;
-export const network   = () => _networks[window.ethereum.networkVersion];
 export const provider  = () => _provider;
 export const signer    = () => _provider.getSigner();
 

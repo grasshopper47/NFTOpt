@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { AppProps } from "next/app";
 import Header from "../components/Header";
 import { Toaster } from "react-hot-toast";
-import { connected, hookMetamask } from "../utils/metamask";
+import { connected, hookMetamask, network, setWindow } from "../utils/metamask";
 import { OptionWithAsset } from "../utils/types";
 import { options } from "../utils/options";
 import { createContractInstance } from "../utils/blockchain";
@@ -30,7 +30,7 @@ export default function App({ Component, pageProps }: AppProps)
 
     useEffect
     (
-        () => hookMetamask(setAccount)
+        () => hookMetamask(window, setAccount)
     ,   []
     );
 
@@ -38,6 +38,8 @@ export default function App({ Component, pageProps }: AppProps)
     (
         () =>
         {
+            if (!network()) return;
+
             if (!connected()) return;
 
             createContractInstance(updateOptionsHash);

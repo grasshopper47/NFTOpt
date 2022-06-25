@@ -9,7 +9,7 @@ import Button from "@mui/material/Button";
 import ThemeSwitch from "./ThemeSwitch";
 import { getAccountDisplayValue } from "../utils/frontend";
 import { useAccount } from "../pages/_app";
-import { connected, connectWallet } from "../utils/metamask";
+import { connected, connectWallet, network } from "../utils/metamask";
 
 type Route =
 {
@@ -46,9 +46,14 @@ function Header()
                 </a>
             </Link>
 
+            {
+                !network() &&
+                <div>Connect to localhost</div>
+            }
+
             <div>
                 {
-                    connected() &&
+                    connected() && network() &&
                     routes.map
                     (
                         route =>
