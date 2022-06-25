@@ -107,7 +107,7 @@ function OptionViewContainer()
 
         <div className={classes.root}>
             {
-                viewedOptions.length !== 0 &&
+                view == Views.CARDLIST && viewedOptions.length !== 0 &&
                 <>
                     <Tabs
                         className={classes.tabs}
@@ -120,7 +120,6 @@ function OptionViewContainer()
                             optionStateTab =>
                             <Tab key={`option-state-tab-${optionStateTab.name}`}
                                 label={optionStateTab.name}
-                                disabled={selectedOption !== null}
                             />
                         )
                     }
@@ -137,7 +136,6 @@ function OptionViewContainer()
                             state =>
                             <Tab key={`option-view-state-tab-${state}`}
                                 label={state}
-                                disabled={selectedOption !== null}
                             />
                         )
                     }

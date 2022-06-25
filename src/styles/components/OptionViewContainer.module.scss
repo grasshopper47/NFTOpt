@@ -1,5 +1,10 @@
 @import "../variables.scss";
 
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
 .root
 {
     max-width: 900px;
@@ -12,6 +17,7 @@
 .tabs
 {
     border-bottom: 1px solid $color-primary;
+    animation: fadeIn 333ms;
 
     button
     {
@@ -40,6 +46,7 @@
     margin-top: -50px;
     align-self: center;
     margin-left: 200px;
+    animation: fadeIn 333ms;
 
     button
     {
@@ -86,6 +93,7 @@
     margin-top: -44px;
     margin-right: 0px !important;
     text-shadow: 1px 1px rgb(25 25 25 / 65%);
+    animation: fadeIn 333ms;
 
     :global(.MuiSwitch-track)
     {
