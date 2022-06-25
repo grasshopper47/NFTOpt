@@ -1,5 +1,6 @@
 // @ts-ignore
 import classes from "../styles/components/OptionViewContainer.module.scss";
+import clsx from "clsx";
 
 import { FormControlLabel, Switch, Tab, Tabs } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -7,8 +8,7 @@ import { OptionState, OptionWithAsset } from "../utils/types";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
 import { useOptions, useOptionsHash } from "../pages/_app";
-import { account, network } from "../utils/metamask";
-import clsx from "clsx";
+import { account } from "../utils/metamask";
 import { isLoading } from "../utils/options";
 
 export enum Views { CARDLIST, DETAIL, LISTDETAIL };
@@ -62,8 +62,6 @@ function OptionViewContainer()
     (
         () =>
         {
-            if (view === Views.DETAIL) return;
-
             setViewedOptions
             (
                 options.filter
@@ -153,34 +151,31 @@ function OptionViewContainer()
                             />
                         </>
                     }
-                </>
-            }
 
-            {
-                view == Views.CARDLIST &&
-                <div className={clsx(classes.containerGrid, viewedOptions.length ? classes[getViewClass(view, viewState)] : classes.empty)}
-                >
-                {
-                    isLoading() && !viewedOptions.length &&
-                    <p className={classes.noOptions}>Loading Options ...</p>
-                }
-                {
-                    viewedOptions.map
-                    (
-                        (option, index) =>
-                        <OptionListItemView
-                            key={`option-preview-${activeTabIndex}-${index}`}
-                            option={option}
-                            onViewOptionDetails={setSelectedOption}
-                            view={viewState}
-                        />
-                    )
-                }
-                {
-                    !isLoading() && !viewedOptions.length &&
-                    <p className={classes.noOptions}>No Options</p>
-                }
-                </div>
+                    <div className={clsx(classes.containerGrid, viewedOptions.length ? classes[getViewClass(view, viewState)] : classes.empty)}
+                    >
+                    {
+                        isLoading() && !viewedOptions.length &&
+                        <p className={classes.noOptions}>Loading Options ...</p>
+                    }
+                    {
+                        viewedOptions.map
+                        (
+                            (option, index) =>
+                            <OptionListItemView
+                                key={`option-preview-${activeTabIndex}-${index}`}
+                                option={option}
+                                onViewOptionDetails={setSelectedOption}
+                                view={viewState}
+                            />
+                        )
+                    }
+                    {
+                        !isLoading() && !viewedOptions.length &&
+                        <p className={classes.noOptions}>No Options</p>
+                    }
+                    </div>
+                </>
             }
 
             {

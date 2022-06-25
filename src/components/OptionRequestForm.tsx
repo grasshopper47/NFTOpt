@@ -3,7 +3,7 @@ import classes from "../styles/components/OptionRequestForm.module.scss";
 
 import { Button, FormControl, RadioGroup } from "@mui/material";
 import clsx from "clsx";
-import { useContext, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { NFTAsset, OptionFlavor, OptionRequest } from "../utils/types";
 import { ethers } from "ethers";
@@ -33,7 +33,6 @@ function OptionRequestForm()
 
     let updateOptionsHash = useupdateOptionsHash();
 
-    console.log(keyOf(request.current));
     const setAsset = (asset? : NFTAsset | null) =>
     {
         // triggered by dropdown to refresh the image
