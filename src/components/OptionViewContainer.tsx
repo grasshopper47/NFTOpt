@@ -49,7 +49,7 @@ const viewStates =
 ,   [Views.LISTDETAIL] : [ "25", "50", "100" ]
 }
 
-export function getViewClass(view : Views, state : number)
+export function getViewCSSClass(view : Views, state : number)
 {
     return viewStates[view][state];
 }
@@ -159,7 +159,7 @@ function OptionViewContainer()
                         </>
                     }
 
-                    <div className={clsx(classes.containerGrid, viewedOptions.length ? classes[getViewClass(view, viewState)] : classes.empty)}
+                    <div className={clsx(classes.containerGrid, viewedOptions.length ? classes[getViewCSSClass(view, viewState)] : classes.empty)}
                     >
                     {
                         isLoading() && !viewedOptions.length &&
