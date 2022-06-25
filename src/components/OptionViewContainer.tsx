@@ -107,7 +107,7 @@ function OptionViewContainer()
 
         <div className={classes.root}>
             {
-                view == Views.CARDLIST && viewedOptions.length !== 0 &&
+                view == Views.CARDLIST &&
                 <>
                     <Tabs
                         className={classes.tabs}
@@ -125,29 +125,34 @@ function OptionViewContainer()
                     }
                     </Tabs>
 
-                    <Tabs
-                        className={classes.tabsState}
-                        value={viewState}
-                        onChange={onSetViewState}
-                    >
                     {
-                        viewStates[view]?.map
-                        (
-                            state =>
-                            <Tab key={`option-view-state-tab-${state}`}
-                                label={state}
-                            />
-                        )
-                    }
-                    </Tabs>
+                        viewedOptions.length !== 0 &&
+                        <>
+                            <Tabs
+                                className={classes.tabsState}
+                                value={viewState}
+                                onChange={onSetViewState}
+                            >
+                            {
+                                viewStates[view]?.map
+                                (
+                                    state =>
+                                    <Tab key={`option-view-state-tab-${state}`}
+                                        label={state}
+                                    />
+                                )
+                            }
+                            </Tabs>
 
-                    <FormControlLabel
-                        className={clsx(classes.checkbox, !checked ? classes.unchecked : classes.checked)}
-                        control={<Switch checked={checked} onChange={() => setChecked(!checked)}/>}
-                        disabled={selectedOption !== null}
-                        label={(checked ? "Account's" : "All") + " Options"}
-                        labelPlacement="start"
-                    />
+                            <FormControlLabel
+                                className={clsx(classes.checkbox, !checked ? classes.unchecked : classes.checked)}
+                                control={<Switch checked={checked} onChange={() => setChecked(!checked)}/>}
+                                disabled={selectedOption !== null}
+                                label={(checked ? "Account's" : "All") + " Options"}
+                                labelPlacement="start"
+                            />
+                        </>
+                    }
                 </>
             }
 
