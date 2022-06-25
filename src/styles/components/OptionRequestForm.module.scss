@@ -1,67 +1,80 @@
-@import "src/styles/variables.scss";
+@import "../variables.scss";
 
-.root {
-    max-width: 900px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: auto;
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
 }
 
-.form {
+.root
+{
+    max-width: 900px;
+    display: flex;
+    justify-content: space-between;
+    margin: auto;
+    margin-top: 60px;
+    animation: fadeIn 333ms;
+}
+
+.form
+{
     display: flex;
     flex-direction: column;
     width: 35%;
+    margin-top: 22px;
 
-    :global(.MuiInputBase-root) {
+    :global(.MuiInputBase-root)
+    {
         color: $text-primary;
-        svg {
+
+        svg
+        {
             color: $text-primary;
         }
     }
 }
 
-.fieldWrapper {
+.fieldWrapper
+{
     display: flex;
     flex-direction: column;
     margin-bottom: 24px;
+    height:"";
 
-    label {
+    label
+    {
         margin-bottom: 4px;
     }
 }
 
-.field {
-    label:global(.MuiFormLabel-root) {
+.field
+{
+    label:global(.MuiFormLabel-root)
+    {
         color: $text-primary;
         margin-top: 10px;
     }
-    :global(.MuiFormGroup-root) {
+
+    :global(.MuiFormGroup-root)
+    {
         display: flex;
         flex-direction: row;
-        > * {
-            margin: unset;
-            width: max-content;
-            &:first-of-type {
-                margin-right: 20px;
-            }
-        }
+        justify-content: space-between;
+        margin-left: 14px;
     }
-    :global(.MuiRadio-root.MuiRadio-colorPrimary) {
+
+    :global(.MuiRadio-root.MuiRadio-colorPrimary)
+    {
         color: $color-secondary;
     }
-    :global(.MuiInputAdornment-root) p {
+
+    :global(.MuiInputAdornment-root) p
+    {
         color: $text-primary;
     }
 }
 
-.title {
-    font-size: 20pt;
-    font-weight: 800;
-    margin-bottom: 30px;
-}
-
-.dummyImageContainer {
+.dummyImageContainer
+{
     background: $color-primary;
     border-radius: 10px;
     display: flex;
@@ -71,61 +84,77 @@
     height: 375px;
     width: 375px;
     border-radius: 10px;
-    box-shadow: 1px 0px 3px rgb(15 23 42 / 14%), 4px 6px 6px rgb(15 23 42 / 10%);
-    margin-top: -80px;
+    box-shadow: 4px 4px 29px rgb(15 23 42 / 14%), 4px -2px 30px rgb(15 23 42 / 26%);
+    // margin-top: -140px;
 }
 
-.imageContainer {
-    &:not(.dummyImageContainer) {
-        > * {
-            margin-top: -80px;
+.imageContainer
+{
+    &:not(.dummyImageContainer)
+    {
+        > *
+        {
+            // margin-top: -140px;
             height: 375px;
             width: 375px;
             border-radius: 10px;
-            box-shadow: 1px 0px 3px rgb(15 23 42 / 14%), 4px 6px 6px rgb(15 23 42 / 10%);
+            box-shadow: 4px 4px 29px rgb(15 23 42 / 14%), 4px -2px 30px rgb(15 23 42 / 26%);
         }
     }
 }
 
-.dot {
+.dot
+{
     background: $color-secondary;
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    width: 55px;
+    height: 50px;
 }
 
-button.submitBtn {
+button.submitBtn
+{
     margin-top: 40px;
     padding: 8px;
     font-size: 16px;
     font-weight: 500;
     border-radius: 10px;
     background: $color-secondary;
-    &:hover {
-        background: $color-secondary;
+
+    &:hover
+    {
+        background: $color-tertiary;
     }
 }
 
-div.menuPaper:global(.MuiPaper-root) {
+div.menuPaper:global(.MuiPaper-root)
+{
     max-height: 360px;
     border-radius: 8px;
 }
 
-[data-theme="dark"] {
-    .form {
-        fieldset {
+[data-theme="dark"]
+{
+    .form
+    {
+        fieldset
+        {
             border-color: $text-primary;
         }
-        &:hover {
-            fieldset {
-                border-color: $text-primary !important;
+
+        &:hover
+        {
+            fieldset
+            {
+                border-color: $text-secondary !important;
             }
         }
     }
 
-    div.menuPaper:global(.MuiPaper-root) {
+    div.menuPaper:global(.MuiPaper-root)
+    {
         background: rgb(51, 64, 85);
-        li {
+        li
+        {
             color: white;
         }
     }

@@ -1,122 +1,114 @@
-import { NFTOpt } from "../../typechain-types";
-import { NFTAsset, Option, OptionWithAsset, Option_SOLIDITY } from "./types";
-import { ADDRESS0, BIGNUMBER0, ABIs, SECONDS_IN_A_DAY } from "./constants";
-import { getSignedContract } from "./metamask";
+import { NFTAsset, Option, OptionFlavor, OptionWithAsset, Option_SOLIDITY } from "./types";
+import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "./constants";
+import { account } from "./metamask";
+import { getCachedContract, keyOf, images } from "./NFT/localhost";
+import { contracts } from "./blockchain";
 
-function isValid(option: Option_SOLIDITY)
-    : boolean
+export let options : OptionWithAsset[] = [];
+
+export function isExpired(option : Option | OptionWithAsset )
 {
-    return  option.buyer !== ADDRESS0
-            && option.nftContract !== ADDRESS0
-            && option.nftId !== BIGNUMBER0
-            && option.premium !== BIGNUMBER0
-            && option.strikePrice !== BIGNUMBER0
-            && option.interval !== 0
-    ;
+    if (option.buyer !== account() || !option.startDate) return false;
+
+    let timeNow = new Date().getTime() / 1000;
+    let timeOption = option.startDate + option.interval;
+    let diff = timeOption - timeNow;
+
+    // Can exercise only on the end day (both EUROPEAN and AMERICAN)
+    if (diff > -1 && diff <= SECONDS_IN_A_DAY ) return false;
+
+    // Can exercise any time before & including the end day (AMERICAN)
+    if (option.flavor === OptionFlavor.AMERICAN) return diff <= 0;
+
+    return false;
 }
 
-export const loadOption =
-    async (contract: NFTOpt, id: number)
-    : Promise<Option> =>
+async function _getOption(id: number)
 {
-    const optionSolidity = await contract.options(id) as unknown as Option_SOLIDITY;
+    let optionSolidity = await contracts.NFTOpt.options(id) as unknown as Option_SOLIDITY;
 
-    if (!isValid(optionSolidity)) throw "Invalid option data received!";
+    let isValid =
+    optionSolidity.buyer !== ADDRESS0
+    && optionSolidity.nftContract !== ADDRESS0
+    && optionSolidity.nftId !== BIGNUMBER0
+    && optionSolidity.premium !== BIGNUMBER0
+    && optionSolidity.strikePrice !== BIGNUMBER0
+    && optionSolidity.interval !== 0;
 
-    const option: Option =
+    if (!isValid) throw "Invalid option data received!";
+
+    let option =
     {
-        id: id
-    ,   ...optionSolidity
+        id          : id
+    ,   buyer       : optionSolidity.buyer.toLowerCase()
+    ,   seller      : optionSolidity.seller.toLowerCase()
+    ,   nftContract : optionSolidity.nftContract
+    ,   nftId       : optionSolidity.nftId
+    ,   startDate   : optionSolidity.startDate
+    ,   interval    : optionSolidity.interval / SECONDS_IN_A_DAY
+    ,   premium     : optionSolidity.premium
+    ,   strikePrice : optionSolidity.strikePrice
+    ,   flavor      : optionSolidity.flavor
+    ,   state       : optionSolidity.state
     };
 
-    option.buyer = option.buyer.toLowerCase();
-    option.seller = option.seller.toLowerCase();
-    option.interval = option.interval / SECONDS_IN_A_DAY;
-
-    return option;
+    return option as Option;
 }
 
-const NFTContractABI =
-[
-    ABIs.ERC721.name,
-,   ABIs.ERC721.tokenURI
-];
-
-export const loadAsset =
-    async (option: Option)
-    : Promise<NFTAsset> =>
+async function _getAsset(option: Option)
 {
-    const NFTContract = getSignedContract(option.nftContract, NFTContractABI);
+    let NFTContract = getCachedContract(option.nftContract);
 
-    const promises =
+    let promises =
     [
         /* name  */ NFTContract.name().then(r => r + " - " + option.nftId.toString())
     ,   /* image */ NFTContract.tokenURI(option.nftId).then(r => JSON.parse(atob(r.slice(29))).image)
     ];
 
+    let cache = images[keyOf(option)];
+    if (cache) promises[1] = cache;
+
     await Promise.allSettled(promises);
 
     return {
-        id      : option.id
-    ,   tokenId : option.nftId
-    ,   address : option.nftContract
-    ,   name    : await promises[0]
-    ,   image   : await promises[1]
-    };
+        nftId       : option.nftId
+    ,   nftContract : option.nftContract
+    ,   name        : await promises[0]
+    ,   image       : await promises[1]
+    } as NFTAsset;
 }
 
-export const loadOptionWithAsset =
-    async(contract: NFTOpt, id: number)
-    : Promise<OptionWithAsset> =>
+export async function loadOptionWithAsset(id: number)
 {
-    const option = await loadOption(contract, id);
+    let option = await _getOption(id);
 
-    return {
-        ...option
-    ,   asset: await loadAsset(option)
-    }
+    option["asset"] = await _getAsset(option);
+
+    // @ts-ignore
+    delete option.nftContract; delete option.nftId;
+
+    options.push(option as unknown as OptionWithAsset);
 }
 
-async function _loadOptions
-(
-    contract: NFTOpt
-,   cb: (contract: NFTOpt, id:number) => Promise<any>
-)
-: Promise<Option[] | OptionWithAsset[]>
+export async function loadAllOptionsWithAsset()
 {
-    const optionIDPromise = await contract.optionID();
+    let optionIDPromise = await contracts.NFTOpt.optionID();
     if (!optionIDPromise) return [];
 
-    const options  : any[]          = [];
-    const promises : Promise<any>[] = [];
+    options = [];
+
+    let promises : Promise<any>[] = [];
 
     // TODO: handle optionsLength > 2^53
-    const optionsLength = optionIDPromise.toNumber();
+    let optionsLength = optionIDPromise.toNumber();
 
     let id = -1;
     while (++id !== optionsLength)
     {
-        promises.push
-        (
-            cb(contract, id)
-            .then( o => options.push(o) )
-            .catch( () => console.log(`Option ${id} failed to fetch`) )
-        );
+        promises.push( loadOptionWithAsset(id).catch( e => console.log(e, `Option ${id} failed to fetch`) ) );
     }
 
     await Promise.allSettled(promises);
 
-    return options.sort( o => o.id );
-}
-
-export async function loadAllOptions(contract: NFTOpt)
-    : Promise<Option[]>
-{
-    return _loadOptions(contract, loadOption) as Promise<Option[]>;
-}
-
-export async function loadAllOptionsWithAsset(contract: NFTOpt)
-    : Promise<OptionWithAsset[]>
-{
-    return _loadOptions(contract, loadOptionWithAsset) as Promise<OptionWithAsset[]>;
+    options.sort( (a, b) => { return a.id - b.id; } );
 }

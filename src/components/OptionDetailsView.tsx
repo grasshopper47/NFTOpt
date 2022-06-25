@@ -1,268 +1,194 @@
 // @ts-ignore
-import classes from "./styles/OptionDetailsView.module.scss";
+import classes from "../styles/components/OptionDetailsView.module.scss";
 
 import { ArrowBackIosRounded } from "@mui/icons-material";
 import { Button, IconButton } from "@mui/material";
 import { ethers } from "ethers";
-import { useContracts } from "../providers/contexts";
-import { getCurrentProvider, getSignedContract } from "../utils/metamask";
-import { getAccountDisplayValue, getCorrectPlural, dismissLastToast, showToast } from "../utils/frontend";
-import { OptionFlavor, OptionState, OptionWithAsset } from "../utils/types";
-import { ADDRESS0, ABIs, SECONDS_IN_A_DAY } from "../utils/constants";
-import { useEffect, useRef, useState } from "react";
-import { ERC721 } from "../../typechain-types";
+import { account, signer } from "../utils/metamask";
+import { getAccountDisplayValue, dismissLastToast, showToast, flavorLabels } from "../utils/frontend";
+import {  OptionState, OptionWithAsset } from "../utils/types";
+import { ADDRESS0 } from "../utils/constants";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { contracts } from "../utils/blockchain";
+import { isExpired } from "../utils/options";
+import { getCachedContract } from "../utils/NFT/localhost";
 
 type OptionDetailsViewProps =
 {
-    currentAccount : string;
-    option         : OptionWithAsset;
-    onSelectOption : (OptionWithAsset: OptionWithAsset | null) => void;
+    option       : OptionWithAsset;
+    showListView : () => void;
 };
 
-function OptionDetailsView(props: OptionDetailsViewProps) {
-    const { currentAccount, option, onSelectOption } = props;
-    const { nftOpt } = useContracts();
+function OptionDetailsView(props: OptionDetailsViewProps)
+{
+    const { option, showListView } = props;
 
-    const isApproved = useRef<boolean>(false);
-    const NFTContract = useRef<ERC721|null>(null);
-    const [, reload ] = useState(0);
+    const [ isApproved, setApproved ] = useState(false);
+
+    let contract;
 
     useEffect
     (
         () =>
         {
-            // Create an instance of the NFT contract
-            NFTContract.current =
-            getSignedContract
-            (
-                option.asset.address,
-                [
-                    ABIs.ERC721.getApproved,
-                    ABIs.ERC721.approve,
-                    ABIs.ERC721.Events.Approval
-                ]
-            ) as ERC721;
+            if (option.state !== OptionState.OPEN) return;
 
-            const afterGetApproved = (address) =>
+            contract = getCachedContract(option.asset.nftContract);
+
+            contract.getApproved(option.asset.nftId).then(checkAndSetApproved);
+        }
+    ,   []
+    );
+
+    let checkAndSetApproved = (address : string) =>
+    {
+        if (address === contracts.NFTOpt.address) { setApproved(true); return; }
+
+        contract.on
+        (
+            "Approval"
+        ,   () =>
             {
-                if (!NFTContract.current) { return; }
+                if (isApproved) return;
 
-                isApproved.current = (address === nftOpt.address);
+                setApproved(true);
 
-                if (isApproved.current)
-                {
-                    NFTContract.current.removeAllListeners();
+                contract.removeAllListeners();
 
-                    reload(-1);
+                dismissLastToast();
+                toast.success("Approved to transfer NFT");
+                console.log("approved transfer");
+            }
+        );
+    }
 
-                    return;
-                }
+    let onWithdrawOption = () => contracts.NFTOpt.withdrawOptionRequest(option.id);
+    let onCreateOption   = () => contracts.NFTOpt.createOption(option.id, { value: option.strikePrice });
+    let onCancelOption   = () => contracts.NFTOpt.cancelOption(option.id);
+    let onExerciseOption = () => contracts.NFTOpt.exerciseOption(option.id);
 
-                // Listen to "Approval" event
-                NFTContract.current.on
-                (
-                    "Approval",
-                    () =>
+    let onAction         = (promise) => showToast(promise().then(showListView));
+
+    let onApproveNFT     = () => showToast(contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.nftId));
+
+    function createButton
+    (
+        label     : string
+    ,   variant   : "outlined" | "contained" | "text" | undefined
+    ,   className : string
+    ,   action    : any
+    )
+    {
+        return <>
+            <Button
+                variant={variant}
+                className={classes[className]}
+                onClick={ action !== onApproveNFT ? () => onAction(action) : onApproveNFT}
+            >
+                {label}
+            </Button>
+        </>;
+    }
+
+    function createButtonsFromOptionState()
+    {
+        let isBuyer = (option.buyer === account());
+
+        if (option.state === OptionState.PUBLISHED)
+            if (isBuyer) return createButton("Withdraw Request", "outlined" , "btnSecondary", onWithdrawOption);
+            else         return createButton("Create Option"   , "contained", "btnPrimary"  , onCreateOption);
+
+        if (option.state === OptionState.OPEN)
+        {
+            let btnCancel = createButton("Cancel Option", "outlined", "btnSecondary", onCancelOption);
+
+            if (isExpired(option))
+                if (isBuyer || option.seller === account()) return <>{btnCancel}</>;
+
+            if (isBuyer)
+                return <>
+                    {btnCancel}
                     {
-                        if (isApproved.current) { return; }
-                        isApproved.current = true;
-
-                        dismissLastToast();
-                        toast.success("Approved to transfer NFT");
-                        console.log("approved NFT");
-
-                        reload(-2);
+                        isApproved
+                        ?   createButton("Exercise Option", "contained", "btnPrimary", onExerciseOption)
+                        :   createButton("Approve NFT"    , "contained", "btnPrimary", onApproveNFT)
                     }
-                );
-            }
+                </>;
 
-            isApproved.current = false;
-
-            // Check that NFTOpt is approved to transfer tokenId
-            NFTContract.current.getApproved(option.asset.tokenId)
-                               .then(afterGetApproved);
-        },
-        []
-    );
-
-    const showListView = () => { onSelectOption(null); };
-
-    const handleWithdrawOption = () => showToast( nftOpt.withdrawOptionRequest(option.id).then(showListView) );
-    const handleCreateOption   = () => showToast( nftOpt.createOption(option.id, { value: option.strikePrice }).then(showListView) );
-    const handleCancelOption   = () => showToast( nftOpt.cancelOption(option.id).then(showListView) );
-
-    const handleExerciseOption = () =>
-    {
-        const promise = { current : null };
-
-        // Approve contract to transfer NFT (step 1)
-        if (!isApproved.current && NFTContract.current)
-        {
-            promise.current = NFTContract.current.connect(getCurrentProvider().getSigner())
-                                                 .approve(nftOpt.address, option.asset.tokenId);
+            return <></>;
         }
-        else
-        {
-            // Exercise the option when NFT is already approved (step 2)
-            promise.current = nftOpt.exerciseOption(option.id)
-                                    .then(showListView);
-        }
+    }
 
-        showToast(promise.current);
-    };
-
-    const isExerciseWindowClosed = () =>
-    {
-        if (option.buyer !== currentAccount || !option.startDate) { return false; }
-
-        const timeNow = new Date().getTime() / 1000;
-        const timeOption = parseInt(option.startDate.toString()) + (option.interval * SECONDS_IN_A_DAY);
-        const diff = timeOption - timeNow;
-
-        // Can exercise only on the end day (both EUROPEAN and AMERICAN)
-        if (diff > -1 && diff <= SECONDS_IN_A_DAY ) { return true; }
-
-        // Can exercise any time before & including the end day (AMERICAN)
-        if (option.flavor === OptionFlavor.AMERICAN) { return diff > 0; }
-
-        return false;
-    };
-
-    const actionsForRequestState =
-    (
-        <>
-            {
-                option.buyer === currentAccount ?
-                    (
-                        <Button variant="outlined" className={classes.btnSecondary} onClick={handleWithdrawOption}>
-                            Withdraw Request
-                        </Button>
-                    )
-                :
-                    (
-                        <Button variant="contained" className={classes.btnPrimary} onClick={handleCreateOption}>
-                            Create Option
-                        </Button>
-                    )
-            }
-        </>
-    );
-
-    const actionsForOpenState =
-    (
-        <>
-            {
-                option.buyer === currentAccount ?
-                (
-                    isExerciseWindowClosed() ?
-                        (
-                            <>
-                                {
-                                    isApproved.current ?
-                                    null
-                                    :
-                                    (
-                                        <Button variant="outlined" className={classes.btnSecondary} onClick={handleCancelOption}>
-                                            Cancel option
-                                        </Button>
-                                    )
-                                }
-
-                                <Button variant="contained" className={classes.btnPrimary} onClick={handleExerciseOption}>
-                                    {isApproved.current ? "Exercise Option" : "Approve NFT"}
-                                </Button>
-                            </>
-                        )
-                    :
-                        (
-                            isApproved.current ?
-                                null
-                            :
-                                (
-                                    <Button variant="outlined" className={classes.btnSecondary} onClick={handleCancelOption}>
-                                        Cancel option
-                                    </Button>
-                                )
-                        )
-                )
-                : null
-            }
-        </>
-    );
-
-    return (
+    return <>
         <div className={classes.root}>
-            <IconButton onClick={onSelectOption.bind(null, null)} className={classes.goBackBtn}>
+            <IconButton className={classes.goBackBtn} onClick={showListView}>
                 <ArrowBackIosRounded />
             </IconButton>
+
             <div className={classes.detailsContainer}>
                 <div>
-                    <img style={{ backgroundImage: `url(${option.asset.image})` }} alt="" />
+                    <img src={option.asset.image} alt="NFT Image" />
                 </div>
+
                 <div>
                     <p className={classes.title}>{option.asset.name}</p>
 
                     <div>
                         <div>
                             <div className={classes.field}>
-                                <span>NFT contract:</span>
-                                <span>{getAccountDisplayValue(option.asset.address)}</span>
+                                <span>NFT contract</span>
+                                <span>{getAccountDisplayValue(option.asset.nftContract)}</span>
                             </div>
+
                             <div className={classes.field}>
-                                <span>NFT token ID:</span>
-                                <span> {option.asset.tokenId.toString()}</span>
+                                <span>NFT token</span>
+                                <span>{option.asset.nftId.toString()}</span>
                             </div>
+
                             <div className={classes.field}>
-                                <span>Premium:</span>
-                                <span> {ethers.utils.formatEther(option.premium)}</span>
+                                <span>Premium</span>
+                                <span>{ethers.utils.formatEther(option.premium)}</span>
                             </div>
+
                             <div className={classes.field}>
-                                <span>Strike price:</span>
+                                <span>Strike Price</span>
                                 <span>{ethers.utils.formatEther(option.strikePrice)}</span>
                             </div>
                         </div>
+
                         <div>
                             <div className={classes.field}>
-                                <span>Expiration date:</span>
-                                <span>
-                                    {option.interval} {getCorrectPlural("day", option.interval)}
-                                </span>
+                                <span>Expiration</span>
+                                <span>{option.interval} day{option.interval > 1 && "s"}</span>
                             </div>
+
                             <div className={classes.field}>
-                                <span>Option style: </span>
-                                <span className={classes.flavor}>
-                                    {option.flavor === OptionFlavor.EUROPEAN ? "European" : "American"}
-                                </span>
+                                <span>Style</span>
+                                <span className={classes.flavor}>{flavorLabels[option.flavor]}</span>
                             </div>
+
                             <div className={classes.field}>
-                                <span>Buyer:</span>
-                                <span> {getAccountDisplayValue(option.buyer)}</span>
+                                <span>Buyer</span>
+                                <span>{getAccountDisplayValue(option.buyer)}</span>
                             </div>
-                            {option.seller && option.seller !== ADDRESS0 ? (
-                                <div className={classes.field}>
-                                    <span>Seller:</span>
-                                    <span> {getAccountDisplayValue(option.seller)}</span>
-                                </div>
-                            ) : null}
+                            {
+                                option.seller !== ADDRESS0
+                                &&  <div className={classes.field}>
+                                        <span>Seller</span>
+                                        <span>{getAccountDisplayValue(option.seller)}</span>
+                                    </div>
+                            }
                         </div>
                     </div>
 
                     <div className={classes.buttonsContainer}>
-                        {
-                            option.state === OptionState.CANCELED ?
-                                null
-                            :
-                                option.state === OptionState.PUBLISHED ?
-                                    actionsForRequestState
-                                :
-                                    option.state === OptionState.OPEN ? actionsForOpenState : null
-                        }
+                        {createButtonsFromOptionState()}
                     </div>
                 </div>
             </div>
         </div>
-    );
+    </>;
 }
 
 export default OptionDetailsView;

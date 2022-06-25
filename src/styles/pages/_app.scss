@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
-@import "src/styles/variables.scss";
+@import "../variables.scss";
 
 html {
     min-height: 100%;
@@ -18,7 +18,7 @@ body,
     height: 100%;
     overflow: hidden;
     margin: 0;
-    background: $background-surface-0;
+    background: $background-primary;
     color: $text-primary;
 }
 
@@ -48,4 +48,18 @@ button.MuiButton-root {
 
     overflow-y: hidden;
     max-height: 264px;
+}
+
+.page-title {
+    color: $background-secondary;
+    font-size: 16pt;
+    font-weight: 600;
+    max-width: 900px;
+    display: flex;
+    padding: 5px 16px;
+    margin: 20px auto 30px auto;
+    border-radius: 4px;
+    align-content: flex-start;
+    text-shadow: 2px 2px color-primary;
+    background: linear-gradient(90deg, $color-primary 0%, $color-tertiary 65%,  $color-secondary 100%);
 }

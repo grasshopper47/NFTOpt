@@ -1,29 +1,21 @@
-
 // @ts-ignore
-import classes from "./styles/PublishOptionDetailsInput.module.scss";
+import classes from "../styles/components/OptionRequestForm.module.scss";
 
-import {
-    Button,
-    FormControl,
-    FormControlLabel,
-    InputAdornment,
-    MenuItem,
-    Radio,
-    RadioGroup,
-    Select,
-    TextField
-} from "@mui/material";
+import { Button, FormControl, RadioGroup } from "@mui/material";
 import clsx from "clsx";
-import { useEffect, useRef, useState } from "react";
-import Layout from "./Layout";
-import { useAccount, useContracts } from "../providers/contexts";
-import { BIGNUMBER0, floatNumberRegex, SECONDS_IN_A_DAY } from "../utils/constants";
+import { useContext, useRef, useState } from "react";
+import { BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { NFTAsset, OptionFlavor, OptionRequest } from "../utils/types";
 import { ethers } from "ethers";
-import { fetchAssetsOfAccount, fetchNFTImage } from "../utils/NFT/localhost";
-import { showToast } from "../utils/frontend";
+import { loadNFTImage, imageOf, keyOf } from "../utils/NFT/localhost";
+import { getFloatString, getIntervalString, showToast } from "../utils/frontend";
+import { contracts } from "../utils/blockchain";
+import TextBox_OptionRequestForm from "../fragments/TextBox.OptionRequest";
+import Radio_OptionRequestForm from "../fragments/Radio.OptionRequest";
+import DropDown_OptionRequestForm from "../fragments/DropDown.OptionRequest";
+import { useupdateOptionsHash } from "../pages/_app";
 
-const defaultOptionRequest: OptionRequest =
+const defaultRequest =
 {
     nftContract : ""
 ,   nftId       : BIGNUMBER0
@@ -31,238 +23,131 @@ const defaultOptionRequest: OptionRequest =
 ,   premium     : "1"
 ,   strikePrice : "1"
 ,   flavor      : OptionFlavor.AMERICAN
-};
-
-const createRadio = (flavor, cb) =>
-{
-    let name = flavor === OptionFlavor.AMERICAN ? "American" : "European";
-
-    return (
-        <FormControlLabel
-            key={`option-flavor-${name}`}
-            label={name}
-            value={flavor}
-            control={<Radio />}
-            onChange={cb.bind(null, flavor)}
-        />
-    );
 }
 
-const createTextBox = (fieldName, fieldP, cb) =>
+function OptionRequestForm()
 {
-    let label = "";
-    let description = "";
-    let inputProps = { endAdornment: "" };
+    const request = useRef<OptionRequest>(defaultRequest);
 
-    if (fieldName === "premium")
+    const [ image, setImage ] = useState("");
+
+    let updateOptionsHash = useupdateOptionsHash();
+
+    console.log(keyOf(request.current));
+    const setAsset = (asset? : NFTAsset | null) =>
     {
-        label = "Premium";
-        description = fieldName;
-        inputProps.endAdornment = "ETH";
-    }
-
-    if (fieldName === "strikePrice")
-    {
-        label = "Strike Price";
-        description = "strike price";
-        inputProps.endAdornment = "ETH";
-    }
-
-    if (fieldName === "interval")
-    {
-        label = "Interval";
-        description = "expiration interval";
-        inputProps["inputProps"] = { min: 1, max: 30 };
-        inputProps.endAdornment = "days";
-    }
-
-    return (
-        <div className={classes.fieldWrapper}>
-            <label>{label}</label>
-            <TextField
-                key={`input-${fieldName}`}
-                InputProps={inputProps}
-                placeholder={`Enter the ${description}`}
-                type={fieldName === "interval" ? "number" : ""}
-                className={classes.field}
-                value={fieldP[fieldName]}
-                onChange={cb()}
-            />
-        </div>
-    );
-}
-
-const isValid = (request) =>
-{
-    return  request.nftContract != ""
-            && request.premium != ""
-            && request.strikePrice != ""
-            && request.interval != "";
-};
-
-const getInterval = (value) =>
-{
-    return Math.max(1, Math.min(parseInt(value), 30));
-}
-
-const getFloatString = (value) =>
-{
-    return  floatNumberRegex.test(value)
-            && parseFloat(value) > 0
-            ?   value
-            :   "";
-}
-
-let index = 0;
-
-function PublishOptionDetailsInput()
-{
-    const account = useAccount();
-    const { nftOpt } = useContracts();
-
-    const optionR = useRef<OptionRequest>(defaultOptionRequest);
-
-    const [ metadata, setMetadata ] = useState<string>("");
-    const [ assets, setAssets ] = useState<NFTAsset[]>([]);
-
-    const [, doReload ] = useState(index);
-    function reload() { index ^= 1; doReload(index); }
-
-    useEffect
-    (
-        () =>
+        // triggered by dropdown to refresh the image
+        if (asset === undefined)
         {
-            fetchAssetsOfAccount(account)
-            .then( a => setAssets(a) )
-        }
-    ,   []
-    );
+            setImage(imageOf(request.current));
 
-    const onSetAsset = async (asset: NFTAsset) =>
-    {
-        if (asset.tokenId && !asset.image) fetchNFTImage(asset.address, asset.tokenId).then(r => setMetadata(r) );
-
-        optionR.current.nftContract = asset?.address ?? "";
-        optionR.current.nftId       = asset?.tokenId ?? BIGNUMBER0;
-    };
-
-    const onSetAmount = (propName: keyof OptionRequest, event: React.ChangeEvent<HTMLInputElement>) =>
-    {
-        optionR.current[propName.toString()] = getFloatString(event.target.value);
-
-        reload();
-    };
-
-    const onSetInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
-    {
-        optionR.current.interval = "";
-
-        if (event.target.value)
-        {
-            optionR.current.interval = getInterval(event.target.value).toString();
+            return;
         }
 
-        reload();
+        if (asset === null)
+        {
+            request.current.nftId       = BIGNUMBER0;
+            request.current.nftContract = "";
+
+            setImage("");
+
+            return;
+        }
+
+        console.log("setAsset");
+
+        request.current.nftId       = asset.nftId;
+        request.current.nftContract = asset.nftContract;
+
+        let image = imageOf(request.current);
+
+        if (image) setImage(image);
+        else       loadNFTImage(request.current.nftContract, request.current.nftId).then(setImage);
     };
 
-    const onSetFlavor = (event: React.ChangeEvent<HTMLInputElement>) =>
+    const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
-        optionR.current.flavor = parseInt(event.target.value) as OptionFlavor;
+        // setRequestState( prev => ({ ...prev, [event.target.id] : getFloatString(event.target.value) }) );
+
+        request.current[event.target.id] = getFloatString(event.target.value); updateOptionsHash();
     };
 
-    const onPublishOptionRequest = () =>
+    const setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
+    {
+        // setRequestState( prev => ({ ...prev, interval : getIntervalString(event.target.value) }) );
+
+        request.current.interval = getIntervalString(event.target.value); updateOptionsHash();
+    };
+
+    const setFlavor = (event: React.ChangeEvent<HTMLInputElement>) =>
+    {
+        request.current.flavor = parseInt(event.target.value) as OptionFlavor;
+    };
+
+    const onPublishRequest = () =>
     {
         showToast
         (
-            nftOpt.publishOptionRequest
+            contracts.NFTOpt.publishOptionRequest
             (
-                optionR.current.nftContract
-            ,   optionR.current.nftId
-            ,   ethers.utils.parseEther(optionR.current.strikePrice)
-            ,   parseInt(optionR.current.interval) * SECONDS_IN_A_DAY
-            ,   optionR.current.flavor
-            ,   { value: ethers.utils.parseEther(optionR.current.premium) }
+                request.current.nftContract
+            ,   request.current.nftId
+            ,   ethers.utils.parseEther(request.current.strikePrice)
+            ,   parseInt(request.current.interval) * SECONDS_IN_A_DAY
+            ,   request.current.flavor
+            ,   { value: ethers.utils.parseEther(request.current.premium) }
             )
-            .then
-            (
-                () =>
-                {
-                    optionR.current = defaultOptionRequest;
-
-                    reload();
-                }
-            )
+            // .then(() => setRequestState({...defaultRequest}))
+            .then(() => request.current = {...defaultRequest})
+            .then(updateOptionsHash)
         );
     };
 
-    return (
-        <Layout>
-            <div className={classes.root}>
-                <div className={classes.form}>
-                    <p className={classes.title}>Request a PUT Option</p>
-                    <div className={classes.fieldWrapper}>
-                        <Select
-                            MenuProps={{ classes: { paper: classes.menuPaper } }}
-                            value={optionR.current.nftId + "_" + optionR.current.nftContract}
-                        >
-                            <MenuItem
-                                value={"0_"}
-                                onClick={onSetAsset.bind(null, null)}
-                            >
-                                <i>Select an NFT</i>
-                            </MenuItem>
-                            <hr/>
-                            {
-                                assets.map
-                                (
-                                    asset =>
-                                    (
-                                        <MenuItem
-                                            key={`asset-${asset.id}`}
-                                            value={asset.tokenId + "_" + asset.address}
-                                            onClick={onSetAsset.bind(null, asset)}
-                                        >
-                                            {asset.name}
-                                        </MenuItem>
-                                    )
-                                )
-                            }
-                        </Select>
-                    </div>
+    return <>
+        <p className="page-title">Request a PUT Option</p>
 
-                    { createTextBox("premium"    , optionR.current, () => onSetAmount.bind(this, "premium") ) }
-                    { createTextBox("strikePrice", optionR.current, () => onSetAmount.bind(this, "strikePrice") ) }
-                    { createTextBox("interval"   , optionR.current, () => onSetInterval ) }
+        <div className={classes.root}>
+            <div className={classes.form}>
 
-                    <FormControl className={classes.field}>
-                        <label>Option Flavor</label>
-                        <RadioGroup defaultValue={OptionFlavor.AMERICAN}>
-                            { createRadio(OptionFlavor.AMERICAN, () => onSetFlavor) }
-                            { createRadio(OptionFlavor.EUROPEAN, () => onSetFlavor) }
-                        </RadioGroup>
-                    </FormControl>
+                <DropDown_OptionRequestForm value={keyOf(request.current)} setAsset={setAsset}/>
 
-                    <Button
-                        className={classes.submitBtn}
-                        variant="contained"
-                        onClick={onPublishOptionRequest}
-                        disabled={!isValid(optionR.current)}
-                    >
-                        Publish Option
-                    </Button>
-                </div>
+                <TextBox_OptionRequestForm fieldName="premium"     value={request.current.premium}     onChange={setAmount}   />
+                <TextBox_OptionRequestForm fieldName="strikePrice" value={request.current.strikePrice} onChange={setAmount}   />
+                <TextBox_OptionRequestForm fieldName="interval"    value={request.current.interval}    onChange={setInterval} />
 
-                <div className={clsx(classes.imageContainer, !metadata && classes.dummyImageContainer)}>
-                {
-                    metadata
-                    ?   <img src={metadata} alt="NFT Metadata" />
-                    :   Array.from({ length: 3 }).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
-                }
-                </div>
+                <FormControl className={classes.field}>
+                    <RadioGroup defaultValue={OptionFlavor.AMERICAN}>
+                        <Radio_OptionRequestForm flavor={OptionFlavor.AMERICAN} onChange={setFlavor} />
+                        <Radio_OptionRequestForm flavor={OptionFlavor.EUROPEAN} onChange={setFlavor} />
+                    </RadioGroup>
+                </FormControl>
+
+                <Button
+                    className={classes.submitBtn}
+                    variant="contained"
+                    onClick={onPublishRequest}
+                    disabled=
+                    {
+                        request.current.nftContract    === ""
+                        || request.current.premium     === ""
+                        || request.current.strikePrice === ""
+                        || request.current.interval    === ""
+                    }
+                >
+                    Publish Request
+                </Button>
 
             </div>
-        </Layout>
-    );
+
+            <div className={clsx(classes.imageContainer, !request.current.nftContract && classes.dummyImageContainer)}>
+            {
+                request.current.nftContract
+                ?   <img src={image} alt="NFT image data" />
+                :   Array.from({ length: 3 }).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
+            }
+            </div>
+        </div>
+    </>;
 }
 
-export default PublishOptionDetailsInput;
+export default OptionRequestForm;
