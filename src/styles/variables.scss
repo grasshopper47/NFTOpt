@@ -4,24 +4,27 @@ $breakpoints-values-md: 1024;
 $breakpoints-values-lg: 1920;
 
 // Palette
-#__next {
+#__next
+{
     --color-primary: #81ad9a;
     // --color-secondary: rgb(192, 167, 24);
-    --color-secondary: rgb(206, 182, 50);
-    --color-tertiary: #297554;
+    --color-secondary: rgb(216, 193, 60);
+    --color-tertiary: rgb(41, 117, 84);
 
     --text-primary: #334155;
     --text-secondary: #73849c;
-    --text-tertiary: #cbd5e1;
+    --text-tertiary: #a8b8cb;
 
-    --background-surface-0: #ffffff;
-    --background-surface-1: #e2e8f0;
-    --background-surface-2: #f8fafc;
+    --background-primary: azure;
+    --background-secondary: #e2e8f0;
+    --background-tertiary: #f8fafc;
 }
 
 // Dark theme palette
-[data-theme="dark"] {
-    #__next {
+[data-theme="dark"]
+{
+    #__next
+    {
         --color-primary: rgba(126, 168, 150, 0.8);
         --color-secondary: rgb(205, 135, 70);
         --color-tertiary: #28a770;
@@ -30,9 +33,9 @@ $breakpoints-values-lg: 1920;
         --text-secondary: #cbd5e1;
         --text-tertiary: #94a3b8;
 
-        --background-surface-0: #334155;
-        --background-surface-1: #475569;
-        --background-surface-2: rgb(51, 65, 85, 0.95);
+        --background-primary: #334155;
+        --background-secondary: #262b33;
+        --background-tertiary: rgb(51, 65, 85, 0.95);
     }
 }
 
@@ -43,7 +46,8 @@ $color-tertiary: var(--color-tertiary);
 $text-primary: var(--text-primary);
 $text-secondary: var(--text-secondary);
 $text-tertiary: var(--text-tertiary);
+$text-quarty: var(--text-quarty);
 
-$background-surface-0: var(--background-surface-0);
-$background-surface-1: var(--background-surface-1);
-$background-surface-2: var(--background-surface-2);
+$background-primary: var(--background-primary);
+$background-secondary: var(--background-secondary);
+$background-tertiary: var(--background-tertiary);

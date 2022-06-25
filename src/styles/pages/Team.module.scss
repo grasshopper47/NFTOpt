@@ -15,7 +15,7 @@
     border-radius: 8px;
     border: 2px solid $text-tertiary;
     user-select: none;
-    transition: all 150ms ease-in-out;
+    transition: all 166ms ease-in-out;
     position: relative;
     overflow: hidden;
     min-height: max-content;
@@ -61,6 +61,6 @@
 
 [data-theme="white"] {
     .card {
-        background: $background-surface-1;
+        background: $background-secondary;
     }
 }

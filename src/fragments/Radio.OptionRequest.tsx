@@ -1,7 +1,3 @@
-
-// @ts-ignore
-import classes from "../styles/components/OptionRequestForm.module.scss";
-
 import { OptionFlavor } from "../utils/types";
 import { FormControlLabel, Radio } from "@mui/material";
 import { flavorLabels } from "../utils/frontend";

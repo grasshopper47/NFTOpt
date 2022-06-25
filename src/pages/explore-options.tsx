@@ -6,7 +6,7 @@ function ExploreOptions()
 {
     return <>
         <Layout>
-            <OptionViewContainer title={"Explore NFT Options"} key={`explore-options-list`}/>
+            <OptionViewContainer key={`explore-options-list`}/>
         </Layout>
     </>;
 }

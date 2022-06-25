@@ -1,58 +1,95 @@
 import { BigNumber } from "ethers";
-import { NFTAsset } from "../types";
+import { NFTAsset, OptionRequest, Option } from "../types";
 import { getSignedContract } from "../metamask";
 import addresses from "../../../addresses.json";
 import { ABIs, MAX_MINTABLE_TOKENS } from "../constants";
 
-export async function fetchNFTImage(address: string, id: BigNumber)
+const contracts = { };
+
+export const images = { };
+export const assets = { };
+
+export const keyOf = (obj : OptionRequest | Option | NFTAsset) => obj.nftId + "_" + obj.nftContract;
+export const imageOf = (obj : OptionRequest | NFTAsset) => images[keyOf(obj)] as string;
+export const assetsOf = (account : string)  => assets[account] as NFTAsset[];
+
+export function getCachedContract(address : string)
 {
-    const NFTContract = getSignedContract(address, [ ABIs.ERC721.tokenURI ]);
+    let contract = contracts[address];
 
-    var data = await NFTContract.tokenURI(id);
+    if (contract) return contract;
 
-    return JSON.parse(atob(data.slice(29))).image;
+    contract =
+    getSignedContract
+    (
+        address
+    ,   [
+            ABIs.ERC721.name
+        ,   ABIs.ERC721.ownerOf
+        ,   ABIs.ERC721.tokenURI
+        ,   ABIs.ERC721.getApproved
+        ,   ABIs.ERC721.approve
+        ,   ABIs.ERC721.Events.Approval
+        ]
+    );
+
+    contracts[address] = contract;
+
+    return contract;
 }
 
-export async function fetchAssetsOfAccount(account: string)
+export async function loadNFTImage(address: string, id: BigNumber)
 {
-    let assets   : NFTAsset[]     = [];
+    console.log("loadNFTImage");
+    let contract = getCachedContract(address);
+
+    let data = await contract.tokenURI(id);
+
+    let image = JSON.parse(atob(data.slice(29))).image;
+
+    images[id.toString() + "_" + address] = image;
+
+    return image;
+}
+
+export async function loadAssetsFor(account: string)
+{
+    console.log("loadAssetsFor");
+    let arr      : NFTAsset[]     = [];
     let promises : Promise<any>[] = [];
 
-    let j = 0;
-    for (const name of Object.keys(addresses["localhost"]))
+    for (let name of Object.keys(addresses["localhost"]))
     {
         if (name === "NFTOpt") continue;
-
-        const address_    = addresses["localhost"][name];
-        const NFTContract = getSignedContract(address_, [ ABIs.ERC721.name, ABIs.ERC721.ownerOf ]);
 
         for (let i = 1; i != MAX_MINTABLE_TOKENS; ++i)
         {
             promises.push
             (
-                (async () =>
+                (async (address : string, tokenID : number) =>
                 {
-                    const owner = await NFTContract.ownerOf(i);
+                    let contract = getCachedContract(address);
+
+                    let owner = await contract.ownerOf(tokenID);
                     if (owner.toLowerCase() !== account) return;
 
-                    const tokenID_ = BigNumber.from(i);
-
-                    assets.push
+                    arr.push
                     ({
-                        id      : i + j * MAX_MINTABLE_TOKENS
-                    ,   tokenId : tokenID_
-                    ,   address : address_
-                    ,   name    : await NFTContract.name() + " #" + tokenID_
-                    ,   image   : ""
+                        nftId       : BigNumber.from(tokenID)
+                    ,   nftContract : address
+                    ,   name        : await contract.name() + " - " + tokenID.toString()
+                    ,   image       : ""
                     });
-                })()
+                })
+                (addresses["localhost"][name], i)
             );
         }
-
-        ++j;
     }
 
     await Promise.allSettled(promises);
 
-    return assets.sort( a => a.id );
+    assets[account] = arr;
+
+    return arr;
+    //assets.sort( a => a.nftId + "_" + a.nftContract );
 }

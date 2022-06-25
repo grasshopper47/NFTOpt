@@ -1,18 +1,16 @@
 // @ts-ignore
-import classes from "./styles/OptionViewContainer.module.scss";
+import classes from "../styles/components/OptionViewContainer.module.scss";
 
-import { Tab, Tabs } from "@mui/material";
+import { FormControlLabel, Switch, Tab, Tabs } from "@mui/material";
+import { useEffect, useState } from "react";
+import { OptionState, OptionWithAsset } from "../utils/types";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
-import { useEffect, useState } from "react";
-import { OptionFilterOwnership, OptionState, OptionWithAsset } from "../utils/types";
-import { useAccount, useOptions } from "../providers/contexts";
+import { useOptions, useOptionsHash } from "../pages/_app";
+import { account } from "../utils/metamask";
+import clsx from "clsx";
 
-type OptionViewContainerProps =
-{
-    title: string;
-    filterOwnership: OptionFilterOwnership;
-};
+export enum Views { CARDLIST, DETAIL, LISTDETAIL };
 
 type ViewTab =
 {
@@ -36,85 +34,154 @@ const tabs: ViewTab[] =
     },
 ];
 
-function OptionViewContainer(props: OptionViewContainerProps)
+const viewStates =
 {
-    const { title } = props;
+    [Views.CARDLIST] : [ "S", "M", "L" ]
+,   [Views.LISTDETAIL] : [ "25", "50", "100" ]
+}
 
+export function getViewClass(view : Views, state : number)
+{
+    return viewStates[view][state];
+}
+
+function OptionViewContainer()
+{
+    const [ view, setView ] = useState<Views>(Views.CARDLIST);
+    const [ viewState, setViewState ] = useState(0);
     const [ activeTabIndex, setActiveTabIndex ] = useState(0);
-    const [ optionsDisplayed, setOptionsDisplayed ] = useState<OptionWithAsset[]>([]);
+    const [ viewedOptions, setViewedOptions ] = useState<OptionWithAsset[]>([]);
     const [ selectedOption, setSelectedOption ] = useState<OptionWithAsset | null>(null);
+    const [ checked, setChecked ] = useState(false);
 
-    const account = useAccount();
     const options = useOptions();
+    const optionsHash = useOptionsHash();
 
     useEffect
     (
         () =>
         {
-            if (!options || options.length === 0) { return; }
+            if (view === Views.DETAIL) return;
 
-            const state = tabs[activeTabIndex].value;
+            setViewedOptions
+            (
+                options.filter
+                (
+                    (option : OptionWithAsset) =>
+                    {
+                        let state = tabs[activeTabIndex].value;
 
-            const filter =
-            (option : OptionWithAsset) =>
-            {
-                if (state === OptionState.OPEN || state === OptionState.PUBLISHED)
-                {
-                    return option.state === state;
-                }
+                        let cond : boolean;
 
-                return option.state === OptionState.WITHDRAWN || option.state === OptionState.CANCELED;
-            };
+                        if (state === OptionState.CANCELED)
+                            cond = option.state === OptionState.WITHDRAWN || option.state === OptionState.CANCELED;
+                        else
+                            cond = option.state === state;
 
-            setOptionsDisplayed(options.filter(filter));
-        },
-        [
-            activeTabIndex,
-            options
-        ]
+                        if (checked) cond = cond && (option.buyer === account() || option.seller === account());
+
+                        return cond;
+                    }
+                )
+            );
+        }
+    ,   [optionsHash, activeTabIndex]
     );
 
-    const handleChangeTab = (_, tabIndex: number) => setActiveTabIndex(tabIndex);
+    useEffect
+    (
+        () =>
+        {
+            if (selectedOption) setView(Views.DETAIL);
+            else                setView(Views.CARDLIST);
+        }
+    ,   [selectedOption]
+    );
 
-    return (
+    const onSetTab       = (event: any, index : number) => setActiveTabIndex(index);
+    const onSetViewState = (event: any, index : number) => setViewState(index);
+
+    return <>
+        <p className="page-title">Explore NFT Options</p>
+
         <div className={classes.root}>
-            <p className={classes.title}>{title}</p>
             <Tabs
                 className={classes.tabs}
                 value={activeTabIndex}
-                onChange={handleChangeTab}
+                onChange={onSetTab}
             >
-                {tabs.map((optionStateTab) => (
-                    <Tab key={`option-state-tab-${optionStateTab.name}`} label={optionStateTab.name} />
-                ))}
+            {
+                tabs.map
+                (
+                    optionStateTab =>
+                    <Tab key={`option-state-tab-${optionStateTab.name}`}
+                        label={optionStateTab.name}
+                        disabled={selectedOption !== null}
+                    />
+                )
+            }
             </Tabs>
 
-            {selectedOption ? (
+            <Tabs
+                className={classes.tabsState}
+                value={viewState}
+                onChange={onSetViewState}
+            >
+            {
+                viewStates[view]?.map
+                (
+                    state =>
+                    <Tab key={`option-view-state-tab-${state}`}
+                        label={state}
+                        disabled={selectedOption !== null}
+                    />
+                )
+            }
+            </Tabs>
+
+            <FormControlLabel
+                className={clsx(classes.checkbox, !checked ? classes.unchecked : classes.checked)}
+                control={<Switch checked={checked} onChange={() => setChecked(!checked)}/>}
+                disabled={selectedOption !== null}
+                label={(checked ? "Account's" : "All") + " Options"}
+                labelPlacement="start"
+            />
+
+            {
+                view == Views.CARDLIST &&
+                <div className={clsx(classes.containerGrid, classes[getViewClass(view, viewState)])}
+                >
+                {
+                    viewedOptions.map
+                    (
+                        (option, index) =>
+                        <OptionListItemView
+                            key={`option-preview-${activeTabIndex}-${index}`}
+                            option={option}
+                            onViewOptionDetails={setSelectedOption}
+                            view={viewState}
+                        />
+                    )
+                }
+                {
+                    !viewedOptions.length &&
+                    <p className={classes.noOptions}>No Options</p>
+                }
+                </div>
+            }
+
+            {
+                view == Views.DETAIL && selectedOption &&
                 <div className={classes.containerItem}>
                     <OptionDetailsView
                         key={`option-details-preview-${selectedOption.id}`}
-                        currentAccount={account}
                         option={selectedOption}
-                        onSelectOption={setSelectedOption}
+                        showListView={setSelectedOption.bind(null, null)}
                     />
                 </div>
-            ) : (
-                <div className={classes.containerGrid}>
-                    { optionsDisplayed?.length ? (
-                        optionsDisplayed?.map((option, index) => (
-                            <OptionListItemView
-                                key={`option-preview-${activeTabIndex}-${index}`}
-                                option={option}
-                                onViewOptionDetails={setSelectedOption}
-                            />
-                        ))
-                    ) : (
-                        <p className={classes.noOptions}>No Options</p>
-                    ) }
-                </div>
-            )}
+            }
         </div>
-    );
+    </>;
 }
 
 export default OptionViewContainer;

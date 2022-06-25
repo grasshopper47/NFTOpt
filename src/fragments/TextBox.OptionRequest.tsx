@@ -54,6 +54,7 @@ export default function(props: Props)
                 className={classes.field}
                 value={props.value}
                 onChange={props.onChange}
+                size="small"
             />
         </div>
     </>;
