@@ -102,6 +102,8 @@ function OptionRequestForm()
         );
     };
 
+    const create3Dots = () => [0, 0, 0].map( (_, i) => <div key={`dot-${i}`} className={classes.dot} /> );
+
     return <>
         <p className="page-title">Request a PUT Option</p>
 
@@ -139,11 +141,7 @@ function OptionRequestForm()
             </div>
 
             <div className={clsx(classes.imageContainer, !request.current.nftContract && classes.dummyImageContainer)}>
-            {
-                request.current.nftContract
-                ?   <img src={image} alt="NFT image data" />
-                :   Array.from({ length: 3 }).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
-            }
+                { request.current.nftContract ? <img src={image} alt="NFT image data"/> : create3Dots() }
             </div>
         </div>
     </>;
