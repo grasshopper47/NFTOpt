@@ -40,7 +40,7 @@ export default function App({ Component, pageProps }: AppProps)
 
     useEffect
     (
-        () => { optionIDs.current = []; hookMetamask(window, setAccount); }
+        () => hookMetamask(window, setAccount)
     ,   []
     );
 
