@@ -16,6 +16,8 @@ import { getCachedContract } from "../../datasources/NFT/localhost";
 import { useContracts, useOptionChangingIDs } from "../../pages/_app";
 import { flavorLabels } from "../utils/labels";
 import { getAccountDisplayValue } from "../utils/helpers";
+import Field_OptionDetailsView from "../fragments/Field.OptionDetailsView";
+import FieldLink_OptionDetailsView from "../fragments/FieldLink.OptionDetailsView";
 
 type OptionDetailsViewProps =
 {
@@ -144,60 +146,19 @@ function OptionDetailsView(props: OptionDetailsViewProps)
 
                     <div>
                         <div>
-                            <div className={classes.field}>
-                                <span>NFT contract</span>
-                                <a  target="_blank"
-                                    href={`${scanner()}/address/${option.asset.nftContract}`}
-                                >
-                                    {getAccountDisplayValue(option.asset.nftContract)}
-                                </a>
-                            </div>
-
-                            <div className={classes.field}>
-                                <span>NFT token</span>
-                                <span>{option.asset.nftId.toString()}</span>
-                            </div>
-
-                            <div className={classes.field}>
-                                <span>Premium</span>
-                                <span>{ethers.utils.formatEther(option.premium)}</span>
-                            </div>
-
-                            <div className={classes.field}>
-                                <span>Strike Price</span>
-                                <span>{ethers.utils.formatEther(option.strikePrice)}</span>
-                            </div>
+                            <FieldLink_OptionDetailsView label="NFT contract" value={option.asset.nftContract} />
+                            <Field_OptionDetailsView     label="NFT token"    value={option.asset.nftId.toString()} />
+                            <Field_OptionDetailsView     label="Premium"      value={ethers.utils.formatEther(option.premium)} />
+                            <Field_OptionDetailsView     label="Strike Price" value={ethers.utils.formatEther(option.strikePrice)} />
                         </div>
 
                         <div>
-                            <div className={classes.field}>
-                                <span>Expiration</span>
-                                <span>{option.interval} day{option.interval > 1 && "s"}</span>
-                            </div>
-
-                            <div className={classes.field}>
-                                <span>Style</span>
-                                <span className={classes.flavor}>{flavorLabels[option.flavor]}</span>
-                            </div>
-
-                            <div className={classes.field}>
-                                <span>Buyer</span>
-                                <a  target="_blank"
-                                    href={`${scanner()}/address/${option.buyer}`}
-                                >
-                                    {getAccountDisplayValue(option.buyer)}
-                                </a>
-                            </div>
+                            <Field_OptionDetailsView     label="Expiration"   value={ `${option.interval} day${option.interval > 1 && 's'}` } />
+                            <Field_OptionDetailsView     label="Style"        value={flavorLabels[option.flavor]} className="flavor"/>
+                            <FieldLink_OptionDetailsView label="Buyer"        value={option.buyer} />
                             {
                                 option.seller !== ADDRESS0 &&
-                                <div className={classes.field}>
-                                    <span>Seller</span>
-                                    <a  target="_blank"
-                                        href={`${scanner()}/address/${option.seller}`}
-                                    >
-                                        {getAccountDisplayValue(option.seller)}
-                                    </a>
-                                </div>
+                                <FieldLink_OptionDetailsView label="Seller"   value={option.seller} />
                             }
                         </div>
                     </div>
