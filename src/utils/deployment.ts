@@ -1,3 +1,4 @@
+// @ts-ignore
 import { ethers } from "hardhat";
 import { NFTOpt } from "../../typechain-types";
 
