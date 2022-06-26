@@ -6,7 +6,7 @@ import {useRouter} from "next/router";
 import Link from "next/link";
 import clsx from "clsx";
 import Button from "@mui/material/Button";
-import ThemeSwitch from "../fragments/ThemeSwitch.Header";
+import ThemeSwitch from "../frontend/fragments/ThemeSwitch.Header";
 import { useAccount } from "../pages/_app";
 import { connected, connectWallet, network } from "../utils/frontend/metamask";
 import { getAccountDisplayValue } from "../utils/frontend/helpers";
