@@ -6,7 +6,7 @@ import {useRouter} from "next/router";
 import Link from "next/link";
 import clsx from "clsx";
 import Button from "@mui/material/Button";
-import ThemeSwitch from "./ThemeSwitch";
+import ThemeSwitch from "../fragments/ThemeSwitch.Header";
 import { getAccountDisplayValue } from "../utils/frontend";
 import { useAccount } from "../pages/_app";
 import { connected, connectWallet, network } from "../utils/metamask";
@@ -38,7 +38,7 @@ function Header()
     const router = useRouter();
     const account = useAccount();
 
-    return (
+    return <>
         <div className={classes.root}>
             <Link key="route-link-main" href="/">
                 <a className={clsx(classes.link, classes.logo)}>
@@ -78,7 +78,7 @@ function Header()
                 </Button>
             </div>
         </div>
-    );
+    </>;
 }
 
 export default Header;
