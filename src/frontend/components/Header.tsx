@@ -8,7 +8,7 @@ import clsx from "clsx";
 import Button from "@mui/material/Button";
 import ThemeSwitch from "../fragments/ThemeSwitch.Header";
 import { useAccount } from "../../pages/_app";
-import { connected, connectWallet, network } from "../utils/metamask";
+import { connected, connectWallet, network, provider } from "../utils/metamask";
 import { getAccountDisplayValue } from "../utils/helpers";
 
 type Route =
@@ -46,10 +46,7 @@ function Header()
                 </a>
             </Link>
 
-            {
-                !network() &&
-                <div>Connect to localhost</div>
-            }
+            { !network() && <p>{provider() ? "Connect to localhost" : "Metamask required to access dapp"}</p> }
 
             <div>
                 {
@@ -72,9 +69,9 @@ function Header()
                 <Button
                     className={clsx(classes.connectBtn, connected() && classes.connectBtnSmall)}
                     variant="contained"
-                    { ... !connected() && { onClick : connectWallet } }
+                    { ... !connected() && { onClick: provider() ? connectWallet : () => window.open("https://metamask.io/download") } }
                 >
-                    <p>{connected() ? getAccountDisplayValue(account) : "Connect wallet"}</p>
+                    <p>{ connected() ? getAccountDisplayValue(account) : (provider() ? "Connect wallet" : "Install Metamask") }</p>
                 </Button>
             </div>
         </div>

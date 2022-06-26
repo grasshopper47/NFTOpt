@@ -88,7 +88,7 @@ export default function App({ Component, pageProps }: AppProps)
             hookMetamask(window, setAccount);
 
             // Store current block number to filter out old events
-            provider().getBlockNumber().then(r => blockNumber.current = r);
+            provider()?.getBlockNumber().then(r => blockNumber.current = r);
         }
     ,   []
     );
