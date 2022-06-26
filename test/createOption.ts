@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { OptionState } from "../src/models/option";
-import { buyer, seller, initializer, dummyOptionRequest, publishDummyOptionRequest } from "./utils/helpers";
+import { buyer, seller, initializer, dummyOptionRequest, publishDummyOptionRequest } from "../src/utils/testing/helpers";
 import { NFTOptContract, deployMainContract } from "../src/utils/deployment";
 
 describe("createOption", function () {

@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { ethers } from "hardhat";
-import { Option_SOLIDITY, OptionState, OptionFlavor } from "../../src/models/option";
-import { ADDRESS0, SECONDS_IN_A_DAY } from "../../src/utils/constants";
+import { Option_SOLIDITY, OptionState, OptionFlavor } from "../../models/option";
+import { ADDRESS0, SECONDS_IN_A_DAY } from "../constants";
 import { BigNumber } from "ethers";
 import {
     NFTOptContract,
@@ -10,8 +10,8 @@ import {
     deployMainContract,
     deployNFTCollectionContract,
     contracts,
-} from "../../src/utils/deployment";
-import { ERC721 } from "../../typechain-types";
+} from "../deployment";
+import { ERC721 } from "../../../typechain-types";
 
 export let buyer: SignerWithAddress;
 export let seller: SignerWithAddress;
