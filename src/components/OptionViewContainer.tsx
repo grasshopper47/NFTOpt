@@ -69,7 +69,7 @@ function OptionViewContainer()
     (
         () =>
         {
-            if (options.length === 0) return;  // 1st run, skip until options are loaded;
+            if (options.length === 0) return;  // 1st run, skip until options are loaded
 
             optionsByState.current[ViewTabValues.REQUEST] = [] as OptionWithAsset[]
             optionsByState.current[ViewTabValues.OPEN]    = [] as OptionWithAsset[]
