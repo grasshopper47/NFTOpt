@@ -8,32 +8,39 @@ import Moon from "@mui/icons-material/Brightness3Rounded";
 
 type ThemeState = "white" | "dark";
 
-function ThemeSwitch() {
+function ThemeSwitch()
+{
     const [themeState, setThemeState] = useState<ThemeState>("white");
 
-    useEffect(() => {
-        const theme: ThemeState = (localStorage.getItem("theme") as ThemeState) ?? "white";
-        setThemeState(theme);
-        document.documentElement.setAttribute("data-theme", theme);
-    }, []);
+    useEffect
+    (
+        () =>
+        {
+            const theme: ThemeState = (localStorage.theme as ThemeState) ?? "white";
 
-    const handleSwitchTheme = () => {
-        let theme: ThemeState = "white";
-        if (themeState !== "dark") {
-            theme = "dark";
-        } else {
-            theme = "white";
+            setThemeState(theme);
+
+            document.documentElement.setAttribute("data-theme", theme);
         }
+    ,   []
+    );
+
+    const handleThemeChanged = () =>
+    {
+        let theme: ThemeState = themeState === "white" ? "dark" : "white";
+
         setThemeState(theme);
-        localStorage.setItem("theme", theme);
+
+        localStorage.theme = theme;
+
         document.documentElement.setAttribute("data-theme", theme);
     };
 
-    return (
-        <IconButton onClick={handleSwitchTheme} className={classes.button}>
-            {themeState === "dark" ? <Sun className={classes.sun} /> : <Moon className={classes.moon} />}
+    return <>
+        <IconButton onClick={handleThemeChanged} className={classes.button}>
+            { themeState === "white" ? <Moon className={classes.moon} /> : <Sun className={classes.sun} /> }
         </IconButton>
-    );
+    </>;
 }
 
 export default ThemeSwitch;
