@@ -17,6 +17,7 @@ export default function(props: Props)
             <span>{props.label}</span>
             <a  target="_blank"
                 href={`${scanner()}/address/${props.value}`}
+                className={classes.link}
             >
                 {getAccountDisplayValue(props.value)}
             </a>
