@@ -119,7 +119,6 @@ function OptionViewContainer()
         setViewStateIndex(index);
     }
 
-    console.log(optionsHash);
     return <>
         <p className="page-title">Explore NFT Options</p>
 

@@ -25,7 +25,6 @@ let _setAccount : (a : string) => void;
 
 function handleAccountChanged(accounts : string[])
 {
-    console.log(accounts);
     console.log("handleAccountChanged", account());
 
     _connected = accounts.length !== 0;
@@ -42,7 +41,6 @@ function handleNetworkChanged()
 
 export function connectWallet()
 {
-    console.log(3);
     _window.ethereum
     .request({ method: "eth_requestAccounts" })
     .then(handleAccountChanged)
