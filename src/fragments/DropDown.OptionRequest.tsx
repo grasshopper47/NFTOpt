@@ -16,7 +16,7 @@ type Props =
 export default function(props: Props)
 {
     const [ assets, setAssets ] = useState<NFTAsset[]>([]);
-    const [ selectedValue, setSelectedValue ] = useState("0_");
+    const [ selectedValue, setSelectedValue ] = useState(props.value);
 
     const account = useAccount();
 
@@ -29,7 +29,7 @@ export default function(props: Props)
             // asset === undefined -> instruct parent to refresh
             props.setAsset();
         }
-    ,   [assets]
+    ,   [assets, props.value]
     );
 
     useEffect
@@ -44,17 +44,14 @@ export default function(props: Props)
     ,   [account]
     );
 
-    function onSetSelectedValue(event)
-    {
-        setSelectedValue(event.target.value)
-    }
+    const handleSelectedValueChanged = (event) => setSelectedValue(event.target.value);
 
     return <>
         <div className={classes.fieldWrapper}>
             <Select
                 MenuProps={{ classes: { paper: classes.menuPaper } }}
                 value={selectedValue}
-                onChange={onSetSelectedValue}
+                onChange={handleSelectedValueChanged}
             >
                 <MenuItem
                     value={"0_"}

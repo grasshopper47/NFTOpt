@@ -15,19 +15,21 @@ import Radio_OptionRequestForm from "../fragments/Radio.OptionRequest";
 import DropDown_OptionRequestForm from "../fragments/DropDown.OptionRequest";
 import { useUpdateOptionsHash } from "../pages/_app";
 
-const defaultRequest =
+const defaultRequest = () =>
 {
-    nftContract : ""
-,   nftId       : BIGNUMBER0
-,   interval    : "1"
-,   premium     : "1"
-,   strikePrice : "1"
-,   flavor      : OptionFlavor.AMERICAN
+    return {
+        nftContract : ""
+    ,   nftId       : BIGNUMBER0
+    ,   interval    : "1"
+    ,   premium     : "1"
+    ,   strikePrice : "1"
+    ,   flavor      : OptionFlavor.AMERICAN
+    };
 }
 
 function OptionRequestForm()
 {
-    const request = useRef<OptionRequest>(defaultRequest);
+    const request = useRef<OptionRequest>(defaultRequest());
 
     const [ image, setImage ] = useState("");
 
@@ -97,7 +99,7 @@ function OptionRequestForm()
             ,   { value: ethers.utils.parseEther(request.current.premium) }
             )
             // .then(() => setRequestState({...defaultRequest}))
-            .then(() => request.current = {...defaultRequest})
+            .then( () => request.current = defaultRequest() )
             .then(updateOptionsHash)
         );
     };
