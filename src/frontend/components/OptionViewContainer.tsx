@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "../../styles/components/OptionViewContainer.module.scss";
+import classes from "./styles/OptionViewContainer.module.scss";
 import clsx from "clsx";
 
 import { FormControlLabel, Switch, Tab, Tabs } from "@mui/material";

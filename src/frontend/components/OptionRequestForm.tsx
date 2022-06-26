@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "../../styles/components/OptionRequestForm.module.scss";
+import classes from "./styles/OptionRequestForm.module.scss";
 
 import { Button, FormControl, RadioGroup } from "@mui/material";
 import clsx from "clsx";
