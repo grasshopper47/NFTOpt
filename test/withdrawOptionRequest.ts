@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { OptionState } from "../src/models/option";
 
-import { buyer, seller, initializer, dummyOptionRequest, publishDummyOptionRequest } from "../src/utils/testing/helpers";
+import { buyer, seller, initializer, dummyOptionRequest, publishDummyOptionRequest } from "./_helpers";
 import { NFTOptContract, deployMainContract } from "../src/utils/deployment";
 
 describe("withdrawOptionRequest", function () {
