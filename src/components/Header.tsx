@@ -7,9 +7,9 @@ import Link from "next/link";
 import clsx from "clsx";
 import Button from "@mui/material/Button";
 import ThemeSwitch from "../fragments/ThemeSwitch.Header";
-import { getAccountDisplayValue } from "../utils/toasting";
 import { useAccount } from "../pages/_app";
 import { connected, connectWallet, network } from "../utils/metamask";
+import { getAccountDisplayValue } from "../utils/frontend/helpers";
 
 type Route =
 {

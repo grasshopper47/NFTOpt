@@ -8,13 +8,14 @@ import { BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { OptionFlavor } from "../models/option";
 import { ethers } from "ethers";
 import { loadNFTImage, imageOf, keyOf } from "../datasources/NFT/localhost";
-import { getFloatString, getIntervalString, showToast } from "../utils/toasting";
+import { showToast } from "../utils/toasting";
 import TextBox_OptionRequestForm from "../fragments/TextBox.OptionRequest";
 import Radio_OptionRequestForm from "../fragments/Radio.OptionRequest";
 import DropDown_OptionRequestForm from "../fragments/DropDown.OptionRequest";
 import { useContracts } from "../pages/_app";
 import { OptionRequest } from "../models/optionRequest";
 import { NFTAsset } from "../models/nftAsset";
+import { getFloatString, getIntervalString } from "../utils/frontend/helpers";
 
 const createRequest = (obj : OptionRequest) =>
 {

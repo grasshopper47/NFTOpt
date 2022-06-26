@@ -5,7 +5,7 @@ import { ArrowBackIosRounded } from "@mui/icons-material";
 import { Button, IconButton } from "@mui/material";
 import { ethers } from "ethers";
 import { account, signer } from "../utils/metamask";
-import { getAccountDisplayValue, dismissLastToast, showToast } from "../utils/toasting";
+import { dismissLastToast, showToast } from "../utils/toasting";
 import {  OptionState, OptionWithAsset } from "../models/option";
 import { ADDRESS0 } from "../utils/constants";
 import { useEffect, useState } from "react";
@@ -14,6 +14,7 @@ import { isExpired } from "../datasources/options";
 import { getCachedContract } from "../datasources/NFT/localhost";
 import { useContracts, useOptionChangingIDs } from "../pages/_app";
 import { flavorLabels } from "../utils/frontend/labels";
+import { getAccountDisplayValue } from "../utils/frontend/helpers";
 
 type OptionDetailsViewProps =
 {
