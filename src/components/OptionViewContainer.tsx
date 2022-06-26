@@ -35,13 +35,6 @@ const tabs : ViewTab[] =
     }
 ];
 
-const defaultOptionsByState =
-{
-    [ViewTabValues.REQUEST] : [] as OptionWithAsset[]
-,   [ViewTabValues.OPEN]    : [] as OptionWithAsset[]
-,   [ViewTabValues.CLOSED]  : [] as OptionWithAsset[]
-};
-
 const viewStates =
 {
     [Views.CARDLIST] : [ "S", "M", "L" ]
@@ -61,18 +54,14 @@ function OptionViewContainer()
     const [ selectedOption , setSelectedOption ] = useState<OptionWithAsset | null>(null);
     const [ checked        , setChecked ]        = useState(false);
 
-    const optionsByState = useRef(defaultOptionsByState);
+    const optionsByState = useRef({});
 
     const options     = useOptions();
     const optionsHash = useOptionsHash();
 
     useEffect
     (
-        () =>
-        {
-            let index = parseInt(localStorage[viewStateStorageKey] ?? 0)
-            setViewStateIndex(index);
-        }
+        () => setViewStateIndex( parseInt(localStorage[viewStateStorageKey] ?? 0) )
     ,   []
     );
 
@@ -82,7 +71,9 @@ function OptionViewContainer()
         {
             if (options.length === 0) return;  // 1st run, skip until options are loaded;
 
-            optionsByState.current = { ...defaultOptionsByState };
+            optionsByState.current[ViewTabValues.REQUEST] = [] as OptionWithAsset[]
+            optionsByState.current[ViewTabValues.OPEN]    = [] as OptionWithAsset[]
+            optionsByState.current[ViewTabValues.CLOSED]  = [] as OptionWithAsset[]
 
             for (let option of options)
             {
