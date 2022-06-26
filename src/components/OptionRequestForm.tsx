@@ -9,11 +9,10 @@ import { NFTAsset, OptionFlavor, OptionRequest } from "../utils/types";
 import { ethers } from "ethers";
 import { loadNFTImage, imageOf, keyOf } from "../datasources/NFT/localhost";
 import { getFloatString, getIntervalString, showToast } from "../utils/frontend";
-import { contracts } from "../utils/blockchain";
 import TextBox_OptionRequestForm from "../fragments/TextBox.OptionRequest";
 import Radio_OptionRequestForm from "../fragments/Radio.OptionRequest";
 import DropDown_OptionRequestForm from "../fragments/DropDown.OptionRequest";
-import { useUpdateOptionsHash } from "../pages/_app";
+import { useContracts, useUpdateOptionsHash } from "../pages/_app";
 
 const defaultRequest = () =>
 {
@@ -33,7 +32,8 @@ function OptionRequestForm()
 
     const [ image, setImage ] = useState("");
 
-    let updateOptionsHash = useUpdateOptionsHash();
+    const contracts         = useContracts();
+    const updateOptionsHash = useUpdateOptionsHash();
 
     const setAsset = (asset? : NFTAsset | null) =>
     {

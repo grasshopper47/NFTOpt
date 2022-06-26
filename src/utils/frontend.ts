@@ -1,5 +1,6 @@
 import toast from "react-hot-toast";
 import { network } from "./metamask";
+import { OptionState } from "./types";
 
 const TOAST_DELAY = 333;
 
@@ -23,6 +24,15 @@ export const flavorLabels =
     "European"
 ,   "American"
 ];
+
+export const events =
+{
+    Published : OptionState.PUBLISHED
+,   Withdrawn : OptionState.WITHDRAWN
+,   Opened    : OptionState.OPEN
+,   Canceled  : OptionState.CANCELED
+,   Exercised : OptionState.EXERCISED
+};
 
 export function getIntervalString(value : string)
 {

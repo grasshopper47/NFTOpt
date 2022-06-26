@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import toast from "react-hot-toast";
-import { blockNumber } from "./blockchain";
 
 // MetaMasK is present if this variable exists
 let _window : Window & { ethereum?: any; };
@@ -61,14 +60,13 @@ export function hookMetamask
 
     if (!window_.ethereum) { console.log("Install MetaMasK"); return; }
 
-    _window = window_;      // Used to expose short-hand accessors like account(), network(), connected()
-
     console.log("MetaMasK init");
+
+    _window = window_;      // Used to expose short-hand accessors like account(), network(), connected()
 
     _setAccount = setAccount;
 
     _provider = new ethers.providers.Web3Provider(_window.ethereum, "any");
-    _provider.getBlockNumber().then(r => blockNumber.current = r);
 
     _window.ethereum.on("chainChanged", handleNetworkChanged);
     _window.ethereum.on('accountsChanged', handleAccountChanged);

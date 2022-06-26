@@ -2,7 +2,11 @@ import { NFTAsset, Option, OptionFlavor, OptionWithAsset, Option_SOLIDITY } from
 import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { account } from "../utils/metamask";
 import { getCachedContract, keyOf, images } from "./NFT/localhost";
-import { contracts } from "../utils/blockchain";
+import { NFTOpt } from "../../typechain-types";
+
+let NFTOpt : NFTOpt;
+
+export const setContract = (contract_) => NFTOpt = contract_;
 
 export let options : OptionWithAsset[] = [];
 
@@ -25,7 +29,7 @@ export function isExpired(option : Option | OptionWithAsset )
 
 async function _getOption(id: number)
 {
-    let optionSolidity = await contracts.NFTOpt.options(id) as unknown as Option_SOLIDITY;
+    let optionSolidity = await NFTOpt.options(id) as unknown as Option_SOLIDITY;
 
     let isValid =
     optionSolidity.buyer !== ADDRESS0
@@ -92,7 +96,7 @@ export async function loadOptionWithAsset(id: number)
 
 export async function loadAllOptionsWithAsset()
 {
-    let optionIDPromise = await contracts.NFTOpt.optionID();
+    let optionIDPromise = await NFTOpt.optionID();
     if (!optionIDPromise) return [];
 
     options = [];

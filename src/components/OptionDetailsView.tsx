@@ -10,10 +10,9 @@ import {  OptionState, OptionWithAsset } from "../utils/types";
 import { ADDRESS0 } from "../utils/constants";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { contracts } from "../utils/blockchain";
 import { isExpired } from "../datasources/options";
 import { getCachedContract } from "../datasources/NFT/localhost";
-import { useOptionChangingIDs } from "../pages/_app";
+import { useContracts, useOptionChangingIDs } from "../pages/_app";
 
 type OptionDetailsViewProps =
 {
@@ -27,6 +26,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
 
     const [ isApproved, setApproved ] = useState(false);
 
+    const contracts         = useContracts();
     const optionChangingIDs = useOptionChangingIDs();
 
     let contract;
