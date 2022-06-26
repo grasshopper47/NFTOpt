@@ -8,7 +8,6 @@ import { OptionState, OptionWithAsset } from "../utils/types";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
 import { useOptions, useOptionsHash } from "../pages/_app";
-import { isLoading } from "../utils/options";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
@@ -185,7 +184,7 @@ function OptionViewContainer()
                     {
                         !viewedOptions.length &&
                         <p className={classes.noOptions}>
-                            { isLoading() ? "Loading Options ..." : "No Options" }
+                            { optionsHash === 0 ? "Loading Options ..." : optionsHash === 1 ? "Done" : "No Options" }
                         </p>
                     }
                     {
