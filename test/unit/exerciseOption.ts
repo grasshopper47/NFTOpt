@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { OptionFlavor } from "../src/models/option";
+import { OptionFlavor } from "../../src/models/option";
 import {
     buyer,
     seller,
@@ -8,9 +8,9 @@ import {
     NFTDummyContract,
     dummyOptionRequest,
     publishDummyOptionRequest,
-} from "./_helpers";
-import { SECONDS_IN_A_DAY } from "../src/utils/constants";
-import { NFTOptContract } from "../src/utils/deployment";
+} from "../helpers";
+import { SECONDS_IN_A_DAY } from "../../src/utils/constants";
+import { NFTOptContract } from "../../src/utils/deployment";
 
 let optionAmerican: any;
 let optionEuropean: any;

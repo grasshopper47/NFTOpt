@@ -1,12 +1,12 @@
 import { expect } from "chai";
-import { NFTOptContract, deployMainContract } from "../src/utils/deployment";
+import { NFTOptContract, deployMainContract } from "../../src/utils/deployment";
 import {
     buyer,
     initializer,
     NFTDummyContract,
     dummyOptionRequest,
     publishDummyOptionRequest,
-} from "./_helpers";
+} from "../helpers";
 
 describe("publishOptionRequest", function () {
     before("prepareEnv", async function () {
