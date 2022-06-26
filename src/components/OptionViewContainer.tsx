@@ -166,8 +166,10 @@ function OptionViewContainer()
                     <div className={clsx(classes.containerGrid, viewedOptions.length ? classes[getViewCSSClass(view, viewState)] : classes.empty)}
                     >
                     {
-                        isLoading() && !viewedOptions.length &&
-                        <p className={classes.noOptions}>Loading Options ...</p>
+                        !viewedOptions.length &&
+                        <p className={classes.noOptions}>
+                            { isLoading() ? "Loading Options ..." : "No Options" }
+                        </p>
                     }
                     {
                         viewedOptions.map
@@ -181,10 +183,6 @@ function OptionViewContainer()
                             />
                         )
                     }
-                    {
-                        !isLoading() && !viewedOptions.length &&
-                        <p className={classes.noOptions}>No Options</p>
-                    }
                     </div>
                 </>
             }
@@ -195,7 +193,7 @@ function OptionViewContainer()
                     <OptionDetailsView
                         key={`option-details-preview-${selectedOption.id}`}
                         option={selectedOption}
-                        showListView={setSelectedOption.bind(null, null)}
+                        showListView={ () => setSelectedOption(null) }
                     />
                 </div>
             }
