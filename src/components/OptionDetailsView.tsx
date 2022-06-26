@@ -4,7 +4,7 @@ import classes from "../styles/components/OptionDetailsView.module.scss";
 import { ArrowBackIosRounded } from "@mui/icons-material";
 import { Button, IconButton } from "@mui/material";
 import { ethers } from "ethers";
-import { account, signer } from "../utils/metamask";
+import { account, signer } from "../utils/frontend/metamask";
 import { dismissLastToast, showToast } from "../utils/toasting";
 import {  OptionState, OptionWithAsset } from "../models/option";
 import { ADDRESS0 } from "../utils/constants";

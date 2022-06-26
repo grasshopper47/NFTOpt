@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { network } from "./metamask";
+import { network } from "./frontend/metamask";
 
 const TOAST_DELAY = 333;
 

@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { AppProps } from "next/app";
 import Header from "../components/Header";
 import toast, { Toaster } from "react-hot-toast";
-import { connected, getSignedContract, hookMetamask, network, provider, setWindow } from "../utils/metamask";
+import { connected, getSignedContract, hookMetamask, network, provider, setWindow } from "../utils/frontend/metamask";
 import { OptionState, OptionWithAsset } from "../models/option";
 import { loadOptionWithAsset, options, setContract } from "../datasources/options";
 import { loadAllOptionsWithAsset } from "../datasources/options";

@@ -1,6 +1,6 @@
 import { Option, OptionFlavor, OptionWithAsset } from "../models/option";
 import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
-import { account } from "../utils/metamask";
+import { account } from "../utils/frontend/metamask";
 import { getCachedContract, keyOf, images } from "./NFT/localhost";
 import { NFTOpt } from "../../typechain-types";
 import { NFTAsset } from "../models/nftAsset";
