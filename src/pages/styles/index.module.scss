@@ -1,0 +1,68 @@
+@import "src/styles/variables.scss";
+
+.root {
+    max-width: 80%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+}
+
+.card {
+    height: 55%;
+    border-radius: 10px;
+    flex: 33%;
+    padding: 60px 30px;
+    box-shadow: 1px 0px 3px rgb(15 23 42 / 14%), 4px 6px 6px rgb(15 23 42 / 10%);
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+
+    &:nth-of-type(1) {
+        background: #b7b7a4;
+        margin-right: 10%;
+        margin-top: -100px;
+    }
+
+    &:nth-of-type(2) {
+        background: #d5c7bc;
+        margin-right: 10%;
+        margin-bottom: -10px;
+    }
+
+    &:nth-of-type(3) {
+        background: #f9dcc4;
+        margin-top: -60px;
+    }
+}
+
+.title {
+    margin-top: 30px;
+    font-size: 24px;
+    font-weight: 800;
+    color: $text-primary;
+}
+
+.description {
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    color: $text-primary;
+}
+
+[data-theme="dark"] {
+    .card {
+        &:nth-of-type(1) {
+            background: rgba(183, 183, 164, 0.4);
+        }
+
+        &:nth-of-type(2) {
+            background: rgba(213, 199, 188, 0.5);
+        }
+
+        &:nth-of-type(3) {
+            background: rgba(249, 220, 196, 0.3);
+        }
+    }
+}

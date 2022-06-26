@@ -1,6 +1,6 @@
 import React from "react";
-import Layout from "../components/Layout";
-import OptionRequestForm from "../components/OptionRequestForm";
+import Layout from "../frontend/components/Layout";
+import OptionRequestForm from "../frontend/components/OptionRequestForm";
 
 function OptionRequestPage()
 {

@@ -1,8 +1,8 @@
 // @ts-ignore
-import classes from "../styles/pages/Team.module.scss";
+import classes from "./styles/team.module.scss";
 
-import Layout from "../components/Layout";
-import {team} from "../utils/team";
+import Layout from "../frontend/components/Layout";
+import {team} from "../datasources/team";
 import Image from "next/image";
 
 function TeamPage() {

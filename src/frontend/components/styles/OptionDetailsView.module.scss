@@ -1,0 +1,176 @@
+@import "src/styles/variables.scss";
+
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.root
+{
+    display: flex;
+    animation: fadeIn 333ms;
+}
+
+.detailsContainer
+{
+    display: flex;
+    width: 100%;
+
+    > div
+    {
+        &:first-of-type
+        {
+            display: flex;
+            flex-direction: column;
+            margin-right: 40px;
+        }
+
+        &:last-of-type
+        {
+            width: 100%;
+        }
+
+        > div
+        {
+            &:nth-of-type(1)
+            {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+            }
+        }
+    }
+
+    img
+    {
+        width: 306px;
+        height: 306px;
+        // background-size: cover;
+        // background-position: center center;
+        border-radius: 10px;
+        box-shadow: 4px 4px 29px rgb(15 23 42 / 14%), 4px -2px 30px rgb(15 23 42 / 10%);
+    }
+}
+
+a.link
+{
+    color: $color-tertiary;
+    font-weight: bold;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    margin-top: 30px;
+    padding-left: 70px;
+
+    svg
+    {
+        margin-left: 6px;
+        opacity: 0;
+        transition: all 333ms ease-in-out;
+    }
+
+    &:hover
+    {
+        svg
+        {
+            opacity: 1;
+        }
+    }
+}
+
+.title
+{
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 0px;
+}
+
+div.field
+{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+
+    > span
+    {
+        &:first-of-type
+        {
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        &:last-of-type
+        {
+            margin-top: 4px;
+            letter-spacing: 0.4px;
+            font-size: 18px;
+            color: $color-primary;
+            font-weight: bold;
+            max-width: 250px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+}
+
+.field
+{
+    span.flavor
+    {
+        color: $color-secondary !important;
+    }
+}
+
+button.goBackBtn
+{
+    border-radius: 6px;
+    border: 2px solid $text-tertiary;
+    color: $text-secondary;
+    width: 36px;
+    height: 36px;
+    margin-right: 30px;
+
+    &:hover
+    {
+        background-color: $color-secondary;
+        color: $text-primary
+    }
+}
+
+.buttonsContainer
+{
+    margin-top: 40px;
+}
+
+button.btnPrimary
+{
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 500;
+
+    background: $color-secondary;
+    &:hover
+    {
+        background: $color-secondary;
+    }
+}
+
+button.btnSecondary
+{
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    color: $text-primary;
+    border-color: $text-secondary;
+    margin-right: 32px;
+    background: $background-tertiary;
+
+    &:hover
+    {
+        border-color: $text-secondary;
+        background: $background-secondary;
+    }
+}
