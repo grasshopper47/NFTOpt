@@ -49,12 +49,14 @@ const viewStates =
 ,   [Views.LISTDETAIL] : [ "25", "50", "100" ]
 }
 
+const viewStateStorageKey = "ListViewState";
+
 export const getViewCSSClass = (view : Views, state : number) => viewStates[view][state];
 
 function OptionViewContainer()
 {
     const [ view           , setView ]           = useState<Views>(Views.CARDLIST);
-    const [ viewState      , setViewState ]      = useState(0);
+    const [ viewStateIndex , setViewStateIndex ] = useState(0);
     const [ activeTabIndex , setActiveTabIndex ] = useState(0);
     const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
     const [ selectedOption , setSelectedOption ] = useState<OptionWithAsset | null>(null);
@@ -64,6 +66,16 @@ function OptionViewContainer()
 
     const options     = useOptions();
     const optionsHash = useOptionsHash();
+
+    useEffect
+    (
+        () =>
+        {
+            let index = parseInt(localStorage[viewStateStorageKey] ?? 0)
+            setViewStateIndex(index);
+        }
+    ,   []
+    );
 
     useEffect
     (
@@ -108,8 +120,13 @@ function OptionViewContainer()
     ,   [selectedOption]
     );
 
-    const onSetTab       = (event: any, index : number) => setActiveTabIndex(index);
-    const onSetViewState = (event: any, index : number) => setViewState(index);
+    const handleTabChanged = (event: any, index : number) => setActiveTabIndex(index);
+
+    const handleViewStateChanged = (event: any, index : number) =>
+    {
+        localStorage[viewStateStorageKey] = index;
+        setViewStateIndex(index);
+    }
 
     return <>
         <p className="page-title">Explore NFT Options</p>
@@ -121,7 +138,7 @@ function OptionViewContainer()
                     <Tabs
                         className={classes.tabs}
                         value={activeTabIndex}
-                        onChange={onSetTab}
+                        onChange={handleTabChanged}
                     >
                     {
                         tabs.map
@@ -139,8 +156,8 @@ function OptionViewContainer()
                         <>
                             <Tabs
                                 className={classes.tabsState}
-                                value={viewState}
-                                onChange={onSetViewState}
+                                value={viewStateIndex}
+                                onChange={handleViewStateChanged}
                             >
                             {
                                 viewStates[view]?.map
@@ -163,7 +180,7 @@ function OptionViewContainer()
                         </>
                     }
 
-                    <div className={clsx(classes.containerGrid, viewedOptions.length ? classes[getViewCSSClass(view, viewState)] : classes.empty)}
+                    <div className={clsx(classes.containerGrid, viewedOptions.length ? classes[getViewCSSClass(view, viewStateIndex)] : classes.empty)}
                     >
                     {
                         !viewedOptions.length &&
@@ -179,7 +196,7 @@ function OptionViewContainer()
                                 key={`option-preview-${activeTabIndex}-${index}`}
                                 option={option}
                                 onViewOptionDetails={setSelectedOption}
-                                view={viewState}
+                                view={viewStateIndex}
                             />
                         )
                     }
