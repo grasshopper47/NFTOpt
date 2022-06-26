@@ -195,8 +195,8 @@ function OptionViewContainer()
                             <OptionListItemView
                                 key={`option-preview-${activeTabIndex}-${index}`}
                                 option={option}
-                                onViewOptionDetails={setSelectedOption}
-                                view={viewStateIndex}
+                                showDetailsView={setSelectedOption}
+                                viewIndex={viewStateIndex}
                             />
                         )
                     }
