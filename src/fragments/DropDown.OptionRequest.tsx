@@ -1,9 +1,9 @@
 // @ts-ignore
-import classes from "../styles/components/OptionRequestForm.module.scss";
+import classes from "../frontend/styles/components/OptionRequestForm.module.scss";
 
 import { Select, MenuItem } from "@mui/material";
 import { assetsOf, keyOf, loadAssetsFor } from "../datasources/NFT/localhost";
-import { NFTAsset } from "../../models/nftAsset";
+import { NFTAsset } from "../models/nftAsset";
 import { useEffect, useState } from "react";
 import { useAccount } from "../pages/_app";
 

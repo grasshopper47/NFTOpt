@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "../styles/components/OptionDetailsView.module.scss";
+import classes from "../frontend/styles/components/OptionDetailsView.module.scss";
 
 import { ArrowBackIosRounded } from "@mui/icons-material";
 import { Button, IconButton } from "@mui/material";

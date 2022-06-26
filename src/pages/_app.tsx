@@ -1,4 +1,4 @@
-import "../styles/pages/_app.scss";
+import "../frontend/styles/pages/_app.scss";
 import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { AppProps } from "next/app";
 import Header from "../components/Header";

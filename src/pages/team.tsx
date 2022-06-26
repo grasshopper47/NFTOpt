@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "../styles/pages/Team.module.scss";
+import classes from "../frontend/styles/pages/Team.module.scss";
 
 import Layout from "../components/Layout";
 import {team} from "../datasources/team";
