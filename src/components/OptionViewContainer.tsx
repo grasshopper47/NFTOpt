@@ -37,7 +37,7 @@ const tabs : ViewTab[] =
 
 const viewStates =
 {
-    [Views.CARDLIST] : [ "S", "M", "L" ]
+    [Views.CARDLIST]   : [ "S", "M", "L" ]
 ,   [Views.LISTDETAIL] : [ "25", "50", "100" ]
 }
 

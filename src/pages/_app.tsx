@@ -10,17 +10,17 @@ import { options } from "../utils/options";
 import { createContractInstance } from "../utils/blockchain";
 import { loadAllOptionsWithAsset } from "../utils/options";
 
-const AccountContext           = createContext("");
 const OptionsHashContext       = createContext(0);
+const AccountContext           = createContext("");
 const OptionsContext           = createContext<OptionWithAsset[]>([]);
-const UpdateOptionsHashContext = createContext( () => {} );
 const OptionChangingIDsContext = createContext<any>({});
+const UpdateOptionsHashContext = createContext( () => {} );
 
+export function useOptionsHash()       { return useContext(OptionsHashContext); }
 export function useAccount()           { return useContext(AccountContext); }
 export function useOptions()           { return useContext(OptionsContext); }
-export function useUpdateOptionsHash() { return useContext(UpdateOptionsHashContext); }
-export function useOptionsHash()       { return useContext(OptionsHashContext); }
 export function useOptionChangingIDs() { return useContext(OptionChangingIDsContext); }
+export function useUpdateOptionsHash() { return useContext(UpdateOptionsHashContext); }
 
 export default function App({ Component, pageProps }: AppProps)
 {

@@ -1,12 +1,14 @@
 import NextDocument, { Head, Html, Main, NextScript } from "next/document";
 
-export default class Document extends NextDocument {
-    render() {
-        return (
+export default class Document extends NextDocument
+{
+    render()
+    {
+        return <>
             <Html>
                 <Head>
                     <title>NFT-OթͲ</title>
-                    <meta name="description" content="NFT-OթͲ is a marketplace for NFT Options. Here you can list your request to hedge NFTs in your collection against floor price downside"></meta>
+                    <meta name="description" content="A lightweight marketplace for NFT Options"></meta>
                     <meta name="viewport" content="initial-scale=1.0, width=device-width" />
                     <link
                         rel="icon"
@@ -18,6 +20,6 @@ export default class Document extends NextDocument {
                     <NextScript />
                 </body>
             </Html>
-        );
+        </>;
     }
 }
