@@ -10,7 +10,7 @@ import {
     dummyOptionRequest,
     publishDummyOptionRequest,
     deployHardHatDummyNFTCollection,
-} from "../src/utils/backend";
+} from "./utils/backend";
 import { SECONDS_IN_A_DAY } from "../src/utils/constants";
 import { deployMainContract, NFTOptContract } from "../src/utils/deployment";
 

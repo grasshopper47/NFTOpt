@@ -6,7 +6,7 @@ import {
     NFTDummyContract,
     dummyOptionRequest,
     publishDummyOptionRequest,
-} from "../src/utils/backend";
+} from "./utils/backend";
 
 describe("publishOptionRequest", function () {
     before("prepareEnv", async function () {
