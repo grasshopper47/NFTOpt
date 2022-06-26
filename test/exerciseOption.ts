@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { OptionFlavor } from "../src/utils/types";
+import { OptionFlavor } from "../src/models/option";
 import {
     buyer,
     seller,

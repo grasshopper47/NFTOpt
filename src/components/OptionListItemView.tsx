@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 import { AccessTime } from "@mui/icons-material";
 import { ethers } from "ethers";
-import { OptionWithAsset } from "../utils/types";
+import { OptionWithAsset } from "../models/option";
 import { getViewCSSClass, Views } from "./OptionViewContainer";
 import { useOptionChangingIDs } from "../pages/_app";
 

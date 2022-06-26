@@ -3,7 +3,7 @@ import classes from "../styles/components/OptionRequestForm.module.scss";
 
 import { Select, MenuItem } from "@mui/material";
 import { assetsOf, keyOf, loadAssetsFor } from "../datasources/NFT/localhost";
-import { NFTAsset } from "../utils/types";
+import { NFTAsset } from "../../models/nftAsset";
 import { useEffect, useState } from "react";
 import { useAccount } from "../pages/_app";
 

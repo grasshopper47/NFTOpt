@@ -1,14 +1,17 @@
-import { NFTAsset, Option, OptionFlavor, OptionWithAsset, Option_SOLIDITY } from "../utils/types";
+import { Option, OptionFlavor, OptionWithAsset } from "../models/option";
 import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { account } from "../utils/metamask";
 import { getCachedContract, keyOf, images } from "./NFT/localhost";
 import { NFTOpt } from "../../typechain-types";
+import { NFTAsset } from "../models/nftAsset";
+
+type Option_SOLIDITY = Omit<Option, "id">;
 
 let NFTOpt : NFTOpt;
 
 export const setContract = (contract_) => NFTOpt = contract_;
 
-export const options : OptionWithAsset[] = [];
+export let options : OptionWithAsset[] = [];
 
 export function isExpired(option : Option | OptionWithAsset )
 {

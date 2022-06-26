@@ -1,4 +1,4 @@
-import { OptionFlavor } from "../utils/types";
+import { OptionFlavor } from "../models/option";
 import { FormControlLabel, Radio } from "@mui/material";
 import { flavorLabels } from "../utils/frontend";
 

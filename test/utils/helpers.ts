@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { ethers } from "hardhat";
-import { Option_SOLIDITY, OptionState, OptionFlavor } from "../../src/utils/types";
+import { Option_SOLIDITY, OptionState, OptionFlavor } from "../../src/models/option";
 import { ADDRESS0, SECONDS_IN_A_DAY } from "../../src/utils/constants";
 import { BigNumber } from "ethers";
 import {

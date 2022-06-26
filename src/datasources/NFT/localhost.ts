@@ -1,8 +1,10 @@
 import { BigNumber } from "ethers";
-import { NFTAsset, OptionRequest, Option } from "../../utils/types";
 import { getSignedContract } from "../../utils/metamask";
 import addresses from "../../../addresses.json";
 import { ABIs, MAX_MINTABLE_TOKENS } from "../../utils/constants";
+import { NFTAsset } from "../../models/nftAsset";
+import { Option } from "../../models/option";
+import { OptionRequest } from "../../models/optionRequest";
 
 const contracts = { };
 

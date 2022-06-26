@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { OptionState } from "../src/utils/types";
+import { OptionState } from "../src/models/option";
 import {
     buyer,
     seller,

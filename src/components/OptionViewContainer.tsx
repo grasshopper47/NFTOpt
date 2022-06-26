@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 import { FormControlLabel, Switch, Tab, Tabs } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import { OptionState, OptionWithAsset } from "../utils/types";
+import { OptionState, OptionWithAsset } from "../models/option";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
 import { useOptions, useOptionsHash } from "../pages/_app";

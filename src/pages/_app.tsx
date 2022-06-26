@@ -4,7 +4,7 @@ import { AppProps } from "next/app";
 import Header from "../components/Header";
 import toast, { Toaster } from "react-hot-toast";
 import { connected, getSignedContract, hookMetamask, network, provider, setWindow } from "../utils/metamask";
-import { OptionState, OptionWithAsset } from "../utils/types";
+import { OptionState, OptionWithAsset } from "../models/option";
 import { loadOptionWithAsset, options, setContract } from "../datasources/options";
 import { loadAllOptionsWithAsset } from "../datasources/options";
 import { NFTOpt } from "../../typechain-types";

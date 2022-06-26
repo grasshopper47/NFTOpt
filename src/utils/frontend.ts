@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
 import { network } from "./metamask";
-import { OptionState } from "./types";
+import { OptionState } from "../models/option";
 
 const TOAST_DELAY = 333;
 
