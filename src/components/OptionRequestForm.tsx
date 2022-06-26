@@ -12,43 +12,43 @@ import { getFloatString, getIntervalString, showToast } from "../utils/frontend"
 import TextBox_OptionRequestForm from "../fragments/TextBox.OptionRequest";
 import Radio_OptionRequestForm from "../fragments/Radio.OptionRequest";
 import DropDown_OptionRequestForm from "../fragments/DropDown.OptionRequest";
-import { useContracts, useUpdateOptionsHash } from "../pages/_app";
+import { useContracts } from "../pages/_app";
 
-const defaultRequest = () =>
+const createRequest = (obj : OptionRequest) =>
 {
-    return {
-        nftContract : ""
-    ,   nftId       : BIGNUMBER0
-    ,   interval    : "1"
-    ,   premium     : "1"
-    ,   strikePrice : "1"
-    ,   flavor      : OptionFlavor.AMERICAN
-    };
+    obj.nftContract = "";
+    obj.nftId       = BIGNUMBER0;
+    obj.interval    = "1";
+    obj.premium     = "1";
+    obj.strikePrice = "1";
+    obj.flavor      = OptionFlavor.AMERICAN;
 }
+
+let request : OptionRequest = { } as OptionRequest;
+createRequest(request);
 
 function OptionRequestForm()
 {
-    const request = useRef<OptionRequest>(defaultRequest());
+    const [ image, setImage ]          = useState("");
+    const [ flag , setRequestChanged ] = useState(0);
+    const requestChanged = () => setRequestChanged(flag ^ 1);
 
-    const [ image, setImage ] = useState("");
-
-    const contracts         = useContracts();
-    const updateOptionsHash = useUpdateOptionsHash();
+    const contracts = useContracts();
 
     const setAsset = (asset? : NFTAsset | null) =>
     {
-        // triggered by dropdown to refresh the image
+        // Triggered by dropdown to refresh the image
         if (asset === undefined)
         {
-            setImage(imageOf(request.current));
+            setImage(imageOf(request));
 
             return;
         }
 
         if (asset === null)
         {
-            request.current.nftId       = BIGNUMBER0;
-            request.current.nftContract = "";
+            request.nftId       = BIGNUMBER0;
+            request.nftContract = "";
 
             setImage("");
 
@@ -57,32 +57,32 @@ function OptionRequestForm()
 
         console.log("setAsset");
 
-        request.current.nftId       = asset.nftId;
-        request.current.nftContract = asset.nftContract;
+        request.nftId       = asset.nftId;
+        request.nftContract = asset.nftContract;
 
-        let image = imageOf(request.current);
+        let image = imageOf(request);
 
         if (image) setImage(image);
-        else       loadNFTImage(request.current.nftContract, request.current.nftId).then(setImage);
+        else       loadNFTImage(request.nftContract, request.nftId).then(setImage);
     };
 
     const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
         // setRequestState( prev => ({ ...prev, [event.target.id] : getFloatString(event.target.value) }) );
 
-        request.current[event.target.id] = getFloatString(event.target.value); updateOptionsHash();
+        request[event.target.id] = getFloatString(event.target.value); requestChanged();
     };
 
     const setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
         // setRequestState( prev => ({ ...prev, interval : getIntervalString(event.target.value) }) );
 
-        request.current.interval = getIntervalString(event.target.value); updateOptionsHash();
+        request.interval = getIntervalString(event.target.value); requestChanged();
     };
 
     const setFlavor = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
-        request.current.flavor = parseInt(event.target.value) as OptionFlavor;
+        request.flavor = parseInt(event.target.value) as OptionFlavor; requestChanged();
     };
 
     const onPublishRequest = () =>
@@ -91,16 +91,16 @@ function OptionRequestForm()
         (
             contracts.NFTOpt.publishOptionRequest
             (
-                request.current.nftContract
-            ,   request.current.nftId
-            ,   ethers.utils.parseEther(request.current.strikePrice)
-            ,   parseInt(request.current.interval) * SECONDS_IN_A_DAY
-            ,   request.current.flavor
-            ,   { value: ethers.utils.parseEther(request.current.premium) }
+                request.nftContract
+            ,   request.nftId
+            ,   ethers.utils.parseEther(request.strikePrice)
+            ,   parseInt(request.interval) * SECONDS_IN_A_DAY
+            ,   request.flavor
+            ,   { value: ethers.utils.parseEther(request.premium) }
             )
             // .then(() => setRequestState({...defaultRequest}))
-            .then( () => request.current = defaultRequest() )
-            .then(updateOptionsHash)
+            .then( () => createRequest(request) )
+            // .then(updateOptionsHash)
         );
     };
 
@@ -112,16 +112,16 @@ function OptionRequestForm()
         <div className={classes.root}>
             <div className={classes.form}>
 
-                <DropDown_OptionRequestForm value={keyOf(request.current)} setAsset={setAsset}/>
+                <DropDown_OptionRequestForm value={keyOf(request)} setAsset={setAsset}/>
 
-                <TextBox_OptionRequestForm fieldName="premium"     value={request.current.premium}     onChange={setAmount}   />
-                <TextBox_OptionRequestForm fieldName="strikePrice" value={request.current.strikePrice} onChange={setAmount}   />
-                <TextBox_OptionRequestForm fieldName="interval"    value={request.current.interval}    onChange={setInterval} />
+                <TextBox_OptionRequestForm fieldName="premium"     value={request.premium}     onChange={setAmount}   />
+                <TextBox_OptionRequestForm fieldName="strikePrice" value={request.strikePrice} onChange={setAmount}   />
+                <TextBox_OptionRequestForm fieldName="interval"    value={request.interval}    onChange={setInterval} />
 
                 <FormControl className={classes.field}>
                     <RadioGroup defaultValue={OptionFlavor.AMERICAN}>
-                        <Radio_OptionRequestForm flavor={OptionFlavor.AMERICAN} onChange={setFlavor} />
-                        <Radio_OptionRequestForm flavor={OptionFlavor.EUROPEAN} onChange={setFlavor} />
+                        <Radio_OptionRequestForm flavor={OptionFlavor.AMERICAN} value={request.flavor} onChange={setFlavor} />
+                        <Radio_OptionRequestForm flavor={OptionFlavor.EUROPEAN} value={request.flavor} onChange={setFlavor} />
                     </RadioGroup>
                 </FormControl>
 
@@ -131,10 +131,10 @@ function OptionRequestForm()
                     onClick={onPublishRequest}
                     disabled=
                     {
-                        request.current.nftContract    === ""
-                        || request.current.premium     === ""
-                        || request.current.strikePrice === ""
-                        || request.current.interval    === ""
+                        request.nftContract    === ""
+                        || request.premium     === ""
+                        || request.strikePrice === ""
+                        || request.interval    === ""
                     }
                 >
                     Publish Request
@@ -142,8 +142,8 @@ function OptionRequestForm()
 
             </div>
 
-            <div className={clsx(classes.imageContainer, !request.current.nftContract && classes.dummyImageContainer)}>
-                { request.current.nftContract ? <img src={image} alt="NFT image data"/> : create3Dots() }
+            <div className={clsx(classes.imageContainer, !request.nftContract && classes.dummyImageContainer)}>
+                { request.nftContract ? <img src={image} alt="NFT image data"/> : create3Dots() }
             </div>
         </div>
     </>;

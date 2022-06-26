@@ -5,6 +5,7 @@ import { flavorLabels } from "../utils/frontend";
 type Props =
 {
     flavor    : OptionFlavor
+,   value     : number
 ,   onChange ?: any
 };
 
@@ -17,7 +18,7 @@ export default function(props: Props)
             key={`radio-${name}`}
             label={name}
             value={props.flavor}
-            control={<Radio />}
+            control={<Radio checked={props.flavor === props.value} />}
             onChange={props.onChange}
         />
     </>;

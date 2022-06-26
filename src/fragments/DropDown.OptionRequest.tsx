@@ -16,7 +16,7 @@ type Props =
 export default function(props: Props)
 {
     const [ assets, setAssets ] = useState<NFTAsset[]>([]);
-    const [ selectedValue, setSelectedValue ] = useState(props.value);
+    const [ selectedValue, setSelectedValue ] = useState("0_");
 
     const account = useAccount();
 
