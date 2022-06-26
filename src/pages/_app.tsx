@@ -10,7 +10,7 @@ import { loadAllOptionsWithAsset } from "../datasources/options";
 import { NFTOpt } from "../../typechain-types";
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
 import addresses from "../../addresses.json";
-import { dismissLastToast, TOAST_DURATION } from "../utils/toasting";
+import { dismissLastToast, TOAST_DURATION } from "../utils/frontend/toasting";
 import { BigNumber } from "ethers";
 import { actionLabels, events } from "../utils/frontend/labels";
 
