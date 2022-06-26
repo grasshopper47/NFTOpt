@@ -10,23 +10,24 @@ import { options } from "../utils/options";
 import { createContractInstance } from "../utils/blockchain";
 import { loadAllOptionsWithAsset } from "../utils/options";
 
-export const AccountContext = createContext("");
-export const OptionsHashContext = createContext(0);
-export const OptionsContext = createContext<OptionWithAsset[]>([]);
-export const UpdateOptionsHashContext = createContext( () => {} );
-export const OptionsWithIDChangingContext = createContext<number[]>([]);
+const AccountContext = createContext("");
+const OptionsHashContext = createContext(0);
+const OptionsContext = createContext<OptionWithAsset[]>([]);
+const UpdateOptionsHashContext = createContext( () => {} );
+const OptionsWithIDChangingContext = createContext<number[]>([]);
 
 export function useAccount() { return useContext(AccountContext); }
 export function useOptions() { return useContext(OptionsContext); }
-export function useupdateOptionsHash() { return useContext(UpdateOptionsHashContext); }
+export function useUpdateOptionsHash() { return useContext(UpdateOptionsHashContext); }
 export function useOptionsHash() { return useContext(OptionsHashContext); }
 export function useOptionsWithIDChanging() { return useContext(OptionsWithIDChangingContext); }
 
 export default function App({ Component, pageProps }: AppProps)
 {
+    const [, setOptionsHash ] = useState(0);
+
     const optionIDs = useRef([]);
     const optionsHash = useRef(0);
-    const [, setOptionsHash ] = useState(0);
 
     function updateOptionsHash(id : number | never[] | void = undefined)
     {
@@ -40,7 +41,7 @@ export default function App({ Component, pageProps }: AppProps)
 
     useEffect
     (
-        () => { optionIDs.current = []; hookMetamask(window, setAccount); }
+        () => hookMetamask(window, setAccount)
     ,   []
     );
 

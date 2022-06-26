@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { AccessTime } from "@mui/icons-material";
 import { ethers } from "ethers";
 import { OptionWithAsset } from "../utils/types";
-import { getViewClass, Views } from "./OptionViewContainer";
+import { getViewCSSClass, Views } from "./OptionViewContainer";
 import { useOptionsWithIDChanging } from "../pages/_app";
 
 type OptionListItemViewProps =
@@ -15,9 +15,9 @@ type OptionListItemViewProps =
 ,   view : number
 };
 
-function getViewClassListItem(view : number)
+function getViewCSSClassListItem(view : number)
 {
-    return classes[getViewClass(Views.CARDLIST, view)];
+    return classes[getViewCSSClass(Views.CARDLIST, view)];
 }
 
 function OptionListItemView(props: OptionListItemViewProps)
@@ -33,7 +33,7 @@ function OptionListItemView(props: OptionListItemViewProps)
                 clsx
                 (
                     classes.card
-                ,   getViewClassListItem(view)
+                ,   getViewCSSClassListItem(view)
                 ,   optionIDs.filter(o => o === option.id).length !== 0 && classes.changing
                 )
             }
@@ -41,26 +41,26 @@ function OptionListItemView(props: OptionListItemViewProps)
         >
             <img
                 style={{ backgroundImage: `url(${option.asset.image})`}}
-                className={getViewClassListItem(view)}
+                className={getViewCSSClassListItem(view)}
                 alt=""
             />
 
-            <div className={clsx(classes.content, getViewClassListItem(view))}>
-                <p className={clsx(classes.title, getViewClassListItem(view))}>
+            <div className={clsx(classes.content, getViewCSSClassListItem(view))}>
+                <p className={clsx(classes.title, getViewCSSClassListItem(view))}>
                     #{option.id + 1}
                 </p>
 
-                <p className={clsx(classes.title, getViewClassListItem(view))}>
+                <p className={clsx(classes.title, getViewCSSClassListItem(view))}>
                     {option.asset.name}
                 </p>
 
-                <div className={clsx(classes.moreInfoContainer, getViewClassListItem(view))}>
-                    <p className={getViewClassListItem(view)}>
+                <div className={clsx(classes.moreInfoContainer, getViewCSSClassListItem(view))}>
+                    <p className={getViewCSSClassListItem(view)}>
                         {ethers.utils.formatEther(option.strikePrice)} ETH
                     </p>
 
-                    <p className={getViewClassListItem(view)}>
-                        <AccessTime className={getViewClassListItem(view)} />
+                    <p className={getViewCSSClassListItem(view)}>
+                        <AccessTime className={getViewCSSClassListItem(view)} />
                         <span>
                             {option.interval} day{option.interval > 1 && "s"}
                         </span>

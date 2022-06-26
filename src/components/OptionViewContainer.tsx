@@ -3,37 +3,45 @@ import classes from "../styles/components/OptionViewContainer.module.scss";
 import clsx from "clsx";
 
 import { FormControlLabel, Switch, Tab, Tabs } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { OptionState, OptionWithAsset } from "../utils/types";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
 import { useOptions, useOptionsHash } from "../pages/_app";
-import { account } from "../utils/metamask";
 import { isLoading } from "../utils/options";
+
+enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
 export enum Views { CARDLIST, DETAIL, LISTDETAIL };
 
 type ViewTab =
 {
-    name  : string;
-    value : OptionState;
+    name  : string
+,   value : ViewTabValues
 };
 
-const tabs: ViewTab[] =
+const tabs : ViewTab[] =
 [
     {
-        name  : "Requests",
-        value : OptionState.PUBLISHED,
-    },
-    {
-        name  : "Open",
-        value : OptionState.OPEN,
-    },
-    {
-        name  : "Closed",
-        value : OptionState.CANCELED,
-    },
+        name  : "Requests"
+    ,   value : ViewTabValues.REQUEST
+    }
+,   {
+        name  : "Open"
+    ,   value : ViewTabValues.OPEN
+    }
+,   {
+        name  : "Closed"
+    ,   value : ViewTabValues.CLOSED
+    }
 ];
+
+const defaultOptionsByState =
+{
+    [ViewTabValues.REQUEST] : [] as OptionWithAsset[]
+,   [ViewTabValues.OPEN]    : [] as OptionWithAsset[]
+,   [ViewTabValues.CLOSED]  : [] as OptionWithAsset[]
+};
 
 const viewStates =
 {
@@ -41,50 +49,53 @@ const viewStates =
 ,   [Views.LISTDETAIL] : [ "25", "50", "100" ]
 }
 
-export function getViewClass(view : Views, state : number)
-{
-    return viewStates[view][state];
-}
+export const getViewCSSClass = (view : Views, state : number) => viewStates[view][state];
 
 function OptionViewContainer()
 {
-    const [ view, setView ] = useState<Views>(Views.CARDLIST);
-    const [ viewState, setViewState ] = useState(0);
-    const [ activeTabIndex, setActiveTabIndex ] = useState(0);
-    const [ viewedOptions, setViewedOptions ] = useState<OptionWithAsset[]>([]);
-    const [ selectedOption, setSelectedOption ] = useState<OptionWithAsset | null>(null);
-    const [ checked, setChecked ] = useState(false);
+    const [ view           , setView ]           = useState<Views>(Views.CARDLIST);
+    const [ viewState      , setViewState ]      = useState(0);
+    const [ activeTabIndex , setActiveTabIndex ] = useState(0);
+    const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
+    const [ selectedOption , setSelectedOption ] = useState<OptionWithAsset | null>(null);
+    const [ checked        , setChecked ]        = useState(false);
 
-    const options = useOptions();
+    const optionsByState = useRef(defaultOptionsByState);
+
+    const options     = useOptions();
     const optionsHash = useOptionsHash();
 
     useEffect
     (
         () =>
         {
-            setViewedOptions
-            (
-                options.filter
-                (
-                    (option : OptionWithAsset) =>
-                    {
-                        let state = tabs[activeTabIndex].value;
+            if (options.length === 0) return;  // 1st run, skip until options are loaded;
 
-                        let cond : boolean;
+            optionsByState.current = { ...defaultOptionsByState };
 
-                        if (state === OptionState.CANCELED)
-                            cond = option.state === OptionState.WITHDRAWN || option.state === OptionState.CANCELED;
-                        else
-                            cond = option.state === state;
+            for (let option of options)
+            {
+                if (option.state === OptionState.PUBLISHED) { optionsByState.current[ViewTabValues.REQUEST].push(option); continue; }
+                if (option.state === OptionState.OPEN)      { optionsByState.current[ViewTabValues.OPEN].push(option); continue; }
 
-                        if (checked) cond = cond && (option.buyer === account() || option.seller === account());
+                optionsByState.current[ViewTabValues.CLOSED].push(option);
 
-                        return cond;
-                    }
-                )
-            );
+            }
+
+            setViewedOptions(optionsByState.current[tabs[activeTabIndex].value]);
         }
-    ,   [optionsHash, activeTabIndex]
+    ,   [optionsHash]
+    );
+
+    useEffect
+    (
+        () =>
+        {
+            if (options.length === 0) return;  // 1st run, skip until options are loaded
+
+            setViewedOptions(optionsByState.current[tabs[activeTabIndex].value]);
+        }
+    ,   [activeTabIndex]
     );
 
     useEffect
@@ -152,7 +163,7 @@ function OptionViewContainer()
                         </>
                     }
 
-                    <div className={clsx(classes.containerGrid, viewedOptions.length ? classes[getViewClass(view, viewState)] : classes.empty)}
+                    <div className={clsx(classes.containerGrid, viewedOptions.length ? classes[getViewCSSClass(view, viewState)] : classes.empty)}
                     >
                     {
                         isLoading() && !viewedOptions.length &&

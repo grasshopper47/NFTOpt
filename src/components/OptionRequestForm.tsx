@@ -13,7 +13,7 @@ import { contracts } from "../utils/blockchain";
 import TextBox_OptionRequestForm from "../fragments/TextBox.OptionRequest";
 import Radio_OptionRequestForm from "../fragments/Radio.OptionRequest";
 import DropDown_OptionRequestForm from "../fragments/DropDown.OptionRequest";
-import { useupdateOptionsHash } from "../pages/_app";
+import { useUpdateOptionsHash } from "../pages/_app";
 
 const defaultRequest =
 {
@@ -31,7 +31,7 @@ function OptionRequestForm()
 
     const [ image, setImage ] = useState("");
 
-    let updateOptionsHash = useupdateOptionsHash();
+    let updateOptionsHash = useUpdateOptionsHash();
 
     const setAsset = (asset? : NFTAsset | null) =>
     {
@@ -102,6 +102,8 @@ function OptionRequestForm()
         );
     };
 
+    const create3Dots = () => [0, 0, 0].map( (_, i) => <div key={`dot-${i}`} className={classes.dot} /> );
+
     return <>
         <p className="page-title">Request a PUT Option</p>
 
@@ -139,11 +141,7 @@ function OptionRequestForm()
             </div>
 
             <div className={clsx(classes.imageContainer, !request.current.nftContract && classes.dummyImageContainer)}>
-            {
-                request.current.nftContract
-                ?   <img src={image} alt="NFT image data" />
-                :   Array.from({ length: 3 }).map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
-            }
+                { request.current.nftContract ? <img src={image} alt="NFT image data"/> : create3Dots() }
             </div>
         </div>
     </>;
