@@ -1,7 +1,7 @@
+import { ethers } from "hardhat";
 import { expect } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { ethers } from "hardhat";
-import { Option_SOLIDITY, OptionState, OptionFlavor } from "../../models/option";
+import { Option, OptionState, OptionFlavor } from "../../models/option";
 import { ADDRESS0, SECONDS_IN_A_DAY } from "../constants";
 import { BigNumber } from "ethers";
 import {
@@ -17,7 +17,7 @@ export let buyer: SignerWithAddress;
 export let seller: SignerWithAddress;
 export let nonParticipant: SignerWithAddress;
 
-export let dummyOptionRequest: Option_SOLIDITY;
+export let dummyOptionRequest: Option;
 export let NFTDummyContract: ERC721;
 
 export async function deployHardHatDummyNFTCollection()
@@ -35,7 +35,8 @@ export const initializer = async () =>
 
     dummyOptionRequest =
     {
-        buyer       : buyer.address
+        id          : -1            // not used
+    ,   buyer       : buyer.address
     ,   seller      : ADDRESS0
     ,   nftContract : ""
     ,   nftId       : BigNumber.from(1)
