@@ -8,7 +8,7 @@ import {
     NFTDummyContract,
     dummyOptionRequest,
     publishDummyOptionRequest,
-} from "./utils/backend";
+} from "./utils/helpers";
 import { SECONDS_IN_A_DAY } from "../src/utils/constants";
 import { NFTOptContract } from "../src/utils/deployment";
 
