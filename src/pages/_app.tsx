@@ -10,23 +10,23 @@ import { options } from "../utils/options";
 import { createContractInstance } from "../utils/blockchain";
 import { loadAllOptionsWithAsset } from "../utils/options";
 
-const AccountContext = createContext("");
-const OptionsHashContext = createContext(0);
-const OptionsContext = createContext<OptionWithAsset[]>([]);
+const AccountContext           = createContext("");
+const OptionsHashContext       = createContext(0);
+const OptionsContext           = createContext<OptionWithAsset[]>([]);
 const UpdateOptionsHashContext = createContext( () => {} );
 const OptionChangingIDsContext = createContext<any>({});
 
-export function useAccount() { return useContext(AccountContext); }
-export function useOptions() { return useContext(OptionsContext); }
+export function useAccount()           { return useContext(AccountContext); }
+export function useOptions()           { return useContext(OptionsContext); }
 export function useUpdateOptionsHash() { return useContext(UpdateOptionsHashContext); }
-export function useOptionsHash() { return useContext(OptionsHashContext); }
+export function useOptionsHash()       { return useContext(OptionsHashContext); }
 export function useOptionChangingIDs() { return useContext(OptionChangingIDsContext); }
 
 export default function App({ Component, pageProps }: AppProps)
 {
     const [, setOptionsHash ] = useState(0);
 
-    const optionIDs = useRef([]);
+    const optionIDs   = useRef([]);
     const optionsHash = useRef(0);
 
     function updateOptionsHash(id : number | never[] | void = undefined)
@@ -62,13 +62,13 @@ export default function App({ Component, pageProps }: AppProps)
     return <>
         <Toaster containerClassName={"toast-container"} />
 
-        <AccountContext.Provider value={account}>
-        <OptionsContext.Provider value={options}>
-        <OptionsHashContext.Provider value={optionsHash.current}>
+        <AccountContext.Provider           value={account}>
+        <OptionsContext.Provider           value={options}>
+        <OptionsHashContext.Provider       value={optionsHash.current}>
         <UpdateOptionsHashContext.Provider value={updateOptionsHash}>
         <OptionChangingIDsContext.Provider value={optionIDs.current}>
             <Header/>
-            { connected() ? <Component {...pageProps} /> : <></> }
+            { connected() && <Component {...pageProps} /> }
         </OptionChangingIDsContext.Provider>
         </UpdateOptionsHashContext.Provider>
         </OptionsHashContext.Provider>
