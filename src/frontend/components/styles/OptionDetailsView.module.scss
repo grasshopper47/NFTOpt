@@ -46,8 +46,6 @@
     {
         width: 306px;
         height: 306px;
-        // background-size: cover;
-        // background-position: center center;
         border-radius: 10px;
         box-shadow: 4px 4px 29px rgb(15 23 42 / 14%), 4px -2px 30px rgb(15 23 42 / 10%);
     }
@@ -55,14 +53,14 @@
 
 a.link
 {
-    color: $color-tertiary;
+    color: $text-primary;
     font-weight: bold;
     text-decoration: none;
     display: flex;
     align-items: center;
-    font-size: 18px;
-    margin-top: 30px;
-    padding-left: 70px;
+    margin-top: 4px;
+    font-size:17px;
+    text-shadow: 1px 2px rgb(25 25 25 / 60%);
 
     svg
     {
@@ -73,18 +71,18 @@ a.link
 
     &:hover
     {
-        svg
-        {
-            opacity: 1;
-        }
+        color: $color-tertiary;
     }
 }
 
 .title
 {
     font-size: 22px;
+    text-shadow: 2px 2px rgb(25 25 25 / 80%);
+
     font-weight: bold;
     margin-top: 0px;
+    color: $text-secondary
 }
 
 div.field
@@ -103,6 +101,7 @@ div.field
 
         &:last-of-type
         {
+            text-shadow: 2px 1px rgb(25 25 25 / 60%);
             margin-top: 4px;
             letter-spacing: 0.4px;
             font-size: 18px;
