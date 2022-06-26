@@ -13,7 +13,7 @@ export default function(props: Props)
     return <>
         <div className={classes.field}>
             <span>{props.label}</span>
-            <span { ... props.className && { className: props.className } }>{props.value}</span>
+            <span { ... props.className && { className: classes[props.className] } }>{props.value}</span>
         </div>
     </>;
 }

@@ -125,25 +125,25 @@ function OptionDetailsView(props: OptionDetailsViewProps)
                     <img src={option.asset.image} alt="NFT Image" />
                 </div>
 
-                <div>
+                <div className={classes.detailsSub}>
                     <p className={classes.title}>{option.asset.name}</p>
 
                     <div>
                         <div>
                             <FieldLink_OptionDetailsView label="NFT contract" value={option.asset.nftContract} />
                             <Field_OptionDetailsView     label="NFT token"    value={option.asset.nftId.toString()} />
-                            <Field_OptionDetailsView     label="Premium"      value={ethers.utils.formatEther(option.premium)} />
-                            <Field_OptionDetailsView     label="Strike Price" value={ethers.utils.formatEther(option.strikePrice)} />
-                        </div>
-
-                        <div>
-                            <Field_OptionDetailsView     label="Expiration"   value={ `${option.interval} day${option.interval > 1 ? 's' : ''}` } />
-                            <Field_OptionDetailsView     label="Style"        value={flavorLabels[option.flavor]} className="flavor"/>
                             <FieldLink_OptionDetailsView label="Buyer"        value={option.buyer} />
                             {
                                 option.seller !== ADDRESS0 &&
                                 <FieldLink_OptionDetailsView label="Seller"   value={option.seller} />
                             }
+                        </div>
+
+                        <div>
+                            <Field_OptionDetailsView     label="Premium"      value={ethers.utils.formatEther(option.premium)} />
+                            <Field_OptionDetailsView     label="Strike Price" value={ethers.utils.formatEther(option.strikePrice)} />
+                            <Field_OptionDetailsView     label="Expiration"   value={ `${option.interval} day${option.interval > 1 ? 's' : ''}` } />
+                            <Field_OptionDetailsView     label="Style"        value={flavorLabels[option.flavor]} className="flavor"/>
                         </div>
                     </div>
 
