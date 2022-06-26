@@ -14,13 +14,13 @@ const AccountContext = createContext("");
 const OptionsHashContext = createContext(0);
 const OptionsContext = createContext<OptionWithAsset[]>([]);
 const UpdateOptionsHashContext = createContext( () => {} );
-const OptionsWithIDChangingContext = createContext<number[]>([]);
+const OptionChangingIDsContext = createContext<any>({});
 
 export function useAccount() { return useContext(AccountContext); }
 export function useOptions() { return useContext(OptionsContext); }
 export function useUpdateOptionsHash() { return useContext(UpdateOptionsHashContext); }
 export function useOptionsHash() { return useContext(OptionsHashContext); }
-export function useOptionsWithIDChanging() { return useContext(OptionsWithIDChangingContext); }
+export function useOptionChangingIDs() { return useContext(OptionChangingIDsContext); }
 
 export default function App({ Component, pageProps }: AppProps)
 {
@@ -31,7 +31,7 @@ export default function App({ Component, pageProps }: AppProps)
 
     function updateOptionsHash(id : number | never[] | void = undefined)
     {
-        if (id != undefined) optionIDs.current = optionIDs.current.filter( o => o !== id );
+        if (id != undefined) optionIDs.current[id.toString()] = undefined;
 
         ++optionsHash.current;
         setOptionsHash(optionsHash.current);
@@ -66,10 +66,10 @@ export default function App({ Component, pageProps }: AppProps)
         <OptionsContext.Provider value={options}>
         <OptionsHashContext.Provider value={optionsHash.current}>
         <UpdateOptionsHashContext.Provider value={updateOptionsHash}>
-        <OptionsWithIDChangingContext.Provider value={optionIDs.current}>
+        <OptionChangingIDsContext.Provider value={optionIDs.current}>
             <Header/>
             { connected() ? <Component {...pageProps} /> : <></> }
-        </OptionsWithIDChangingContext.Provider>
+        </OptionChangingIDsContext.Provider>
         </UpdateOptionsHashContext.Provider>
         </OptionsHashContext.Provider>
         </OptionsContext.Provider>

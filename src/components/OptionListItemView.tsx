@@ -6,7 +6,7 @@ import { AccessTime } from "@mui/icons-material";
 import { ethers } from "ethers";
 import { OptionWithAsset } from "../utils/types";
 import { getViewCSSClass, Views } from "./OptionViewContainer";
-import { useOptionsWithIDChanging } from "../pages/_app";
+import { useOptionChangingIDs } from "../pages/_app";
 
 type OptionListItemViewProps =
 {
@@ -19,7 +19,7 @@ function OptionListItemView(props: OptionListItemViewProps)
 {
     const { option, viewIndex } = props;
 
-    const optionIDs = useOptionsWithIDChanging();
+    const optionChangingIDs = useOptionChangingIDs();
 
     const viewCSSClass = classes[getViewCSSClass(Views.CARDLIST, viewIndex)];
 
@@ -31,7 +31,7 @@ function OptionListItemView(props: OptionListItemViewProps)
                 (
                     classes.card
                 ,   viewCSSClass
-                ,   optionIDs.filter(o => o === option.id).length !== 0 && classes.changing
+                ,   optionChangingIDs[option.id] && classes.changing
                 )
             }
             onClick={ () => props.showDetailsView(option) }
