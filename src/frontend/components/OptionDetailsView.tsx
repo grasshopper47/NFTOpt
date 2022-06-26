@@ -137,7 +137,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
                         </div>
 
                         <div>
-                            <Field_OptionDetailsView     label="Expiration"   value={ `${option.interval} day${option.interval > 1 && 's'}` } />
+                            <Field_OptionDetailsView     label="Expiration"   value={ `${option.interval} day${option.interval > 1 ? 's' : ''}` } />
                             <Field_OptionDetailsView     label="Style"        value={flavorLabels[option.flavor]} className="flavor"/>
                             <FieldLink_OptionDetailsView label="Buyer"        value={option.buyer} />
                             {
