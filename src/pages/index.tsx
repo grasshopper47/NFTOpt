@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/LandingPage.module.scss";
+import classes from "./styles/index.module.scss";
 
 import Image from "next/image";
 import Layout from "../frontend/components/Layout";
