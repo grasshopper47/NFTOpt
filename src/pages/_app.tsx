@@ -18,14 +18,12 @@ const AccountContext           = createContext("");
 const ContractsContext         = createContext<{ NFTOpt : NFTOpt }>({ NFTOpt: null as unknown as NFTOpt });
 const OptionsContext           = createContext<OptionWithAsset[]>([]);
 const OptionChangingIDsContext = createContext<any>({});
-const UpdateOptionsHashContext = createContext( () => {} );
 
 export function useOptionsHash()       { return useContext(OptionsHashContext); }
 export function useAccount()           { return useContext(AccountContext); }
 export function useContracts()         { return useContext(ContractsContext); }
 export function useOptions()           { return useContext(OptionsContext); }
 export function useOptionChangingIDs() { return useContext(OptionChangingIDsContext); }
-export function useUpdateOptionsHash() { return useContext(UpdateOptionsHashContext); }
 
 export default function App({ Component, pageProps }: AppProps)
 {
@@ -131,12 +129,10 @@ export default function App({ Component, pageProps }: AppProps)
         <ContractsContext.Provider         value={contracts.current}>
         <OptionsContext.Provider           value={options}>
         <OptionsHashContext.Provider       value={optionsHash.current}>
-        <UpdateOptionsHashContext.Provider value={updateOptionsHash}>
         <OptionChangingIDsContext.Provider value={optionChangingIDs.current}>
             <Header/>
             { connected() && <Component {...pageProps} /> }
         </OptionChangingIDsContext.Provider>
-        </UpdateOptionsHashContext.Provider>
         </OptionsHashContext.Provider>
         </OptionsContext.Provider>
         </ContractsContext.Provider>
