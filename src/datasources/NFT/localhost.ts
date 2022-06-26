@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { getSignedContract } from "../../utils/frontend/metamask";
+import { getSignedContract } from "../../frontend/utils/metamask";
 import addresses from "../../../addresses.json";
 import { ABIs, MAX_MINTABLE_TOKENS } from "../../utils/constants";
 import { NFTAsset } from "../../models/nftAsset";

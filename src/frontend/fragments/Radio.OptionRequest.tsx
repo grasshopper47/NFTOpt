@@ -1,6 +1,6 @@
 import { FormControlLabel, Radio } from "@mui/material";
 import { OptionFlavor } from "../../models/option";
-import { flavorLabels } from "../../utils/frontend/labels";
+import { flavorLabels } from "../utils/labels";
 
 type Props =
 {

@@ -8,8 +8,8 @@ import clsx from "clsx";
 import Button from "@mui/material/Button";
 import ThemeSwitch from "../fragments/ThemeSwitch.Header";
 import { useAccount } from "../../pages/_app";
-import { connected, connectWallet, network } from "../../utils/frontend/metamask";
-import { getAccountDisplayValue } from "../../utils/frontend/helpers";
+import { connected, connectWallet, network } from "../utils/metamask";
+import { getAccountDisplayValue } from "../utils/helpers";
 
 type Route =
 {
