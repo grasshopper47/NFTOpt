@@ -1,6 +1,7 @@
 // @ts-ignore
 import classes from "./styles/OptionDetailsView.module.scss";
 
+import { scanner } from "../utils/metamask";
 import { ArrowBackIosRounded } from "@mui/icons-material";
 import { Button, IconButton } from "@mui/material";
 import { ethers } from "ethers";
@@ -145,7 +146,11 @@ function OptionDetailsView(props: OptionDetailsViewProps)
                         <div>
                             <div className={classes.field}>
                                 <span>NFT contract</span>
-                                <span>{getAccountDisplayValue(option.asset.nftContract)}</span>
+                                <a  target="_blank"
+                                    href={`${scanner()}/address/${option.asset.nftContract}`}
+                                >
+                                    {getAccountDisplayValue(option.asset.nftContract)}
+                                </a>
                             </div>
 
                             <div className={classes.field}>
@@ -177,14 +182,22 @@ function OptionDetailsView(props: OptionDetailsViewProps)
 
                             <div className={classes.field}>
                                 <span>Buyer</span>
-                                <span>{getAccountDisplayValue(option.buyer)}</span>
+                                <a  target="_blank"
+                                    href={`${scanner()}/address/${option.buyer}`}
+                                >
+                                    {getAccountDisplayValue(option.buyer)}
+                                </a>
                             </div>
                             {
-                                option.seller !== ADDRESS0
-                                &&  <div className={classes.field}>
-                                        <span>Seller</span>
-                                        <span>{getAccountDisplayValue(option.seller)}</span>
-                                    </div>
+                                option.seller !== ADDRESS0 &&
+                                <div className={classes.field}>
+                                    <span>Seller</span>
+                                    <a  target="_blank"
+                                        href={`${scanner()}/address/${option.seller}`}
+                                    >
+                                        {getAccountDisplayValue(option.seller)}
+                                    </a>
+                                </div>
                             }
                         </div>
                     </div>

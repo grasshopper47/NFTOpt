@@ -11,6 +11,13 @@ const _networks : any =
 // ,   "4"     : "rinkeby"
 };
 
+const _scanners : any =
+{
+    "31337" : "https://etherscan.io"
+// ,   "1"     : "https://etherscan.io"
+// ,   "4"     : "rinkeby"
+};
+
 let _connected = false;
 let _provider : ethers.providers.Web3Provider;
 
@@ -18,6 +25,7 @@ let _setAccount : (a : string) => void;
 
 function handleAccountChanged(accounts : string[])
 {
+    console.log(accounts);
     console.log("handleAccountChanged", account());
 
     _connected = accounts.length !== 0;
@@ -34,6 +42,7 @@ function handleNetworkChanged()
 
 export function connectWallet()
 {
+    console.log(3);
     _window.ethereum
     .request({ method: "eth_requestAccounts" })
     .then(handleAccountChanged)
@@ -78,6 +87,7 @@ export const setWindow = (window_ : Window & { ethereum?: any; }) => _window = w
 
 export const account   = () => _window?.ethereum.selectedAddress;
 export const network   = () => _networks[_window?.ethereum.networkVersion];
+export const scanner   = () => _scanners[_window?.ethereum.networkVersion];
 export const connected = () => _connected;
 export const provider  = () => _provider;
 export const signer    = () => _provider.getSigner();
