@@ -1,6 +1,6 @@
 import React from "react";
 import Layout from "../components/Layout";
-import OptionViewContainer from "../components/OptionViewContainer";
+import OptionViewContainer from "../frontend/componenets/OptionViewContainer";
 
 function ExploreOptions()
 {

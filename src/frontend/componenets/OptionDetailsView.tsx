@@ -1,20 +1,20 @@
 // @ts-ignore
-import classes from "../frontend/styles/components/OptionDetailsView.module.scss";
+import classes from "../styles/components/OptionDetailsView.module.scss";
 
 import { ArrowBackIosRounded } from "@mui/icons-material";
 import { Button, IconButton } from "@mui/material";
 import { ethers } from "ethers";
-import { account, signer } from "../utils/frontend/metamask";
-import { dismissLastToast, showToast } from "../utils/frontend/toasting";
-import {  OptionState, OptionWithAsset } from "../models/option";
-import { ADDRESS0 } from "../utils/constants";
+import { account, signer } from "../../utils/frontend/metamask";
+import { dismissLastToast, showToast } from "../../utils/frontend/toasting";
+import {  OptionState, OptionWithAsset } from "../../models/option";
+import { ADDRESS0 } from "../../utils/constants";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { isExpired } from "../datasources/options";
-import { getCachedContract } from "../datasources/NFT/localhost";
-import { useContracts, useOptionChangingIDs } from "../pages/_app";
-import { flavorLabels } from "../utils/frontend/labels";
-import { getAccountDisplayValue } from "../utils/frontend/helpers";
+import { isExpired } from "../../datasources/options";
+import { getCachedContract } from "../../datasources/NFT/localhost";
+import { useContracts, useOptionChangingIDs } from "../../pages/_app";
+import { flavorLabels } from "../../utils/frontend/labels";
+import { getAccountDisplayValue } from "../../utils/frontend/helpers";
 
 type OptionDetailsViewProps =
 {

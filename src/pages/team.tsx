@@ -1,7 +1,7 @@
 // @ts-ignore
 import classes from "../frontend/styles/pages/Team.module.scss";
 
-import Layout from "../components/Layout";
+import Layout from "../frontend/componenets/Layout";
 import {team} from "../datasources/team";
 import Image from "next/image";
 

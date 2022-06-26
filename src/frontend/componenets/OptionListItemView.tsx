@@ -1,12 +1,12 @@
 // @ts-ignore
-import classes from "../frontend/styles/components/OptionListItemView.module.scss";
+import classes from "../styles/components/OptionListItemView.module.scss";
 import clsx from "clsx";
 
 import { AccessTime } from "@mui/icons-material";
 import { ethers } from "ethers";
-import { OptionWithAsset } from "../models/option";
+import { OptionWithAsset } from "../../models/option";
 import { getViewCSSClass, Views } from "./OptionViewContainer";
-import { useOptionChangingIDs } from "../pages/_app";
+import { useOptionChangingIDs } from "../../pages/_app";
 
 type OptionListItemViewProps =
 {

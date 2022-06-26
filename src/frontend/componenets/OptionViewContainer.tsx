@@ -1,13 +1,13 @@
 // @ts-ignore
-import classes from "../frontend/styles/components/OptionViewContainer.module.scss";
+import classes from "../styles/components/OptionViewContainer.module.scss";
 import clsx from "clsx";
 
 import { FormControlLabel, Switch, Tab, Tabs } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import { OptionState, OptionWithAsset } from "../models/option";
+import { OptionState, OptionWithAsset } from "../../models/option";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
-import { useOptions, useOptionsHash } from "../pages/_app";
+import { useOptions, useOptionsHash } from "../../pages/_app";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
