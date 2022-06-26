@@ -8,6 +8,7 @@ import { OptionState, OptionWithAsset } from "../../models/option";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
 import { useOptions, useOptionsHash } from "../../pages/_app";
+import { network } from "../utils/metamask";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
@@ -118,6 +119,7 @@ function OptionViewContainer()
         setViewStateIndex(index);
     }
 
+    console.log(optionsHash);
     return <>
         <p className="page-title">Explore NFT Options</p>
 
@@ -170,12 +172,24 @@ function OptionViewContainer()
                         </>
                     }
 
-                    <div className={clsx(classes.containerGrid, viewedOptions.length ? classes[getViewCSSClass(view, viewStateIndex)] : classes.empty)}
+                    <div className={clsx(classes.containerGrid, (network() && viewedOptions.length) ? classes[getViewCSSClass(view, viewStateIndex)] : classes.empty)}
                     >
                     {
                         !viewedOptions.length &&
                         <p className={classes.noOptions}>
-                            { optionsHash === 0 ? "Loading Options ..." : optionsHash === 1 ? "Done" : "No Options" }
+                        {
+                            network()
+                            ?
+                                optionsHash === 0 && "Loading Options ..."
+                                || optionsHash === 1
+                                &&
+                                (
+                                    !options.length && "No Options"
+                                    || !viewedOptions.length && "Done"
+                                )
+                            :
+                                "No Options"
+                        }
                         </p>
                     }
                     {
