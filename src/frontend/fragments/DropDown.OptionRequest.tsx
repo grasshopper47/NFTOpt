@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "../styles/components/OptionRequestForm.module.scss";
+import classes from "../../styles/components/OptionRequestForm.module.scss";
 
 import { Select, MenuItem } from "@mui/material";
 import { assetsOf, keyOf, loadAssetsFor } from "../../datasources/NFT/localhost";

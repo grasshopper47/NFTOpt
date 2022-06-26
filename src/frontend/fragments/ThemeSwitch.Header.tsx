@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "../styles/components/ThemeSwitch.module.scss";
+import classes from "../../styles/components/ThemeSwitch.module.scss";
 
 import { useEffect, useState } from "react";
 import { IconButton } from "@mui/material";

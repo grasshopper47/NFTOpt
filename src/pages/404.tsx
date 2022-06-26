@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "../frontend/styles/pages/404.module.scss";
+import classes from "../styles/pages/404.module.scss";
 
 import {Button} from "@mui/material";
 import {useRouter} from "next/router";

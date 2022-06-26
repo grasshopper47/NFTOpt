@@ -1,8 +1,8 @@
 // @ts-ignore
-import classes from "../frontend/styles/pages/LandingPage.module.scss";
+import classes from "../../styles/pages/LandingPage.module.scss";
 
 import Image from "next/image";
-import Layout from "../components/Layout";
+import Layout from "../frontend/components/Layout";
 
 type PresentationCard =
 {

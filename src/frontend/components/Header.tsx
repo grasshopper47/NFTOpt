@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "../styles/components/Header.module.scss";
+import classes from "../../styles/components/Header.module.scss";
 
 import React from "react";
 import {useRouter} from "next/router";

@@ -1,6 +1,6 @@
 
 // @ts-ignore
-import classes from "../styles/components/OptionRequestForm.module.scss";
+import classes from "../../styles/components/OptionRequestForm.module.scss";
 
 import { TextField } from "@mui/material";
 import { ReactNode } from "react";

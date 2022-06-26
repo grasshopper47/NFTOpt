@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "../styles/components/OptionListItemView.module.scss";
+import classes from "../../styles/components/OptionListItemView.module.scss";
 import clsx from "clsx";
 
 import { AccessTime } from "@mui/icons-material";

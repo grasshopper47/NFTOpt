@@ -1,7 +1,7 @@
-import "../frontend/styles/pages/_app.scss";
+import "../styles/pages/_app.scss";
 import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { AppProps } from "next/app";
-import Header from "../frontend/componenets/Header";
+import Header from "../frontend/components/Header";
 import toast, { Toaster } from "react-hot-toast";
 import { connected, getSignedContract, hookMetamask, network, provider, setWindow } from "../utils/frontend/metamask";
 import { OptionState, OptionWithAsset } from "../models/option";
