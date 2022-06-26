@@ -10,7 +10,7 @@ import { loadAllOptionsWithAsset } from "../datasources/options";
 import { NFTOpt } from "../../typechain-types";
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
 import addresses from "../../addresses.json";
-import { dismissLastToast, actionLabels, TOAST_DURATION, events } from "../utils/frontend";
+import { dismissLastToast, actionLabels, TOAST_DURATION, events } from "../utils/toasting";
 import { BigNumber } from "ethers";
 
 const OptionsHashContext       = createContext(0);

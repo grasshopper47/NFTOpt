@@ -5,7 +5,7 @@ import { ArrowBackIosRounded } from "@mui/icons-material";
 import { Button, IconButton } from "@mui/material";
 import { ethers } from "ethers";
 import { account, signer } from "../utils/metamask";
-import { getAccountDisplayValue, dismissLastToast, showToast, flavorLabels } from "../utils/frontend";
+import { getAccountDisplayValue, dismissLastToast, showToast, flavorLabels } from "../utils/toasting";
 import {  OptionState, OptionWithAsset } from "../models/option";
 import { ADDRESS0 } from "../utils/constants";
 import { useEffect, useState } from "react";
