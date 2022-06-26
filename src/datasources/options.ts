@@ -8,7 +8,7 @@ let NFTOpt : NFTOpt;
 
 export const setContract = (contract_) => NFTOpt = contract_;
 
-export let options : OptionWithAsset[] = [];
+export const options : OptionWithAsset[] = [];
 
 export function isExpired(option : Option | OptionWithAsset )
 {
