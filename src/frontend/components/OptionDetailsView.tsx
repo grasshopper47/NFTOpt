@@ -1,21 +1,20 @@
 // @ts-ignore
 import classes from "./styles/OptionDetailsView.module.scss";
 
-import { scanner } from "../utils/metamask";
 import { ArrowBackIosRounded } from "@mui/icons-material";
-import { Button, IconButton } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { ethers } from "ethers";
-import { account, signer } from "../utils/metamask";
-import { dismissLastToast, showToast } from "../utils/toasting";
-import {  OptionState, OptionWithAsset } from "../../models/option";
-import { ADDRESS0 } from "../../utils/constants";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { isExpired } from "../../datasources/options";
 import { getCachedContract } from "../../datasources/NFT/localhost";
 import { useContracts, useOptionChangingIDs } from "../../pages/_app";
+import {  OptionState, OptionWithAsset } from "../../models/option";
+import { ADDRESS0 } from "../../utils/constants";
+import { account, signer } from "../utils/metamask";
 import { flavorLabels } from "../utils/labels";
-import { getAccountDisplayValue } from "../utils/helpers";
+import { dismissLastToast, showToast } from "../utils/toasting";
+import Button_OptionDetailsView from "../fragments/Button.OptionDetailsView";
 import Field_OptionDetailsView from "../fragments/Field.OptionDetailsView";
 import FieldLink_OptionDetailsView from "../fragments/FieldLink.OptionDetailsView";
 
@@ -60,9 +59,9 @@ function OptionDetailsView(props: OptionDetailsViewProps)
             {
                 if (isApproved) return;
 
-                setApproved(true);
-
                 contract.removeAllListeners();
+
+                setApproved(true);
 
                 dismissLastToast();
                 toast.success("Approved to transfer NFT");
@@ -80,25 +79,6 @@ function OptionDetailsView(props: OptionDetailsViewProps)
 
     let onApproveNFT     = () => showToast(contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.nftId));
 
-    function createButton
-    (
-        label     : string
-    ,   variant   : "outlined" | "contained" | "text" | undefined
-    ,   className : string
-    ,   action    : any
-    )
-    {
-        return <>
-            <Button
-                variant={variant}
-                className={classes[className]}
-                onClick={ action !== onApproveNFT ? () => onAction(action) : onApproveNFT}
-            >
-                {label}
-            </Button>
-        </>;
-    }
-
     function createButtonsFromOptionState()
     {
         if (optionChangingIDs[option.id]) return;
@@ -106,25 +86,29 @@ function OptionDetailsView(props: OptionDetailsViewProps)
         let isBuyer = (option.buyer === account());
 
         if (option.state === OptionState.PUBLISHED)
-            if (isBuyer) return createButton("Withdraw Request", "outlined" , "btnSecondary", onWithdrawOption);
-            else         return createButton("Create Option"   , "contained", "btnPrimary"  , onCreateOption);
+            if (isBuyer) return <Button_OptionDetailsView label="Withdraw Request" variant="outlined" className="btnSecondary" handleClick={() => onAction(onWithdrawOption)} />;
+            else         return <Button_OptionDetailsView label="Create Option" variant="contained" className="btnPrimary" handleClick={() => onAction(onCreateOption)} />;
 
         if (option.state === OptionState.OPEN)
         {
-            let btnCancel = createButton("Cancel Option", "outlined", "btnSecondary", onCancelOption);
+            let btnCancel = ( <Button_OptionDetailsView label="Cancel Option" variant="outlined" className="btnSecondary" handleClick={() => onAction(onCancelOption)} /> );
 
             if (isExpired(option))
+            {
                 if (isBuyer || option.seller === account()) return <>{btnCancel}</>;
-
-            if (isBuyer)
+            }
+            else if (isBuyer)
+            {
                 return <>
                     {btnCancel}
-                    {
-                        isApproved
-                        ?   createButton("Exercise Option", "contained", "btnPrimary", onExerciseOption)
-                        :   createButton("Approve NFT"    , "contained", "btnPrimary", onApproveNFT)
-                    }
+                    <Button_OptionDetailsView
+                        label={isApproved ? "Exercise Option" : "Approve NFT"}
+                        variant="contained"
+                        className="btnPrimary"
+                        handleClick={isApproved ? () => onAction(onExerciseOption) : onApproveNFT }
+                    />
                 </>;
+            }
 
             return <></>;
         }
