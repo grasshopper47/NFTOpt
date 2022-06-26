@@ -6,9 +6,9 @@ import Header from "../components/Header";
 import { Toaster } from "react-hot-toast";
 import { connected, hookMetamask, network, setWindow } from "../utils/metamask";
 import { OptionWithAsset } from "../utils/types";
-import { options } from "../utils/options";
+import { options } from "../datasources/options";
 import { createContractInstance } from "../utils/blockchain";
-import { loadAllOptionsWithAsset } from "../utils/options";
+import { loadAllOptionsWithAsset } from "../datasources/options";
 
 const OptionsHashContext       = createContext(0);
 const AccountContext           = createContext("");

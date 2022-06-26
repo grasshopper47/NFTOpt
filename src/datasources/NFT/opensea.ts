@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { NFTAsset, Option, OptionWithAsset } from "../types";
+import { NFTAsset, Option, OptionWithAsset } from "../../utils/types";
 
 export async function fetchAssetsOfAccount(account: string, setAssetsCallback: (assets: NFTAsset[]) => void) {
     const assets: NFTAsset[] = [];

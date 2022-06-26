@@ -1,8 +1,8 @@
 import { BigNumber } from "ethers";
-import { NFTAsset, OptionRequest, Option } from "../types";
-import { getSignedContract } from "../metamask";
+import { NFTAsset, OptionRequest, Option } from "../../utils/types";
+import { getSignedContract } from "../../utils/metamask";
 import addresses from "../../../addresses.json";
-import { ABIs, MAX_MINTABLE_TOKENS } from "../constants";
+import { ABIs, MAX_MINTABLE_TOKENS } from "../../utils/constants";
 
 const contracts = { };
 

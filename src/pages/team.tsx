@@ -2,7 +2,7 @@
 import classes from "../styles/pages/Team.module.scss";
 
 import Layout from "../components/Layout";
-import {team} from "../utils/team";
+import {team} from "../datasources/team";
 import Image from "next/image";
 
 function TeamPage() {

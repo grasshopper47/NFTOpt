@@ -7,7 +7,7 @@ import { useRef, useState } from "react";
 import { BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { NFTAsset, OptionFlavor, OptionRequest } from "../utils/types";
 import { ethers } from "ethers";
-import { loadNFTImage, imageOf, keyOf } from "../utils/NFT/localhost";
+import { loadNFTImage, imageOf, keyOf } from "../datasources/NFT/localhost";
 import { getFloatString, getIntervalString, showToast } from "../utils/frontend";
 import { contracts } from "../utils/blockchain";
 import TextBox_OptionRequestForm from "../fragments/TextBox.OptionRequest";

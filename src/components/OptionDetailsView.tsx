@@ -11,8 +11,8 @@ import { ADDRESS0 } from "../utils/constants";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { contracts } from "../utils/blockchain";
-import { isExpired } from "../utils/options";
-import { getCachedContract } from "../utils/NFT/localhost";
+import { isExpired } from "../datasources/options";
+import { getCachedContract } from "../datasources/NFT/localhost";
 import { useOptionChangingIDs } from "../pages/_app";
 
 type OptionDetailsViewProps =

@@ -6,7 +6,7 @@ import { getSignedContract, network } from "./metamask";
 import { OptionState } from "./types";
 import { actionLabels, dismissLastToast, TOAST_DURATION } from "./frontend";
 import toast from "react-hot-toast";
-import { loadOptionWithAsset, options } from "./options";
+import { loadOptionWithAsset, options } from "../datasources/options";
 
 export const contracts   = { NFTOpt : null as unknown as NFTOpt };
 export const blockNumber = { current : ~0 };

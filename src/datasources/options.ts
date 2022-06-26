@@ -1,8 +1,8 @@
-import { NFTAsset, Option, OptionFlavor, OptionWithAsset, Option_SOLIDITY } from "./types";
-import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "./constants";
-import { account } from "./metamask";
+import { NFTAsset, Option, OptionFlavor, OptionWithAsset, Option_SOLIDITY } from "../utils/types";
+import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
+import { account } from "../utils/metamask";
 import { getCachedContract, keyOf, images } from "./NFT/localhost";
-import { contracts } from "./blockchain";
+import { contracts } from "../utils/blockchain";
 
 export let options : OptionWithAsset[] = [];
 
