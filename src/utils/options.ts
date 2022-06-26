@@ -90,13 +90,8 @@ export async function loadOptionWithAsset(id: number)
     options.push(option as unknown as OptionWithAsset);
 }
 
-let _loading = false;
-export const isLoading = () => _loading;
-
 export async function loadAllOptionsWithAsset()
 {
-    _loading = !_loading;
-
     let optionIDPromise = await contracts.NFTOpt.optionID();
     if (!optionIDPromise) return [];
 
@@ -116,6 +111,4 @@ export async function loadAllOptionsWithAsset()
     await Promise.allSettled(promises);
 
     options.sort( (a, b) => a.id - b.id );
-
-    _loading = !_loading;
 }

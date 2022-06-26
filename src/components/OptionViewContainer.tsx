@@ -8,7 +8,6 @@ import { OptionState, OptionWithAsset } from "../utils/types";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
 import { useOptions, useOptionsHash } from "../pages/_app";
-import { isLoading } from "../utils/options";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
@@ -36,34 +35,35 @@ const tabs : ViewTab[] =
     }
 ];
 
-const defaultOptionsByState =
-{
-    [ViewTabValues.REQUEST] : [] as OptionWithAsset[]
-,   [ViewTabValues.OPEN]    : [] as OptionWithAsset[]
-,   [ViewTabValues.CLOSED]  : [] as OptionWithAsset[]
-};
-
 const viewStates =
 {
     [Views.CARDLIST] : [ "S", "M", "L" ]
 ,   [Views.LISTDETAIL] : [ "25", "50", "100" ]
 }
 
+const viewStateStorageKey = "ListViewState";
+
 export const getViewCSSClass = (view : Views, state : number) => viewStates[view][state];
 
 function OptionViewContainer()
 {
     const [ view           , setView ]           = useState<Views>(Views.CARDLIST);
-    const [ viewState      , setViewState ]      = useState(0);
+    const [ viewStateIndex , setViewStateIndex ] = useState(0);
     const [ activeTabIndex , setActiveTabIndex ] = useState(0);
     const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
     const [ selectedOption , setSelectedOption ] = useState<OptionWithAsset | null>(null);
     const [ checked        , setChecked ]        = useState(false);
 
-    const optionsByState = useRef(defaultOptionsByState);
+    const optionsByState = useRef({});
 
     const options     = useOptions();
     const optionsHash = useOptionsHash();
+
+    useEffect
+    (
+        () => setViewStateIndex( parseInt(localStorage[viewStateStorageKey] ?? 0) )
+    ,   []
+    );
 
     useEffect
     (
@@ -71,7 +71,9 @@ function OptionViewContainer()
         {
             if (options.length === 0) return;  // 1st run, skip until options are loaded;
 
-            optionsByState.current = { ...defaultOptionsByState };
+            optionsByState.current[ViewTabValues.REQUEST] = [] as OptionWithAsset[]
+            optionsByState.current[ViewTabValues.OPEN]    = [] as OptionWithAsset[]
+            optionsByState.current[ViewTabValues.CLOSED]  = [] as OptionWithAsset[]
 
             for (let option of options)
             {
@@ -108,8 +110,13 @@ function OptionViewContainer()
     ,   [selectedOption]
     );
 
-    const onSetTab       = (event: any, index : number) => setActiveTabIndex(index);
-    const onSetViewState = (event: any, index : number) => setViewState(index);
+    const handleTabChanged = (event: any, index : number) => setActiveTabIndex(index);
+
+    const handleViewStateChanged = (event: any, index : number) =>
+    {
+        localStorage[viewStateStorageKey] = index;
+        setViewStateIndex(index);
+    }
 
     return <>
         <p className="page-title">Explore NFT Options</p>
@@ -121,7 +128,7 @@ function OptionViewContainer()
                     <Tabs
                         className={classes.tabs}
                         value={activeTabIndex}
-                        onChange={onSetTab}
+                        onChange={handleTabChanged}
                     >
                     {
                         tabs.map
@@ -139,8 +146,8 @@ function OptionViewContainer()
                         <>
                             <Tabs
                                 className={classes.tabsState}
-                                value={viewState}
-                                onChange={onSetViewState}
+                                value={viewStateIndex}
+                                onChange={handleViewStateChanged}
                             >
                             {
                                 viewStates[view]?.map
@@ -163,11 +170,13 @@ function OptionViewContainer()
                         </>
                     }
 
-                    <div className={clsx(classes.containerGrid, viewedOptions.length ? classes[getViewCSSClass(view, viewState)] : classes.empty)}
+                    <div className={clsx(classes.containerGrid, viewedOptions.length ? classes[getViewCSSClass(view, viewStateIndex)] : classes.empty)}
                     >
                     {
-                        isLoading() && !viewedOptions.length &&
-                        <p className={classes.noOptions}>Loading Options ...</p>
+                        !viewedOptions.length &&
+                        <p className={classes.noOptions}>
+                            { optionsHash === 0 ? "Loading Options ..." : optionsHash === 1 ? "Done" : "No Options" }
+                        </p>
                     }
                     {
                         viewedOptions.map
@@ -176,14 +185,10 @@ function OptionViewContainer()
                             <OptionListItemView
                                 key={`option-preview-${activeTabIndex}-${index}`}
                                 option={option}
-                                onViewOptionDetails={setSelectedOption}
-                                view={viewState}
+                                showDetailsView={setSelectedOption}
+                                viewIndex={viewStateIndex}
                             />
                         )
-                    }
-                    {
-                        !isLoading() && !viewedOptions.length &&
-                        <p className={classes.noOptions}>No Options</p>
                     }
                     </div>
                 </>
@@ -195,7 +200,7 @@ function OptionViewContainer()
                     <OptionDetailsView
                         key={`option-details-preview-${selectedOption.id}`}
                         option={selectedOption}
-                        showListView={setSelectedOption.bind(null, null)}
+                        showListView={ () => setSelectedOption(null) }
                     />
                 </div>
             }

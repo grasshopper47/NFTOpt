@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 import { contracts } from "../utils/blockchain";
 import { isExpired } from "../utils/options";
 import { getCachedContract } from "../utils/NFT/localhost";
-import { useOptionsWithIDChanging } from "../pages/_app";
+import { useOptionChangingIDs } from "../pages/_app";
 
 type OptionDetailsViewProps =
 {
@@ -27,7 +27,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
 
     const [ isApproved, setApproved ] = useState(false);
 
-    const optionIDs = useOptionsWithIDChanging();
+    const optionChangingIDs = useOptionChangingIDs();
 
     let contract;
 
@@ -71,7 +71,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
     let onCancelOption   = () => contracts.NFTOpt.cancelOption(option.id);
     let onExerciseOption = () => contracts.NFTOpt.exerciseOption(option.id);
 
-    let onAction         = (promise) => showToast(promise().then(() => { optionIDs.push(option.id); showListView(); }));
+    let onAction         = (promise) => showToast(promise().then(() => { optionChangingIDs[option.id] = 1; showListView(); }));
 
     let onApproveNFT     = () => showToast(contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.nftId));
 
@@ -96,7 +96,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
 
     function createButtonsFromOptionState()
     {
-        if (optionIDs.filter(o => o === option.id).length !== 0) return;
+        if (optionChangingIDs[option.id]) return;
 
         let isBuyer = (option.buyer === account());
 
