@@ -25,15 +25,7 @@ function OptionListItemView(props: OptionListItemViewProps)
 
     return <>
         <div
-            className=
-            {
-                clsx
-                (
-                    classes.card
-                ,   className
-                ,   optionChangingIDs[option.id] && classes.changing
-                )
-            }
+            className={clsx(classes.card, className, optionChangingIDs[option.id] && classes.changing) }
             onClick={ () => props.showDetailsView(option) }
         >
             <img
@@ -63,9 +55,7 @@ function OptionListItemView(props: OptionListItemViewProps)
                         </span>
                     </p>
                 </div>
-
             </div>
-
         </div>
     </>;
 }
