@@ -132,6 +132,20 @@ div.field
     }
 }
 
+span.state
+{
+    margin-top: 40px;
+    font-size: 18px;
+    font-weight: bold;
+    color: $color-primary;
+    text-shadow: 2px 1px rgb(25 25 25 / 60%);
+    text-align: center;
+    margin-top: 44px;
+    // border: 2px dotted;
+    // margin-left: 60px;
+    // margin-right: 60px;
+}
+
 button.goBackBtn
 {
     border-radius: 6px;
