@@ -105,8 +105,16 @@ function OptionViewContainer()
     (
         () =>
         {
-            if (selectedOption) setView(Views.DETAIL);
-            else                setView(Views.CARDLIST);
+            if (selectedOption)
+            {
+                document.body.onkeydown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedOption(null) };
+                setView(Views.DETAIL);
+
+                return;
+            }
+
+            document.body.onkeydown = null;
+            setView(Views.CARDLIST);
         }
     ,   [selectedOption]
     );
