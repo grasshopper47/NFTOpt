@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { AccessTime } from "@mui/icons-material";
 import { ethers } from "ethers";
 import { OptionWithAsset } from "../../models/option";
-import { getViewCSSClass, Views } from "./OptionViewContainer";
+import { getViewClassName, Views } from "./OptionViewContainer";
 import { useOptionChangingIDs } from "../../pages/_app";
 
 type OptionListItemViewProps =
@@ -21,7 +21,7 @@ function OptionListItemView(props: OptionListItemViewProps)
 
     const optionChangingIDs = useOptionChangingIDs();
 
-    const viewCSSClass = classes[getViewCSSClass(Views.CARDLIST, viewIndex)];
+    const viewCSSClass = classes[ getViewClassName(Views.CARDLIST, viewIndex) ];
 
     return <>
         <div
