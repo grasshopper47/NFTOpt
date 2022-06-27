@@ -9,17 +9,29 @@ export const actionLabels =
 ,   "exercised option"
 ];
 
+export const statusLabels =
+[
+    "Published"
+,   "Withdrawn"
+,   "Opened"
+,   "Canceled"
+,   "Exercised"
+];
+
 export const flavorLabels =
 [
     "European"
 ,   "American"
 ];
 
-export const events =
+function createEvents()
 {
-    Published : OptionState.PUBLISHED
-,   Withdrawn : OptionState.WITHDRAWN
-,   Opened    : OptionState.OPEN
-,   Canceled  : OptionState.CANCELED
-,   Exercised : OptionState.EXERCISED
-};
+    let events = {};
+    let i = -1;
+
+    for (let key of statusLabels) events[key] = statusLabels[++i];
+
+    return events;
+}
+
+export const events = createEvents();
