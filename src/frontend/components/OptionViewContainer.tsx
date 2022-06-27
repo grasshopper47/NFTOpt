@@ -44,7 +44,7 @@ const viewStates =
 
 const viewStateStorageKey = "ListViewState";
 
-export const getViewCSSClass = (view : Views, state : number) => viewStates[view][state];
+export const getViewClassName = (view : Views, state : number) => viewStates[view][state];
 
 function OptionViewContainer()
 {
@@ -105,8 +105,16 @@ function OptionViewContainer()
     (
         () =>
         {
-            if (selectedOption) setView(Views.DETAIL);
-            else                setView(Views.CARDLIST);
+            if (selectedOption)
+            {
+                document.body.onkeydown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedOption(null) };
+                setView(Views.DETAIL);
+
+                return;
+            }
+
+            document.body.onkeydown = null;
+            setView(Views.CARDLIST);
         }
     ,   [selectedOption]
     );
@@ -123,100 +131,100 @@ function OptionViewContainer()
         <p className="page-title">Explore NFT Options</p>
 
         <div className={classes.root}>
-            {
-                view == Views.CARDLIST &&
-                <>
-                    <Tabs
-                        className={classes.tabs}
-                        value={activeTabIndex}
-                        onChange={handleTabChanged}
-                    >
-                    {
-                        tabs.map
-                        (
-                            optionStateTab =>
-                            <Tab key={`option-state-tab-${optionStateTab.name}`}
-                                label={optionStateTab.name}
-                            />
-                        )
-                    }
-                    </Tabs>
+        {
+            view == Views.CARDLIST &&
+            <>
+                <Tabs
+                    className={classes.tabs}
+                    value={activeTabIndex}
+                    onChange={handleTabChanged}
+                >
+                {
+                    tabs.map
+                    (
+                        optionStateTab =>
+                        <Tab key={`option-state-tab-${optionStateTab.name}`}
+                            label={optionStateTab.name}
+                        />
+                    )
+                }
+                </Tabs>
 
-                    {
-                        viewedOptions.length !== 0 &&
-                        <>
-                            <Tabs
-                                className={classes.tabsState}
-                                value={viewStateIndex}
-                                onChange={handleViewStateChanged}
-                            >
-                            {
-                                viewStates[view]?.map
-                                (
-                                    state =>
-                                    <Tab key={`option-view-state-tab-${state}`}
-                                        label={state}
-                                    />
-                                )
-                            }
-                            </Tabs>
-
-                            <FormControlLabel
-                                className={clsx(classes.checkbox, !checked ? classes.unchecked : classes.checked)}
-                                control={<Switch checked={checked} onChange={() => setChecked(!checked)}/>}
-                                disabled={selectedOption !== null}
-                                label={(checked ? "Account's" : "All") + " Options"}
-                                labelPlacement="start"
-                            />
-                        </>
-                    }
-
-                    <div className={clsx(classes.containerGrid, (network() && viewedOptions.length) ? classes[getViewCSSClass(view, viewStateIndex)] : classes.empty)}
-                    >
-                    {
-                        !viewedOptions.length &&
-                        <p className={classes.noOptions}>
+                {
+                    viewedOptions.length !== 0 &&
+                    <>
+                        <Tabs
+                            className={classes.tabsState}
+                            value={viewStateIndex}
+                            onChange={handleViewStateChanged}
+                        >
                         {
-                            network()
-                            ?
-                                optionsHash === 0 && "Loading Options ..."
-                                || optionsHash === 1
-                                &&
-                                (
-                                    !options.length && "No Options"
-                                    || !viewedOptions.length && "Done"
-                                )
-                            :
-                                "No Options"
+                            viewStates[view]?.map
+                            (
+                                state =>
+                                <Tab key={`option-view-state-tab-${state}`}
+                                    label={state}
+                                />
+                            )
                         }
-                        </p>
-                    }
-                    {
-                        viewedOptions.map
-                        (
-                            (option, index) =>
-                            <OptionListItemView
-                                key={`option-preview-${activeTabIndex}-${index}`}
-                                option={option}
-                                showDetailsView={setSelectedOption}
-                                viewIndex={viewStateIndex}
-                            />
-                        )
-                    }
-                    </div>
-                </>
-            }
+                        </Tabs>
 
-            {
-                view == Views.DETAIL && selectedOption &&
-                <div className={classes.containerItem}>
-                    <OptionDetailsView
-                        key={`option-details-preview-${selectedOption.id}`}
-                        option={selectedOption}
-                        showListView={ () => setSelectedOption(null) }
-                    />
+                        <FormControlLabel
+                            className={clsx(classes.checkbox, !checked ? classes.unchecked : classes.checked)}
+                            control={<Switch checked={checked} onChange={() => setChecked(!checked)}/>}
+                            disabled={selectedOption !== null}
+                            label={(checked ? "Account's" : "All") + " Options"}
+                            labelPlacement="start"
+                        />
+                    </>
+                }
+
+                <div className={clsx(classes.containerGrid, classes[ (network() && viewedOptions.length) ? getViewClassName(view, viewStateIndex) : "empty" ])}
+                >
+                {
+                    !viewedOptions.length &&
+                    <p className={classes.noOptions}>
+                    {
+                        network()
+                        ?
+                            optionsHash === 0 && "Loading Options ..."
+                            || optionsHash === 1
+                            &&
+                            (
+                                !options.length && "No Options"
+                                || !viewedOptions.length && "Done"
+                            )
+                        :
+                            "No Options"
+                    }
+                    </p>
+                }
+                {
+                    viewedOptions.map
+                    (
+                        (option, index) =>
+                        <OptionListItemView
+                            key={`option-preview-${activeTabIndex}-${index}`}
+                            option={option}
+                            showDetailsView={setSelectedOption}
+                            viewIndex={viewStateIndex}
+                        />
+                    )
+                }
                 </div>
-            }
+            </>
+        }
+
+        {
+            view == Views.DETAIL && selectedOption &&
+            <div className={classes.containerItem}>
+                <OptionDetailsView
+                    key={`option-details-preview-${selectedOption.id}`}
+                    option={selectedOption}
+                    showListView={ () => setSelectedOption(null) }
+                />
+            </div>
+        }
         </div>
     </>;
 }
