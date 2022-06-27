@@ -21,7 +21,7 @@ function OptionListItemView(props: OptionListItemViewProps)
 
     const optionChangingIDs = useOptionChangingIDs();
 
-    const viewCSSClass = classes[ getViewClassName(Views.CARDLIST, viewIndex) ];
+    const className = classes[ getViewClassName(Views.CARDLIST, viewIndex) ];
 
     return <>
         <div
@@ -30,7 +30,7 @@ function OptionListItemView(props: OptionListItemViewProps)
                 clsx
                 (
                     classes.card
-                ,   viewCSSClass
+                ,   className
                 ,   optionChangingIDs[option.id] && classes.changing
                 )
             }
@@ -38,26 +38,26 @@ function OptionListItemView(props: OptionListItemViewProps)
         >
             <img
                 style={{ backgroundImage: `url(${option.asset.image})`}}
-                className={viewCSSClass}
+                className={className}
                 alt=""
             />
 
-            <div className={clsx(classes.content, viewCSSClass)}>
-                <p className={clsx(classes.title, viewCSSClass)}>
+            <div className={clsx(classes.content, className)}>
+                <p className={clsx(classes.title, className)}>
                     #{option.id + 1}
                 </p>
 
-                <p className={clsx(classes.title, viewCSSClass)}>
+                <p className={clsx(classes.title, className)}>
                     {option.asset.name}
                 </p>
 
-                <div className={clsx(classes.moreInfoContainer, viewCSSClass)}>
-                    <p className={viewCSSClass}>
+                <div className={clsx(classes.moreInfoContainer, className)}>
+                    <p className={className}>
                         {ethers.utils.formatEther(option.strikePrice)} ETH
                     </p>
 
-                    <p className={viewCSSClass}>
-                        <AccessTime className={viewCSSClass} />
+                    <p className={className}>
+                        <AccessTime className={className} />
                         <span>
                             {option.interval} day{option.interval > 1 && "s"}
                         </span>
