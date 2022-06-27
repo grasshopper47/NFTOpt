@@ -11,6 +11,7 @@ type Props =
 ,   value       : string
 ,   inputProps ?: any
 ,   onChange   ?: any
+,   onKeyUp    ?: any
 ,   children   ?: ReactNode | ReactNode[]
 };
 
@@ -54,6 +55,7 @@ export default function(props: Props)
                 className={classes.field}
                 value={props.value}
                 onChange={props.onChange}
+                onKeyUp={props.onKeyUp}
                 size="small"
             />
         </div>

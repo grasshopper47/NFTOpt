@@ -7,6 +7,7 @@ type Props =
     flavor    : OptionFlavor
 ,   value     : number
 ,   onChange ?: any
+,   onKeyUp    ?: any
 };
 
 export default function(props: Props)
@@ -20,6 +21,7 @@ export default function(props: Props)
             value={props.flavor}
             control={<Radio checked={props.flavor === props.value} />}
             onChange={props.onChange}
+            onKeyUp={props.onKeyUp}
         />
     </>;
 }

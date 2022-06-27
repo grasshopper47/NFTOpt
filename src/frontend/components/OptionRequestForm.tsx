@@ -27,6 +27,14 @@ const createRequest = (obj : OptionRequest) =>
     obj.flavor      = OptionFlavor.AMERICAN;
 }
 
+const isValid = (request : OptionRequest) =>
+{
+    return request.nftContract !== ""
+        && request.premium     !== ""
+        && request.strikePrice !== ""
+        && request.interval    !== ""
+}
+
 let request : OptionRequest = { } as OptionRequest;
 createRequest(request);
 
@@ -103,9 +111,10 @@ function OptionRequestForm()
             )
             // .then(() => setRequestState({...defaultRequest}))
             .then( () => createRequest(request) )
-            // .then(updateOptionsHash)
         );
     };
+
+    const onHandleKey = (event: React.KeyboardEvent<HTMLInputElement>) => { if (isValid(request) && event.key === "Enter") onPublishRequest(); }
 
     const create3Dots = () => [0, 0, 0].map( (_, i) => <div key={`dot-${i}`} className={classes.dot} /> );
 
@@ -117,28 +126,23 @@ function OptionRequestForm()
 
                 <DropDown_OptionRequestForm value={keyOf(request)} setAsset={setAsset}/>
 
-                <TextBox_OptionRequestForm fieldName="premium"     value={request.premium}     onChange={setAmount}   />
-                <TextBox_OptionRequestForm fieldName="strikePrice" value={request.strikePrice} onChange={setAmount}   />
-                <TextBox_OptionRequestForm fieldName="interval"    value={request.interval}    onChange={setInterval} />
+                <TextBox_OptionRequestForm fieldName="premium"     value={request.premium}     onChange={setAmount}   onKeyUp={onHandleKey} />
+                <TextBox_OptionRequestForm fieldName="strikePrice" value={request.strikePrice} onChange={setAmount}   onKeyUp={onHandleKey} />
+                <TextBox_OptionRequestForm fieldName="interval"    value={request.interval}    onChange={setInterval} onKeyUp={onHandleKey} />
 
                 <FormControl className={classes.field}>
                     <RadioGroup defaultValue={OptionFlavor.AMERICAN}>
-                        <Radio_OptionRequestForm flavor={OptionFlavor.AMERICAN} value={request.flavor} onChange={setFlavor} />
-                        <Radio_OptionRequestForm flavor={OptionFlavor.EUROPEAN} value={request.flavor} onChange={setFlavor} />
+                        <Radio_OptionRequestForm flavor={OptionFlavor.AMERICAN} value={request.flavor} onChange={setFlavor} onKeyUp={onHandleKey} />
+                        <Radio_OptionRequestForm flavor={OptionFlavor.EUROPEAN} value={request.flavor} onChange={setFlavor} onKeyUp={onHandleKey} />
                     </RadioGroup>
                 </FormControl>
 
                 <Button
+                    id="btnPublish"
                     className={classes.submitBtn}
                     variant="contained"
                     onClick={onPublishRequest}
-                    disabled=
-                    {
-                        request.nftContract    === ""
-                        || request.premium     === ""
-                        || request.strikePrice === ""
-                        || request.interval    === ""
-                    }
+                    disabled={!isValid(request)}
                 >
                     Publish Request
                 </Button>
