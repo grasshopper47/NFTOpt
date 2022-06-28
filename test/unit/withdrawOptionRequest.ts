@@ -3,6 +3,7 @@ import { OptionState } from "../../src/models/option";
 
 import { buyer, seller, initializer, dummyOptionRequest, publishDummyOptionRequest } from "../helpers";
 import { NFTOptContract, deployMainContract } from "../../src/utils/deployment";
+import { ADDRESS0, BIGNUMBER0 } from "../../src/utils/constants";
 
 describe("withdrawOptionRequest", function () {
     before("prepareEnv", async function () {
@@ -14,7 +15,7 @@ describe("withdrawOptionRequest", function () {
     it("fails when option request does not exist", async function () {
         await expect(NFTOptContract.connect(buyer)
             .withdrawOptionRequest(9999))
-            .to.be.revertedWith("INVALID_OPTION_ID");
+            .to.be.revertedWith("INVALID_REQUEST_ID");
     });
 
     it("fails when caller is not the buyer", async function () {
@@ -31,7 +32,7 @@ describe("withdrawOptionRequest", function () {
 
         await expect(NFTOptContract.connect(buyer)
             .withdrawOptionRequest(0))
-            .to.be.revertedWith("INVALID_OPTION_STATE");
+            .to.be.revertedWith("INVALID_REQUEST_ID");
 
         // Reset the state
         await deployMainContract();
@@ -65,15 +66,22 @@ describe("withdrawOptionRequest", function () {
         await deployMainContract();
     });
 
-    it("has status 'WITHDRAWN' after successful withdrawal", async function () {
+    it("removes request from storage after successful withdrawal", async function () {
         await publishDummyOptionRequest();
 
         await expect(NFTOptContract.connect(buyer)
             .withdrawOptionRequest(0))
             .to.emit(NFTOptContract, "Withdrawn");
 
-        let option = await NFTOptContract.options(0);
-        expect(option.state).to.be.equal(OptionState.WITHDRAWN);
+        let request = await NFTOptContract.requests(0);
+
+        expect(request[0]).to.be.equal(BIGNUMBER0);
+        expect(request[1]).to.be.equal(BIGNUMBER0);
+        expect(request[2]).to.be.equal(BIGNUMBER0);
+        expect(request[3]).to.be.equal(ADDRESS0);
+        expect(request[4]).to.be.equal(0);
+        expect(request[5]).to.be.equal(BIGNUMBER0);
+        expect(request[6]).to.be.equal(ADDRESS0);
 
         // Reset the state
         await deployMainContract();

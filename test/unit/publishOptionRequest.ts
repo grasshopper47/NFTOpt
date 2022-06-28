@@ -56,32 +56,29 @@ describe("publishOptionRequest", function () {
 
     it("succeeds when called with valid values", async function () {
         const balance0 = await NFTOptContract.getBalance();
-        const optionID0 = await NFTOptContract.optionID();
+        const requestID0 = await NFTOptContract.requestID();
 
         expect(balance0).to.equal(0);
-        expect(optionID0).to.equal(0);
+        expect(requestID0).to.equal(0);
 
         await publishDummyOptionRequest();
 
         const balance1 = await NFTOptContract.getBalance();
-        const optionID1 = await NFTOptContract.optionID();
+        const requestID1 = await NFTOptContract.requestID();
 
         expect(balance1).to.equal(dummyOptionRequest.premium);
-        expect(optionID1).to.equal(1);
+        expect(requestID1).to.equal(1);
 
         // Check that details of the option data match those sent
-        const option = await NFTOptContract.options(0);
+        const request = await NFTOptContract.requests(0);
 
-        expect(option.buyer).to.equal(dummyOptionRequest.buyer);
-        expect(option.seller).to.equal(dummyOptionRequest.seller);
-        expect(option.nftContract).to.equal(dummyOptionRequest.nftContract);
-        expect(option.nftId).to.equal(dummyOptionRequest.nftId);
-        expect(option.startDate).to.equal(dummyOptionRequest.startDate);
-        expect(option.interval).to.equal(dummyOptionRequest.interval);
-        expect(option.premium).to.equal(dummyOptionRequest.premium);
-        expect(option.strikePrice).to.equal(dummyOptionRequest.strikePrice);
-        expect(option.flavor).to.equal(dummyOptionRequest.flavor);
-        expect(option.state).to.equal(dummyOptionRequest.state);
+        expect(request.buyer).to.equal(dummyOptionRequest.buyer);
+        expect(request.nftContract).to.equal(dummyOptionRequest.nftContract);
+        expect(request.nftId).to.equal(dummyOptionRequest.nftId);
+        expect(request.interval).to.equal(dummyOptionRequest.interval);
+        expect(request.premium).to.equal(dummyOptionRequest.premium);
+        expect(request.strikePrice).to.equal(dummyOptionRequest.strikePrice);
+        expect(request.flavor).to.equal(dummyOptionRequest.flavor);
 
         // Reset the state
         await deployMainContract();

@@ -25,48 +25,37 @@ describe("cancelOption", function () {
             .to.be.revertedWith("INVALID_OPTION_ID");
     });
 
-    it("reverts when option state is not OPEN", async function () {
-        await publishDummyOptionRequest();
-
-        var publishedOption = await NFTOptContract.connect(buyer).options(0);
-        expect(publishedOption.state).to.equal(OptionState.PUBLISHED);
-
-        await expect(NFTOptContract.connect(buyer)
-            .cancelOption(0))
-            .to.be.revertedWith("INVALID_OPTION_STATE");
-
-        // Reset the state
-        await deployMainContract();
-    });
-
     it("reverts when option has already been exercised", async function () {
         await publishDummyOptionRequest();
 
         // Fill option
-        await expect(NFTOptContract.connect(seller)
-            .createOption(0, { value: dummyOptionRequest.strikePrice }))
-            .to.emit(NFTOptContract, "Opened")
-            .withArgs(0);
+        expect(
+            await NFTOptContract
+            .connect(seller)
+            .createOption(0, { value: dummyOptionRequest.strikePrice })
+        ).to.not.throw;
 
         // Fast-foward EVM by exercise date (interval 6 days) for european contract
         await addDaysToEVM(dummyOptionRequest.interval / SECONDS_IN_A_DAY - 1);
 
         // Approve contract for transferring NFT
-        await NFTDummyContract.connect(buyer)
-            .approve(NFTOptContract.address, dummyOptionRequest.nftId);
+        expect(
+            await NFTDummyContract
+            .connect(buyer)
+            .approve(NFTOptContract.address, dummyOptionRequest.nftId)
+        ).to.not.throw;
 
         // Exercise option
-        await expect(NFTOptContract.connect(buyer)
-            .exerciseOption(0))
-            .to.emit(NFTOptContract, "Exercised")
-            .withArgs(0);
+        expect(
+            await NFTOptContract.connect(buyer).exerciseOption(0)
+        ).to.not.throw;
 
         const option = await NFTOptContract.connect(buyer).options(0);
         expect(option.state).to.equal(OptionState.EXERCISED);
 
-        await expect(NFTOptContract.connect(buyer)
-            .cancelOption(0))
-            .to.be.revertedWith("INVALID_OPTION_STATE");
+        await expect(
+            NFTOptContract.connect(buyer).cancelOption(0)
+        ).to.be.revertedWith("INVALID_OPTION_STATE");
 
         // Reset the state
         await deployMainContract();
@@ -77,26 +66,27 @@ describe("cancelOption", function () {
         await publishDummyOptionRequest();
 
         // Fill option
-        await expect(NFTOptContract.connect(seller)
-            .createOption(0, { value: dummyOptionRequest.strikePrice }))
-            .to.emit(NFTOptContract, "Opened")
-            .withArgs(0);
+        await expect(
+            NFTOptContract
+            .connect(seller)
+            .createOption(0, { value: dummyOptionRequest.strikePrice })
+        ).to.not.throw;
 
         // Fast-foward EVM by 2 days
         await addDaysToEVM(2);
 
         // Try to cancel
-        await expect(NFTOptContract.connect(seller)
-            .cancelOption(0))
-            .to.be.revertedWith("NOT_AUTHORIZED");
+        await expect(
+            NFTOptContract.connect(seller).cancelOption(0)
+        ).to.be.revertedWith("NOT_AUTHORIZED");
 
         // Fast-foward EVM by interval + 1 days
         await addDaysToEVM(dummyOptionRequest.interval / SECONDS_IN_A_DAY + 1);
 
-        // Try to cancel again
-        await expect(NFTOptContract.connect(nonParticipant)
-            .cancelOption(0))
-            .to.be.revertedWith("NOT_AUTHORIZED");
+        // Try to cancel again, by non-participant
+        await expect(
+            NFTOptContract.connect(nonParticipant).cancelOption(0)
+        ).to.be.revertedWith("NOT_AUTHORIZED");
 
         // Reset the state
         await deployMainContract();
