@@ -115,7 +115,7 @@ export default function App({ Component, pageProps }: AppProps)
             setContract(contracts.current.NFTOpt);
 
             // Re-fetch cache anew
-            loadAllOptionsWithAsset().then(updateOptionsHash);
+            if (options.length === 0) loadAllOptionsWithAsset().then(updateOptionsHash);
 
             // Subscribe to events
             for (let event of statusLabels) contracts.current.NFTOpt.on(event, handleEvent);
