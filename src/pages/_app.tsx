@@ -54,8 +54,6 @@ export default function App({ Component, pageProps }: AppProps)
 
         let state = actions[transaction.event] as OptionState;
 
-        console.log(state, transaction);
-
         dismissLastToast();
         toast.success("Successfully " + actionLabels[state], { duration: TOAST_DURATION });
 
