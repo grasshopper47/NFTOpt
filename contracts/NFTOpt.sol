@@ -14,25 +14,35 @@ contract NFTOpt {
     enum OptionState  { PUBLISHED, WITHDRAWN, OPEN, CANCELED, EXERCISED }
     enum OptionFlavor { EUROPEAN, AMERICAN }
 
-    struct Option {
-        address payable buyer;
-        OptionFlavor    flavor;
-        address payable seller;
-        OptionState     state;
-        address         nftContract;
-        uint32          interval;
-        uint256         startDate;
+    struct Request
+    {
         uint256         premium;
         uint256         strikePrice;
         uint256         nftId;
+        address         nftContract;
+        OptionFlavor    flavor;
+        uint32          interval;
+        address payable buyer;
+    }
+
+    struct Option
+    {
+        Request         request;
+
+        address payable seller;
+        OptionState     state;
+        uint256         startDate;
     }
 
     /// @dev -- STACK ---------------------------------
-    string constant            private _msg_OnlyBuyerCanCall         = "Only Buyer can call this method";
-    string constant            private _msg_OnlyBuyerOrSellerCanCall = "Only Buyer or Seller can call this method";
+    string constant             private _msg_OnlyBuyerCanCall         = "Only Buyer can call this method";
+    string constant             private _msg_OnlyBuyerOrSellerCanCall = "Only Buyer or Seller can call this method";
 
-    uint256                    public optionID;
-    mapping(uint256 => Option) public options;
+    uint256                     public requestID;
+    mapping(uint256 => Request) public requests;
+
+    uint256                     public optionID;
+    mapping(uint256 => Option)  public options;
 
     /// @dev -- EVENTS --------------------------------
     event Published (uint256);
@@ -48,18 +58,18 @@ contract NFTOpt {
     }
 
     /// @custom:author PeterA
-    /// @notice Checks if the supplied option has valid field values
-    /// @param _option: the Option instance to check
-    function _exists(Option memory _option)
+    /// @notice Checks if the supplied prototype has valid field values
+    /// @param _request: the Option instance to check
+    function _exists(Request memory _request)
     private pure
     returns (bool)
     {
-        return _option.buyer       != address(0) &&
-               _option.nftContract != address(0) &&
-               _option.nftId       != 0          &&
-               _option.interval    != 0          &&
-               _option.premium     != 0          &&
-               _option.strikePrice != 0;
+        return _request.buyer       != address(0) &&
+               _request.nftContract != address(0) &&
+               _request.nftId       != 0          &&
+               _request.interval    != 0          &&
+               _request.premium     != 0          &&
+               _request.strikePrice != 0;
     }
 
     /// @custom:author PeterA
@@ -80,180 +90,184 @@ contract NFTOpt {
     external
     payable
     {
-        if (_nftTokenID == 0)                             { revert INVALID_TOKEN_ID(_nftTokenID); }
-        if (!_nftContract.isInterfaceOf_ERC721())         { revert NOT_AN_INTERFACE_OF("ERC-721", _nftContract); }
+        if (_nftTokenID == 0)                     revert INVALID_TOKEN_ID(_nftTokenID);
+        if (!_nftContract.isInterfaceOf_ERC721()) revert NOT_AN_INTERFACE_OF("ERC-721", _nftContract);
 
         /// @dev Check for NFT ownership
         IERC721 _instance = IERC721(_nftContract);
-        if (_instance.ownerOf(_nftTokenID) != msg.sender) { revert NFT_NOT_OWNER(msg.sender); }
+        if (_instance.ownerOf(_nftTokenID) != msg.sender) revert NFT_NOT_OWNER(msg.sender);
 
-        if (msg.value == 0)                                { revert INVALID_PREMIUM_AMOUNT(0); }
-        if (_strikePrice == 0)                            { revert INVALID_STRIKE_PRICE_AMOUNT(0); }
-        if (_interval == 0)                               { revert INVALID_EXPIRATION_INTERVAL(0); }
+        if (msg.value == 0)     revert INVALID_PREMIUM_AMOUNT(0);
+        if (_strikePrice == 0) revert INVALID_STRIKE_PRICE_AMOUNT(0);
+        if (_interval == 0)    revert INVALID_EXPIRATION_INTERVAL(0);
 
         /// @dev Optimize for gas by caching id
-        uint256 _optionID = optionID;
+        uint256 requestID_ = requestID;
 
-        options[_optionID] =
-        Option
+        /// @dev Update storage
+        requests[requestID_] =
+        Request
         ({
             buyer       : payable(msg.sender)
-        ,   seller      : payable(address(0))
         ,   nftContract : _nftContract
         ,   nftId       : _nftTokenID
-        ,   startDate   : 0
         ,   interval    : _interval
         ,   premium     : msg.value
         ,   strikePrice : _strikePrice
         ,   flavor      : OptionFlavor(_flavor)
-        ,   state       : OptionState.PUBLISHED
         });
 
-        emit Published(_optionID);
+        emit Published(requestID_);
 
-        ++optionID;
+        requestID = ++requestID_;
     }
 
     /// @custom:author GregVanDell and LuisImagiire
     /// @notice Removes a published option request from the marketplace
-    /// @param _optionId: id of the option request to remove
-    function withdrawOptionRequest(uint256 _optionId)
+    /// @param _requestID: id of the option request to remove
+    function withdrawOptionRequest(uint256 _requestID)
     external
     {
-        Option memory option = options[_optionId];
+        Request memory request_ = requests[_requestID];
 
-        if(!_exists(option))                        { revert INVALID_OPTION_ID(_optionId); }
-        if (option.state != OptionState.PUBLISHED)  { revert INVALID_OPTION_STATE(option.state, OptionState.PUBLISHED); }
-        if (option.buyer != msg.sender)             { revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall); }
-        if (getBalance() < option.premium)          { revert INSUFFICIENT_FUNDS(); }
+        if(!_exists(request_))               revert INVALID_REQUEST_ID(_requestID);
+        if (request_.buyer != msg.sender)    revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall);
+        if (getBalance() < request_.premium) revert INSUFFICIENT_FUNDS();
 
-        options[_optionId].state = OptionState.WITHDRAWN;
+        /// @dev Update storage
+        delete requests[_requestID];
 
-        emit Withdrawn(_optionId);
+        emit Withdrawn(_requestID);
 
-        (bool success,) = option.buyer.call{ value : option.premium }("");
-        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
+        /// @dev Transfer premium back to buyer
+        (bool success,) = request_.buyer.call{ value : request_.premium }("");
+        if (!success) revert FUNDS_TRANSFER_FAILED();
     }
 
     /// @custom:author StefanaM
     /// @notice Create (enables) an option from a published request from the marketplace
     ///         by sending strike price to contract and premium to msg.sender
-    /// @param _optionId: id of the option request from which to create the option
-    function createOption(uint256 _optionId)
+    /// @param _requestID: id of the option request from which to create the option
+    function createOption(uint256 _requestID)
     external
     payable
     {
-        Option memory option = options[_optionId];
+        Request memory request_ = requests[_requestID];
 
-        if (!_exists(option))                                    { revert INVALID_OPTION_ID(_optionId); }
-        if (option.seller != address(0))                         { revert OPTION_REQUEST_ALREADY_FULFILLED(option.seller); }
-        if (option.state != OptionState.PUBLISHED)               { revert INVALID_OPTION_STATE(option.state, OptionState.PUBLISHED); }
-        if (option.buyer == msg.sender)                          { revert BUYER_MUST_DIFFER_FROM_SELLER(); }
-        if (getBalance() < option.premium)                       { revert INSUFFICIENT_FUNDS(); }
-        if (msg.value != option.strikePrice)                     { revert INVALID_STRIKE_PRICE_AMOUNT(option.strikePrice); }
-        if (block.timestamp + option.interval < block.timestamp) { revert UNSIGNED_INTEGER_OVERFLOW(); }
+        if (!_exists(request_))                revert INVALID_REQUEST_ID(_requestID);
+        if (request_.buyer == msg.sender)      revert BUYER_MUST_DIFFER_FROM_SELLER();
+        if (getBalance() < request_.premium)   revert INSUFFICIENT_FUNDS();
+        if (msg.value != request_.strikePrice) revert INVALID_STRIKE_PRICE_AMOUNT(request_.strikePrice);
 
-        option.seller    = payable(msg.sender);
-        option.startDate = block.timestamp;
-        option.state     = OptionState.OPEN;
+        /// @dev Update storage
+        delete requests[_requestID];
 
-        options[_optionId] = option;
+        /// @dev Optimize for gas by caching id
+        uint256 optionID_ = optionID;
 
-        emit Opened(_optionId);
+        options[optionID_] =
+        Option
+        ({
+            request   : request_
+        ,   seller    : payable(msg.sender)
+        ,   startDate : block.timestamp
+        ,   state     : OptionState.OPEN
+        });
 
-        (bool success,) = msg.sender.call{ value : option.premium }("");
-        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
+        emit Opened(optionID_);
+
+        optionID = ++optionID_;
+
+        /// @dev Transfer premium to caller
+        (bool success,) = msg.sender.call{ value : request_.premium }("");
+        if (!success) revert FUNDS_TRANSFER_FAILED();
     }
 
     /// @custom:author ShababAli
     /// @notice Cancels an active option and returns strike price to seller
-    /// @param _optionId: id of the option to cancel
-    function cancelOption(uint256 _optionId)
+    /// @param _optionID: id of the option to cancel
+    function cancelOption(uint256 _optionID)
     external
     {
-        Option memory option = options[_optionId];
+        Option memory option_ = options[_optionID];
 
-        if(!_exists(option))                                        { revert INVALID_OPTION_ID(_optionId); }
-        if (option.state != OptionState.OPEN)                       { revert INVALID_OPTION_STATE(option.state, OptionState.OPEN); }
+        if(!_exists(option_.request))          revert INVALID_OPTION_ID(_optionID);
+        if (option_.state != OptionState.OPEN) revert INVALID_OPTION_STATE(option_.state, OptionState.OPEN);
 
-        IERC721 nftContract = IERC721(option.nftContract);
-        if (nftContract.getApproved(option.nftId) == address(this)) { revert NOT_AUTHORIZED(msg.sender, "Cancel while approved contract to transfer NFT"); }
-
-        uint256 expirationDate = option.startDate + option.interval;
+        IERC721 nftContract = IERC721(option_.request.nftContract);
+        if (nftContract.getApproved(option_.request.nftId) == address(this)) revert NOT_AUTHORIZED(msg.sender, "Cancel while approved contract to transfer NFT");
 
         /// @dev Restrict calling rights to buyer (permitted anytime) or seller (restricted)
-        if
-        (
-            option.buyer != msg.sender &&
-            option.seller != msg.sender
-        )                                                           { revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerOrSellerCanCall); }
+        bool isSeller = msg.sender == option_.seller;
+
+        if (!isSeller && msg.sender != option_.request.buyer) revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerOrSellerCanCall);
 
         /// @dev Restrict calling rights of seller: permit only after expiration
-        if
-        (
-            expirationDate >= block.timestamp &&
-            option.buyer != msg.sender
-        )                                                           { revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall); }
+        uint256 expirationDate_ = option_.startDate + option_.request.interval;
 
-        options[_optionId].state = OptionState.CANCELED;
+        if (isSeller && expirationDate_ >= block.timestamp)   revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall);
 
-        emit Canceled(_optionId);
+        options[_optionID].state = OptionState.CANCELED;
 
-        (bool success,) = option.seller.call{ value : option.strikePrice }("");
-        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
+        emit Canceled(_optionID);
+
+        (bool success,) = option_.seller.call{ value : option_.request.strikePrice }("");
+        if (!success) revert FUNDS_TRANSFER_FAILED();
     }
 
     /// @custom:author LuisImagiire
     /// @notice Exercises an active option when msg.sender is allowed to execute
-    /// @param _optionId: id of the option to exercise
-    function exerciseOption(uint256 _optionId)
+    /// @param _optionID: id of the option to exercise
+    function exerciseOption(uint256 _optionID)
     external
     {
-        Option memory option = options[_optionId];
+        Option memory option_ = options[_optionID];
 
-        if (option.buyer == address(0))                             { revert INVALID_OPTION_ID(_optionId); }
-        if (option.state != OptionState.OPEN)                       { revert INVALID_OPTION_STATE(option.state, OptionState.OPEN); }
-        if (getBalance() < option.strikePrice)                      { revert INSUFFICIENT_FUNDS(); }
-
-        /// @dev Restrict calling rights to buyer only
-        if (option.buyer != msg.sender)                             { revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall); }
+        if (option_.request.buyer == address(0))        revert INVALID_OPTION_ID(_optionID);
+        if (option_.request.buyer != msg.sender)        revert NOT_AUTHORIZED(msg.sender, _msg_OnlyBuyerCanCall);
+        if (option_.state != OptionState.OPEN)          revert INVALID_OPTION_STATE(option_.state, OptionState.OPEN);
+        if (getBalance() < option_.request.strikePrice) revert INSUFFICIENT_FUNDS();
 
         /// @dev Check for NFT access and ownership
-        IERC721 nftContract = IERC721(option.nftContract);
+        IERC721 nftContract = IERC721(option_.request.nftContract);
 
-        if (nftContract.ownerOf(option.nftId) != msg.sender)        { revert NFT_NOT_OWNER(msg.sender); }
-        if (nftContract.getApproved(option.nftId) != address(this)) { revert NOT_APPROVED_TO_TRANSFER_NFT(option.nftContract, option.nftId); }
-        if (option.startDate + option.interval < option.startDate)  { revert UNSIGNED_INTEGER_OVERFLOW(); }
+        if (nftContract.ownerOf(option_.request.nftId) != msg.sender)        revert NFT_NOT_OWNER(msg.sender);
+        if (nftContract.getApproved(option_.request.nftId) != address(this)) revert NOT_APPROVED_TO_TRANSFER_NFT(option_.request.nftContract, option_.request.nftId);
 
-        /// @dev Check for time restrictions
-        uint256 expirationDate = option.startDate + option.interval;
-        if
-        (
-            block.timestamp > expirationDate ||
-            (
-                option.flavor == OptionFlavor.EUROPEAN &&
-                (expirationDate - 1 days) > block.timestamp
-            )
-        )                                                           { revert EXERCISE_WINDOW_IS_CLOSED(expirationDate); }
+        /// @dev Check that interval is valid
+        if (option_.startDate + option_.request.interval < option_.startDate) revert UNSIGNED_INTEGER_OVERFLOW();
+
+        /// @dev Check that option can be exercised
+        uint256 expirationDate_ = option_.startDate + option_.request.interval;
+
+        bool isExpired =
+        block.timestamp > expirationDate_
+        || (
+            option_.request.flavor == OptionFlavor.EUROPEAN &&
+            (expirationDate_ - 1 days) > block.timestamp
+        );
+
+        if (isExpired) revert EXERCISE_WINDOW_IS_CLOSED(expirationDate_);
 
         nftContract.transferFrom
         ({
-            to      : option.seller
+            to      : option_.seller
         ,   from    : msg.sender
-        ,   tokenId : option.nftId
+        ,   tokenId : option_.request.nftId
         });
 
-        options[_optionId].state = OptionState.EXERCISED;
+        options[_optionID].state = OptionState.EXERCISED;
 
-        emit Exercised(_optionId);
+        emit Exercised(_optionID);
 
-        (bool success,) = msg.sender.call{ value : option.strikePrice }("");
-        if (!success) { revert FUNDS_TRANSFER_FAILED(); }
+        (bool success,) = msg.sender.call{ value : option_.request.strikePrice }("");
+        if (!success) revert FUNDS_TRANSFER_FAILED();
     }
 
     /// @dev -- CUSTOM ERRORS -------------------------
 
     /// @dev -- Option Property
+    error INVALID_REQUEST_ID(uint256 id);
     error INVALID_OPTION_ID(uint256 id);
     error INVALID_TOKEN_ID(uint256 id);
     error INVALID_PREMIUM_AMOUNT(uint256 premium);
@@ -269,7 +283,6 @@ contract NFTOpt {
     /// @dev -- Option Action
     error BUYER_MUST_DIFFER_FROM_SELLER();
     error EXERCISE_WINDOW_IS_CLOSED(uint256 expirationTimestamp);
-    error OPTION_REQUEST_ALREADY_FULFILLED(address fulfillerAddress);
 
     /// @dev -- Funds-related
     error INSUFFICIENT_FUNDS();
