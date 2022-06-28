@@ -12,7 +12,7 @@ import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json"
 import addresses from "../../addresses.json";
 import { dismissLastToast, TOAST_DURATION } from "../frontend/utils/toasting";
 import { BigNumber } from "ethers";
-import { actionLabels, events } from "../frontend/utils/labels";
+import { actionLabels, actions, events, statusLabels } from "../frontend/utils/labels";
 
 const OptionsHashContext       = createContext(0);
 const AccountContext           = createContext("");
@@ -52,7 +52,9 @@ export default function App({ Component, pageProps }: AppProps)
         if (blockNumber.current >= transaction.blockNumber) return;
         blockNumber.current = transaction.blockNumber;
 
-        let state = events[transaction.event] as OptionState;
+        let state = actions[transaction.event] as OptionState;
+
+        console.log(state, transaction);
 
         dismissLastToast();
         toast.success("Successfully " + actionLabels[state], { duration: TOAST_DURATION });
@@ -118,7 +120,7 @@ export default function App({ Component, pageProps }: AppProps)
             loadAllOptionsWithAsset().then(updateOptionsHash);
 
             // Subscribe to events
-            for (let event of Object.keys(events)) contracts.current.NFTOpt.on(event, handleEvent);
+            for (let event of statusLabels) contracts.current.NFTOpt.on(event, handleEvent);
         }
     ,   [account]
     );
