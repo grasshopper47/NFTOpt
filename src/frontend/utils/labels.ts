@@ -29,7 +29,7 @@ function createActions()
     let actions = {};
     let i = -1;
 
-    for (let key of stateLabels) actions[key] = ++i as OptionState;
+    for (let key of stateLabels) actions[key] = { state: ++i as OptionState, label: actionLabels[i] }
 
     return actions;
 }

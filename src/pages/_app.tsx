@@ -52,16 +52,16 @@ export default function App({ Component, pageProps }: AppProps)
         if (blockNumber.current >= transaction.blockNumber) return;
         blockNumber.current = transaction.blockNumber;
 
-        let state = actions[transaction.event] as OptionState;
+        let action = actions[transaction.event];
 
         dismissLastToast();
-        toast.success("Successfully " + actionLabels[state], { duration: TOAST_DURATION });
+        toast.success("Successfully " + action.label, { duration: TOAST_DURATION });
 
-        console.log(actionLabels[state]);
+        console.log(action.label);
 
         let id = optionID.toNumber();
 
-        if (state === OptionState.PUBLISHED)
+        if (action.state === OptionState.PUBLISHED)
         {
             loadOptionWithAsset(id).then(updateOptionsHash);
 
@@ -72,7 +72,7 @@ export default function App({ Component, pageProps }: AppProps)
         {
             if (o.id !== id) continue;
 
-            o.state = state;
+            o.state = action.state;
             break;
         }
 
