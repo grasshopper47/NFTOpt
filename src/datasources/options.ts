@@ -1,11 +1,14 @@
+// @ts-ignore
+import { NFTOpt } from "../../typechain-types";
+
 import { Option, OptionFlavor, OptionWithAsset } from "../models/option";
 import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { account } from "../frontend/utils/metamask";
 import { getCachedContract, keyOf, images } from "./NFT/localhost";
-import { NFTOpt } from "../../typechain-types";
 import { NFTAsset } from "../models/nftAsset";
+import { BigNumber } from "ethers";
 
-type Option_SOLIDITY = Omit<Option, "id">;
+type Option_SOLIDITY = Omit<Option, "id" | "startDate"> & {startDate: BigNumber};
 
 let NFTOpt : NFTOpt;
 
@@ -51,7 +54,7 @@ async function _getOption(id: number)
     ,   seller      : optionSolidity.seller.toLowerCase()
     ,   nftContract : optionSolidity.nftContract
     ,   nftId       : optionSolidity.nftId
-    ,   startDate   : optionSolidity.startDate
+    ,   startDate   : optionSolidity.startDate.toNumber()
     ,   interval    : optionSolidity.interval / SECONDS_IN_A_DAY
     ,   premium     : optionSolidity.premium
     ,   strikePrice : optionSolidity.strikePrice

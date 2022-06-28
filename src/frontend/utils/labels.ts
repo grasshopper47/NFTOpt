@@ -1,5 +1,20 @@
 import { OptionState } from "../../models/option";
 
+export const flavorLabels =
+[
+    "European"
+,   "American"
+];
+
+export const stateLabels =
+[
+    "Published"
+,   "Withdrawn"
+,   "Opened"
+,   "Canceled"
+,   "Exercised"
+];
+
 export const actionLabels =
 [
     "published request"
@@ -9,29 +24,14 @@ export const actionLabels =
 ,   "exercised option"
 ];
 
-export const statusLabels =
-[
-    "Published"
-,   "Withdrawn"
-,   "Opened"
-,   "Canceled"
-,   "Exercised"
-];
-
-export const flavorLabels =
-[
-    "European"
-,   "American"
-];
-
-function createEvents()
+function createActions()
 {
-    let events = {};
+    let actions = {};
     let i = -1;
 
-    for (let key of statusLabels) events[key] = statusLabels[++i];
+    for (let key of stateLabels) actions[key] = { state: ++i as OptionState, label: actionLabels[i] }
 
-    return events;
+    return actions;
 }
 
-export const events = createEvents();
+export const actions = createActions();

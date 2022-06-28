@@ -1,15 +1,8 @@
 @import "src/styles/variables.scss";
 
-
-@keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-}
-
 .root
 {
     display: flex;
-    animation: fadeIn 333ms;
 }
 
 .detailsContainer

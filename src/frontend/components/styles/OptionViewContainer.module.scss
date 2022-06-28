@@ -8,7 +8,7 @@
 .root
 {
     max-width: 900px;
-    height: calc(100% - 20px);
+    height: calc(100% - 98px);
     display: flex;
     flex-direction: column;
     margin: auto;
@@ -43,9 +43,8 @@
 
 .tabsState
 {
-    margin-top: -50px;
+    margin-top: -10px;
     align-self: center;
-    margin-left: 200px;
     animation: fadeIn 333ms;
 
     button
@@ -120,11 +119,11 @@
 {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-row-gap: 40px;
+    justify-items: center;
     overflow: auto;
     margin-top: 40px;
-    margin-bottom: 160px;
-    justify-items: center;
+    margin-bottom: 20px;
+    margin-bottom: 10px;
 
     &.S
     {
@@ -132,13 +131,26 @@
     }
 }
 
+.gridWithOptions
+{
+    border-bottom: 1px solid $color-primary;
+}
+
+.gridEmpty
+{
+    height: fit-content;
+}
+
+
 .containerItem
 {
+    animation: fadeIn 333ms;
     margin-top: 40px;
 }
 
 .noOptions
 {
+    animation: fadeIn 333ms;
     font-weight: bold;
     font-size: 16px;
     grid-column: 2;

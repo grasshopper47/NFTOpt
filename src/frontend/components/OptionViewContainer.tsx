@@ -152,34 +152,25 @@ function OptionViewContainer()
 
                 {
                     viewedOptions.length !== 0 &&
-                    <>
-                        <Tabs
-                            className={classes.tabsState}
-                            value={viewStateIndex}
-                            onChange={handleViewStateChanged}
-                        >
-                        {
-                            viewStates[view]?.map
-                            (
-                                state =>
-                                <Tab key={`option-view-state-tab-${state}`}
-                                    label={state}
-                                />
-                            )
-                        }
-                        </Tabs>
-
-                        <FormControlLabel
-                            className={clsx(classes.checkbox, !checked ? classes.unchecked : classes.checked)}
-                            control={<Switch checked={checked} onChange={() => setChecked(!checked)}/>}
-                            disabled={selectedOption !== null}
-                            label={(checked ? "Account's" : "All") + " Options"}
-                            labelPlacement="start"
-                        />
-                    </>
+                    <FormControlLabel
+                        className={clsx(classes.checkbox, !checked ? classes.unchecked : classes.checked)}
+                        control={<Switch checked={checked} onChange={() => setChecked(!checked)}/>}
+                        disabled={selectedOption !== null}
+                        label={(checked ? "Account's" : "All") + " Options"}
+                        labelPlacement="start"
+                    />
                 }
 
-                <div className={clsx(classes.containerGrid, classes[ (network() && viewedOptions.length) ? getViewClassName(view, viewStateIndex) : "empty" ])}
+                <div
+                    className=
+                    {
+                        clsx
+                        (
+                            classes.containerGrid
+                        ,   network() && viewedOptions.length && classes[getViewClassName(view, viewStateIndex)]
+                        ,   viewedOptions.length ? classes.gridWithOptions : classes.gridEmpty
+                        )
+                    }
                 >
                 {
                     !viewedOptions.length &&
@@ -188,12 +179,13 @@ function OptionViewContainer()
                         network()
                         ?
                             optionsHash === 0 && "Loading Options ..."
-                            || optionsHash === 1
-                            &&
-                            (
-                                !options.length && "No Options"
-                                || !viewedOptions.length && "Done"
-                            )
+                            ||  optionsHash === 1
+                                &&
+                                (
+                                    !options.length && "No Options"
+                                    || !viewedOptions.length && "Done"
+                                )
+                            ||  !viewedOptions.length && "No Options"
                         :
                             "No Options"
                     }
@@ -212,6 +204,25 @@ function OptionViewContainer()
                     )
                 }
                 </div>
+
+                {
+                    viewedOptions.length !== 0 &&
+                    <Tabs
+                        className={classes.tabsState}
+                        value={viewStateIndex}
+                        onChange={handleViewStateChanged}
+                    >
+                    {
+                        viewStates[view]?.map
+                        (
+                            state =>
+                            <Tab key={`option-view-state-tab-${state}`}
+                                label={state}
+                            />
+                        )
+                    }
+                    </Tabs>
+                }
             </>
         }
 

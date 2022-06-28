@@ -12,7 +12,7 @@ import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json"
 import addresses from "../../addresses.json";
 import { dismissLastToast, TOAST_DURATION } from "../frontend/utils/toasting";
 import { BigNumber } from "ethers";
-import { actionLabels, events } from "../frontend/utils/labels";
+import { actionLabels, actions, events, stateLabels } from "../frontend/utils/labels";
 
 const OptionsHashContext       = createContext(0);
 const AccountContext           = createContext("");
@@ -52,16 +52,16 @@ export default function App({ Component, pageProps }: AppProps)
         if (blockNumber.current >= transaction.blockNumber) return;
         blockNumber.current = transaction.blockNumber;
 
-        let state = events[transaction.event] as OptionState;
+        let action = actions[transaction.event];
 
         dismissLastToast();
-        toast.success("Successfully " + actionLabels[state], { duration: TOAST_DURATION });
+        toast.success("Successfully " + action.label, { duration: TOAST_DURATION });
 
-        console.log(actionLabels[state]);
+        console.log(action.label);
 
         let id = optionID.toNumber();
 
-        if (state === OptionState.PUBLISHED)
+        if (action.state === OptionState.PUBLISHED)
         {
             loadOptionWithAsset(id).then(updateOptionsHash);
 
@@ -72,7 +72,7 @@ export default function App({ Component, pageProps }: AppProps)
         {
             if (o.id !== id) continue;
 
-            o.state = state;
+            o.state = action.state;
             break;
         }
 
@@ -115,10 +115,10 @@ export default function App({ Component, pageProps }: AppProps)
             setContract(contracts.current.NFTOpt);
 
             // Re-fetch cache anew
-            loadAllOptionsWithAsset().then(updateOptionsHash);
+            if (options.length === 0) loadAllOptionsWithAsset().then(updateOptionsHash);
 
             // Subscribe to events
-            for (let event of Object.keys(events)) contracts.current.NFTOpt.on(event, handleEvent);
+            for (let event of stateLabels) contracts.current.NFTOpt.on(event, handleEvent);
         }
     ,   [account]
     );
