@@ -6,7 +6,7 @@ export const flavorLabels =
 ,   "American"
 ];
 
-export const statusLabels =
+export const stateLabels =
 [
     "Published"
 ,   "Withdrawn"
@@ -29,7 +29,7 @@ function createActions()
     let actions = {};
     let i = -1;
 
-    for (let key of statusLabels) actions[key] = ++i as OptionState;
+    for (let key of stateLabels) actions[key] = ++i as OptionState;
 
     return actions;
 }

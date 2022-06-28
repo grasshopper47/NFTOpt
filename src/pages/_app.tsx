@@ -12,7 +12,7 @@ import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json"
 import addresses from "../../addresses.json";
 import { dismissLastToast, TOAST_DURATION } from "../frontend/utils/toasting";
 import { BigNumber } from "ethers";
-import { actionLabels, actions, events, statusLabels } from "../frontend/utils/labels";
+import { actionLabels, actions, events, stateLabels } from "../frontend/utils/labels";
 
 const OptionsHashContext       = createContext(0);
 const AccountContext           = createContext("");
@@ -118,7 +118,7 @@ export default function App({ Component, pageProps }: AppProps)
             if (options.length === 0) loadAllOptionsWithAsset().then(updateOptionsHash);
 
             // Subscribe to events
-            for (let event of statusLabels) contracts.current.NFTOpt.on(event, handleEvent);
+            for (let event of stateLabels) contracts.current.NFTOpt.on(event, handleEvent);
         }
     ,   [account]
     );

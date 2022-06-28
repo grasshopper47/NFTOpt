@@ -12,7 +12,7 @@ import { useContracts, useOptionChangingIDs } from "../../pages/_app";
 import {  OptionState, OptionWithAsset } from "../../models/option";
 import { ADDRESS0 } from "../../utils/constants";
 import { account, signer } from "../utils/metamask";
-import { flavorLabels, statusLabels } from "../utils/labels";
+import { flavorLabels, stateLabels } from "../utils/labels";
 import { dismissLastToast, showToast } from "../utils/toasting";
 import Button_OptionDetailsView from "../fragments/Button.OptionDetailsView";
 import Field_OptionDetailsView from "../fragments/Field.OptionDetailsView";
@@ -123,7 +123,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
             <div className={classes.detailsContainer}>
                 <div>
                     <img src={option.asset.image} alt="NFT Image" />
-                    <span className={classes.state}>{statusLabels[option.state]}</span>
+                    <span className={classes.state}>{stateLabels[option.state]}</span>
                 </div>
 
                 <div className={classes.detailsSub}>
