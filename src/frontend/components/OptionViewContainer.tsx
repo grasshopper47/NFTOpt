@@ -44,14 +44,15 @@ const viewStates =
 }
 
 const viewStateStorageKey = "ListViewState";
+const tabIndexStorageKey = "ActiveTabIndex";
 
 export const getViewClassName = (view : Views, state : number) => viewStates[view][state];
 
 function OptionViewContainer()
 {
     const [ view           , setView ]           = useState<Views>(Views.CARDLIST);
-    const [ viewStateIndex , setViewStateIndex ] = useState(0);
-    const [ activeTabIndex , setActiveTabIndex ] = useState(0);
+    const [ viewStateIndex , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
+    const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
     const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
     const [ selectedOption , setSelectedOption ] = useState<OptionWithAsset | null>(null);
     const [ checked        , setChecked ]        = useState(false);
@@ -62,12 +63,6 @@ function OptionViewContainer()
     const requestsHash = useRequestsHash();
     const options      = useOptions();
     const optionsHash  = useOptionsHash();
-
-    useEffect
-    (
-        () => setViewStateIndex( parseInt(localStorage[viewStateStorageKey] ?? 0) )
-    ,   []
-    );
 
     useEffect
     (
@@ -113,6 +108,8 @@ function OptionViewContainer()
             // 1st run, skip until options are loaded
             if (requests.length === 0 && options.length === 0) return;
 
+            localStorage[tabIndexStorageKey] = activeTabIndex;
+
             setViewedOptions(optionsByState.current[tabs[activeTabIndex].value]);
         }
     ,   [activeTabIndex]
@@ -124,7 +121,7 @@ function OptionViewContainer()
         {
             if (selectedOption)
             {
-                document.body.onkeydown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedOption(null) };
+                document.body.onkeydown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedOption(null); };
                 setView(Views.DETAIL);
 
                 return;
@@ -135,8 +132,6 @@ function OptionViewContainer()
         }
     ,   [selectedOption]
     );
-
-    const handleTabChanged = (event: any, index : number) => setActiveTabIndex(index);
 
     const handleViewStateChanged = (event: any, index : number) =>
     {
@@ -180,7 +175,7 @@ function OptionViewContainer()
                 <Tabs
                     className={classes.tabs}
                     value={activeTabIndex}
-                    onChange={handleTabChanged}
+                    onChange={(e, index : number) => setActiveTabIndex(index)}
                 >
                 {
                     tabs.map
