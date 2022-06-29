@@ -4,9 +4,9 @@ import clsx from "clsx";
 
 import { AccessTime } from "@mui/icons-material";
 import { ethers } from "ethers";
-import { OptionWithAsset } from "../../models/option";
+import { OptionWithAsset } from "../../models/extended";
 import { getViewClassName, Views } from "./OptionViewContainer";
-import { useOptionChangingIDs } from "../../pages/_app";
+import { useOptionChangingIDs, useRequestChangingIDs } from "../../pages/_app";
 
 type OptionListItemViewProps =
 {
@@ -19,13 +19,22 @@ function OptionListItemView(props: OptionListItemViewProps)
 {
     const { option, viewIndex } = props;
 
+    const requestChangingIDs = useRequestChangingIDs();
     const optionChangingIDs = useOptionChangingIDs();
 
     const className = classes[ getViewClassName(Views.CARDLIST, viewIndex) ];
 
     return <>
         <div
-            className={clsx(classes.card, className, optionChangingIDs[option.id] && classes.changing) }
+            className=
+            {
+                clsx
+                (
+                    classes.card
+                ,   className
+                ,   (requestChangingIDs[option.id] || optionChangingIDs[option.id]) && classes.changing
+                )
+            }
             onClick={ () => props.showDetailsView(option) }
         >
             <img
