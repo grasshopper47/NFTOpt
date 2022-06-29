@@ -5,7 +5,8 @@ import clsx from "clsx";
 import { Button, FormControl, RadioGroup } from "@mui/material";
 import { useState } from "react";
 import { ethers } from "ethers";
-import { loadNFTImage, imageOf, keyOf } from "../../datasources/NFT/localhost";
+import { loadNFTImage } from "../../datasources/NFT/localhost";
+import { imageOf, keyOf } from "../../datasources/globals";
 import { OptionFlavor } from "../../models/option";
 import { OptionRequest } from "../../models/optionRequest";
 import { showToast } from "../utils/toasting";
@@ -16,8 +17,9 @@ import { getFloatString, getIntervalString } from "../utils/helpers";
 import TextBox_OptionRequestForm from "../fragments/TextBox.OptionRequest";
 import Radio_OptionRequestForm from "../fragments/Radio.OptionRequest";
 import DropDown_OptionRequestForm from "../fragments/DropDown.OptionRequest";
+import { OptionRequest_DISPLAY } from "../../models/extended";
 
-const createRequest = (obj : OptionRequest) =>
+const createRequest = (obj : OptionRequest_DISPLAY) =>
 {
     obj.nftContract = "";
     obj.nftId       = BIGNUMBER0;
@@ -27,7 +29,7 @@ const createRequest = (obj : OptionRequest) =>
     obj.flavor      = OptionFlavor.AMERICAN;
 }
 
-const isValid = (request : OptionRequest) =>
+const isValid = (request : OptionRequest_DISPLAY) =>
 {
     return request.nftContract !== ""
         && request.premium     !== ""
@@ -35,7 +37,7 @@ const isValid = (request : OptionRequest) =>
         && request.interval    !== ""
 }
 
-let request : OptionRequest = { } as OptionRequest;
+let request : OptionRequest_DISPLAY = { } as OptionRequest_DISPLAY;
 createRequest(request);
 
 function OptionRequestForm()
