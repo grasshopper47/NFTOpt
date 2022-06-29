@@ -38,6 +38,8 @@ function Header()
     const router = useRouter();
     const account = useAccount();
 
+    console.log(provider() != null);
+
     return <>
         <div className={classes.root}>
             <Link key="route-link-main" href="/">
