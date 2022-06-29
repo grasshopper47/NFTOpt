@@ -138,7 +138,8 @@ export default function App({ Component, pageProps }: AppProps)
     (
         () =>
         {
-            hookMetamask(window, setAccount);
+            hookMetamask(window, setAccount)
+            .then( async () => blockNumber.current = await provider()?.getBlockNumber() );
         }
     ,   []
     );
