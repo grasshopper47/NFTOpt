@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { isExpired } from "../../datasources/options";
 import { getCachedContract } from "../../datasources/globals";
-import { useContracts, useOptionChangingIDs, useRequestIDsTransactionsContext, useRequestChangingIDs } from "../../pages/_app";
+import { useContracts, useOptionChangingIDs, useRequestIDsTransactionsContext, useRequestChangingIDs, useOptionIDsTransactionsContext } from "../../pages/_app";
 import { OptionState} from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
 import { ADDRESS0 } from "../../utils/constants";
@@ -32,10 +32,13 @@ function OptionDetailsView(props: OptionDetailsViewProps)
 
     const [ isApproved, setApproved ] = useState(false);
 
-    const contracts          = useContracts();
-    const requestChangingIDs = useRequestChangingIDs();
-    const optionChangingIDs  = useOptionChangingIDs();
+    const contracts = useContracts();
+
+    const requestChangingIDs     = useRequestChangingIDs();
     const requestIDsTransactions = useRequestIDsTransactionsContext();
+
+    const optionChangingIDs     = useOptionChangingIDs();
+    const optionIDsTransactions = useOptionIDsTransactionsContext();
 
     let contract;
 
@@ -96,6 +99,18 @@ function OptionDetailsView(props: OptionDetailsViewProps)
     );
 
     let onApproveNFT = () => showToast(contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.nftId));
+
+    console.log(requestIDsTransactions);
+    console.log(optionIDsTransactions);
+    const getStateTransactionScannerLink = () =>
+    {
+        let hash =
+        option.state === OptionState.PUBLISHED
+        ?   requestIDsTransactions[option.id]
+        :   optionIDsTransactions[option.id];
+
+        return `${scanner()}/tx/${hash}`;
+    }
 
     function createButtonsFromOptionState()
     {
@@ -162,7 +177,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
                 <div>
                     <img src={option.asset.image} alt="NFT Image" />
                     <a  target="_blank"
-                        href={`${scanner()}/tx/${requestIDsTransactions[option.id]}`}
+                        href={getStateTransactionScannerLink()}
                         className={clsx(classes.link, classes.state)}
                     >
                         {stateLabels[option.state]}
