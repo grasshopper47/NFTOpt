@@ -35,19 +35,17 @@ export const useRequestChangingIDs = () => useContext(RequestChangingIDsContext)
 
 export default function App({ Component, pageProps }: AppProps)
 {
-    const [ account , setAccount ]      = useState("");
-    const [         , setRequestsHash ] = useState(0);
-    const [         , setOptionsHash ]  = useState(0);
+    const [ account      , setAccount ]      = useState("");
+    const [ requestsHash , setRequestsHash ] = useState(0);
+    const [ optionsHash  , setOptionsHash ]  = useState(0);
 
     const blockNumber        = useRef(~0);
-    const requestsHash       = useRef(0);
-    const optionsHash        = useRef(0);
     const optionChangingIDs  = useRef([]);
     const requestChangingIDs = useRef([]);
     const contracts          = useRef({ NFTOpt: null as unknown as NFTOpt });
 
-    function updateRequestsHash() { ++requestsHash.current; setRequestsHash(requestsHash.current); }
-    function updateOptionsHash()  { ++optionsHash.current; setOptionsHash(optionsHash.current); }
+    const updateRequestsHash = () => setRequestsHash(requestsHash + 1);
+    const updateOptionsHash  = () => setOptionsHash(optionsHash + 1);
 
     async function handleEvent
     (
@@ -76,10 +74,11 @@ export default function App({ Component, pageProps }: AppProps)
         }
 
         let length = requests.length;
+        let i = -1;
 
         if (action.state === OptionState.WITHDRAWN)
         {
-            for (let i = 0; i !== length; ++i)
+            while (++i !== length)
             {
                 if (requests[i].id !== id) continue;
 
@@ -101,7 +100,7 @@ export default function App({ Component, pageProps }: AppProps)
             let tx = await transaction.getTransaction();
             let requestID = BigNumber.from("0x" + tx.data.slice(10)).toNumber();
 
-            for (let i = 0; i !== length; ++i)
+            while (++i !== length)
             {
                 let request = requests[i];
                 if (request.id !== requestID) continue;
@@ -140,9 +139,6 @@ export default function App({ Component, pageProps }: AppProps)
         () =>
         {
             hookMetamask(window, setAccount);
-
-            // Store current block number to filter out old events
-            provider()?.getBlockNumber().then(r => blockNumber.current = r);
         }
     ,   []
     );
@@ -184,10 +180,10 @@ export default function App({ Component, pageProps }: AppProps)
         <AccountContext.Provider            value={account}>
         <ContractsContext.Provider          value={contracts.current}>
         <RequestsContext.Provider           value={requests}>
-        <RequestsHashContext.Provider       value={requestsHash.current}>
+        <RequestsHashContext.Provider       value={requestsHash}>
         <RequestChangingIDsContext.Provider value={requestChangingIDs.current}>
         <OptionsContext.Provider            value={options}>
-        <OptionsHashContext.Provider        value={optionsHash.current}>
+        <OptionsHashContext.Provider        value={optionsHash}>
         <OptionChangingIDsContext.Provider  value={optionChangingIDs.current}>
             <Header/>
             { connected() && <Component {...pageProps} /> }
