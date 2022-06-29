@@ -177,22 +177,14 @@ function OptionViewContainer()
                     value={activeTabIndex}
                     onChange={(e, index : number) => setActiveTabIndex(index)}
                 >
-                {
-                    tabs.map
-                    (
-                        optionStateTab =>
-                        <Tab key={`option-state-tab-${optionStateTab.name}`}
-                            label={optionStateTab.name}
-                        />
-                    )
-                }
+                    { tabs.map( tab => <Tab key={`tab-filter-${tab.name}`} label={tab.name} /> ) }
                 </Tabs>
 
                 {
                     viewedOptions.length !== 0 &&
                     <FormControlLabel
                         className={clsx(classes.checkbox, !checked ? classes.unchecked : classes.checked)}
-                        control={<Switch checked={checked} onChange={() => setChecked(!checked)}/>}
+                        control={<Switch checked={checked} onChange={ () => setChecked(!checked) } />}
                         disabled={selectedOption !== null}
                         label={(checked ? "Account's" : "All") + " Options"}
                         labelPlacement="start"
@@ -235,15 +227,7 @@ function OptionViewContainer()
                         value={viewStateIndex}
                         onChange={handleViewStateChanged}
                     >
-                    {
-                        viewStates[view]?.map
-                        (
-                            state =>
-                            <Tab key={`option-view-state-tab-${state}`}
-                                label={state}
-                            />
-                        )
-                    }
+                        { viewStates[view]?.map( state => <Tab key={`tab-view-state-${state}`} label={state} /> ) }
                     </Tabs>
                 }
             </>
