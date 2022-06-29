@@ -1,28 +1,21 @@
-// @ts-ignore
-import { NFTOpt } from "../../typechain-types";
-
 import { Option, OptionFlavor } from "../models/option";
 import { OptionWithAsset, Option_SOLIDITY } from "../models/extended";
 import { NFTOptContract } from "./globals";
 import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
-import { account } from "../frontend/utils/metamask";
-
 
 export function isExpired(option : Option | OptionWithAsset)
 {
-    if (option.buyer !== account() || !option.startDate) return false;
-
     let timeNow = new Date().getTime() / 1000;
     let timeOption = option.startDate + option.interval * SECONDS_IN_A_DAY;
     let diff = timeOption - timeNow;
 
+    // Can exercise any time before & including the end day (AMERICAN)
+    if (option.flavor === OptionFlavor.AMERICAN) return diff < 0;
+
     // Can exercise only on the end day (both EUROPEAN and AMERICAN)
     if (diff > -1 && diff <= SECONDS_IN_A_DAY ) return false;
 
-    // Can exercise any time before & including the end day (AMERICAN)
-    if (option.flavor === OptionFlavor.AMERICAN) return diff <= 0;
-
-    return false;
+    return true;
 }
 
 export async function getOption(id: number)
