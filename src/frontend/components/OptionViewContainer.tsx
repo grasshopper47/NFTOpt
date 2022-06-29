@@ -110,7 +110,8 @@ function OptionViewContainer()
     (
         () =>
         {
-            if (requests.length === 0 && options.length === 0) return;  // 1st run, skip until options are loaded
+            // 1st run, skip until options are loaded
+            if (requests.length === 0 && options.length === 0) return;
 
             setViewedOptions(optionsByState.current[tabs[activeTabIndex].value]);
         }
@@ -141,6 +142,32 @@ function OptionViewContainer()
     {
         localStorage[viewStateStorageKey] = index;
         setViewStateIndex(index);
+    }
+
+    const getStatus = () =>
+    {
+        if (activeTabIndex === 0)
+        {
+            if (!network())         return "No Requests";
+            if (requestsHash === 0) return "Loading Requests ...";
+            if (requestsHash === 1)
+            {
+                if (!requests.length)      return "No Requests"
+                if (!viewedOptions.length) return "Done"
+            }
+
+            return "No Requests";
+        }
+
+        if (!network())        return "No Options";
+        if (optionsHash === 0) return "Loading Options ...";
+        if (optionsHash === 1)
+        {
+            if (!optionsByState.current[tabs[activeTabIndex].value].length) return "No Options"
+            if (!viewedOptions.length) return "Done"
+        }
+
+        return "No Options";
     }
 
     return <>
@@ -190,22 +217,7 @@ function OptionViewContainer()
                 >
                 {
                     !viewedOptions.length &&
-                    <p className={classes.noOptions}>
-                    {
-                        network()
-                        ?
-                            optionsHash === 0 && "Loading Options ..."
-                            ||  optionsHash === 1
-                                &&
-                                (
-                                    !options.length && "No Options"
-                                    || !viewedOptions.length && "Done"
-                                )
-                            ||  !viewedOptions.length && "No Options"
-                        :
-                            "No Options"
-                    }
-                    </p>
+                    <p className={classes.noOptions}>{getStatus()}</p>
                 }
                 {
                     viewedOptions.map
