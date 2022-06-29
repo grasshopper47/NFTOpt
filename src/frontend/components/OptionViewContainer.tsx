@@ -158,7 +158,8 @@ function OptionViewContainer()
         if (optionsHash === 0) return "Loading Options ...";
         if (optionsHash === 1)
         {
-            if (!optionsByState.current[tabs[activeTabIndex].value].length) return "No Options"
+            let arr = optionsByState.current[tabs[activeTabIndex].value];
+            if (!arr || !arr.length) return "No Options"
             if (!viewedOptions.length) return "Done"
         }
 
