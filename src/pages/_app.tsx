@@ -44,8 +44,8 @@ export default function App({ Component, pageProps }: AppProps)
     const requestChangingIDs = useRef([]);
     const contracts          = useRef({ NFTOpt: null as unknown as NFTOpt });
 
-    const updateRequestsHash = () => setRequestsHash(requestsHash + 1);
-    const updateOptionsHash  = () => setOptionsHash(optionsHash + 1);
+    const updateRequestsHash = () => setRequestsHash( h => ++h );
+    const updateOptionsHash  = () => setOptionsHash( h => ++h );
 
     async function handleEvent
     (
