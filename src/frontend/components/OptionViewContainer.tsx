@@ -4,10 +4,11 @@ import clsx from "clsx";
 
 import { FormControlLabel, Switch, Tab, Tabs } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import { OptionState, OptionWithAsset } from "../../models/option";
+import { OptionState } from "../../models/option";
+import { OptionWithAsset } from "../../models/extended";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
-import { useOptions, useOptionsHash } from "../../pages/_app";
+import { useOptions, useOptionsHash, useRequests, useRequestsHash } from "../../pages/_app";
 import { network } from "../utils/metamask";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
@@ -43,49 +44,59 @@ const viewStates =
 }
 
 const viewStateStorageKey = "ListViewState";
+const tabIndexStorageKey = "ActiveTabIndex";
 
 export const getViewClassName = (view : Views, state : number) => viewStates[view][state];
 
 function OptionViewContainer()
 {
     const [ view           , setView ]           = useState<Views>(Views.CARDLIST);
-    const [ viewStateIndex , setViewStateIndex ] = useState(0);
-    const [ activeTabIndex , setActiveTabIndex ] = useState(0);
+    const [ viewStateIndex , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
+    const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
     const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
     const [ selectedOption , setSelectedOption ] = useState<OptionWithAsset | null>(null);
     const [ checked        , setChecked ]        = useState(false);
 
     const optionsByState = useRef({});
 
-    const options     = useOptions();
-    const optionsHash = useOptionsHash();
+    const requests     = useRequests();
+    const requestsHash = useRequestsHash();
+    const options      = useOptions();
+    const optionsHash  = useOptionsHash();
 
     useEffect
     (
-        () => setViewStateIndex( parseInt(localStorage[viewStateStorageKey] ?? 0) )
-    ,   []
+        () =>
+        {
+            optionsByState.current[ViewTabValues.REQUEST] = [] as OptionWithAsset[];
+
+            let map = optionsByState.current[ViewTabValues.REQUEST];
+
+            for (let request of requests) map.push(request);
+
+            if (activeTabIndex === 0) setViewedOptions(optionsByState.current[ViewTabValues.REQUEST]);
+        }
+    ,   [requestsHash]
     );
 
     useEffect
     (
         () =>
         {
-            if (options.length === 0) return;  // 1st run, skip until options are loaded
+            optionsByState.current[ViewTabValues.OPEN]   = [] as OptionWithAsset[];
+            optionsByState.current[ViewTabValues.CLOSED] = [] as OptionWithAsset[];
 
-            optionsByState.current[ViewTabValues.REQUEST] = [] as OptionWithAsset[]
-            optionsByState.current[ViewTabValues.OPEN]    = [] as OptionWithAsset[]
-            optionsByState.current[ViewTabValues.CLOSED]  = [] as OptionWithAsset[]
+            let map1 = optionsByState.current[ViewTabValues.OPEN];
+            let map2 = optionsByState.current[ViewTabValues.CLOSED];
 
             for (let option of options)
             {
-                if (option.state === OptionState.PUBLISHED) { optionsByState.current[ViewTabValues.REQUEST].push(option); continue; }
-                if (option.state === OptionState.OPEN)      { optionsByState.current[ViewTabValues.OPEN].push(option); continue; }
+                if (option.state === OptionState.OPEN) { map1.push(option); continue; }
 
-                optionsByState.current[ViewTabValues.CLOSED].push(option);
-
+                map2.push(option);
             }
 
-            setViewedOptions(optionsByState.current[tabs[activeTabIndex].value]);
+            if (activeTabIndex !== 0) setViewedOptions(optionsByState.current[tabs[activeTabIndex].value]);
         }
     ,   [optionsHash]
     );
@@ -94,7 +105,10 @@ function OptionViewContainer()
     (
         () =>
         {
-            if (options.length === 0) return;  // 1st run, skip until options are loaded
+            // 1st run, skip until options are loaded
+            if (requests.length === 0 && options.length === 0) return;
+
+            localStorage[tabIndexStorageKey] = activeTabIndex;
 
             setViewedOptions(optionsByState.current[tabs[activeTabIndex].value]);
         }
@@ -107,7 +121,7 @@ function OptionViewContainer()
         {
             if (selectedOption)
             {
-                document.body.onkeydown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedOption(null) };
+                document.body.onkeydown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedOption(null); };
                 setView(Views.DETAIL);
 
                 return;
@@ -119,12 +133,37 @@ function OptionViewContainer()
     ,   [selectedOption]
     );
 
-    const handleTabChanged = (event: any, index : number) => setActiveTabIndex(index);
-
     const handleViewStateChanged = (event: any, index : number) =>
     {
         localStorage[viewStateStorageKey] = index;
         setViewStateIndex(index);
+    }
+
+    const getStatus = () =>
+    {
+        if (activeTabIndex === 0)
+        {
+            if (!network())         return "No Requests";
+            if (requestsHash === 0) return "Loading Requests ...";
+            if (requestsHash === 1)
+            {
+                if (!requests.length)      return "No Requests"
+                if (!viewedOptions.length) return "Done"
+            }
+
+            return "No Requests";
+        }
+
+        if (!network())        return "No Options";
+        if (optionsHash === 0) return "Loading Options ...";
+        if (optionsHash === 1)
+        {
+            let arr = optionsByState.current[tabs[activeTabIndex].value];
+            if (!arr || !arr.length) return "No Options"
+            if (!viewedOptions.length) return "Done"
+        }
+
+        return "No Options";
     }
 
     return <>
@@ -137,24 +176,16 @@ function OptionViewContainer()
                 <Tabs
                     className={classes.tabs}
                     value={activeTabIndex}
-                    onChange={handleTabChanged}
+                    onChange={(e, index : number) => setActiveTabIndex(index)}
                 >
-                {
-                    tabs.map
-                    (
-                        optionStateTab =>
-                        <Tab key={`option-state-tab-${optionStateTab.name}`}
-                            label={optionStateTab.name}
-                        />
-                    )
-                }
+                    { tabs.map( tab => <Tab key={`tab-filter-${tab.name}`} label={tab.name} /> ) }
                 </Tabs>
 
                 {
                     viewedOptions.length !== 0 &&
                     <FormControlLabel
                         className={clsx(classes.checkbox, !checked ? classes.unchecked : classes.checked)}
-                        control={<Switch checked={checked} onChange={() => setChecked(!checked)}/>}
+                        control={<Switch checked={checked} onChange={ () => setChecked(!checked) } />}
                         disabled={selectedOption !== null}
                         label={(checked ? "Account's" : "All") + " Options"}
                         labelPlacement="start"
@@ -174,22 +205,7 @@ function OptionViewContainer()
                 >
                 {
                     !viewedOptions.length &&
-                    <p className={classes.noOptions}>
-                    {
-                        network()
-                        ?
-                            optionsHash === 0 && "Loading Options ..."
-                            ||  optionsHash === 1
-                                &&
-                                (
-                                    !options.length && "No Options"
-                                    || !viewedOptions.length && "Done"
-                                )
-                            ||  !viewedOptions.length && "No Options"
-                        :
-                            "No Options"
-                    }
-                    </p>
+                    <p className={classes.noOptions}>{getStatus()}</p>
                 }
                 {
                     viewedOptions.map
@@ -212,15 +228,7 @@ function OptionViewContainer()
                         value={viewStateIndex}
                         onChange={handleViewStateChanged}
                     >
-                    {
-                        viewStates[view]?.map
-                        (
-                            state =>
-                            <Tab key={`option-view-state-tab-${state}`}
-                                label={state}
-                            />
-                        )
-                    }
+                        { viewStates[view]?.map( state => <Tab key={`tab-view-state-${state}`} label={state} /> ) }
                     </Tabs>
                 }
             </>

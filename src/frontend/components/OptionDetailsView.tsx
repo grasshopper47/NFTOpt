@@ -7,9 +7,10 @@ import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { isExpired } from "../../datasources/options";
-import { getCachedContract } from "../../datasources/NFT/localhost";
-import { useContracts, useOptionChangingIDs } from "../../pages/_app";
-import {  OptionState, OptionWithAsset } from "../../models/option";
+import { getCachedContract } from "../../datasources/globals";
+import { useContracts, useOptionChangingIDs, useRequestChangingIDs } from "../../pages/_app";
+import { OptionState} from "../../models/option";
+import { OptionWithAsset } from "../../models/extended";
 import { ADDRESS0 } from "../../utils/constants";
 import { account, signer } from "../utils/metamask";
 import { flavorLabels, stateLabels } from "../utils/labels";
@@ -30,8 +31,9 @@ function OptionDetailsView(props: OptionDetailsViewProps)
 
     const [ isApproved, setApproved ] = useState(false);
 
-    const contracts         = useContracts();
-    const optionChangingIDs = useOptionChangingIDs();
+    const contracts          = useContracts();
+    const requestChangingIDs = useRequestChangingIDs();
+    const optionChangingIDs  = useOptionChangingIDs();
 
     let contract;
 
@@ -42,6 +44,8 @@ function OptionDetailsView(props: OptionDetailsViewProps)
             if (option.state !== OptionState.OPEN) return;
 
             contract = getCachedContract(option.asset.nftContract);
+
+            contract.removeAllListeners();
 
             contract.getApproved(option.asset.nftId).then(checkAndSetApproved);
         }
@@ -75,23 +79,55 @@ function OptionDetailsView(props: OptionDetailsViewProps)
     let onCancelOption   = () => contracts.NFTOpt.cancelOption(option.id);
     let onExerciseOption = () => contracts.NFTOpt.exerciseOption(option.id);
 
-    let onAction         = (promise) => showToast(promise().then(() => { optionChangingIDs[option.id] = 1; showListView(); }));
+    let onAction = promise => showToast
+    (
+        promise().then
+        (
+            () =>
+            {
+                if (promise === onWithdrawOption) requestChangingIDs[option.id] = 1;
+                else                              optionChangingIDs[option.id] = 1;
 
-    let onApproveNFT     = () => showToast(contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.nftId));
+                showListView();
+            }
+        )
+    );
+
+    let onApproveNFT = () => showToast(contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.nftId));
 
     function createButtonsFromOptionState()
     {
-        if (optionChangingIDs[option.id]) return;
+        if (requestChangingIDs[option.id] || optionChangingIDs[option.id]) return;
 
         let isBuyer = (option.buyer === account());
 
         if (option.state === OptionState.PUBLISHED)
-            if (isBuyer) return <Button_OptionDetailsView label="Withdraw Request" variant="outlined" className="btnSecondary" handleClick={() => onAction(onWithdrawOption)} />;
-            else         return <Button_OptionDetailsView label="Create Option" variant="contained" className="btnPrimary" handleClick={() => onAction(onCreateOption)} />;
+            if (isBuyer)
+                return <Button_OptionDetailsView
+                    label="Withdraw Request"
+                    variant="outlined"
+                    className="btnSecondary"
+                    handleClick={() => onAction(onWithdrawOption)}
+                />;
+            else
+                return <Button_OptionDetailsView
+                    label="Create Option"
+                    variant="contained"
+                    className="btnPrimary"
+                    handleClick={() => onAction(onCreateOption)}
+                />;
 
         if (option.state === OptionState.OPEN)
         {
-            let btnCancel = ( <Button_OptionDetailsView label="Cancel Option" variant="outlined" className="btnSecondary" handleClick={() => onAction(onCancelOption)} /> );
+            let btnCancel =
+            (
+                <Button_OptionDetailsView
+                    label="Cancel Option"
+                    variant="outlined"
+                    className="btnSecondary"
+                     handleClick={() => onAction(onCancelOption)}
+                />
+            );
 
             if (isExpired(option))
             {

@@ -39,9 +39,9 @@ function handleNetworkChanged()
     _window.location.reload();
 }
 
-export function connectWallet()
+export async function connectWallet()
 {
-    _window.ethereum
+    return _window.ethereum
     .request({ method: "eth_requestAccounts" })
     .then(handleAccountChanged)
     .catch
@@ -54,7 +54,7 @@ export function connectWallet()
     );
 }
 
-export function hookMetamask
+export async function hookMetamask
 (
     window_    : Window & { ethereum?: any; }
 ,   setAccount : (a : string) => void
@@ -78,7 +78,9 @@ export function hookMetamask
     _window.ethereum.on("chainChanged", handleNetworkChanged);
     _window.ethereum.on('accountsChanged', handleAccountChanged);
 
-    connectWallet();
+    _setAccount("Connecting...");
+
+    return connectWallet();
 }
 
 export const setWindow = (window_ : Window & { ethereum?: any; }) => _window = window_;

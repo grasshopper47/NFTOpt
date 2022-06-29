@@ -2,8 +2,9 @@
 import classes from "../components/styles/OptionRequestForm.module.scss";
 
 import { Select, MenuItem } from "@mui/material";
-import { assetsOf, keyOf, loadAssetsFor } from "../../datasources/NFT/localhost";
-import { NFTAsset } from "../../models/nftAsset";
+import { loadAssetsFor } from "../../datasources/NFT/localhost";
+import { assetsOf, keyOf } from "../../datasources/globals";
+import { NFTAsset } from "../../models/NFTAsset";
 import { useEffect, useState } from "react";
 import { useAccount } from "../../pages/_app";
 

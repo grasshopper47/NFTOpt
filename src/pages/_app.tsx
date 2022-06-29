@@ -1,48 +1,53 @@
 import "./styles/_app.scss";
-import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { AppProps } from "next/app";
-import Header from "../frontend/components/Header";
-import toast, { Toaster } from "react-hot-toast";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { connected, getSignedContract, hookMetamask, network, provider } from "../frontend/utils/metamask";
-import { OptionState, OptionWithAsset } from "../models/option";
-import { loadOptionWithAsset, options, setContract } from "../datasources/options";
-import { loadAllOptionsWithAsset } from "../datasources/options";
+import addresses from "../../addresses.json";
 import { NFTOpt } from "../../typechain-types";
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
-import addresses from "../../addresses.json";
-import { dismissLastToast, TOAST_DURATION } from "../frontend/utils/toasting";
+import { loadAllRequestsAsOptionsWithAsset, requests } from "../datasources/globals"
 import { BigNumber } from "ethers";
-import { actionLabels, actions, events, stateLabels } from "../frontend/utils/labels";
+import { OptionState } from "../models/option";
+import { setContract, options, loadRequestAsOptionWithAsset, loadAllOptionsWithAsset } from "../datasources/globals";
+import { OptionWithAsset } from "../models/extended";
+import toast, { Toaster } from "react-hot-toast";
+import { dismissLastToast, TOAST_DURATION } from "../frontend/utils/toasting";
+import { actions, stateLabels } from "../frontend/utils/labels";
+import Header from "../frontend/components/Header";
 
-const OptionsHashContext       = createContext(0);
-const AccountContext           = createContext("");
-const ContractsContext         = createContext<{ NFTOpt : NFTOpt }>({ NFTOpt: null as unknown as NFTOpt });
-const OptionsContext           = createContext<OptionWithAsset[]>([]);
-const OptionChangingIDsContext = createContext<any>({});
+const RequestsHashContext       = createContext(0);
+const OptionsHashContext        = createContext(0);
+const AccountContext            = createContext("");
+const ContractsContext          = createContext<{ NFTOpt : NFTOpt }>({ NFTOpt: null as unknown as NFTOpt });
+const RequestsContext           = createContext<OptionWithAsset[]>([]);
+const OptionsContext            = createContext<OptionWithAsset[]>([]);
+const OptionChangingIDsContext  = createContext<any>({});
+const RequestChangingIDsContext = createContext<any>({});
 
-export function useOptionsHash()       { return useContext(OptionsHashContext); }
-export function useAccount()           { return useContext(AccountContext); }
-export function useContracts()         { return useContext(ContractsContext); }
-export function useOptions()           { return useContext(OptionsContext); }
-export function useOptionChangingIDs() { return useContext(OptionChangingIDsContext); }
+export const useRequestsHash       = () => useContext(RequestsHashContext);
+export const useOptionsHash        = () => useContext(OptionsHashContext);
+export const useAccount            = () => useContext(AccountContext);
+export const useContracts          = () => useContext(ContractsContext);
+export const useRequests           = () => useContext(RequestsContext);
+export const useOptions            = () => useContext(OptionsContext);
+export const useOptionChangingIDs  = () => useContext(OptionChangingIDsContext);
+export const useRequestChangingIDs = () => useContext(RequestChangingIDsContext);
 
 export default function App({ Component, pageProps }: AppProps)
 {
-    const [ account , setAccount ]     = useState("");
-    const [         , setOptionsHash ] = useState(0);
+    const [ account      , setAccount ]      = useState("");
+    const [ requestsHash , setRequestsHash ] = useState(0);
+    const [ optionsHash  , setOptionsHash ]  = useState(0);
 
-    const blockNumber       = useRef(~0);
-    const optionsHash       = useRef(0);
-    const optionChangingIDs = useRef([]);
-    const contracts         = useRef({ NFTOpt: null as unknown as NFTOpt });
+    const blockNumber        = useRef(~0);
+    const optionChangingIDs  = useRef([]);
+    const requestChangingIDs = useRef([]);
+    const contracts          = useRef({ NFTOpt: null as unknown as NFTOpt });
 
-    function updateOptionsHash()
-    {
-        ++optionsHash.current;
-        setOptionsHash(optionsHash.current);
-    }
+    const updateRequestsHash = () => setRequestsHash( h => ++h );
+    const updateOptionsHash  = () => setOptionsHash( h => ++h );
 
-    function handleEvent
+    async function handleEvent
     (
         optionID    : BigNumber
     ,   transaction : any
@@ -63,7 +68,55 @@ export default function App({ Component, pageProps }: AppProps)
 
         if (action.state === OptionState.PUBLISHED)
         {
-            loadOptionWithAsset(id).then(updateOptionsHash);
+            loadRequestAsOptionWithAsset(id).then(updateRequestsHash);
+
+            return;
+        }
+
+        let length = requests.length;
+        let i = -1;
+
+        if (action.state === OptionState.WITHDRAWN)
+        {
+            while (++i !== length)
+            {
+                if (requests[i].id !== id) continue;
+
+                requests.splice(i, 1);
+
+                break;
+            }
+
+            delete requestChangingIDs.current[(id).toString()];
+
+            updateRequestsHash();
+
+            return;
+        }
+
+        if (action.state === OptionState.OPEN)
+        {
+            // extract request ID from transaction log input data
+            let tx = await transaction.getTransaction();
+            let requestID = BigNumber.from("0x" + tx.data.slice(10)).toNumber();
+
+            while (++i !== length)
+            {
+                let request = requests[i];
+                if (request.id !== requestID) continue;
+
+                request.state = action.state;
+                options.push(request);
+                requests.splice(i, 1);
+
+                break;
+            }
+
+            delete requestChangingIDs.current[requestID.toString()];
+            delete optionChangingIDs.current[id.toString()];
+
+            updateRequestsHash();
+            updateOptionsHash();
 
             return;
         }
@@ -85,10 +138,8 @@ export default function App({ Component, pageProps }: AppProps)
     (
         () =>
         {
-            hookMetamask(window, setAccount);
-
-            // Store current block number to filter out old events
-            provider()?.getBlockNumber().then(r => blockNumber.current = r);
+            hookMetamask(window, setAccount)
+            .then( async () => blockNumber.current = await provider()?.getBlockNumber() );
         }
     ,   []
     );
@@ -115,7 +166,8 @@ export default function App({ Component, pageProps }: AppProps)
             setContract(contracts.current.NFTOpt);
 
             // Re-fetch cache anew
-            if (options.length === 0) loadAllOptionsWithAsset().then(updateOptionsHash);
+            if (requests.length === 0) loadAllRequestsAsOptionsWithAsset().then(updateRequestsHash)
+            if (options.length  === 0) loadAllOptionsWithAsset().then(updateOptionsHash);
 
             // Subscribe to events
             for (let event of stateLabels) contracts.current.NFTOpt.on(event, handleEvent);
@@ -126,16 +178,22 @@ export default function App({ Component, pageProps }: AppProps)
     return <>
         <Toaster containerClassName={"toast-container"} />
 
-        <AccountContext.Provider           value={account}>
-        <ContractsContext.Provider         value={contracts.current}>
-        <OptionsContext.Provider           value={options}>
-        <OptionsHashContext.Provider       value={optionsHash.current}>
-        <OptionChangingIDsContext.Provider value={optionChangingIDs.current}>
+        <AccountContext.Provider            value={account}>
+        <ContractsContext.Provider          value={contracts.current}>
+        <RequestsContext.Provider           value={requests}>
+        <RequestsHashContext.Provider       value={requestsHash}>
+        <RequestChangingIDsContext.Provider value={requestChangingIDs.current}>
+        <OptionsContext.Provider            value={options}>
+        <OptionsHashContext.Provider        value={optionsHash}>
+        <OptionChangingIDsContext.Provider  value={optionChangingIDs.current}>
             <Header/>
             { connected() && <Component {...pageProps} /> }
         </OptionChangingIDsContext.Provider>
         </OptionsHashContext.Provider>
         </OptionsContext.Provider>
+        </RequestChangingIDsContext.Provider>
+        </RequestsHashContext.Provider>
+        </RequestsContext.Provider>
         </ContractsContext.Provider>
         </AccountContext.Provider>
     </>;

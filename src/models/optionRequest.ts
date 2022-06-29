@@ -3,10 +3,11 @@ import { OptionFlavor } from "./option";
 
 export type OptionRequest =
 {
-    nftContract : string
+    buyer       : string
+,   nftContract : string
 ,   nftId       : BigNumber
-,   interval    : string
-,   premium     : string
-,   strikePrice : string
+,   interval    : number
+,   premium     : BigNumber
+,   strikePrice : BigNumber
 ,   flavor      : OptionFlavor
 };
