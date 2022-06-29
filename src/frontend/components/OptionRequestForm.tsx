@@ -111,8 +111,8 @@ function OptionRequestForm()
             ,   request.flavor
             ,   { value: ethers.utils.parseEther(request.premium) }
             )
+            .then( () => { createRequest(request); requestChanged(); } )
             // .then(() => setRequestState({...defaultRequest}))
-            .then( () => createRequest(request) )
         );
     };
 
