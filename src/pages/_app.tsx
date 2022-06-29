@@ -18,11 +18,12 @@ import Header from "../frontend/components/Header";
 const RequestsHashContext       = createContext(0);
 const OptionsHashContext        = createContext(0);
 const AccountContext            = createContext("");
-const ContractsContext          = createContext<{ NFTOpt : NFTOpt }>({ NFTOpt: null as unknown as NFTOpt });
 const RequestsContext           = createContext<OptionWithAsset[]>([]);
 const OptionsContext            = createContext<OptionWithAsset[]>([]);
+const ContractsContext          = createContext<{ NFTOpt : NFTOpt }>({ NFTOpt: null as unknown as NFTOpt });
 const OptionChangingIDsContext  = createContext<any>({});
 const RequestChangingIDsContext = createContext<any>({});
+const RequestIDsTransactionsContext = createContext<any>({});
 
 export const useRequestsHash       = () => useContext(RequestsHashContext);
 export const useOptionsHash        = () => useContext(OptionsHashContext);
@@ -32,6 +33,7 @@ export const useRequests           = () => useContext(RequestsContext);
 export const useOptions            = () => useContext(OptionsContext);
 export const useOptionChangingIDs  = () => useContext(OptionChangingIDsContext);
 export const useRequestChangingIDs = () => useContext(RequestChangingIDsContext);
+export const useRequestIDsTransactionsContext = () => useContext(RequestIDsTransactionsContext);
 
 export default function App({ Component, pageProps }: AppProps)
 {
@@ -40,9 +42,10 @@ export default function App({ Component, pageProps }: AppProps)
     const [ optionsHash  , setOptionsHash ]  = useState(0);
 
     const blockNumber        = useRef(~0);
-    const optionChangingIDs  = useRef([]);
-    const requestChangingIDs = useRef([]);
+    const optionChangingIDs  = useRef({});
+    const requestChangingIDs = useRef({});
     const contracts          = useRef({ NFTOpt: null as unknown as NFTOpt });
+    const requestIDsTransactions = useRef({});
 
     const updateRequestsHash = () => setRequestsHash( h => ++h );
     const updateOptionsHash  = () => setOptionsHash( h => ++h );
@@ -53,18 +56,37 @@ export default function App({ Component, pageProps }: AppProps)
     ,   transaction : any
     )
     {
-        // Old events are re-emitted when the contract emits a new event after intitialization
-        if (blockNumber.current >= transaction.blockNumber) return;
-        blockNumber.current = transaction.blockNumber;
+        let id = optionID.toNumber();
 
         let action = actions[transaction.event];
 
+        // Old events are re-emitted when the contract emits a new event after intitialization
+        if (blockNumber.current >= transaction.blockNumber)
+        {
+            if (action.state === OptionState.PUBLISHED)
+            {
+                requestIDsTransactions.current[id] = transaction.transactionHash;
+                return;
+            }
+
+            if (action.state === OptionState.WITHDRAWN)
+            {
+                delete requestIDsTransactions.current[id];
+                return;
+            }
+
+            return;
+        }
+
+        blockNumber.current = transaction.blockNumber;
+
         dismissLastToast();
         toast.success("Successfully " + action.label, { duration: TOAST_DURATION });
-
         console.log(action.label);
 
-        let id = optionID.toNumber();
+        requestIDsTransactions.current[id] = transaction.transactionHash;
+
+        console.log(requestIDsTransactions.current);
 
         if (action.state === OptionState.PUBLISHED)
         {
@@ -76,6 +98,7 @@ export default function App({ Component, pageProps }: AppProps)
         let length = requests.length;
         let i = -1;
 
+        // Request state change
         if (action.state === OptionState.WITHDRAWN)
         {
             while (++i !== length)
@@ -94,6 +117,7 @@ export default function App({ Component, pageProps }: AppProps)
             return;
         }
 
+        // Request transforms into Option
         if (action.state === OptionState.OPEN)
         {
             // extract request ID from transaction log input data
@@ -121,11 +145,13 @@ export default function App({ Component, pageProps }: AppProps)
             return;
         }
 
+        // Option state change (EXERCISED or CANCELED)
         for (let o of options)
         {
             if (o.id !== id) continue;
 
             o.state = action.state;
+
             break;
         }
 
@@ -186,8 +212,10 @@ export default function App({ Component, pageProps }: AppProps)
         <OptionsContext.Provider            value={options}>
         <OptionsHashContext.Provider        value={optionsHash}>
         <OptionChangingIDsContext.Provider  value={optionChangingIDs.current}>
+        <RequestIDsTransactionsContext.Provider  value={requestIDsTransactions.current}>
             <Header/>
             { connected() && <Component {...pageProps} /> }
+        </RequestIDsTransactionsContext.Provider>
         </OptionChangingIDsContext.Provider>
         </OptionsHashContext.Provider>
         </OptionsContext.Provider>

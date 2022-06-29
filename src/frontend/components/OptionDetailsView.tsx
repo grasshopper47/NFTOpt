@@ -1,5 +1,6 @@
 // @ts-ignore
 import classes from "./styles/OptionDetailsView.module.scss";
+import clsx from "clsx";
 
 import { ArrowBackIosRounded } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
@@ -8,11 +9,11 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { isExpired } from "../../datasources/options";
 import { getCachedContract } from "../../datasources/globals";
-import { useContracts, useOptionChangingIDs, useRequestChangingIDs } from "../../pages/_app";
+import { useContracts, useOptionChangingIDs, useRequestIDsTransactionsContext, useRequestChangingIDs } from "../../pages/_app";
 import { OptionState} from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
 import { ADDRESS0 } from "../../utils/constants";
-import { account, signer } from "../utils/metamask";
+import { account, scanner, signer } from "../utils/metamask";
 import { flavorLabels, stateLabels } from "../utils/labels";
 import { dismissLastToast, showToast } from "../utils/toasting";
 import Button_OptionDetailsView from "../fragments/Button.OptionDetailsView";
@@ -34,6 +35,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
     const contracts          = useContracts();
     const requestChangingIDs = useRequestChangingIDs();
     const optionChangingIDs  = useOptionChangingIDs();
+    const requestIDsTransactions = useRequestIDsTransactionsContext();
 
     let contract;
 
@@ -159,7 +161,12 @@ function OptionDetailsView(props: OptionDetailsViewProps)
             <div className={classes.detailsContainer}>
                 <div>
                     <img src={option.asset.image} alt="NFT Image" />
-                    <span className={classes.state}>{stateLabels[option.state]}</span>
+                    <a  target="_blank"
+                        href={`${scanner()}/tx/${requestIDsTransactions[option.id]}`}
+                        className={clsx(classes.link, classes.state)}
+                    >
+                        {stateLabels[option.state]}
+                    </a>
                 </div>
 
                 <div className={classes.detailsSub}>
@@ -179,7 +186,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
                         <div>
                             <Field_OptionDetailsView     label="Premium"      value={ethers.utils.formatEther(option.premium)} />
                             <Field_OptionDetailsView     label="Strike Price" value={ethers.utils.formatEther(option.strikePrice)} />
-                            <Field_OptionDetailsView     label="Expiration"   value={ `${option.interval} day${option.interval > 1 ? 's' : ''}` } />
+                            <Field_OptionDetailsView     label="Expiration"   value={`${option.interval} day${option.interval > 1 ? 's' : ''}`} />
                             <Field_OptionDetailsView     label="Style"        value={flavorLabels[option.flavor]} className="flavor"/>
                         </div>
                     </div>
