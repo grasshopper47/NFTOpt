@@ -1,44 +1,8 @@
 import { BigNumber } from "ethers";
-import { getSignedContract } from "../../frontend/utils/metamask";
 import addresses from "../../../addresses.json";
-import { ABIs, MAX_MINTABLE_TOKENS } from "../../utils/constants";
-import { NFTAsset } from "../../models/nftAsset";
-import { Option } from "../../models/option";
-import { OptionRequest } from "../../models/optionRequest";
-
-const contracts = { };
-
-export const images = { };
-export const assets = { };
-
-export const keyOf = (obj : OptionRequest | Option | NFTAsset) => obj.nftId + "_" + obj.nftContract;
-export const imageOf = (obj : OptionRequest | NFTAsset) => images[keyOf(obj)] as string;
-export const assetsOf = (account : string)  => assets[account] as NFTAsset[];
-
-export function getCachedContract(address : string)
-{
-    let contract = contracts[address];
-
-    if (contract) return contract;
-
-    contract =
-    getSignedContract
-    (
-        address
-    ,   [
-            ABIs.ERC721.name
-        ,   ABIs.ERC721.ownerOf
-        ,   ABIs.ERC721.tokenURI
-        ,   ABIs.ERC721.getApproved
-        ,   ABIs.ERC721.approve
-        ,   ABIs.ERC721.Events.Approval
-        ]
-    );
-
-    contracts[address] = contract;
-
-    return contract;
-}
+import { MAX_MINTABLE_TOKENS } from "../../utils/constants";
+import { NFTAsset } from "../../models/NFTAsset";
+import { getCachedContract, images, assets } from "../globals";
 
 export async function loadNFTImage(address: string, id: BigNumber)
 {
