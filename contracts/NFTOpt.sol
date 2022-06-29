@@ -38,6 +38,7 @@ contract NFTOpt {
     string constant             private _msg_OnlyBuyerCanCall         = "Only Buyer can call this method";
     string constant             private _msg_OnlyBuyerOrSellerCanCall = "Only Buyer or Seller can call this method";
 
+    uint256[]                   private requestDeletedIDs;
     uint256                     public requestID;
     mapping(uint256 => Request) public requests;
 
@@ -102,7 +103,18 @@ contract NFTOpt {
         if (_interval == 0)    revert INVALID_EXPIRATION_INTERVAL(0);
 
         /// @dev Optimize for gas by caching id
-        uint256 requestID_ = requestID;
+        uint256 requestID_ = 0;
+
+        /// @dev Optimize for gas by caching array length
+        uint256 length_ = requestDeletedIDs.length;
+
+        /// @dev Reuse first available slot in map for requests
+        if (length_ != 0)
+        {
+            requestID_ = requestDeletedIDs[length_ - 1];
+            requestDeletedIDs.pop();
+        }
+        else requestID_ = requestID;
 
         /// @dev Update storage
         requests[requestID_] =
@@ -119,7 +131,8 @@ contract NFTOpt {
 
         emit Published(requestID_);
 
-        requestID = ++requestID_;
+        /// @dev Update counter when needed
+        if (length_ == 0) requestID = ++requestID_;
     }
 
     /// @custom:author GregVanDell and LuisImagiire
@@ -136,6 +149,8 @@ contract NFTOpt {
 
         /// @dev Update storage
         delete requests[_requestID];
+
+        requestDeletedIDs.push(_requestID);
 
         emit Withdrawn(_requestID);
 
