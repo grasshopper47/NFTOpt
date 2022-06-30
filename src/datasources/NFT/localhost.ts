@@ -11,7 +11,7 @@ export async function loadNFTImage(address: string, id: BigNumber)
 
     let data = await contract.tokenURI(id);
 
-    let image = JSON.parse(atob(data.slice(29))).image;
+    let image = JSON.parse(data).image;
 
     images[id.toString() + "_" + address] = image;
 
