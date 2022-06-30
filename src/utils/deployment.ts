@@ -1,13 +1,16 @@
 // @ts-ignore
-import { ethers } from "hardhat";
 import { NFTOpt } from "../../typechain-types";
+import { ethers } from "hardhat";
 
-export const contracts : any =
-{
-    NK_NFT: {}
-,   TH_NFT: {}
-,   EH_NFT: {}
-};
+import fs from 'fs';
+
+export const contracts : any = { };
+
+// Populate contracts with files from local folder
+const filesNames = fs.readdirSync('./contracts/NFT Collections')
+
+for (const name of filesNames) contracts[name.slice(0, -4)] = { };
+delete contracts["_BASE"];
 
 let InterfaceDetectorAddress: string;
 export let NFTOptContract: NFTOpt;
@@ -38,7 +41,7 @@ export async function deployNFTCollectionContract(name: string)
 
     contracts[name].instance = NFTCollectionContract;
 
-    const max = await NFTCollectionContract.MAX_MINTABLE_TOKENS();
+    const max = 5;// await NFTCollectionContract.MAX_MINTABLE_TOKENS();
 
     for (let i = 0; i !== max; ++i) { await NFTCollectionContract.connect(accounts[0]).mint(); }
 }

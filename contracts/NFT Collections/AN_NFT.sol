@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
-import "./CollectionNFT_BASE.sol";
+import "./_BASE.sol";
 
-contract AN_NFT is CollectionNFT_BASE("Anil N's Pokemon Collection", "AN_NFT", "Pokemon around the world are tired of working for the top 1%. Time for the Pokemon revolution!")
+contract AN_NFT is Collection_BASE("Anil N's Pokemon Collection", "AN_NFT", "Pokemon around the world are tired of working for the top 1%. Time for the Pokemon revolution!")
 {
     string[] private pokemon =
     [

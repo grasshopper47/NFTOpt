@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
-import "./CollectionNFT_BASE.sol";
+import "./_BASE.sol";
 
-contract AI_NFT is CollectionNFT_BASE("Anupriya Inumella's Melon Collection", "AI_NFT", "This is a watermelon")
+contract AI_NFT is Collection_BASE("Anupriya Inumella's Melon Collection", "AI_NFT", "This is a watermelon")
 {
     string[] private bodyColour =
     [

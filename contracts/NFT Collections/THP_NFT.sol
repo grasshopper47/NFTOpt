@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
-import "./CollectionNFT_BASE.sol";
+import "./_BASE.sol";
 
-contract THP_NFT is CollectionNFT_BASE("Thomas Hepner NFT Collection", "THP_NFT", "Web3 enables a new data economy: an ecosystem of data-centric protocols and applications, disrupting the data monopolies built in Big Tech.")
+contract THP_NFT is Collection_BASE("Thomas Hepner NFT Collection", "THP_NFT", "Web3 enables a new data economy: an ecosystem of data-centric protocols and applications, disrupting the data monopolies built in Big Tech.")
 {
     string[] private backgroundColors = ["st0", "st2"];
 

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
-import "./CollectionNFT_BASE.sol";
+import "./_BASE.sol";
 
-contract TH_NFT is CollectionNFT_BASE("Tony Han's Chinese Zodiac NFT", "TH_NFT", "Welcome to Asia")
+contract TH_NFT is Collection_BASE("Tony Han's Chinese Zodiac NFT", "TH_NFT", "Welcome to Asia")
 {
     string[] private trigrams_64 =
     [

@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-abstract contract CollectionNFT_BASE is ERC721, Ownable
+abstract contract Collection_BASE is ERC721, Ownable
 {
     uint8  constant MAX_MINTABLE_TOKENS = 5;
     uint8  private  mintCount;

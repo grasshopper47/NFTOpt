@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.1;
 
-import "./CollectionNFT_BASE.sol";
+import "./_BASE.sol";
 
-contract SP_NFT is CollectionNFT_BASE("Saumo Pal's Bell Collection", "SP_NFT", "This is a bell")
+contract SP_NFT is Collection_BASE("Saumo Pal's Bell Collection", "SP_NFT", "This is a bell")
 {
     string[] private bellHangerColor =
     [

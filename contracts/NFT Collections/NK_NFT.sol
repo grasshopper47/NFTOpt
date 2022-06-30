@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.14;
 
-import "./CollectionNFT_BASE.sol";
+import "./_BASE.sol";
 
-contract NK_NFT is CollectionNFT_BASE("Nikita's ART", "NART", "Expensive piece of art")
+contract NK_NFT is Collection_BASE("Nikita's ART", "NART", "Expensive piece of art")
 {
     string[] private rectColors =
     [

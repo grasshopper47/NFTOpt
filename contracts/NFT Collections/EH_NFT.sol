@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
-import "./CollectionNFT_BASE.sol";
+import "./_BASE.sol";
 
-contract EH_NFT is CollectionNFT_BASE("Erik Hanchett NFT Collection", "EH_NFT", "Erik NFT Project")
+contract EH_NFT is Collection_BASE("Erik Hanchett NFT Collection", "EH_NFT", "Erik NFT Project")
 {
     string[] private collection =
     [
