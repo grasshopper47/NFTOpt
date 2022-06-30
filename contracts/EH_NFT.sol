@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.14;
 
 import "./CollectionNFT_BASE.sol";
 
@@ -76,13 +76,5 @@ contract EH_NFT is CollectionNFT_BASE("Erik Hanchett NFT Collection", "EH_NFT")
             abi.encodePacked("data:application/json;base64,", json)
         );
         return output;
-    }
-
-    function claim(uint256 tokenId) public {
-        require(
-            tokenId > 0 && tokenId < MAX_MINTABLE_TOKENS,
-            "Token ID invalid"
-        );
-        _safeMint(_msgSender(), tokenId);
     }
 }
