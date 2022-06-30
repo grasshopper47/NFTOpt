@@ -39,8 +39,7 @@ contract AI_NFT is Collection_BASE("Anupriya Inumella's Melon Collection", "AI_N
         private pure
         returns (string memory)
     {
-        return
-        string
+        return string
         (
             abi.encodePacked
             (
