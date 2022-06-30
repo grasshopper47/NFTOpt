@@ -1,16 +1,18 @@
 // @ts-ignore
-import { ethers } from "hardhat";
 import { NFTOpt } from "../../typechain-types";
+import { ethers } from "hardhat";
+import fs from 'fs';
 
-export const contracts : any =
-{
-    NK_NFT: {}
-,   TH_NFT: {}
-,   EH_NFT: {}
-};
-
-let InterfaceDetectorAddress: string;
 export let NFTOptContract: NFTOpt;
+export const contracts : any = { };
+
+// Populate contracts with files from local folder
+const filesNames = fs.readdirSync('./contracts/NFT Collections')
+
+for (const name of filesNames) contracts[name.slice(0, -4)] = { };
+delete contracts["_BASE"];
+
+let _interfaceDetectorAddress: string;
 
 export async function deployMainContractLibraries()
 {
@@ -18,12 +20,12 @@ export async function deployMainContractLibraries()
     let InterfaceDetectorContract = await InterfaceDetectorFactory.deploy();
     await InterfaceDetectorContract.deployed();
 
-    InterfaceDetectorAddress = InterfaceDetectorContract.address;
+    _interfaceDetectorAddress = InterfaceDetectorContract.address;
 }
 
 export async function deployMainContract()
 {
-    const NFTOptFactory = await ethers.getContractFactory("NFTOpt", { libraries: { InterfaceDetector: InterfaceDetectorAddress } });
+    const NFTOptFactory = await ethers.getContractFactory("NFTOpt", { libraries: { InterfaceDetector: _interfaceDetectorAddress } });
     NFTOptContract = await NFTOptFactory.deploy() as NFTOpt;
     await NFTOptContract.deployed();
 }
@@ -38,7 +40,7 @@ export async function deployNFTCollectionContract(name: string)
 
     contracts[name].instance = NFTCollectionContract;
 
-    const max = await NFTCollectionContract.MAX_MINTABLE_TOKENS();
+    const max = 5;// await NFTCollectionContract.MAX_MINTABLE_TOKENS();
 
     for (let i = 0; i !== max; ++i) { await NFTCollectionContract.connect(accounts[0]).mint(); }
 }
