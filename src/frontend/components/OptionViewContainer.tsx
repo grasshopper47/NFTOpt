@@ -3,12 +3,12 @@ import classes from "./styles/OptionViewContainer.module.scss";
 import clsx from "clsx";
 
 import { FormControlLabel, Switch, Tab, Tabs } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { OptionState } from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
-import { useOptions, useOptionsHash, useRequests, useRequestsHash } from "../../pages/_app";
+import { useRequests, useOptions } from "../../pages/_app";
 import { network } from "../utils/metamask";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
@@ -48,57 +48,66 @@ const tabIndexStorageKey = "ActiveTabIndex";
 
 export const getViewClassName = (view : Views, state : number) => viewStates[view][state];
 
+let selectedOption: OptionWithAsset | null = null;
+
+const optionsByState = {};
+
 function OptionViewContainer()
 {
     const [ view           , setView ]           = useState<Views>(Views.CARDLIST);
     const [ viewStateIndex , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
     const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
     const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
-    const [ selectedOption , setSelectedOption ] = useState<OptionWithAsset | null>(null);
     const [ checked        , setChecked ]        = useState(false);
 
-    const optionsByState = useRef({});
+    // Force-update the view even when the selectedOption is of the same value; this is to cover the edge-case
+    // when the user modifies 2 or more options, with transactions queued in Metamask and aproving 1 by 1
+    const [, setState] = useState(0);
+    const setSelectedOption = (obj: OptionWithAsset | null) =>
+    {
+        selectedOption = obj;
 
-    const requests     = useRequests();
-    const requestsHash = useRequestsHash();
-    const options      = useOptions();
-    const optionsHash  = useOptionsHash();
+        setState( c => ++c );
+    }
+
+    const requests = useRequests();
+    const options  = useOptions();
 
     useEffect
     (
         () =>
         {
-            optionsByState.current[ViewTabValues.REQUEST] = [] as OptionWithAsset[];
+            optionsByState[ViewTabValues.REQUEST] = [] as OptionWithAsset[];
 
-            let map = optionsByState.current[ViewTabValues.REQUEST];
+            let map = optionsByState[ViewTabValues.REQUEST];
 
-            for (let request of requests) map.push(request);
+            for (let request of requests.map) map.push(request);
 
-            if (activeTabIndex === 0) setViewedOptions(optionsByState.current[ViewTabValues.REQUEST]);
+            if (activeTabIndex === 0) setViewedOptions(optionsByState[ViewTabValues.REQUEST]);
         }
-    ,   [requestsHash]
+    ,   [requests.hash]
     );
 
     useEffect
     (
         () =>
         {
-            optionsByState.current[ViewTabValues.OPEN]   = [] as OptionWithAsset[];
-            optionsByState.current[ViewTabValues.CLOSED] = [] as OptionWithAsset[];
+            optionsByState[ViewTabValues.OPEN]   = [] as OptionWithAsset[];
+            optionsByState[ViewTabValues.CLOSED] = [] as OptionWithAsset[];
 
-            let map1 = optionsByState.current[ViewTabValues.OPEN];
-            let map2 = optionsByState.current[ViewTabValues.CLOSED];
+            let map1 = optionsByState[ViewTabValues.OPEN];
+            let map2 = optionsByState[ViewTabValues.CLOSED];
 
-            for (let option of options)
+            for (let option of options.map)
             {
                 if (option.state === OptionState.OPEN) { map1.push(option); continue; }
 
                 map2.push(option);
             }
 
-            if (activeTabIndex !== 0) setViewedOptions(optionsByState.current[tabs[activeTabIndex].value]);
+            if (activeTabIndex !== 0) setViewedOptions(optionsByState[tabs[activeTabIndex].value]);
         }
-    ,   [optionsHash]
+    ,   [options.hash]
     );
 
     useEffect
@@ -106,11 +115,11 @@ function OptionViewContainer()
         () =>
         {
             // 1st run, skip until options are loaded
-            if (requests.length === 0 && options.length === 0) return;
+            if (requests.map.length === 0 && options.map.length === 0) return;
 
             localStorage[tabIndexStorageKey] = activeTabIndex;
 
-            setViewedOptions(optionsByState.current[tabs[activeTabIndex].value]);
+            setViewedOptions(optionsByState[tabs[activeTabIndex].value]);
         }
     ,   [activeTabIndex]
     );
@@ -143,23 +152,23 @@ function OptionViewContainer()
     {
         if (activeTabIndex === 0)
         {
-            if (!network())         return "No Requests";
-            if (requestsHash === 0) return "Loading Requests ...";
-            if (requestsHash === 1)
+            if (!network())          return "No Requests";
+            if (requests.hash === 0) return "Loading Requests ...";
+            if (requests.hash === 1)
             {
-                if (!requests.length)      return "No Requests"
+                if (!requests.map.length)  return "No Requests"
                 if (!viewedOptions.length) return "Done"
             }
 
             return "No Requests";
         }
 
-        if (!network())        return "No Options";
-        if (optionsHash === 0) return "Loading Options ...";
-        if (optionsHash === 1)
+        if (!network())         return "No Options";
+        if (options.hash === 0) return "Loading Options ...";
+        if (options.hash === 1)
         {
-            let arr = optionsByState.current[tabs[activeTabIndex].value];
-            if (!arr || !arr.length) return "No Options"
+            let arr = optionsByState[tabs[activeTabIndex].value];
+            if (!arr || !arr.length)   return "No Options"
             if (!viewedOptions.length) return "Done"
         }
 

@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { isExpired } from "../../datasources/options";
 import { getCachedContract } from "../../datasources/globals";
-import { useContracts, useOptionChangingIDs, useRequestIDsTransactionsContext, useRequestChangingIDs, useOptionIDsTransactionsContext } from "../../pages/_app";
+import { useContracts, useRequests, useOptions } from "../../pages/_app";
 import { OptionState} from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
 import { ADDRESS0 } from "../../utils/constants";
@@ -33,12 +33,8 @@ function OptionDetailsView(props: OptionDetailsViewProps)
     const [ isApproved, setApproved ] = useState(false);
 
     const contracts = useContracts();
-
-    const requestChangingIDs     = useRequestChangingIDs();
-    const requestIDsTransactions = useRequestIDsTransactionsContext();
-
-    const optionChangingIDs     = useOptionChangingIDs();
-    const optionIDsTransactions = useOptionIDsTransactionsContext();
+    const requests  = useRequests();
+    const options   = useOptions();
 
     let contract;
 
@@ -50,8 +46,6 @@ function OptionDetailsView(props: OptionDetailsViewProps)
 
             contract = getCachedContract(option.asset.nftContract);
 
-            contract.removeAllListeners();
-
             contract.getApproved(option.asset.nftId).then(checkAndSetApproved);
         }
     ,   []
@@ -61,15 +55,12 @@ function OptionDetailsView(props: OptionDetailsViewProps)
     {
         if (address === contracts.NFTOpt.address) { setApproved(true); return; }
 
-        contract.on
+        contract.once
         (
             "Approval"
         ,   () =>
             {
                 if (isApproved) return;
-
-                contract.removeAllListeners();
-
                 setApproved(true);
 
                 dismissLastToast();
@@ -90,8 +81,8 @@ function OptionDetailsView(props: OptionDetailsViewProps)
         (
             () =>
             {
-                if (promise === onWithdrawOption) requestChangingIDs[option.id] = 1;
-                else                              optionChangingIDs[option.id] = 1;
+                if (promise === onWithdrawOption) requests.changing[option.id] = 1;
+                else                              options.changing[option.id] = 1;
 
                 showListView();
             }
@@ -100,21 +91,19 @@ function OptionDetailsView(props: OptionDetailsViewProps)
 
     let onApproveNFT = () => showToast(contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.nftId));
 
-    console.log(requestIDsTransactions);
-    console.log(optionIDsTransactions);
     const getStateTransactionScannerLink = () =>
     {
         let hash =
         option.state === OptionState.PUBLISHED
-        ?   requestIDsTransactions[option.id]
-        :   optionIDsTransactions[option.id];
+        ?   requests.transactions[option.id]
+        :   options.transactions[option.id];
 
         return `${scanner()}/tx/${hash}`;
     }
 
     function createButtonsFromOptionState()
     {
-        if (requestChangingIDs[option.id] || optionChangingIDs[option.id]) return;
+        if (requests.changing[option.id] || options.changing[option.id]) return;
 
         let isBuyer = (option.buyer === account());
 

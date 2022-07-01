@@ -1,7 +1,6 @@
 import { BigNumber } from "ethers";
 import { NFTAsset } from "../models/nftAsset";
 import { getCachedContract, images, keyOf } from "./globals";
-import { Option } from "../models/option";
 
 export async function loadNFTImage(address: string, id: BigNumber)
 {
@@ -10,7 +9,7 @@ export async function loadNFTImage(address: string, id: BigNumber)
 
     let data = await contract.tokenURI(id);
 
-    let image = JSON.parse(atob(data.slice(29))).image;
+    let image = JSON.parse(data).image;
 
     images[id.toString() + "_" + address] = image;
 
@@ -24,7 +23,7 @@ export async function getNFTAsset(option: { nftId : BigNumber, nftContract : str
     let promises =
     [
         /* name  */ NFTContract.name().then(r => r + " - " + option.nftId.toString())
-    ,   /* image */ NFTContract.tokenURI(option.nftId).then(r => JSON.parse(atob(r.slice(29))).image)
+    ,   /* image */ NFTContract.tokenURI(option.nftId).then(r => JSON.parse(r).image)
     ];
 
     // Use the image from cache, if available

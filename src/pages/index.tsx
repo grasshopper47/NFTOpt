@@ -2,7 +2,7 @@
 import classes from "./styles/index.module.scss";
 
 import Image from "next/image";
-import Layout from "../frontend/components/Layout";
+import Layout from "../frontend/fragments/Layout";
 
 type PresentationCard =
 {
