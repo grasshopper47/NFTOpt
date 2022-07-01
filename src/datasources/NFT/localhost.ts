@@ -2,21 +2,7 @@ import { BigNumber } from "ethers";
 import addresses from "../../../addresses.json";
 import { MAX_MINTABLE_TOKENS } from "../../utils/constants";
 import { NFTAsset } from "../../models/NFTAsset";
-import { getCachedContract, images, assets } from "../globals";
-
-export async function loadNFTImage(address: string, id: BigNumber)
-{
-    console.log("loadNFTImage");
-    let contract = getCachedContract(address);
-
-    let data = await contract.tokenURI(id);
-
-    let image = JSON.parse(data).image;
-
-    images[id.toString() + "_" + address] = image;
-
-    return image;
-}
+import { getCachedContract, assets } from "../globals";
 
 export async function loadAssetsFor(account: string)
 {
