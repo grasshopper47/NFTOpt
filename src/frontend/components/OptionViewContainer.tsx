@@ -48,14 +48,23 @@ const tabIndexStorageKey = "ActiveTabIndex";
 
 export const getViewClassName = (view : Views, state : number) => viewStates[view][state];
 
+let selectedOption: OptionWithAsset | null = null;
+
 function OptionViewContainer()
 {
     const [ view           , setView ]           = useState<Views>(Views.CARDLIST);
     const [ viewStateIndex , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
     const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
     const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
-    const [ selectedOption , setSelectedOption ] = useState<OptionWithAsset | null>(null);
     const [ checked        , setChecked ]        = useState(false);
+
+    const [forcedUpdateCounter, setState] = useState(0);
+    const setSelectedOption = (obj: OptionWithAsset | null) =>
+    {
+        selectedOption = obj;
+
+        setState( c => ++c );
+    }
 
     const optionsByState = useRef({});
 
@@ -63,6 +72,7 @@ function OptionViewContainer()
     const requestsHash = useRequestsHash();
     const options      = useOptions();
     const optionsHash  = useOptionsHash();
+
 
     useEffect
     (
