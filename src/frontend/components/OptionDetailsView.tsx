@@ -50,8 +50,6 @@ function OptionDetailsView(props: OptionDetailsViewProps)
 
             contract = getCachedContract(option.asset.nftContract);
 
-            contract.removeAllListeners();
-
             contract.getApproved(option.asset.nftId).then(checkAndSetApproved);
         }
     ,   []
@@ -61,15 +59,12 @@ function OptionDetailsView(props: OptionDetailsViewProps)
     {
         if (address === contracts.NFTOpt.address) { setApproved(true); return; }
 
-        contract.on
+        contract.once
         (
             "Approval"
         ,   () =>
             {
                 if (isApproved) return;
-
-                contract.removeAllListeners();
-
                 setApproved(true);
 
                 dismissLastToast();
@@ -100,8 +95,6 @@ function OptionDetailsView(props: OptionDetailsViewProps)
 
     let onApproveNFT = () => showToast(contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.nftId));
 
-    console.log(requestIDsTransactions);
-    console.log(optionIDsTransactions);
     const getStateTransactionScannerLink = () =>
     {
         let hash =
