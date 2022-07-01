@@ -1,4 +1,6 @@
 // @ts-ignore
+import { ERC721 } from "../typechain-types";
+
 import { ethers } from "hardhat";
 import { expect } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
@@ -12,7 +14,6 @@ import {
     deployNFTCollectionContract,
     contracts,
 } from "../src/utils/deployment";
-import { ERC721 } from "../typechain-types";
 
 export let buyer: SignerWithAddress;
 export let seller: SignerWithAddress;
