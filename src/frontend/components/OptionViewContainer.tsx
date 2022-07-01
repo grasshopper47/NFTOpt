@@ -8,7 +8,7 @@ import { OptionState } from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
-import { useOptions, useOptionsHash, useRequests, useRequestsHash } from "../../pages/_app";
+import { useRequests, useOptions } from "../../pages/_app";
 import { network } from "../utils/metamask";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
@@ -60,7 +60,9 @@ function OptionViewContainer()
     const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
     const [ checked        , setChecked ]        = useState(false);
 
-    const [forcedUpdateCounter, setState] = useState(0);
+    // Force-update the view even when the selectedOption is of the same value; this is to cover the edge-case
+    // when the user modifies 2 or more options, with transactions queued in Metamask and aproving 1 by 1
+    const [, setState] = useState(0);
     const setSelectedOption = (obj: OptionWithAsset | null) =>
     {
         selectedOption = obj;
@@ -68,11 +70,8 @@ function OptionViewContainer()
         setState( c => ++c );
     }
 
-    const requests     = useRequests();
-    const requestsHash = useRequestsHash();
-    const options      = useOptions();
-    const optionsHash  = useOptionsHash();
-
+    const requests = useRequests();
+    const options  = useOptions();
 
     useEffect
     (
@@ -82,11 +81,11 @@ function OptionViewContainer()
 
             let map = optionsByState[ViewTabValues.REQUEST];
 
-            for (let request of requests) map.push(request);
+            for (let request of requests.map) map.push(request);
 
             if (activeTabIndex === 0) setViewedOptions(optionsByState[ViewTabValues.REQUEST]);
         }
-    ,   [requestsHash]
+    ,   [requests.hash]
     );
 
     useEffect
@@ -99,7 +98,7 @@ function OptionViewContainer()
             let map1 = optionsByState[ViewTabValues.OPEN];
             let map2 = optionsByState[ViewTabValues.CLOSED];
 
-            for (let option of options)
+            for (let option of options.map)
             {
                 if (option.state === OptionState.OPEN) { map1.push(option); continue; }
 
@@ -108,7 +107,7 @@ function OptionViewContainer()
 
             if (activeTabIndex !== 0) setViewedOptions(optionsByState[tabs[activeTabIndex].value]);
         }
-    ,   [optionsHash]
+    ,   [options.hash]
     );
 
     useEffect
@@ -116,7 +115,7 @@ function OptionViewContainer()
         () =>
         {
             // 1st run, skip until options are loaded
-            if (requests.length === 0 && options.length === 0) return;
+            if (requests.map.length === 0 && options.map.length === 0) return;
 
             localStorage[tabIndexStorageKey] = activeTabIndex;
 
@@ -153,23 +152,23 @@ function OptionViewContainer()
     {
         if (activeTabIndex === 0)
         {
-            if (!network())         return "No Requests";
-            if (requestsHash === 0) return "Loading Requests ...";
-            if (requestsHash === 1)
+            if (!network())          return "No Requests";
+            if (requests.hash === 0) return "Loading Requests ...";
+            if (requests.hash === 1)
             {
-                if (!requests.length)      return "No Requests"
+                if (!requests.map.length)  return "No Requests"
                 if (!viewedOptions.length) return "Done"
             }
 
             return "No Requests";
         }
 
-        if (!network())        return "No Options";
-        if (optionsHash === 0) return "Loading Options ...";
-        if (optionsHash === 1)
+        if (!network())         return "No Options";
+        if (options.hash === 0) return "Loading Options ...";
+        if (options.hash === 1)
         {
             let arr = optionsByState[tabs[activeTabIndex].value];
-            if (!arr || !arr.length) return "No Options"
+            if (!arr || !arr.length)   return "No Options"
             if (!viewedOptions.length) return "Done"
         }
 

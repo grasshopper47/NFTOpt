@@ -15,31 +15,25 @@ import { dismissLastToast, TOAST_DURATION } from "../frontend/utils/toasting";
 import { actions, stateLabels } from "../frontend/utils/labels";
 import Header from "../frontend/components/Header";
 
+type ContextType =
+{
+    map         : OptionWithAsset[]     // contains requests
+,   hash        : number                // hash of requests
+,   changing    : {}                    // IDs of requests which have state changes
+,   transactions: {}                    // transactions where requests have had state changes
+};
+
 const AccountContext   = createContext("");
 const ContractsContext = createContext<{ NFTOpt : NFTOpt }>({ NFTOpt: null as unknown as NFTOpt });
 
-const RequestsContext               = createContext<OptionWithAsset[]>([]);
-const RequestsHashContext           = createContext(0);
-const RequestChangingIDsContext     = createContext<any>({});
-const RequestIDsTransactionsContext = createContext<any>({});
-
-const OptionsContext               = createContext<OptionWithAsset[]>([]);
-const OptionsHashContext           = createContext(0);
-const OptionChangingIDsContext     = createContext<any>({});
-const OptionIDsTransactionsContext = createContext<any>({});
+const RequestsContext = createContext<ContextType>({} as unknown as ContextType);
+const OptionsContext  = createContext<ContextType>({} as unknown as ContextType);
 
 export const useAccount   = () => useContext(AccountContext);
 export const useContracts = () => useContext(ContractsContext);
 
-export const useRequests           = () => useContext(RequestsContext);
-export const useRequestsHash       = () => useContext(RequestsHashContext);
-export const useRequestChangingIDs = () => useContext(RequestChangingIDsContext);
-export const useRequestIDsTransactionsContext = () => useContext(RequestIDsTransactionsContext);
-
-export const useOptions           = () => useContext(OptionsContext);
-export const useOptionsHash       = () => useContext(OptionsHashContext);
-export const useOptionChangingIDs = () => useContext(OptionChangingIDsContext);
-export const useOptionIDsTransactionsContext = () => useContext(OptionIDsTransactionsContext);
+export const useRequests  = () => useContext(RequestsContext);
+export const useOptions   = () => useContext(OptionsContext);
 
 let blockNumber = ~0;
 const contracts = { NFTOpt: null as unknown as NFTOpt };
@@ -220,30 +214,33 @@ export default function App({ Component, pageProps }: AppProps)
     return <>
         <Toaster containerClassName={"toast-container"} />
 
-        <AccountContext.Provider                value={account}>
-        <ContractsContext.Provider              value={contracts}>
+        <AccountContext.Provider   value={account}>
+        <ContractsContext.Provider value={contracts}>
 
-        <RequestsContext.Provider               value={requests}>
-        <RequestsHashContext.Provider           value={requestsHash}>
-        <RequestChangingIDsContext.Provider     value={requestChangingIDs}>
-        <RequestIDsTransactionsContext.Provider value={requestIDsTransactions}>
+        <RequestsContext.Provider
+            value=
+            {{
+                map          : requests
+            ,   hash         : requestsHash
+            ,   changing     : requestChangingIDs
+            ,   transactions : requestIDsTransactions
+            }}
+        >
 
-        <OptionsContext.Provider                value={options}>
-        <OptionsHashContext.Provider            value={optionsHash}>
-        <OptionChangingIDsContext.Provider      value={optionChangingIDs}>
-        <OptionIDsTransactionsContext.Provider  value={optionIDsTransactions}>
+        <OptionsContext.Provider
+            value=
+            {{
+                map          : options
+            ,   hash         : optionsHash
+            ,   changing     : optionChangingIDs
+            ,   transactions : optionIDsTransactions
+            }}
+        >
 
             <Header/>
             { connected() && <Component {...pageProps} /> }
 
-        </OptionIDsTransactionsContext.Provider>
-        </OptionChangingIDsContext.Provider>
-        </OptionsHashContext.Provider>
         </OptionsContext.Provider>
-
-        </RequestIDsTransactionsContext.Provider>
-        </RequestChangingIDsContext.Provider>
-        </RequestsHashContext.Provider>
         </RequestsContext.Provider>
 
         </ContractsContext.Provider>
