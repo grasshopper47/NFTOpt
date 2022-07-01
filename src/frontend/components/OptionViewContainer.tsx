@@ -3,7 +3,7 @@ import classes from "./styles/OptionViewContainer.module.scss";
 import clsx from "clsx";
 
 import { FormControlLabel, Switch, Tab, Tabs } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { OptionState } from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
 import OptionDetailsView from "./OptionDetailsView";
@@ -50,6 +50,8 @@ export const getViewClassName = (view : Views, state : number) => viewStates[vie
 
 let selectedOption: OptionWithAsset | null = null;
 
+const optionsByState = {};
+
 function OptionViewContainer()
 {
     const [ view           , setView ]           = useState<Views>(Views.CARDLIST);
@@ -66,8 +68,6 @@ function OptionViewContainer()
         setState( c => ++c );
     }
 
-    const optionsByState = useRef({});
-
     const requests     = useRequests();
     const requestsHash = useRequestsHash();
     const options      = useOptions();
@@ -78,13 +78,13 @@ function OptionViewContainer()
     (
         () =>
         {
-            optionsByState.current[ViewTabValues.REQUEST] = [] as OptionWithAsset[];
+            optionsByState[ViewTabValues.REQUEST] = [] as OptionWithAsset[];
 
-            let map = optionsByState.current[ViewTabValues.REQUEST];
+            let map = optionsByState[ViewTabValues.REQUEST];
 
             for (let request of requests) map.push(request);
 
-            if (activeTabIndex === 0) setViewedOptions(optionsByState.current[ViewTabValues.REQUEST]);
+            if (activeTabIndex === 0) setViewedOptions(optionsByState[ViewTabValues.REQUEST]);
         }
     ,   [requestsHash]
     );
@@ -93,11 +93,11 @@ function OptionViewContainer()
     (
         () =>
         {
-            optionsByState.current[ViewTabValues.OPEN]   = [] as OptionWithAsset[];
-            optionsByState.current[ViewTabValues.CLOSED] = [] as OptionWithAsset[];
+            optionsByState[ViewTabValues.OPEN]   = [] as OptionWithAsset[];
+            optionsByState[ViewTabValues.CLOSED] = [] as OptionWithAsset[];
 
-            let map1 = optionsByState.current[ViewTabValues.OPEN];
-            let map2 = optionsByState.current[ViewTabValues.CLOSED];
+            let map1 = optionsByState[ViewTabValues.OPEN];
+            let map2 = optionsByState[ViewTabValues.CLOSED];
 
             for (let option of options)
             {
@@ -106,7 +106,7 @@ function OptionViewContainer()
                 map2.push(option);
             }
 
-            if (activeTabIndex !== 0) setViewedOptions(optionsByState.current[tabs[activeTabIndex].value]);
+            if (activeTabIndex !== 0) setViewedOptions(optionsByState[tabs[activeTabIndex].value]);
         }
     ,   [optionsHash]
     );
@@ -120,7 +120,7 @@ function OptionViewContainer()
 
             localStorage[tabIndexStorageKey] = activeTabIndex;
 
-            setViewedOptions(optionsByState.current[tabs[activeTabIndex].value]);
+            setViewedOptions(optionsByState[tabs[activeTabIndex].value]);
         }
     ,   [activeTabIndex]
     );
@@ -168,7 +168,7 @@ function OptionViewContainer()
         if (optionsHash === 0) return "Loading Options ...";
         if (optionsHash === 1)
         {
-            let arr = optionsByState.current[tabs[activeTabIndex].value];
+            let arr = optionsByState[tabs[activeTabIndex].value];
             if (!arr || !arr.length) return "No Options"
             if (!viewedOptions.length) return "Done"
         }
