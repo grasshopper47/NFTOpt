@@ -36,7 +36,7 @@ const isValid = (request : OptionRequest_DISPLAY) =>
         && request.interval    !== ""
 }
 
-let request : OptionRequest_DISPLAY = { } as OptionRequest_DISPLAY;
+let request = { } as OptionRequest_DISPLAY;
 createRequest(request);
 
 function OptionRequestForm()
