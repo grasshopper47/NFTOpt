@@ -1,7 +1,7 @@
 // @ts-ignore
 import classes from "./styles/Header.module.scss";
 
-import React from "react";
+import React, { useEffect } from "react";
 import {useRouter} from "next/router";
 import Link from "next/link";
 import clsx from "clsx";
@@ -37,6 +37,15 @@ function Header()
 {
     const router = useRouter();
     const account = useAccount();
+
+    useEffect
+    (
+        () =>
+        {
+            if (router.pathname !== "/explore-options") document.body.onclick=null;
+        }
+    ,   [router.pathname]
+    );
 
     return <>
         <div className={classes.root}>
