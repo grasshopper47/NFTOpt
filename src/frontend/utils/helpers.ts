@@ -7,7 +7,7 @@ export function getIntervalString(value : string)
 
 export function getFloatString(value : string)
 {
-    if ((/^([0-9]*[.])?[0-9]*$/).test(value) && parseFloat(value) > 0) return value;
+    if ((/^([0-9]*[.])?[0-9]*$/).test(value) && parseFloat(value) >= 0) return value;
 
     return "";
 }
