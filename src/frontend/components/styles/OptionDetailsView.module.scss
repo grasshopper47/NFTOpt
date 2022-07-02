@@ -146,7 +146,6 @@ span.state
     font-size: 18px;
     font-weight: bold;
     color: $color-primary;
-    text-shadow: 2px 1px rgb(25 25 25 / 60%);
     text-align: center;
     margin-top: 44px;
     // border: 2px dotted;
@@ -203,5 +202,29 @@ button.btnSecondary
     {
         border-color: $text-secondary;
         background: $background-secondary;
+    }
+}
+
+[data-theme="white"]
+{
+    div.field
+    {
+        > span
+        {
+            &:last-of-type
+            {
+                text-shadow: 1px 1px rgba(36, 36, 36, 0.6);
+            }
+        }
+    }
+
+    .title
+    {
+        text-shadow: 1px 1px rgba(36, 36, 36, 0.6);
+    }
+
+    a.link
+    {
+        text-shadow: 1px 1px rgba(36, 36, 36, 0.6);
     }
 }
