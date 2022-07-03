@@ -11,7 +11,7 @@ import { isExpired } from "../../datasources/options";
 import { getCachedContract } from "../../datasources/globals";
 import { OptionWithAsset } from "../../models/extended";
 import { ADDRESS0 } from "../../utils/constants";
-import { scanner, signer } from "../utils/metamask";
+import { connected, scanner, signer } from "../utils/metamask";
 import { flavorLabels, stateLabels } from "../utils/labels";
 import { dismissLastToast, showToast } from "../utils/toasting";
 import Button_OptionDetailsView from "../fragments/Button.OptionDetailsView";
@@ -196,9 +196,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
                         </div>
                     </div>
 
-                    <div className={classes.buttonsContainer}>
-                        {createButtonsFromOptionState()}
-                    </div>
+                    { connected() && <div className={classes.buttonsContainer}>{ createButtonsFromOptionState() }</div> }
                 </div>
             </div>
         </div>
