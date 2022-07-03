@@ -17,13 +17,9 @@ type Route =
 ,   name: string
 };
 
-const routes: Route[] =
+const routesReadOnly: Route[] =
 [
     {
-        href: "/request"
-    ,   name: "Publish"
-    }
-,   {
         href: "/explore"
     ,   name: "Explore"
     }
@@ -31,6 +27,15 @@ const routes: Route[] =
         href: "/team"
     ,   name: "Team™"
     }
+];
+
+const routesWithSigner: Route[] =
+[
+    {
+        href: "/request"
+    ,   name: "Publish"
+    }
+,   ... routesReadOnly
 ];
 
 function Header()
@@ -42,10 +47,13 @@ function Header()
     (
         () =>
         {
-            if (router.pathname !== "/explore") document.body.onclick=null;
+            if (router.pathname !== "/explore") document.body.onclick = null;
         }
     ,   [router.pathname]
     );
+
+    const hasProvider = provider() != null;
+    const routes      = network() && connected() ? routesWithSigner : ( hasProvider ? routesReadOnly : [] );
 
     return <>
         <div className={classes.root}>
@@ -55,11 +63,10 @@ function Header()
                 </a>
             </Link>
 
-            { !network() && <p>{provider() ? "Connect to localhost" : "Metamask required to access dapp"}</p> }
+            { !network() && <p>{ hasProvider ? "Connect to localhost" : "Metamask required to access dapp" }</p> }
 
             <div>
                 {
-                    connected() && network() &&
                     routes.map
                     (
                         route =>
@@ -78,9 +85,9 @@ function Header()
                 <Button
                     className={clsx(classes.connectBtn, connected() && classes.connectBtnSmall)}
                     variant="contained"
-                    { ... !connected() && { onClick: provider() ? connectWallet : () => window.open("https://metamask.io/download") } }
+                    { ... !connected() && { onClick : ( hasProvider ? connectWallet : () => window.open("https://metamask.io/download") ) } }
                 >
-                    <p>{ connected() ? getAccountDisplayValue(account) : (provider() ? "Connect wallet" : "Install Metamask") }</p>
+                    <p>{ connected() ? getAccountDisplayValue(account) : (hasProvider ? "Connect wallet" : "Install Metamask") }</p>
                 </Button>
             </div>
         </div>

@@ -5,13 +5,13 @@ import clsx from "clsx";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useContracts, useRequests, useOptions } from "../../pages/_app";
+import { useContracts, useRequests, useOptions, useAccount } from "../../pages/_app";
 import { OptionState} from "../../models/option";
 import { isExpired } from "../../datasources/options";
 import { getCachedContract } from "../../datasources/globals";
 import { OptionWithAsset } from "../../models/extended";
 import { ADDRESS0 } from "../../utils/constants";
-import { account, scanner, signer } from "../utils/metamask";
+import { scanner, signer } from "../utils/metamask";
 import { flavorLabels, stateLabels } from "../utils/labels";
 import { dismissLastToast, showToast } from "../utils/toasting";
 import Button_OptionDetailsView from "../fragments/Button.OptionDetailsView";
@@ -32,6 +32,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
 
     const [ isApproved, setApproved ] = useState(false);
 
+    const account   = useAccount();
     const contracts = useContracts();
     const requests  = useRequests();
     const options   = useOptions();
@@ -105,7 +106,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
     {
         if (requests.changing[option.id] || options.changing[option.id]) return;
 
-        let isBuyer = (option.buyer === account());
+        let isBuyer = (option.buyer === account);
 
         if (option.state === OptionState.PUBLISHED)
             if (isBuyer)
@@ -137,7 +138,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
 
             if (isExpired(option))
             {
-                if (isBuyer || option.seller === account()) return <>{btnCancel}</>;
+                if (isBuyer || option.seller === account) return <>{btnCancel}</>;
             }
             else if (isBuyer)
             {

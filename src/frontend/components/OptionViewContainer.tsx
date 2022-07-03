@@ -4,12 +4,12 @@ import clsx from "clsx";
 
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
-import { useRequests, useOptions } from "../../pages/_app";
+import { useRequests, useOptions, useAccount } from "../../pages/_app";
 import { OptionState } from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
-import { account, network } from "../utils/metamask";
+import { network } from "../utils/metamask";
 import FilterBox, { filterParams } from "./FilterBox";
 import { Button, Tab, Tabs } from "@mui/material";
 
@@ -59,13 +59,14 @@ const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
 function OptionViewContainer()
 {
     const [ view           , setView ]           = useState<Views>(Views.CARDLIST);
-    const [ viewStateIndex , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
-    const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
+    const [ viewStateIndex , setViewStateIndex ] = useState( 0 );
+    const [ activeTabIndex , setActiveTabIndex ] = useState( 0 );
     const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
 
     const [ isFilterBoxVisible, setFilterBoxVisibile ] = useState(false);
     const hide = () => setFilterBoxVisibile(false);
-
+    // parseInt(localStorage[viewStateStorageKey] ?? 0)
+    // parseInt(localStorage[tabIndexStorageKey] ?? 0)
     // Force-update the view even when the selectedOption is of the same value; this is to cover the edge-case
     // when the user modifies 2 or more options, with transactions queued in Metamask and aproving 1 by 1
     const [, setState] = useState(0);
@@ -76,6 +77,7 @@ function OptionViewContainer()
         setState( c => ++c );
     }
 
+    const account  = useAccount();
     const requests = useRequests();
     const options  = useOptions();
 
@@ -98,7 +100,7 @@ function OptionViewContainer()
             localStorage[tabIndexStorageKey] = activeTabIndex;
 
             // 1st run, skip until options are loaded
-            if (requests.map.length === 0 && options.map.length === 0) return;
+            // if (requests.map.length === 0 && options.map.length === 0) return;
 
             let state = tabs[activeTabIndex].value;
 
@@ -159,7 +161,7 @@ function OptionViewContainer()
         (
             o =>
             stateFilter(o.state)
-            && (filterParams.showAll || (o.buyer === account() || o.seller === account()))
+            && (filterParams.showAll || (o.buyer === account || o.seller === account))
             && o.premium.gte(ethers.utils.parseEther(filterParams.premium.min === "" ? "0" : filterParams.premium.min))
             && o.premium.lte(ethers.utils.parseEther(filterParams.premium.max === "" ? MAX_INT_STRING : filterParams.premium.max))
             && o.strikePrice.gte(ethers.utils.parseEther(filterParams.strikePrice.min === "" ? "0" : filterParams.strikePrice.min))

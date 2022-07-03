@@ -64,9 +64,11 @@ export function dismissLastToast()
 {
     const lastId = getWaitingToastId();
 
-    if (!lastId) { showLoadingToast = false; return; }
+    if (!lastId) { showLoadingToast = false; return 0; }
 
     toast.dismiss(lastId);
+
+    return lastId;
 }
 
 function getWaitingToastId()

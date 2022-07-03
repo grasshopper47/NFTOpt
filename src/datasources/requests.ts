@@ -1,10 +1,10 @@
-import { NFTOptContract } from "./globals";
+import { contracts } from "./globals";
 import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { OptionRequest } from "../models/optionRequest";
 
 export async function getRequest(id: number)
 {
-    let request = await NFTOptContract().requests(id) as unknown as OptionRequest;
+    let request = await contracts.NFTOpt.requests(id) as unknown as OptionRequest;
 
     let isValid =
     request.buyer          !== ADDRESS0

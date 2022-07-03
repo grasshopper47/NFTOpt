@@ -1,26 +1,26 @@
 import "./styles/_app.scss";
 import { AppProps } from "next/app";
+import toast, { Toaster } from "react-hot-toast";
 import { createContext, useContext, useState, useEffect } from "react";
-import { connected, getSignedContract, hookMetamask, network, provider } from "../frontend/utils/metamask";
 import addresses from "../../addresses.json";
 import { NFTOpt } from "../../typechain-types";
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
-import { loadAllRequestsAsOptionsWithAsset, requests } from "../datasources/globals"
-import { BigNumber } from "ethers";
+import { clearData, contracts, loadAllRequestsAsOptionsWithAsset, requests } from "../datasources/globals"
+import { BigNumber, ethers } from "ethers";
 import { OptionState } from "../models/option";
-import { setContract, options, loadRequestAsOptionWithAsset, loadAllOptionsWithAsset } from "../datasources/globals";
+import { options, loadRequestAsOptionWithAsset, loadAllOptionsWithAsset } from "../datasources/globals";
 import { OptionWithAsset } from "../models/extended";
-import toast, { Toaster } from "react-hot-toast";
+import { createProvider, hookMetamask, network, provider, signerOrProvider } from "../frontend/utils/metamask";
 import { dismissLastToast, TOAST_DURATION } from "../frontend/utils/toasting";
 import { actions, stateLabels } from "../frontend/utils/labels";
 import Header from "../frontend/components/Header";
 
 type ContextType =
 {
-    map         : OptionWithAsset[]     // contains requests
-,   hash        : number                // hash of requests
-,   changing    : {}                    // IDs of requests which have state changes
-,   transactions: {}                    // transactions where requests have had state changes
+    map          : OptionWithAsset[]     // contains requests
+,   hash         : number                // hash of requests
+,   changing     : {}                    // IDs of requests which have state changes
+,   transactions : {}                    // transactions where requests have had state changes
 };
 
 const AccountContext   = createContext("");
@@ -36,7 +36,6 @@ export const useRequests  = () => useContext(RequestsContext);
 export const useOptions   = () => useContext(OptionsContext);
 
 let blockNumber = ~0;
-const contracts = { NFTOpt: null as unknown as NFTOpt };
 
 const requestChangingIDs     = {};
 const requestIDsTransactions = {};
@@ -47,6 +46,7 @@ const optionIDsTransactions =  {};
 export default function App({ Component, pageProps }: AppProps)
 {
     const [ account      , setAccount ]      = useState("");
+    const [ chainID      , setChainID ]      = useState(-1);
     const [ requestsHash , setRequestsHash ] = useState(0);
     const [ optionsHash  , setOptionsHash ]  = useState(0);
 
@@ -85,8 +85,9 @@ export default function App({ Component, pageProps }: AppProps)
 
         blockNumber = transaction.blockNumber;
 
-        dismissLastToast();
-        toast.success("Successfully " + action.label, { duration: TOAST_DURATION });
+        // Show toast of success only when triggered by the user
+        if (dismissLastToast()) toast.success("Successfully " + action.label, { duration: TOAST_DURATION });
+
         console.log(action.label);
 
         if (action.state === OptionState.PUBLISHED)
@@ -172,11 +173,7 @@ export default function App({ Component, pageProps }: AppProps)
 
     useEffect
     (
-        () =>
-        {
-            hookMetamask(window, setAccount)
-            .then( async () => blockNumber = await provider()?.getBlockNumber() );
-        }
+        () => hookMetamask(setAccount, setChainID)
     ,   []
     );
 
@@ -184,29 +181,53 @@ export default function App({ Component, pageProps }: AppProps)
     (
         () =>
         {
-            if (!network()) return;
+            if (chainID === -1) return;         // first run ignored
+            console.log("setChainID", chainID);
 
-            if (!connected()) return;
+            clearData();
 
+            setRequestsHash(0);
+            setOptionsHash(0);
+
+            let provider_ = createProvider();
+
+            let network_ = network();
+            if (!network_) return;
+
+            provider_.getBlockNumber().then(r => blockNumber = r);
+
+            // Perform cleanup of event-listners, as they persist from one instance to another
             contracts.NFTOpt?.removeAllListeners();
 
-            // Create a new instance with connected address as signer
+            // Create completely new instance with the default provider (readonly)
             contracts.NFTOpt =
-            getSignedContract
+            new ethers.Contract
             (
-                addresses[network()].NFTOpt
+                addresses[network_].NFTOpt
             ,   NFTOptSolContract.abi
+            ,   provider_
             ) as NFTOpt;
 
-            // Set contract instance in options singleton
-            setContract(contracts.NFTOpt);
-
             // Re-fetch cache anew
-            if (requests.length === 0) loadAllRequestsAsOptionsWithAsset().then(updateRequestsHash)
-            if (options.length  === 0) loadAllOptionsWithAsset().then(updateOptionsHash);
+            loadAllRequestsAsOptionsWithAsset().then(updateRequestsHash);
+            loadAllOptionsWithAsset().then(updateOptionsHash);
 
             // Subscribe to events
             for (let event of stateLabels) contracts.NFTOpt.on(event, handleEvent);
+        }
+    ,   [chainID]
+    );
+
+    useEffect
+    (
+        () =>
+        {
+            if (account === "") return;         // first run ignored
+            console.log("setAccount", account);
+
+            // Create an upgraded/downgraded instance with connected address as signer OR with the default provider (readonly)
+            // NOTE: event subscription is maintained
+            contracts.NFTOpt = contracts.NFTOpt.connect(signerOrProvider());
         }
     ,   [account]
     );
@@ -238,7 +259,7 @@ export default function App({ Component, pageProps }: AppProps)
         >
 
             <Header/>
-            { connected() && <Component {...pageProps} /> }
+            { provider() && <Component {...pageProps} /> }
 
         </OptionsContext.Provider>
         </RequestsContext.Provider>
