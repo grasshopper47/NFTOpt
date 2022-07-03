@@ -2,7 +2,7 @@ import React from "react";
 import Layout from "../frontend/fragments/Layout";
 import OptionRequestForm from "../frontend/components/OptionRequestForm";
 
-function OptionRequestPage()
+export default function()
 {
     return <>
         <Layout>
@@ -10,5 +10,3 @@ function OptionRequestPage()
         </Layout>
     </>;
 }
-
-export default OptionRequestPage;

@@ -2,13 +2,11 @@ import React from "react";
 import Layout from "../frontend/fragments/Layout";
 import OptionViewContainer from "../frontend/components/OptionViewContainer";
 
-function ExploreOptions()
+export default function()
 {
     return <>
         <Layout>
-            <OptionViewContainer key={`explore-options-list`}/>
+            <OptionViewContainer key={`explore-list`}/>
         </Layout>
     </>;
 }
-
-export default ExploreOptions;

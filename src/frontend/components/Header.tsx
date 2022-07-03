@@ -20,12 +20,12 @@ type Route =
 const routes: Route[] =
 [
     {
-        href: "/request-option"
-    ,   name: "Publish Option"
+        href: "/request"
+    ,   name: "Publish"
     }
 ,   {
-        href: "/explore-options"
-    ,   name: "Explore Options"
+        href: "/explore"
+    ,   name: "Explore"
     }
 ,   {
         href: "/team"
@@ -42,7 +42,7 @@ function Header()
     (
         () =>
         {
-            if (router.pathname !== "/explore-options") document.body.onclick=null;
+            if (router.pathname !== "/explore") document.body.onclick=null;
         }
     ,   [router.pathname]
     );
