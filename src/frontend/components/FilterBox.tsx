@@ -2,9 +2,8 @@
 import classes from "./styles/FilterBox.module.scss";
 import clsx from "clsx";
 
-import Row_FilterBox from "../fragments/Row.FilterBox";
 import { getFloatString, getIntervalString } from "../utils/helpers";
-import { useState } from "react";
+import Row_FilterBox from "../fragments/Row.FilterBox";
 import { Button, FormControlLabel, Switch } from "@mui/material";
 
 export let filterParams = { } as FilterParams;

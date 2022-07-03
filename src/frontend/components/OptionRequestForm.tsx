@@ -5,30 +5,34 @@ import clsx from "clsx";
 import { Button, FormControl, RadioGroup } from "@mui/material";
 import { useState } from "react";
 import { ethers } from "ethers";
+import { useContracts } from "../../pages/_app";
 import { loadNFTImage } from "../../datasources/NFTAssets";
 import { imageOf, keyOf } from "../../datasources/globals";
-import { OptionFlavor } from "../../models/option";
-import { showToast } from "../utils/toasting";
-import { useContracts } from "../../pages/_app";
 import { NFTAsset } from "../../models/nftAsset";
+import { OptionRequest_DISPLAY } from "../../models/extended";
+import { OptionFlavor } from "../../models/option";
 import { BIGNUMBER0, SECONDS_IN_A_DAY } from "../../utils/constants";
 import { getFloatString, getIntervalString } from "../utils/helpers";
+import { showToast } from "../utils/toasting";
 import TextBox_OptionRequestForm from "../fragments/TextBox.OptionRequest";
 import Radio_OptionRequestForm from "../fragments/Radio.OptionRequest";
 import DropDown_OptionRequestForm from "../fragments/DropDown.OptionRequest";
-import { OptionRequest_DISPLAY } from "../../models/extended";
 
-const createRequest = (obj : OptionRequest_DISPLAY) =>
+let request = { } as OptionRequest_DISPLAY;
+
+const resetRequest = () =>
 {
-    obj.nftContract = "";
-    obj.nftId       = BIGNUMBER0;
-    obj.interval    = "1";
-    obj.premium     = "1";
-    obj.strikePrice = "1";
-    obj.flavor      = OptionFlavor.AMERICAN;
+    request.nftContract = "";
+    request.nftId       = BIGNUMBER0;
+    request.interval    = "1";
+    request.premium     = "1";
+    request.strikePrice = "1";
+    request.flavor      = OptionFlavor.AMERICAN;
 }
 
-const isValid = (request : OptionRequest_DISPLAY) =>
+resetRequest();
+
+const isRequestOK = () =>
 {
     return request.nftContract !== ""
         && request.premium     !== ""
@@ -36,13 +40,10 @@ const isValid = (request : OptionRequest_DISPLAY) =>
         && request.interval    !== ""
 }
 
-let request = { } as OptionRequest_DISPLAY;
-createRequest(request);
-
 function OptionRequestForm()
 {
-    const [ image, setImage ]          = useState("");
-    const [ flag , setRequestChanged ] = useState(0);
+    const [ image , setImage ]          = useState("");
+    const [ flag  , setRequestChanged ] = useState(0);
     const requestChanged = () => setRequestChanged(flag ^ 1);
 
     const contracts = useContracts();
@@ -80,15 +81,11 @@ function OptionRequestForm()
 
     const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
-        // setRequestState( prev => ({ ...prev, [event.target.id] : getFloatString(event.target.value) }) );
-
         request[event.target.id] = getFloatString(event.target.value); requestChanged();
     };
 
     const setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
-        // setRequestState( prev => ({ ...prev, interval : getIntervalString(event.target.value) }) );
-
         request.interval = getIntervalString(event.target.value); requestChanged();
     };
 
@@ -110,12 +107,11 @@ function OptionRequestForm()
             ,   request.flavor
             ,   { value: ethers.utils.parseEther(request.premium) }
             )
-            .then( () => { createRequest(request); requestChanged(); } )
-            // .then(() => setRequestState({...defaultRequest}))
+            .then( () => { resetRequest(); requestChanged(); } )
         );
     };
 
-    const onHandleKey = (event: React.KeyboardEvent<HTMLInputElement>) => { if (isValid(request) && event.key === "Enter") onPublishRequest(); }
+    const onHandleKey = (event: React.KeyboardEvent<HTMLInputElement>) => { if (isRequestOK() && event.key === "Enter") onPublishRequest(); }
 
     const create3Dots = () => [0, 0, 0].map( (_, i) => <div key={`dot-${i}`} className={classes.dot} /> );
 
@@ -139,11 +135,10 @@ function OptionRequestForm()
                 </FormControl>
 
                 <Button
-                    id="btnPublish"
                     className={classes.submitBtn}
                     variant="contained"
                     onClick={onPublishRequest}
-                    disabled={!isValid(request)}
+                    disabled={!isRequestOK()}
                 >
                     Publish Request
                 </Button>

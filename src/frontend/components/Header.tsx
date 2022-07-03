@@ -1,15 +1,15 @@
 // @ts-ignore
 import classes from "./styles/Header.module.scss";
+import clsx from "clsx";
 
 import React, { useEffect } from "react";
 import {useRouter} from "next/router";
 import Link from "next/link";
-import clsx from "clsx";
-import Button from "@mui/material/Button";
-import ThemeSwitch from "../fragments/ThemeSwitch.Header";
 import { useAccount } from "../../pages/_app";
 import { connected, connectWallet, network, provider } from "../utils/metamask";
 import { getAccountDisplayValue } from "../utils/helpers";
+import ThemeSwitch from "../fragments/ThemeSwitch.Header";
+import Button from "@mui/material/Button";
 
 type Route =
 {

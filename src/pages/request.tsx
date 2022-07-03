@@ -1,4 +1,3 @@
-import React from "react";
 import Layout from "../frontend/fragments/Layout";
 import OptionRequestForm from "../frontend/components/OptionRequestForm";
 

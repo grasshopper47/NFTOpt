@@ -1,6 +1,4 @@
-import React from "react";
-
-function Layout(props : { children : JSX.Element | JSX.Element[] })
+export default function(props : { children : JSX.Element | JSX.Element[] })
 {
     return <>
         <div key="main-content-layout" className="main-content-layout">
@@ -8,5 +6,3 @@ function Layout(props : { children : JSX.Element | JSX.Element[] })
         </div>
     </>;
 }
-
-export default Layout;

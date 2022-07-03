@@ -2,11 +2,11 @@
 import classes from "./styles/OptionListItemView.module.scss";
 import clsx from "clsx";
 
-import { AccessTime } from "@mui/icons-material";
 import { ethers } from "ethers";
+import { useRequests, useOptions } from "../../pages/_app";
 import { OptionWithAsset } from "../../models/extended";
 import { getViewClassName, Views } from "./OptionViewContainer";
-import { useRequests, useOptions } from "../../pages/_app";
+import { AccessTime } from "@mui/icons-material";
 
 type OptionListItemViewProps =
 {

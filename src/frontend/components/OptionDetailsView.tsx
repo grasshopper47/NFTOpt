@@ -2,15 +2,13 @@
 import classes from "./styles/OptionDetailsView.module.scss";
 import clsx from "clsx";
 
-import { ArrowBackIosRounded } from "@mui/icons-material";
-import { IconButton } from "@mui/material";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { isExpired } from "../../datasources/options";
-import { getCachedContract } from "../../datasources/globals";
 import { useContracts, useRequests, useOptions } from "../../pages/_app";
 import { OptionState} from "../../models/option";
+import { isExpired } from "../../datasources/options";
+import { getCachedContract } from "../../datasources/globals";
 import { OptionWithAsset } from "../../models/extended";
 import { ADDRESS0 } from "../../utils/constants";
 import { account, scanner, signer } from "../utils/metamask";
@@ -19,6 +17,8 @@ import { dismissLastToast, showToast } from "../utils/toasting";
 import Button_OptionDetailsView from "../fragments/Button.OptionDetailsView";
 import Field_OptionDetailsView from "../fragments/Field.OptionDetailsView";
 import FieldLink_OptionDetailsView from "../fragments/FieldLink.OptionDetailsView";
+import { ArrowBackIosRounded } from "@mui/icons-material";
+import { IconButton } from "@mui/material";
 
 type OptionDetailsViewProps =
 {

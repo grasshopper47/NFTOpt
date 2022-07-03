@@ -2,16 +2,16 @@
 import classes from "./styles/OptionViewContainer.module.scss";
 import clsx from "clsx";
 
-import { Button, Tab, Tabs } from "@mui/material";
+import { ethers } from "ethers";
 import { useEffect, useState } from "react";
+import { useRequests, useOptions } from "../../pages/_app";
 import { OptionState } from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
-import { useRequests, useOptions } from "../../pages/_app";
 import { account, network } from "../utils/metamask";
 import FilterBox, { filterParams } from "./FilterBox";
-import { ethers } from "ethers";
+import { Button, Tab, Tabs } from "@mui/material";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
@@ -54,6 +54,8 @@ let selectedOption: OptionWithAsset | null = null;
 
 let optionsByStateFiltered = {};
 
+const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
+
 function OptionViewContainer()
 {
     const [ view           , setView ]           = useState<Views>(Views.CARDLIST);
@@ -93,10 +95,10 @@ function OptionViewContainer()
     (
         () =>
         {
+            localStorage[tabIndexStorageKey] = activeTabIndex;
+
             // 1st run, skip until options are loaded
             if (requests.map.length === 0 && options.map.length === 0) return;
-
-            localStorage[tabIndexStorageKey] = activeTabIndex;
 
             let state = tabs[activeTabIndex].value;
 
@@ -114,12 +116,12 @@ function OptionViewContainer()
             {
                 document.body.onkeydown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedOption(null); };
                 setView(Views.DETAIL);
-
-                return;
             }
-
-            document.body.onkeydown = null;
-            setView(Views.CARDLIST);
+            else
+            {
+                document.body.onkeydown = null;
+                setView(Views.CARDLIST);
+            }
         }
     ,   [selectedOption]
     );
@@ -144,8 +146,6 @@ function OptionViewContainer()
 
         return "No Options";
     }
-
-    const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
 
     const handleFiltered = (state : ViewTabValues) =>
     {
@@ -213,22 +213,22 @@ function OptionViewContainer()
                         )
                     }
                 >
-                {
-                    !viewedOptions.length &&
-                    <p className={classes.noOptions}>{getStatus()}</p>
-                }
-                {
-                    viewedOptions.map
-                    (
-                        (option, index) =>
-                        <OptionListItemView
-                            key={`option-preview-${activeTabIndex}-${index}`}
-                            option={option}
-                            showDetailsView={setSelectedOption}
-                            viewIndex={viewStateIndex}
-                        />
-                    )
-                }
+                    {
+                        !viewedOptions.length &&
+                        <p className={classes.noOptions}>{getStatus()}</p>
+                    }
+                    {
+                        viewedOptions.map
+                        (
+                            (option, index) =>
+                            <OptionListItemView
+                                key={`option-preview-${activeTabIndex}-${index}`}
+                                option={option}
+                                showDetailsView={setSelectedOption}
+                                viewIndex={viewStateIndex}
+                            />
+                        )
+                    }
                 </div>
 
                 {
