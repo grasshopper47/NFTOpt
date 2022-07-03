@@ -8,7 +8,7 @@ import { useRequests, useOptions, useAccount } from "../../pages/_app";
 import { OptionState } from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
 import OptionDetailsView from "./OptionDetailsView";
-import OptionListItemView from "./OptionListItemView";
+import OptionCardView from "./OptionCardView";
 import { network } from "../utils/metamask";
 import FilterBox, { filterParams } from "./FilterBox";
 import { Button, Tab, Tabs } from "@mui/material";
@@ -223,7 +223,7 @@ function OptionViewContainer()
                         viewedOptions.map
                         (
                             (option, index) =>
-                            <OptionListItemView
+                            <OptionCardView
                                 key={`option-preview-${activeTabIndex}-${index}`}
                                 option={option}
                                 showDetailsView={setSelectedOption}

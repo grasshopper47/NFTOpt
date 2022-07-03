@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/OptionListItemView.module.scss";
+import classes from "./styles/OptionCardView.module.scss";
 import clsx from "clsx";
 
 import { ethers } from "ethers";
@@ -15,7 +15,7 @@ type OptionListItemViewProps =
 ,   showDetailsView : (OptionWithAsset: OptionWithAsset | null) => void
 };
 
-function OptionListItemView(props: OptionListItemViewProps)
+function OptionCardView(props: OptionListItemViewProps)
 {
     const { option, viewIndex } = props;
 
@@ -69,4 +69,4 @@ function OptionListItemView(props: OptionListItemViewProps)
     </>;
 }
 
-export default OptionListItemView;
+export default OptionCardView;
