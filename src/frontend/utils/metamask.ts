@@ -52,7 +52,9 @@ export function createProvider()
     _provider = new ethers.providers.Web3Provider(window.ethereum, "any");
 
     _signer = _provider.getSigner();
-    _signer.getAddress().then(handleAccountChanged);
+    _signer.getAddress()
+    .then(handleAccountChanged)
+    .catch(() => handleAccountChanged(""));
 
     return _provider;
 }
