@@ -1,28 +1,23 @@
 // @ts-ignore
 import { NFTOpt } from "../../typechain-types";
 
-import { OptionWithAsset } from "../models/extended";
-import { getSignedContract } from "../frontend/utils/metamask";
-import { ABIs, ADDRESS0, SECONDS_IN_A_DAY } from "../utils/constants";
-import { BigNumber } from "ethers";
-import { NFTAsset } from "../models/NFTAsset";
+import { BigNumber, ethers } from "ethers";
 import { getNFTAsset } from "./NFTAssets";
-import { getOption } from "./options";
-import { OptionState } from "../models/option";
 import { getRequest } from "./requests";
+import { getOption } from "./options";
+import { NFTAsset } from "../models/NFTAsset";
+import { OptionState } from "../models/option";
+import { OptionWithAsset } from "../models/extended";
+import { ABIs, ADDRESS0 } from "../utils/constants";
+import { provider } from "../frontend/utils/metamask";
 
-let _NFTOpt = {} as unknown as NFTOpt;
-
-export const setContract = (contract_) => _NFTOpt = contract_;
-export const NFTOptContract = () => _NFTOpt;
-
-const contracts = { };
+export let contracts = { NFTOpt: null as unknown as NFTOpt };
 
 export let requests : OptionWithAsset[] = [];
 export let options  : OptionWithAsset[] = [];
 
-export const images = { };
-export const assets = { };
+export let images = { };
+export let assets = { };
 
 type minObj = { nftId : BigNumber, nftContract : string };
 
@@ -30,14 +25,16 @@ export const keyOf    = (obj : minObj )    => obj.nftId + "_" + obj.nftContract;
 export const imageOf  = (obj : minObj)     => images[keyOf(obj)] as string;
 export const assetsOf = (account : string) => assets[account] as NFTAsset[];
 
+let contractsCache = { };
+
 export function getCachedContract(address : string)
 {
-    let contract = contracts[address];
+    let contract = contractsCache[address];
 
     if (contract) return contract;
 
     contract =
-    getSignedContract
+    new ethers.Contract
     (
         address
     ,   [
@@ -48,9 +45,10 @@ export function getCachedContract(address : string)
         ,   ABIs.ERC721.approve
         ,   ABIs.ERC721.Events.Approval
         ]
+    ,   provider()
     );
 
-    contracts[address] = contract;
+    contractsCache[address] = contract;
 
     return contract;
 }
@@ -99,7 +97,7 @@ export async function loadAllRequestsAsOptionsWithAsset()
 
     requests = [];
 
-    let IDPromise = await NFTOptContract().requestID();
+    let IDPromise = await contracts.NFTOpt.requestID();
     if (!IDPromise) return;
 
     // TODO: handle optionsLength > 2^53
@@ -125,7 +123,7 @@ export async function loadAllOptionsWithAsset()
 
     options = [];
 
-    let IDPromise = await NFTOptContract().optionID();
+    let IDPromise = await contracts.NFTOpt.optionID();
     if (!IDPromise) return;
 
     // TODO: handle optionsLength > 2^53
@@ -140,4 +138,12 @@ export async function loadAllOptionsWithAsset()
     await Promise.allSettled(promises);
 
     options.sort( (a, b) => a.id - b.id );
+}
+
+export function clearData()
+{
+    requests = options = [];
+
+    contracts = { NFTOpt: null as unknown as NFTOpt };
+    contractsCache = images = assets = {};
 }

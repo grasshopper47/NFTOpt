@@ -1,8 +1,8 @@
-import { ethers } from "ethers";
+import { ethers, Signer } from "ethers";
 import toast from "react-hot-toast";
 
 // MetaMasK is present if this variable exists
-let _window : Window & { ethereum?: any; };
+declare var window : Window & { ethereum?: any; };
 
 const _networks : any =
 {
@@ -10,6 +10,7 @@ const _networks : any =
 // ,   "1"     : "mainnet"
 // ,   "4"     : "rinkeby"
 };
+let _network : string;
 
 const _scanners : any =
 {
@@ -17,31 +18,48 @@ const _scanners : any =
 // ,   "1"     : "https://etherscan.io"
 // ,   "4"     : "rinkeby"
 };
+let _scanner : string;
 
 let _connected = false;
+
 let _provider : ethers.providers.Web3Provider;
+let _signer : Signer;
 
 let _setAccount : (a : string) => void;
+let _setChainID : (a : number) => void;
 
-function handleAccountChanged(accounts : string[])
+export function hookMetamask
+(
+    setAccount : (a : string) => void
+,   setChainID : (a : number) => void
+)
 {
-    console.log("handleAccountChanged", account());
+    if (!window.ethereum) { console.log("Install MetaMasK"); return; }
 
-    _connected = accounts.length !== 0;
+    console.log("MetaMasK init");
 
-    if (!_connected) console.log("Connect MetaMasK");
+    _setAccount = setAccount;
+    _setChainID = setChainID;
 
-    _setAccount(_window.ethereum.selectedAddress);
+    window.ethereum.on("chainChanged", handleChainIDChanged);
+    window.ethereum.on('accountsChanged', handleAccountChanged);
+
+    handleChainIDChanged(window.ethereum.networkVersion);
 }
 
-function handleNetworkChanged()
+export function createProvider()
 {
-    _window.location.reload();
+    _provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+
+    _signer = _provider.getSigner();
+    _signer.getAddress().then(handleAccountChanged);
+
+    return _provider;
 }
 
 export async function connectWallet()
 {
-    return _window.ethereum
+    window.ethereum
     .request({ method: "eth_requestAccounts" })
     .then(handleAccountChanged)
     .catch
@@ -54,50 +72,34 @@ export async function connectWallet()
     );
 }
 
-export async function hookMetamask
-(
-    window_    : Window & { ethereum?: any; }
-,   setAccount : (a : string) => void
-)
+function _setNetwork(id : number)
 {
-    if (_connected) return;
-
-    if (_window)  throw "Shomething went wrong, should be null";
-    if (!window_) throw "Shomething went wrong, should have a value";
-
-    if (!window_.ethereum) { console.log("Install MetaMasK"); return; }
-
-    console.log("MetaMasK init");
-
-    _window = window_;      // Used to expose short-hand accessors like account(), network(), connected()
-
-    _setAccount = setAccount;
-
-    _provider = new ethers.providers.Web3Provider(_window.ethereum, "any");
-
-    _window.ethereum.on("chainChanged", handleNetworkChanged);
-    _window.ethereum.on('accountsChanged', handleAccountChanged);
-
-    _setAccount("Connecting...");
-
-    return connectWallet();
+    _network = _networks[id];
+    _scanner = _scanners[id];
 }
 
-export const setWindow = (window_ : Window & { ethereum?: any; }) => _window = window_;
+function handleAccountChanged(accounts : string[] | string)
+{
+    _connected = accounts.length !== 0;
 
-export const account   = () => _window?.ethereum.selectedAddress;
-export const network   = () => _networks[_window?.ethereum.networkVersion];
-export const scanner   = () => _scanners[_window?.ethereum.networkVersion];
+    if (!_connected) console.log("Connect MetaMasK");
+
+    _setAccount(window.ethereum.selectedAddress);
+}
+
+function handleChainIDChanged(id : string)
+{
+    let id_ = parseInt(id);
+
+    _setNetwork(id_);
+    _setChainID(id_);
+
+    // window.location.reload();
+}
+
+export const network   = () => _network;
+export const scanner   = () => _scanner;
 export const connected = () => _connected;
 export const provider  = () => _provider;
-export const signer    = () => _provider.getSigner();
-
-export function getSignedContract(address: string, abi: any)
-{
-    return new ethers.Contract(address, abi, _provider.getSigner());
-}
-
-export function getProviderContract(address: string, abi: any)
-{
-    return new ethers.Contract(address, abi, _provider);
-}
+export const signer    = () => _signer;
+export const signerOrProvider = () => _connected ? _signer : _provider;
