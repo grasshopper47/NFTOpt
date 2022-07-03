@@ -1,6 +1,6 @@
 import { Option, OptionFlavor } from "../models/option";
 import { OptionWithAsset, Option_SOLIDITY } from "../models/extended";
-import { NFTOptContract } from "./globals";
+import { contracts } from "./globals";
 import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
 
 export function isExpired(option : Option | OptionWithAsset)
@@ -20,7 +20,7 @@ export function isExpired(option : Option | OptionWithAsset)
 
 export async function getOption(id: number)
 {
-    let optionSolidity = await NFTOptContract().options(id) as unknown as Option_SOLIDITY;
+    let optionSolidity = await contracts.NFTOpt.options(id) as unknown as Option_SOLIDITY;
 
     let isValid =
     optionSolidity.request.buyer          !== ADDRESS0
