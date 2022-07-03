@@ -36,7 +36,7 @@ export function hookMetamask
 {
     if (!window.ethereum) { console.log("Install MetaMasK"); return; }
 
-    console.log("MetaMasK init");
+    console.log("MetaMasK: init");
 
     _setAccount = setAccount;
     _setChainID = setChainID;
@@ -84,7 +84,7 @@ function handleAccountChanged(accounts : string[] | string)
 {
     _connected = accounts.length !== 0;
 
-    if (!_connected) console.log("Connect MetaMasK");
+    if (!_connected) console.log("MetaMasK: connect an account");
 
     _setAccount(window.ethereum.selectedAddress);
 }
@@ -95,6 +95,8 @@ function handleChainIDChanged(id : string)
 
     _setNetwork(id_);
     _setChainID(id_);
+
+    if (!_network) console.log("MetaMasK: select a supported network");
 
     // window.location.reload();
 }
