@@ -1,7 +1,7 @@
 // @ts-ignore
 import classes from "./styles/Header.module.scss";
 
-import React from "react";
+import React, { useEffect } from "react";
 import {useRouter} from "next/router";
 import Link from "next/link";
 import clsx from "clsx";
@@ -20,12 +20,12 @@ type Route =
 const routes: Route[] =
 [
     {
-        href: "/request-option"
-    ,   name: "Publish Option"
+        href: "/request"
+    ,   name: "Publish"
     }
 ,   {
-        href: "/explore-options"
-    ,   name: "Explore Options"
+        href: "/explore"
+    ,   name: "Explore"
     }
 ,   {
         href: "/team"
@@ -37,6 +37,15 @@ function Header()
 {
     const router = useRouter();
     const account = useAccount();
+
+    useEffect
+    (
+        () =>
+        {
+            if (router.pathname !== "/explore") document.body.onclick=null;
+        }
+    ,   [router.pathname]
+    );
 
     return <>
         <div className={classes.root}>

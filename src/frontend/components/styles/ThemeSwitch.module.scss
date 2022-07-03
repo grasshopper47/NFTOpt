@@ -1,22 +1,14 @@
 @import "src/styles/variables.scss";
 
-button.button {
-    display: inline;
-    border-radius: 50%;
+button.button
+{
+    color: rgb(0,0,0,0.8);
     margin-left: 25px;
-    width: 40px;
-    height: 40px;
+    margin-top: -6px;
+    background-color: $background-primary;
 
-    svg {
-        font-size: 26px;
-        color: $text-primary;
+    &:hover
+    {
+        background-color: $text-secondary;
     }
-}
-
-.sun {
-    background: initial;
-}
-
-.moon {
-    transform: rotate(135deg);
 }

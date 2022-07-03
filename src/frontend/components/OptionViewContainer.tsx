@@ -2,14 +2,16 @@
 import classes from "./styles/OptionViewContainer.module.scss";
 import clsx from "clsx";
 
-import { FormControlLabel, Switch, Tab, Tabs } from "@mui/material";
+import { Button, Tab, Tabs } from "@mui/material";
 import { useEffect, useState } from "react";
 import { OptionState } from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionListItemView from "./OptionListItemView";
 import { useRequests, useOptions } from "../../pages/_app";
-import { network } from "../utils/metamask";
+import { account, network } from "../utils/metamask";
+import FilterBox, { filterParams } from "./FilterBox";
+import { ethers } from "ethers";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
@@ -50,7 +52,7 @@ export const getViewClassName = (view : Views, state : number) => viewStates[vie
 
 let selectedOption: OptionWithAsset | null = null;
 
-const optionsByState = {};
+let optionsByStateFiltered = {};
 
 function OptionViewContainer()
 {
@@ -58,7 +60,9 @@ function OptionViewContainer()
     const [ viewStateIndex , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
     const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
     const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
-    const [ checked        , setChecked ]        = useState(false);
+
+    const [ isFilterBoxVisible, setFilterBoxVisibile ] = useState(false);
+    const hide = () => setFilterBoxVisibile(false);
 
     // Force-update the view even when the selectedOption is of the same value; this is to cover the edge-case
     // when the user modifies 2 or more options, with transactions queued in Metamask and aproving 1 by 1
@@ -75,39 +79,14 @@ function OptionViewContainer()
 
     useEffect
     (
-        () =>
-        {
-            optionsByState[ViewTabValues.REQUEST] = [] as OptionWithAsset[];
-
-            let map = optionsByState[ViewTabValues.REQUEST];
-
-            for (let request of requests.map) map.push(request);
-
-            if (activeTabIndex === 0) setViewedOptions(optionsByState[ViewTabValues.REQUEST]);
-        }
-    ,   [requests.hash]
+        () => document.body.onclick = hide
+    ,   []
     );
 
     useEffect
     (
-        () =>
-        {
-            optionsByState[ViewTabValues.OPEN]   = [] as OptionWithAsset[];
-            optionsByState[ViewTabValues.CLOSED] = [] as OptionWithAsset[];
-
-            let map1 = optionsByState[ViewTabValues.OPEN];
-            let map2 = optionsByState[ViewTabValues.CLOSED];
-
-            for (let option of options.map)
-            {
-                if (option.state === OptionState.OPEN) { map1.push(option); continue; }
-
-                map2.push(option);
-            }
-
-            if (activeTabIndex !== 0) setViewedOptions(optionsByState[tabs[activeTabIndex].value]);
-        }
-    ,   [options.hash]
+        () => handleFilteredWithReset(tabs[activeTabIndex].value)
+    ,   [requests.hash, options.hash]
     );
 
     useEffect
@@ -119,7 +98,10 @@ function OptionViewContainer()
 
             localStorage[tabIndexStorageKey] = activeTabIndex;
 
-            setViewedOptions(optionsByState[tabs[activeTabIndex].value]);
+            let state = tabs[activeTabIndex].value;
+
+            if (optionsByStateFiltered[state] === undefined) handleFiltered(state);
+            else setViewedOptions(optionsByStateFiltered[state]);
         }
     ,   [activeTabIndex]
     );
@@ -145,6 +127,7 @@ function OptionViewContainer()
     const handleViewStateChanged = (event: any, index : number) =>
     {
         localStorage[viewStateStorageKey] = index;
+
         setViewStateIndex(index);
     }
 
@@ -152,27 +135,49 @@ function OptionViewContainer()
     {
         if (activeTabIndex === 0)
         {
-            if (!network())          return "No Requests";
-            if (requests.hash === 0) return "Loading Requests ...";
-            if (requests.hash === 1)
-            {
-                if (!requests.map.length)  return "No Requests"
-                if (!viewedOptions.length) return "Done"
-            }
+            if (network() && requests.hash === 0) return "Loading Requests ...";
 
             return "No Requests";
         }
 
-        if (!network())         return "No Options";
-        if (options.hash === 0) return "Loading Options ...";
-        if (options.hash === 1)
-        {
-            let arr = optionsByState[tabs[activeTabIndex].value];
-            if (!arr || !arr.length)   return "No Options"
-            if (!viewedOptions.length) return "Done"
-        }
+        if (network() && options.hash === 0) return "Loading Options ...";
 
         return "No Options";
+    }
+
+    const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
+
+    const handleFiltered = (state : ViewTabValues) =>
+    {
+        let map = state === ViewTabValues.REQUEST ? requests.map : options.map;
+
+        let stateFilter = (s : OptionState) => true;
+        if (state === ViewTabValues.OPEN)   stateFilter = (s : OptionState) => s === OptionState.OPEN;
+        if (state === ViewTabValues.CLOSED) stateFilter = (s : OptionState) => s === OptionState.CANCELED || s === OptionState.EXERCISED;
+
+        map = map.filter
+        (
+            o =>
+            stateFilter(o.state)
+            && (filterParams.showAll || (o.buyer === account() || o.seller === account()))
+            && o.premium.gte(ethers.utils.parseEther(filterParams.premium.min === "" ? "0" : filterParams.premium.min))
+            && o.premium.lte(ethers.utils.parseEther(filterParams.premium.max === "" ? MAX_INT_STRING : filterParams.premium.max))
+            && o.strikePrice.gte(ethers.utils.parseEther(filterParams.strikePrice.min === "" ? "0" : filterParams.strikePrice.min))
+            && o.strikePrice.lte(ethers.utils.parseEther(filterParams.strikePrice.max === "" ? MAX_INT_STRING : filterParams.strikePrice.max))
+            && o.interval >= (filterParams.interval.min === "" ? 0  : parseInt(filterParams.interval.min))
+            && o.interval <= (filterParams.interval.max === "" ? 30 : parseInt(filterParams.interval.max))
+        );
+
+        optionsByStateFiltered[state] = map;
+
+        setViewedOptions(map);
+    }
+
+    const handleFilteredWithReset = (state : ViewTabValues) =>
+    {
+        optionsByStateFiltered = { };
+
+        handleFiltered(state);
     }
 
     return <>
@@ -182,6 +187,13 @@ function OptionViewContainer()
         {
             view == Views.CARDLIST &&
             <>
+                <Button
+                    className={classes.btnShow}
+                    onClick={ (e) => { e.stopPropagation(); setFilterBoxVisibile(true); } }
+                >🔰</Button>
+
+                { isFilterBoxVisible && <FilterBox onChange={ () => handleFilteredWithReset(tabs[activeTabIndex].value) }/> }
+
                 <Tabs
                     className={classes.tabs}
                     value={activeTabIndex}
@@ -189,17 +201,6 @@ function OptionViewContainer()
                 >
                     { tabs.map( tab => <Tab key={`tab-filter-${tab.name}`} label={tab.name} /> ) }
                 </Tabs>
-
-                {
-                    viewedOptions.length !== 0 &&
-                    <FormControlLabel
-                        className={clsx(classes.checkbox, !checked ? classes.unchecked : classes.checked)}
-                        control={<Switch checked={checked} onChange={ () => setChecked(!checked) } />}
-                        disabled={selectedOption !== null}
-                        label={(checked ? "Account's" : "All") + " Options"}
-                        labelPlacement="start"
-                    />
-                }
 
                 <div
                     className=

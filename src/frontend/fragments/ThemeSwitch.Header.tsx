@@ -3,8 +3,6 @@ import classes from "../components/styles/ThemeSwitch.module.scss";
 
 import { useEffect, useState } from "react";
 import { IconButton } from "@mui/material";
-import Sun from "@mui/icons-material/WbSunnyRounded";
-import Moon from "@mui/icons-material/Brightness3Rounded";
 
 type ThemeState = "white" | "dark";
 
@@ -38,7 +36,7 @@ function ThemeSwitch()
 
     return <>
         <IconButton onClick={handleThemeChanged} className={classes.button}>
-            { themeState === "white" ? <Moon className={classes.moon} /> : <Sun className={classes.sun} /> }
+            { themeState === "white" ? "🌞" : "🌒" }
         </IconButton>
     </>;
 }

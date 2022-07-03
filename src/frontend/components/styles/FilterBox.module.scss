@@ -1,0 +1,155 @@
+@import "src/styles/variables.scss";
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 0.98; }
+}
+
+.containerRoot
+{
+    z-index: 100;
+    position:fixed;
+    // width:100%;
+    // float:right;
+    min-width: fit-content;
+    left:calc(100% - 310px - (100% - 900px) / 2);
+
+    opacity: 0.98;
+}
+
+.root
+{
+    filter: blur(8px);
+    display:grid;
+    position:relative;
+    margin-right:20px;
+    margin-top: 22px;
+    padding: 10px 4px 10px 10px;
+    // top:265px;
+    // right:4px;
+    float:right;
+    // right: calc
+    grid-auto-flow: row;
+    // align-self: self-end;
+    // text-shadow: 1px 1px rgb(25 25 25 / 65%);
+    background-color: $background-secondary;
+    border-radius: 10px;
+    animation: fadeIn 333ms;
+    // width:fit-content;
+    filter: drop-shadow(0 0 0.25rem $color-secondary);
+}
+
+.btnReset
+{
+    cursor: pointer;
+    position: absolute;
+    top: 6px;
+    left: -4px;
+    font-size: 16pt;
+    transition: all 167ms ease-out;
+    padding:0;
+    &:hover
+    {
+        background-color: transparent;
+        font-size: 19pt;
+        left: -2px;
+        filter: drop-shadow(0 0 0.25rem $color-secondary);
+    }
+}
+
+.checked
+{
+    color: $color-primary;
+}
+
+.unchecked
+{
+    color: $color-secondary;
+}
+
+.checkbox
+{
+    justify-self: right;
+    margin-right: 0px !important;
+    text-shadow: 1px 1px rgb(25 25 25 / 65%);
+    animation: fadeIn 333ms;
+
+    :global(.MuiSwitch-track)
+    {
+        background-color: $color-primary;
+    }
+
+    :global(.MuiSwitch-switchBase)
+    {
+        color: $color-primary;
+    }
+
+    :global(.MuiSwitch-switchBase.Mui-checked+.MuiSwitch-track)
+    {
+        background-color: $color-secondary;
+    }
+
+    :global(.MuiSwitch-switchBase.Mui-checked)
+    {
+        color: $color-secondary;
+    }
+}
+
+.wrapperMain
+{
+    display:grid;
+    grid-auto-flow: column;
+    // grid-template-columns: 1fr 1fr 1fr 0.25fr;
+    // margin-right: 0px !important;
+    // border: 2px solid red;
+    height:40px;
+    // width:fit-content;
+    justify-self: right;
+    margin:6px 8px;
+}
+
+.label
+{
+    align-self: center;
+    margin-right: 20px;
+    margin-top:-1px;
+}
+
+.wrapperTextBox
+{
+    display:grid;
+    grid-auto-flow: column;
+}
+
+.textBox
+{
+    display: flex;
+    max-width: 60px;
+    // height: 20px;
+        // margin-top: 10px;
+    :global(.MuiInputBase-root)
+    {
+        color: $text-primary;
+        font-size: 11pt;
+        font-family: Consolas;
+        background-color: $background-primary;
+    }
+    :global(.MuiOutlinedInput-root)
+    {
+    }
+
+    &:first-of-type
+    {
+        margin-right:10px;
+    }
+}
+
+.endAdornment
+{
+    align-self: center;
+    margin-left: 6px;
+    text-align: center;
+    width:40px;
+    // font-style: italic;
+    font-size: 10pt;
+}
