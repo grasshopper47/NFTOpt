@@ -3,16 +3,13 @@
 import classes from "../components/styles/OptionRequestForm.module.scss";
 
 import { TextField } from "@mui/material";
-import { ReactNode } from "react";
 
 type Props =
 {
     fieldName   : string
 ,   value       : string
-,   inputProps ?: any
 ,   onChange   ?: any
 ,   onKeyUp    ?: any
-,   children   ?: ReactNode | ReactNode[]
 };
 
 export default function(props: Props)
@@ -48,7 +45,6 @@ export default function(props: Props)
             <label>{label}</label>
             <TextField
                 id={`${props.fieldName}`}
-                key={`input-${props.fieldName}`}
                 InputProps={inputProps}
                 placeholder={`Enter the ${description}`}
                 type={props.fieldName === "interval" ? "number" : ""}
