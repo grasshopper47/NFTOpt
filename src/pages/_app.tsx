@@ -224,7 +224,7 @@ export default function App({ Component, pageProps }: AppProps)
     (
         () =>
         {
-            if (account === "") return;         // first run ignored
+            if (!network()) return;
             console.log("setAccount", account);
 
             // Create an upgraded/downgraded instance with connected address as signer OR with the default provider (readonly)
