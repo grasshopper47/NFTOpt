@@ -19,6 +19,7 @@
     position: relative;
     overflow: hidden;
     min-height: max-content;
+    background: $background-secondary;
 }
 
 .title {
@@ -57,10 +58,4 @@
 
 .content {
     padding: 20px 12px 30px 12px;
-}
-
-[data-theme="white"] {
-    .card {
-        background: $background-secondary;
-    }
 }
