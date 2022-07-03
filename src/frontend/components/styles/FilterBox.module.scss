@@ -9,7 +9,7 @@
 {
     z-index: 100;
     position:fixed;
-    min-width: fit-content;
+    top: 232px;
     left:calc(100% - 310px - (100% - 900px) / 2);
 
     opacity: 0.98;
@@ -19,8 +19,6 @@
 {
     display:grid;
     position:relative;
-    margin-right:20px;
-    margin-top: 22px;
     padding: 10px 4px 10px 10px;
     float:right;
     grid-auto-flow: row;
