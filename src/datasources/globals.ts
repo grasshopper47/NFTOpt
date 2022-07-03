@@ -59,7 +59,7 @@ export async function loadRequestAsOptionWithAsset(id: number)
 
     if (!request) return;
 
-    requests.push
+    requests.unshift
     (
         {
             id          : id
@@ -85,7 +85,7 @@ export async function loadOptionWithAsset(id: number)
     // @ts-ignore
     delete option.nftContract; delete option.nftId;
 
-    options.push(option as unknown as OptionWithAsset);
+    options.unshift(option as unknown as OptionWithAsset);
 }
 
 export async function loadAllRequestsAsOptionsWithAsset()
@@ -103,15 +103,15 @@ export async function loadAllRequestsAsOptionsWithAsset()
     // TODO: handle optionsLength > 2^53
     length = IDPromise.toNumber();
 
-    id = -1;
-    while (++id !== length)
+    id = length;
+    while (--id !== -1)
     {
         promises.push( loadRequestAsOptionWithAsset(id).catch( e => console.log(e, `Request ${id} failed to fetch`) ) );
     }
 
     await Promise.allSettled(promises);
 
-    requests.sort( (a, b) => a.id - b.id );
+    requests.sort( (a, b) => b.id - a.id );
 }
 
 export async function loadAllOptionsWithAsset()
@@ -129,15 +129,15 @@ export async function loadAllOptionsWithAsset()
     // TODO: handle optionsLength > 2^53
     length = IDPromise.toNumber();
 
-    id = -1;
-    while (++id !== length)
+    id = length;
+    while (--id !== -1)
     {
         promises.push( loadOptionWithAsset(id).catch( e => console.log(e, `Option ${id} failed to fetch`) ) );
     }
 
     await Promise.allSettled(promises);
 
-    options.sort( (a, b) => a.id - b.id );
+    options.sort( (a, b) => b.id - a.id );
 }
 
 export function clearData()

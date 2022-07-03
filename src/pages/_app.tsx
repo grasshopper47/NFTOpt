@@ -138,10 +138,12 @@ export default function App({ Component, pageProps }: AppProps)
                 let request = requests[i];
                 if (request.id !== requestID) continue;
 
-                // Caterpillar >> Butterfly
-                request.state = action.state;
-                options.push(request);
                 requests.splice(i, 1);
+
+                // Caterpillar >> Butterfly
+                request.id = id_;
+                request.state = action.state;
+                options.unshift(request);
 
                 break;
             }
