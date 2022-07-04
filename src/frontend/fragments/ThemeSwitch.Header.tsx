@@ -36,7 +36,7 @@ function ThemeSwitch()
 
     return <>
         <IconButton onClick={handleThemeChanged} className={classes.button}>
-            { themeState === "white" ? "🌞" : "🌒" }
+            { themeState === "white" ? "☀" : "🌒" }
         </IconButton>
     </>;
 }
