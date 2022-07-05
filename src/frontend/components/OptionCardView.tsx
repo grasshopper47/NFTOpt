@@ -8,14 +8,14 @@ import { OptionWithAsset } from "../../models/extended";
 import { getViewClassName, Views } from "./OptionViewContainer";
 import { AccessTime } from "@mui/icons-material";
 
-type OptionListItemViewProps =
+type Props =
 {
     option          : OptionWithAsset
 ,   viewIndex       : number
 ,   showDetailsView : (OptionWithAsset: OptionWithAsset | null) => void
 };
 
-function OptionCardView(props: OptionListItemViewProps)
+function OptionCardView(props: Props)
 {
     const { option, viewIndex } = props;
 

@@ -7,15 +7,16 @@ import { useEffect, useState } from "react";
 import { useRequests, useOptions, useAccount } from "../../pages/_app";
 import { OptionState } from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
-import OptionDetailsView from "./OptionDetailsView";
 import OptionCardView from "./OptionCardView";
+import OptionRowView from "./OptionRowView";
+import OptionDetailsView from "./OptionDetailsView";
 import { network } from "../utils/metamask";
 import FilterBox, { filterParams } from "./FilterBox";
 import { Button, Tab, Tabs } from "@mui/material";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
-export enum Views { CARDLIST, DETAIL, LISTDETAIL };
+export enum Views { CARDLIST, DETAIL, ROWLIST };
 
 type ViewTab =
 {
@@ -41,10 +42,11 @@ const tabs : ViewTab[] =
 
 const viewStates =
 {
-    [Views.CARDLIST]   : [ "S", "M", "L" ]
-,   [Views.LISTDETAIL] : [ "25", "50", "100" ]
+    [Views.CARDLIST] : [ "S", "M", "L" ]
+,   [Views.ROWLIST]  : [ "25", "50", "100" ]
 }
 
+const viewTypeStorageKey = "ListViewType";
 const viewStateStorageKey = "ListViewState";
 const tabIndexStorageKey = "ActiveTabIndex";
 
@@ -58,32 +60,33 @@ const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
 
 function OptionViewContainer()
 {
-    const [ view           , setView ]           = useState<Views>(Views.CARDLIST);
-    const [ viewStateIndex , setViewStateIndex ] = useState( 0 );
-    const [ activeTabIndex , setActiveTabIndex ] = useState( 0 );
+    const [ view           , setView ]           = useState<Views>( parseInt(localStorage[viewTypeStorageKey] ?? Views.CARDLIST) );
+    const [ viewStateIndex , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
+    const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
     const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
 
     const [ isFilterBoxVisible, setFilterBoxVisibile ] = useState(false);
-    const hide = () => setFilterBoxVisibile(false);
-    // parseInt(localStorage[viewStateStorageKey] ?? 0)
-    // parseInt(localStorage[tabIndexStorageKey] ?? 0)
-    // Force-update the view even when the selectedOption is of the same value; this is to cover the edge-case
+    const hideFilterBox = () => setFilterBoxVisibile(false);
+
+    // Force-update the view even when the selectedOption is the same value; this is to cover the edge-case
     // when the user modifies 2 or more options, with transactions queued in Metamask and aproving 1 by 1
     const [, setState] = useState(0);
     const setSelectedOption = (obj: OptionWithAsset | null) =>
     {
         selectedOption = obj;
 
-        setState( c => ++c );
+        setState(c => ++c);
     }
 
     const account  = useAccount();
     const requests = useRequests();
     const options  = useOptions();
 
+    const hasItems = viewedOptions.length !== 0;
+
     useEffect
     (
-        () => document.body.onclick = hide
+        () => document.body.onclick = hideFilterBox
     ,   []
     );
 
@@ -98,9 +101,6 @@ function OptionViewContainer()
         () =>
         {
             localStorage[tabIndexStorageKey] = activeTabIndex;
-
-            // 1st run, skip until options are loaded
-            // if (requests.map.length === 0 && options.map.length === 0) return;
 
             let state = tabs[activeTabIndex].value;
 
@@ -117,13 +117,15 @@ function OptionViewContainer()
             if (selectedOption)
             {
                 document.body.onkeydown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedOption(null); };
-                setView(Views.DETAIL);
+
+                if (view === Views.CARDLIST) setView(Views.DETAIL);
+
+                return;
             }
-            else
-            {
-                document.body.onkeydown = null;
-                setView(Views.CARDLIST);
-            }
+
+            document.body.onkeydown = null;
+
+            if (view === Views.DETAIL) setView(Views.CARDLIST);
         }
     ,   [selectedOption]
     );
@@ -133,20 +135,6 @@ function OptionViewContainer()
         localStorage[viewStateStorageKey] = index;
 
         setViewStateIndex(index);
-    }
-
-    const getStatus = () =>
-    {
-        if (activeTabIndex === 0)
-        {
-            if (network() && requests.hash === 0) return "Loading Requests ...";
-
-            return "No Requests";
-        }
-
-        if (network() && options.hash === 0) return "Loading Options ...";
-
-        return "No Options";
     }
 
     const handleFiltered = (state : ViewTabValues) =>
@@ -182,79 +170,180 @@ function OptionViewContainer()
         handleFiltered(state);
     }
 
+    const renderListHeaderTabs = () =>
+    {
+        return <>
+            <Tabs
+                className={classes.tabs}
+                value={activeTabIndex}
+                onChange={(e, index : number) => setActiveTabIndex(index)}
+            >
+                { tabs.map( tab => <Tab key={`tab-filter-${tab.name}`} label={tab.name} /> ) }
+            </Tabs>
+        </>;
+    }
+
+    const renderListViewTypeButton = () =>
+    {
+        if (!hasItems) return <></>;
+
+        return <>
+            <Button
+                className={classes.btnListView}
+                onClick=
+                {
+                    () =>
+                    {
+                        let newView = view === Views.CARDLIST ? Views.ROWLIST : Views.CARDLIST;
+
+                        localStorage[viewTypeStorageKey] = newView;
+
+                        setView(newView);
+                    }
+                }
+            >{ view === Views.CARDLIST ? "Rows" : "Cards" }</Button>
+        </>
+    }
+
+    const renderFilterBoxButton = () =>
+    {
+        if (!hasItems) return <></>;
+
+        return <>
+            <Button
+                className={classes.btnShow}
+                onClick={ (e) => { e.stopPropagation(); setFilterBoxVisibile(true); } }
+            >🔰</Button>
+        </>
+    }
+
+    const renderStatusText = () =>
+    {
+        if (hasItems) return <></>;
+
+        let getStatus = () =>
+        {
+            if (activeTabIndex === 0)
+            {
+                if (network() && requests.hash === 0) return "Loading Requests ...";
+
+                return "No Requests";
+            }
+
+            if (network() && options.hash === 0) return "Loading Options ...";
+
+            return "No Options";
+        }
+
+        return <p className={classes.noOptions}>{getStatus()}</p>;
+    }
+
+    const renderList = () =>
+    {
+        if (view == Views.CARDLIST)
+            return viewedOptions.map
+            (
+                option =>
+                <OptionCardView
+                    key={`option-card-${activeTabIndex}-${option.id}`}
+                    option={option}
+                    viewIndex={viewStateIndex}
+                    showDetailsView={setSelectedOption}
+                />
+            )
+
+        let selectedOptionID = selectedOption !== null ? selectedOption.id : -1;
+
+        return <>
+            {
+                hasItems &&
+                <div className={classes.listRowsHeader}>
+                    <p>ID</p> <p>Name</p> <p>Premium</p> <p>Strike Price</p> <p>Interval</p>
+                </div>
+            }
+
+            {
+                viewedOptions.map
+                (
+                    option =>
+                    <div
+                        key={`option-row-${activeTabIndex}-${option.id}`}
+                        style={{width:"100%", display:"grid"}}
+                        // If previously selected an option, and it is the same one, set it to null
+                        onClick={ () => setSelectedOption(option.id === selectedOptionID ? null : option) }
+                    >
+                        <OptionRowView
+                            option={option}
+                            showDetails={option.id === selectedOptionID}
+                        />
+                        {
+                            option.id === selectedOptionID &&
+                            <div className={classes.listRowsDetailWrapper}><OptionDetailsView option={option}/></div>
+                        }
+                    </div>
+                )
+            }
+        </>
+    }
+
+    const renderListViewStateTabs = () =>
+    {
+        if (!hasItems) return <></>;
+
+        return <>
+            <Tabs
+                className={classes.tabsState}
+                value={viewStateIndex}
+                onChange={handleViewStateChanged}
+            >
+                { viewStates[view]?.map( state => <Tab key={`tab-view-state-${state}`} label={state} /> ) }
+            </Tabs>
+        </>;
+    }
+
+    const renderDetailView = () =>
+    {
+        if (view !== Views.DETAIL || selectedOption === null) return <></>;
+
+        return <>
+            <div className={classes.containerItem}>
+                <OptionDetailsView
+                    option={selectedOption}
+                    showListView={ () => setSelectedOption(null) } />
+            </div>
+        </>;
+    }
+
     return <>
         <p className="page-title">Explore NFT Options</p>
 
         <div className={classes.root}>
         {
-            view == Views.CARDLIST &&
-            <>
-                <Button
-                    className={classes.btnShow}
-                    onClick={ (e) => { e.stopPropagation(); setFilterBoxVisibile(true); } }
-                >🔰</Button>
+            view === Views.DETAIL
+            ?   renderDetailView()
+            :   <>
+                    { renderListViewTypeButton() }
+                    { renderFilterBoxButton() }
 
-                { isFilterBoxVisible && <FilterBox onChange={ () => handleFilteredWithReset(tabs[activeTabIndex].value) }/> }
+                    { isFilterBoxVisible && <FilterBox onChange={ () => handleFilteredWithReset(tabs[activeTabIndex].value) }/> }
 
-                <Tabs
-                    className={classes.tabs}
-                    value={activeTabIndex}
-                    onChange={(e, index : number) => setActiveTabIndex(index)}
-                >
-                    { tabs.map( tab => <Tab key={`tab-filter-${tab.name}`} label={tab.name} /> ) }
-                </Tabs>
+                    { renderListHeaderTabs() }
 
-                <div
-                    className=
+                    <div className=
                     {
                         clsx
                         (
                             classes.containerGrid
-                        ,   network() && viewedOptions.length && classes[getViewClassName(view, viewStateIndex)]
-                        ,   viewedOptions.length ? classes.gridWithOptions : classes.gridEmpty
+                        ,   network() && hasItems && classes[ view === Views.CARDLIST ? getViewClassName(view, viewStateIndex) : "rows" ]
+                        ,   hasItems && classes.gridWithOptions
                         )
-                    }
-                >
-                    {
-                        !viewedOptions.length &&
-                        <p className={classes.noOptions}>{getStatus()}</p>
-                    }
-                    {
-                        viewedOptions.map
-                        (
-                            (option, index) =>
-                            <OptionCardView
-                                key={`option-preview-${activeTabIndex}-${index}`}
-                                option={option}
-                                showDetailsView={setSelectedOption}
-                                viewIndex={viewStateIndex}
-                            />
-                        )
-                    }
-                </div>
+                    } >
+                        { renderStatusText() }
+                        { renderList() }
+                    </div>
 
-                {
-                    viewedOptions.length !== 0 &&
-                    <Tabs
-                        className={classes.tabsState}
-                        value={viewStateIndex}
-                        onChange={handleViewStateChanged}
-                    >
-                        { viewStates[view]?.map( state => <Tab key={`tab-view-state-${state}`} label={state} /> ) }
-                    </Tabs>
-                }
-            </>
-        }
-
-        {
-            view == Views.DETAIL && selectedOption &&
-            <div className={classes.containerItem}>
-                <OptionDetailsView
-                    key={`option-details-preview-${selectedOption.id}`}
-                    option={selectedOption}
-                    showListView={ () => setSelectedOption(null) }
-                />
-            </div>
+                    { renderListViewStateTabs() }
+                </>
         }
         </div>
     </>;

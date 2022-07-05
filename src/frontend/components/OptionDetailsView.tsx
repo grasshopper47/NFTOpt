@@ -22,8 +22,8 @@ import { IconButton } from "@mui/material";
 
 type OptionDetailsViewProps =
 {
-    option       : OptionWithAsset;
-    showListView : () => void;
+    option        : OptionWithAsset;
+    showListView ?: () => void;
 };
 
 function OptionDetailsView(props: OptionDetailsViewProps)
@@ -85,7 +85,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
                 if (promise === onWithdrawOption) requests.changing[option.id] = 1;
                 else                              options.changing[option.id] = 1;
 
-                showListView();
+                if (showListView) showListView();
             }
         )
     );
@@ -158,24 +158,35 @@ function OptionDetailsView(props: OptionDetailsViewProps)
     }
 
     return <>
-        <div className={classes.root}>
-            <IconButton className={classes.goBackBtn} onClick={showListView}>
-                <ArrowBackIosRounded />
-            </IconButton>
+        <div
+            className={classes.root}
+            onClick={ (e) => e.stopPropagation() }
+        >
+            {
+                showListView &&
+                <IconButton className={classes.goBackBtn} onClick={showListView}>
+                    <ArrowBackIosRounded />
+                </IconButton>
+            }
 
             <div className={classes.detailsContainer}>
                 <div>
                     <img src={option.asset.image} alt="NFT Image" />
-                    <a  target="_blank"
-                        href={getStateTransactionScannerLink()}
-                        className={clsx(classes.link, classes.state)}
-                    >
-                        {stateLabels[option.state]}
-                    </a>
+
+                    {
+                        showListView &&
+                        <a  target="_blank"
+                            href={getStateTransactionScannerLink()}
+                            className={clsx(classes.link, classes.state)}
+                        >
+                            {stateLabels[option.state]}
+                        </a>
+                    }
                 </div>
 
-                <div className={classes.detailsSub}>
-                    <p className={classes.title}>{option.asset.name}</p>
+                <div className={clsx(classes.detailsSub, !connected() && classes.offline) }>
+
+                    { showListView && <p className={classes.title}>{option.asset.name}</p> }
 
                     <div>
                         <div>
