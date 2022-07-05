@@ -17,10 +17,10 @@ import Header from "../frontend/components/Header";
 
 type ContextType =
 {
-    map          : OptionWithAsset[]     // contains requests
-,   hash         : number                // hash of requests
-,   changing     : {}                    // IDs of requests which have state changes
-,   transactions : {}                    // transactions where requests have had state changes
+    map          : OptionWithAsset[]    // contains requests
+,   hash         : number               // hash of requests
+,   changing     : {}                   // IDs of requests which have state changes
+,   transactions : {}                   // transactions where requests have had state changes
 };
 
 const AccountContext   = createContext("");
@@ -43,6 +43,77 @@ const requestIDsTransactions = {};
 const optionChangingIDs     =  {};
 const optionIDsTransactions =  {};
 
+let updateRequestsHash : () => void;
+let updateOptionsHash  : () => void;
+
+let onEndUpdateRequest : (ID : number) => void;
+let onEndUpdateOption  : (ID : number) => void;
+
+const eventHandlers =
+{
+    [OptionState.PUBLISHED] :
+    {
+        hashlogs : requestIDsTransactions
+    ,   method : (ID: number) => loadRequestAsOptionWithAsset(ID).then(updateRequestsHash)
+    }
+,   [OptionState.WITHDRAWN] :
+    {
+        hashlogs : requestIDsTransactions
+    ,   method   : (ID: number) => withdrawRequest(ID).then(onEndUpdateRequest)
+    }
+,   [OptionState.OPEN] :
+    {
+        hashlogs : optionIDsTransactions
+    ,   method : (rID : number, oID : number) => createOptionFromRequest(rID, oID).then(onEndUpdateRequest).then(updateOptionsHash)
+    }
+,   [OptionState.CANCELED] :
+    {
+        hashlogs : optionIDsTransactions
+    ,   method   : (ID: number) => cancelOption(ID).then(onEndUpdateOption)
+    }
+,   [OptionState.EXERCISED] :
+    {
+        hashlogs : optionIDsTransactions
+    ,   method : (ID: number) => exerciseOption(ID).then(onEndUpdateOption)
+    }
+}
+
+const handleEvent = (ID : BigNumber, transaction : any) =>
+{
+    // Some of the old events are re-emitted when the contract emits a new event after intitialization
+    if (blockNumber >= transaction.blockNumber) return;
+
+    blockNumber = transaction.blockNumber;
+
+    let action = actions[transaction.event];
+
+    // Show toast of success only when called by the user action (already a toast in progress)
+    if (dismissLastToast()) toast.success("Successfully " + action.label, { duration: TOAST_DURATION });
+
+    console.log(action.label);
+
+    let id = ID.toNumber();
+    let handler = eventHandlers[action.state];
+
+    // Store hash in logs
+    if (action.state === OptionState.WITHDRAWN) delete handler.hashlogs[id];
+    else handler.hashlogs[id] = transaction.transactionHash;
+
+    if (action.state !== OptionState.OPEN) { handler.method(id); return; }
+
+    transaction.getTransaction()
+    .then
+    (
+        tx =>
+        {
+            // extract request ID from transaction input data (createOption called with requestID)
+            let requestID = BigNumber.from("0x" + tx.data.slice(10)).toNumber();
+
+            handler.method(requestID, id);
+        }
+    );
+}
+
 export default function App({ Component, pageProps }: AppProps)
 {
     const [ account      , setAccount ]      = useState("");
@@ -50,86 +121,21 @@ export default function App({ Component, pageProps }: AppProps)
     const [ requestsHash , setRequestsHash ] = useState(0);
     const [ optionsHash  , setOptionsHash ]  = useState(0);
 
-    const updateRequestsHash = () => setRequestsHash( h => ++h );
-    const updateOptionsHash  = () => setOptionsHash( h => ++h );
+    updateRequestsHash = () => setRequestsHash( h => ++h );
+    updateOptionsHash  = () => setOptionsHash( h => ++h );
 
-    const onEndUpdateRequest = (ID: number) =>
+    onEndUpdateRequest = (ID: number) =>
     {
         delete requestChangingIDs[ID];
 
         updateRequestsHash();
     }
 
-    const onEndUpdateOption = (ID: number) =>
+    onEndUpdateOption = (ID: number) =>
     {
         delete optionChangingIDs[ID];
 
         updateOptionsHash();
-    }
-
-    const eventHandlers =
-    {
-        [OptionState.PUBLISHED] :
-        {
-            hashlogs : requestIDsTransactions
-        ,   method : (ID: number) => loadRequestAsOptionWithAsset(ID).then(updateRequestsHash)
-        }
-    ,   [OptionState.WITHDRAWN] :
-        {
-            hashlogs : requestIDsTransactions
-        ,   method   : (ID: number) => withdrawRequest(ID).then(onEndUpdateRequest)
-        }
-    ,   [OptionState.OPEN] :
-        {
-            hashlogs : optionIDsTransactions
-        ,   method : (rID : number, oID : number) => createOptionFromRequest(rID, oID).then(onEndUpdateRequest).then(updateOptionsHash)
-        }
-    ,   [OptionState.CANCELED] :
-        {
-            hashlogs : optionIDsTransactions
-        ,   method   : (ID: number) => cancelOption(ID).then(onEndUpdateOption)
-        }
-    ,   [OptionState.EXERCISED] :
-        {
-            hashlogs : optionIDsTransactions
-        ,   method : (ID: number) => exerciseOption(ID).then(onEndUpdateOption)
-        }
-    }
-
-    const handleEvent = (ID : BigNumber, transaction : any) =>
-    {
-        // Some of the old events are re-emitted when the contract emits a new event after intitialization
-        if (blockNumber >= transaction.blockNumber) return;
-
-        blockNumber = transaction.blockNumber;
-
-        let action = actions[transaction.event];
-
-        // Show toast of success only when called by the user action (already a toast in progress)
-        if (dismissLastToast()) toast.success("Successfully " + action.label, { duration: TOAST_DURATION });
-
-        console.log(action.label);
-
-        let id = ID.toNumber();
-        let handler = eventHandlers[action.state];
-
-        // Store hash in logs
-        if (action.state === OptionState.WITHDRAWN) delete handler.hashlogs[id];
-        else handler.hashlogs[id] = transaction.transactionHash;
-
-        if (action.state !== OptionState.OPEN) { handler.method(id); return; }
-
-        transaction.getTransaction()
-        .then
-        (
-            tx =>
-            {
-                // extract request ID from transaction input data (createOption called with requestID)
-                let requestID = BigNumber.from("0x" + tx.data.slice(10)).toNumber();
-
-                handler.method(requestID, id);
-            }
-        );
     }
 
     useEffect

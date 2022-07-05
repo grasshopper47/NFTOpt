@@ -58,12 +58,21 @@ let optionsByStateFiltered = {};
 
 const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
 
+let updateViewedOptionsHash : () => void;
+
+enum SortMode { ASCENDING, DESCENDING };
+let sortMode = SortMode.DESCENDING;
+
 function OptionViewContainer()
 {
-    const [ view           , setView ]           = useState<Views>( parseInt(localStorage[viewTypeStorageKey] ?? Views.CARDLIST) );
-    const [ viewStateIndex , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
-    const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
-    const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
+    const [ view              , setView ]              = useState<Views>( parseInt(localStorage[viewTypeStorageKey] ?? Views.CARDLIST) );
+    const [ viewStateIndex    , setViewStateIndex ]    = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
+    const [ activeTabIndex    , setActiveTabIndex ]    = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
+    const [ viewedOptions     , setViewedOptions ]     = useState<OptionWithAsset[]>([]);
+    const [ viewedOptionsHash , setViewedOptionsHash ] = useState(0);
+
+    // For sorting the viewed options in-place (ROWLIST view)
+    updateViewedOptionsHash = () => setViewedOptionsHash( h => ++h );
 
     const [ isFilterBoxVisible, setFilterBoxVisibile ] = useState(false);
     const hideFilterBox = () => setFilterBoxVisibile(false);
@@ -254,11 +263,32 @@ function OptionViewContainer()
 
         let selectedOptionID = selectedOption !== null ? selectedOption.id : -1;
 
+        let sortViewedOptions = (sorter : (a1: OptionWithAsset, a2: OptionWithAsset) => number) =>
+        {
+            if (sortMode === SortMode.ASCENDING) { viewedOptions.sort(sorter); sortMode = SortMode.DESCENDING; }
+            else                                 { viewedOptions.sort((a, b) => sorter(b, a)); sortMode = SortMode.ASCENDING; }
+
+            updateViewedOptionsHash();
+        }
+
         return <>
             {
                 hasItems &&
                 <div className={classes.listRowsHeader}>
-                    <p>ID</p> <p>Name</p> <p>Premium</p> <p>Strike Price</p> <p>Interval</p>
+                    <p onClick={ () => sortViewedOptions( (a, b) => b.id - a.id ) }
+                    >#</p>
+
+                    <p onClick={ () => sortViewedOptions( (a, b) => b.asset.name.localeCompare(a.asset.name) ) }
+                    >Name</p>
+
+                    <p onClick={ () => sortViewedOptions( (a, b) => b.premium.toString().localeCompare(a.premium.toString()) ) }
+                    >Premium</p>
+
+                    <p onClick={ () => sortViewedOptions( (a, b) => b.strikePrice.toString().localeCompare(a.strikePrice.toString()) ) }
+                    >Strike Price</p>
+
+                    <p onClick={ () => sortViewedOptions( (a, b) => b.interval - a.interval ) }
+                    >Interval</p>
                 </div>
             }
 

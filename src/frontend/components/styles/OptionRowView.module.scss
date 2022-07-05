@@ -37,7 +37,6 @@
     padding-top: 10px !important;
     border-top: 1px dashed $color-primary;
     border-bottom: 1px dashed $color-primary;
-    // width: 100%;
 }
 
 .field
@@ -47,7 +46,13 @@
 
     &:nth-of-type(2)
     {
+        transition: all 250ms ease;
         justify-self: left;
+
+        &:hover
+        {
+            font-weight: bold;
+        }
     }
 }
 
