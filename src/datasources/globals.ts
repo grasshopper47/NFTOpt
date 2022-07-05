@@ -27,6 +27,16 @@ export const assetsOf = (account : string) => assets[account] as NFTAsset[];
 
 let contractsCache = { };
 
+export function clearData()
+{
+    requests = options = [];
+
+    contractsCache = images = assets = {};
+
+    contracts.NFTOpt?.removeAllListeners();
+    contracts = { NFTOpt: null as unknown as NFTOpt };
+}
+
 export function getCachedContract(address : string)
 {
     let contract = contractsCache[address];
@@ -140,10 +150,56 @@ export async function loadAllOptionsWithAsset()
     options.sort( (a, b) => b.id - a.id );
 }
 
-export function clearData()
+export async function withdrawRequest(ID: number)
 {
-    requests = options = [];
+    let length = requests.length;
+    let i = -1;
+    while (++i !== length)
+    {
+        if (requests[i].id !== ID) continue;
 
-    contracts = { NFTOpt: null as unknown as NFTOpt };
-    contractsCache = images = assets = {};
+        requests.splice(i, 1);
+
+        break;
+    }
+
+    return ID;
+}
+
+export async function createOptionFromRequest(requestID : number, optionID : number)
+{
+    let length = requests.length;
+    let i = -1;
+
+    while (++i !== length)
+    {
+        let request = requests[i];
+        if (request.id !== requestID) continue;
+
+        requests.splice(i, 1);
+
+        // Caterpillar >> Butterfly
+        request.id = optionID;
+        request.state = OptionState.OPEN;
+        options.unshift(request);
+
+        break;
+    }
+
+    return requestID;
+}
+
+export async function exerciseOption(ID: number) { _setOptionState(ID, OptionState.EXERCISED); return ID; }
+export async function cancelOption(ID: number)   { _setOptionState(ID, OptionState.CANCELED); return ID; }
+
+function _setOptionState(ID: number, state : OptionState)
+{
+    for (let o of options)
+    {
+        if (o.id !== ID) continue;
+
+        o.state = state;
+
+        break;
+    }
 }

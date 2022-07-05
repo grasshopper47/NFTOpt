@@ -1,0 +1,60 @@
+@import "src/styles/variables.scss";
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.root
+{
+    display: grid;
+    width:100%;
+}
+
+.container
+{
+    display: grid;
+    grid-template-columns: 1fr 5fr 1fr 1fr 1fr;
+    margin-bottom:20px;
+    justify-items: center;
+    animation: fadeIn 333ms;
+
+    cursor: pointer;
+    color: $text-secondary;
+    text-shadow: 1px 1px rgba(25, 25, 25, 0.9);
+
+    &:hover
+    {
+        color: $text-primary;
+    }
+}
+
+.selected
+{
+    color: $color-secondary;
+    font-size:14pt;
+    padding-bottom: 10px !important;
+    padding-top: 10px !important;
+    border-top: 1px dashed $color-primary;
+    border-bottom: 1px dashed $color-primary;
+    // width: 100%;
+}
+
+.field
+{
+    margin: 0;
+    padding: 0;
+
+    &:nth-of-type(2)
+    {
+        justify-self: left;
+    }
+}
+
+[data-theme="white"]
+{
+    .root
+    {
+        text-shadow: 1px 1px rgba(25, 40, 60, 0.9);
+    }
+}
