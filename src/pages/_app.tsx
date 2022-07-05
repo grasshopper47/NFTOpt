@@ -5,7 +5,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import addresses from "../../addresses.json";
 import { NFTOpt } from "../../typechain-types";
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
-import { clearData, contracts, loadAllRequestsAsOptionsWithAsset, requests } from "../datasources/globals"
+import { clearData, contracts, loadAllRequestsAsOptionsWithAsset, createOptionFromRequest, requests, withdrawRequest, cancelOption, exerciseOption } from "../datasources/globals"
 import { BigNumber, ethers } from "ethers";
 import { OptionState } from "../models/option";
 import { options, loadRequestAsOptionWithAsset, loadAllOptionsWithAsset } from "../datasources/globals";
@@ -53,124 +53,83 @@ export default function App({ Component, pageProps }: AppProps)
     const updateRequestsHash = () => setRequestsHash( h => ++h );
     const updateOptionsHash  = () => setOptionsHash( h => ++h );
 
-    async function handleEvent
-    (
-        ID          : BigNumber
-    ,   transaction : any
-    )
+    const onEndUpdateRequest = (ID: number) =>
     {
-        let id_ = ID.toNumber();
-        let action = actions[transaction.event];
+        delete requestChangingIDs[ID];
 
-        // Old events are re-emitted when the contract emits a new event after intitialization
-        if (blockNumber >= transaction.blockNumber)
+        updateRequestsHash();
+    }
+
+    const onEndUpdateOption = (ID: number) =>
+    {
+        delete optionChangingIDs[ID];
+
+        updateOptionsHash();
+    }
+
+    const eventHandlers =
+    {
+        [OptionState.PUBLISHED] :
         {
-            // Store tx hashes where request or options state was changed
-
-            if (action.state === OptionState.PUBLISHED)
-            {
-                requestIDsTransactions[id_] = transaction.transactionHash;
-                return;
-            }
-
-            if (action.state === OptionState.WITHDRAWN)
-            {
-                delete requestIDsTransactions[id_];
-                return;
-            }
-
-            optionIDsTransactions[id_] = transaction.transactionHash;
-            return;
+            hashlogs : requestIDsTransactions
+        ,   method : (ID: number) => loadRequestAsOptionWithAsset(ID).then(updateRequestsHash)
         }
+    ,   [OptionState.WITHDRAWN] :
+        {
+            hashlogs : requestIDsTransactions
+        ,   method   : (ID: number) => withdrawRequest(ID).then(onEndUpdateRequest)
+        }
+    ,   [OptionState.OPEN] :
+        {
+            hashlogs : optionIDsTransactions
+        ,   method : (rID : number, oID : number) => createOptionFromRequest(rID, oID).then(onEndUpdateRequest).then(updateOptionsHash)
+        }
+    ,   [OptionState.CANCELED] :
+        {
+            hashlogs : optionIDsTransactions
+        ,   method   : (ID: number) => cancelOption(ID).then(onEndUpdateOption)
+        }
+    ,   [OptionState.EXERCISED] :
+        {
+            hashlogs : optionIDsTransactions
+        ,   method : (ID: number) => exerciseOption(ID).then(onEndUpdateOption)
+        }
+    }
+
+    const handleEvent = (ID : BigNumber, transaction : any) =>
+    {
+        // Some of the old events are re-emitted when the contract emits a new event after intitialization
+        if (blockNumber >= transaction.blockNumber) return;
 
         blockNumber = transaction.blockNumber;
 
-        // Show toast of success only when triggered by the user
+        let action = actions[transaction.event];
+
+        // Show toast of success only when called by the user action (already a toast in progress)
         if (dismissLastToast()) toast.success("Successfully " + action.label, { duration: TOAST_DURATION });
 
         console.log(action.label);
 
-        if (action.state === OptionState.PUBLISHED)
-        {
-            // Store tx hash where request state was changed
-            requestIDsTransactions[id_] = transaction.transactionHash;
+        let id = ID.toNumber();
+        let handler = eventHandlers[action.state];
 
-            loadRequestAsOptionWithAsset(id_).then(updateRequestsHash);
+        // Store hash in logs
+        if (action.state === OptionState.WITHDRAWN) delete handler.hashlogs[id];
+        else handler.hashlogs[id] = transaction.transactionHash;
 
-            return;
-        }
+        if (action.state !== OptionState.OPEN) { handler.method(id); return; }
 
-        let length = requests.length;
-        let i = -1;
-
-        // Request state change
-        if (action.state === OptionState.WITHDRAWN)
-        {
-            while (++i !== length)
+        transaction.getTransaction()
+        .then
+        (
+            tx =>
             {
-                if (requests[i].id !== id_) continue;
+                // extract request ID from transaction input data (createOption called with requestID)
+                let requestID = BigNumber.from("0x" + tx.data.slice(10)).toNumber();
 
-                requests.splice(i, 1);
-
-                break;
+                handler.method(requestID, id);
             }
-
-            // Remove id_ from requests that have awaiting changes
-            delete requestChangingIDs[id_];
-
-            // Remove tx hash from cache
-            delete requestIDsTransactions[id_];
-
-            updateRequestsHash();
-
-            return;
-        }
-
-        // Request transforms into Option
-        if (action.state === OptionState.OPEN)
-        {
-            // extract request ID from transaction log input data
-            let tx = await transaction.getTransaction();
-            let requestID = BigNumber.from("0x" + tx.data.slice(10)).toNumber();
-
-            while (++i !== length)
-            {
-                let request = requests[i];
-                if (request.id !== requestID) continue;
-
-                requests.splice(i, 1);
-
-                // Caterpillar >> Butterfly
-                request.id = id_;
-                request.state = action.state;
-                options.unshift(request);
-
-                break;
-            }
-
-            // Remove ids from arrays of objects that have awaiting changes
-            delete requestChangingIDs[requestID];
-            delete optionChangingIDs[id_];
-
-            updateRequestsHash();
-            updateOptionsHash();
-
-            return;
-        }
-
-        // Option state change (EXERCISED or CANCELED)
-        for (let o of options)
-        {
-            if (o.id !== id_) continue;
-
-            o.state = action.state;
-
-            break;
-        }
-
-        delete optionChangingIDs[id_];
-
-        updateOptionsHash();
+        );
     }
 
     useEffect
@@ -191,15 +150,12 @@ export default function App({ Component, pageProps }: AppProps)
             setRequestsHash(0);
             setOptionsHash(0);
 
-            let provider_ = createProvider();
-
             let network_ = network();
             if (!network_) return;
 
-            provider_.getBlockNumber().then(r => blockNumber = r);
+            let provider_ = createProvider();
 
-            // Perform cleanup of event-listners, as they persist from one instance to another
-            contracts.NFTOpt?.removeAllListeners();
+            provider_.getBlockNumber().then(r => blockNumber = r);
 
             // Create completely new instance with the default provider (readonly)
             contracts.NFTOpt =
@@ -229,7 +185,7 @@ export default function App({ Component, pageProps }: AppProps)
 
             // Create an upgraded/downgraded instance with connected address as signer OR with the default provider (readonly)
             // NOTE: event subscription is maintained
-            contracts.NFTOpt = contracts.NFTOpt.connect(signerOrProvider());
+            contracts.NFTOpt = contracts.NFTOpt?.connect(signerOrProvider());
         }
     ,   [account]
     );
