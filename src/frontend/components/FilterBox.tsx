@@ -34,39 +34,37 @@ type Props =
 
 function FilterBox(props : Props)
 {
-    return <>
-        <div className={classes.containerRoot} onClick={(e) => e.stopPropagation()}>
-            <div className={classes.root}>
-                <Button
-                    className={classes.btnReset}
-                    onClick={ () => { resetFilterParams(); props.onChange(); } }
-                >🧹</Button>
+    return <div className={classes.containerRoot} onClick={(e) => e.stopPropagation()}>
+        <div className={classes.root}>
+            <Button
+                className={classes.btnReset}
+                onClick={ () => { resetFilterParams(); props.onChange(); } }
+            >🧹</Button>
 
-                <FormControlLabel
-                    className={clsx(classes.checkbox, filterParams.showAll ? classes.checked : classes.unchecked)}
-                    control={<Switch checked={!filterParams.showAll} onChange={ () => { filterParams.showAll = !filterParams.showAll; props.onChange(); } } />}
-                    label={(filterParams.showAll ? "All" : "Account's") + " Options"}
-                    labelPlacement="start"
-                />
+            <FormControlLabel
+                className={clsx(classes.checkbox, filterParams.showAll ? classes.checked : classes.unchecked)}
+                control={<Switch checked={!filterParams.showAll} onChange={ () => { filterParams.showAll = !filterParams.showAll; props.onChange(); } } />}
+                label={(filterParams.showAll ? "All" : "Account's") + " Options"}
+                labelPlacement="start"
+            />
 
-                <Row_FilterBox
-                    onChange={props.onChange}
-                    onValidate={getFloatString}
-                    value={filterParams.premium}
-                    label="Premium" />
-                <Row_FilterBox
-                    onChange={props.onChange}
-                    onValidate={getFloatString}
-                    value={filterParams.strikePrice}
-                    label="Strike Price" />
-                <Row_FilterBox
-                    onChange={props.onChange}
-                    onValidate={getIntervalString}
-                    value={filterParams.interval}
-                    label="Interval" />
-            </div>
+            <Row_FilterBox
+                onChange={props.onChange}
+                onValidate={getFloatString}
+                value={filterParams.premium}
+                label="Premium" />
+            <Row_FilterBox
+                onChange={props.onChange}
+                onValidate={getFloatString}
+                value={filterParams.strikePrice}
+                label="Strike Price" />
+            <Row_FilterBox
+                onChange={props.onChange}
+                onValidate={getIntervalString}
+                value={filterParams.interval}
+                label="Interval" />
         </div>
-    </>;
+    </div>;
 }
 
 export default FilterBox;
