@@ -61,11 +61,13 @@ function FilterBox(props : Props)
                 onValidate={getFloatString}
                 value={filterParams.premium}
                 label="Premium" />
+
             <Row_FilterBox
                 onChange={props.onChange}
                 onValidate={getFloatString}
                 value={filterParams.strikePrice}
                 label="Strike Price" />
+
             <Row_FilterBox
                 onChange={props.onChange}
                 onValidate={getIntervalString}
