@@ -69,7 +69,7 @@ export async function loadRequestAsOptionWithAsset(id: number)
 
     if (!request) return;
 
-    requests.unshift
+    requests.push
     (
         {
             id          : id
@@ -95,7 +95,7 @@ export async function loadOptionWithAsset(id: number)
     // @ts-ignore
     delete option.nftContract; delete option.nftId;
 
-    options.unshift(option as unknown as OptionWithAsset);
+    options.push(option as unknown as OptionWithAsset);
 }
 
 export async function loadAllRequestsAsOptionsWithAsset()
