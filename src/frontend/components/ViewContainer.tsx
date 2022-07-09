@@ -11,7 +11,7 @@ import { OptionWithAsset } from "../../models/extended";
 import { network } from "../utils/metamask";
 import FilterBox, { filterParams } from "./FilterBox";
 import TableView, { TableViewStates } from "./TableView";
-import OptionListView, { ListViewStates } from "./OptionListView";
+import ListView, { ListViewStates } from "./ListView";
 import { Button, Tab, Tabs } from "@mui/material";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
@@ -239,7 +239,7 @@ function ViewContainer()
 
         return view === Views.ROWLIST
             ? <TableView { ... props} />
-            : <OptionListView { ... props} />;
+            : <ListView { ... props} />;
     }
 
     const renderViewStateTabs = () =>

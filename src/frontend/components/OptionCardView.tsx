@@ -7,7 +7,7 @@ import { ethers } from "ethers";
 import { useRequests, useOptions } from "../../pages/_app";
 import { OptionWithAsset } from "../../models/extended";
 import { AccessTime } from "@mui/icons-material";
-import { ListViewStates } from "./OptionListView";
+import { ListViewStates } from "./ListView";
 
 type Props =
 {

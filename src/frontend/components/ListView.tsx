@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/OptionListView.module.scss";
+import classes from "./styles/ListView.module.scss";
 import clsx from "clsx";
 
 import React from 'react';
@@ -19,7 +19,7 @@ type Props =
 
 export const ListViewStates = [ "S", "M", "L" ];
 
-function OptionListView(props: Props)
+function ListView(props: Props)
 {
     if (!props.selectedValue)
         return <div className={clsx(classes.containerGrid, classes[ListViewStates[props.viewIndex ?? 0]])}>
@@ -51,4 +51,4 @@ function OptionListView(props: Props)
     </div>;
 }
 
-export default OptionListView;
+export default ListView;
