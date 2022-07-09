@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/OptionViewContainer.module.scss";
+import classes from "./styles/ViewContainer.module.scss";
 import clsx from "clsx";
 
 import React from 'react';
@@ -50,7 +50,7 @@ let optionsByStateFiltered = {};
 
 const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
 
-function OptionViewContainer()
+function ViewContainer()
 {
     const [ view              , setView ]           = useState<Views>( parseInt(localStorage[viewTypeStorageKey] ?? Views.CARDLIST) );
     const [ viewStateIndex    , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
@@ -276,4 +276,4 @@ function OptionViewContainer()
     </>;
 }
 
-export default OptionViewContainer;
+export default ViewContainer;

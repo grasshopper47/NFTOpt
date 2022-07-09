@@ -1,11 +1,11 @@
 import Layout from "../frontend/fragments/Layout";
-import OptionViewContainer from "../frontend/components/OptionViewContainer";
+import ViewContainer from "../frontend/components/ViewContainer";
 
 export default function()
 {
     return <>
         <Layout>
-            <OptionViewContainer />
+            <ViewContainer />
         </Layout>
     </>;
 }
