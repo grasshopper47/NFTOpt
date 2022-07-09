@@ -72,7 +72,7 @@ function OptionViewContainer()
 
     // Force-update the view even when the selectedOption is the same value; this is to cover the edge-case
     // when the user modifies 2 or more options, with transactions queued in Metamask and aproving 1 by 1
-    const [, setState] = useState(0);
+    const [selectedOptionCounter, setState] = useState(0);
     const setSelectedOption = (obj: OptionWithAsset | null) =>
     {
         selectedOption = obj;
@@ -108,6 +108,8 @@ function OptionViewContainer()
 
             if (optionsByStateFiltered[state] === undefined) handleFiltered(state);
             else setViewedOptions(optionsByStateFiltered[state]);
+
+            setSelectedOption(null);
         }
     ,   [activeTabIndex]
     );
@@ -129,7 +131,7 @@ function OptionViewContainer()
 
             if (view === Views.DETAIL) setView(Views.CARDLIST);
         }
-    ,   [selectedOption]
+    ,   [selectedOptionCounter]
     );
 
     const handleViewStateChanged = (event: any, index : number) =>
@@ -172,51 +174,45 @@ function OptionViewContainer()
         handleFiltered(state);
     }
 
-    const renderListHeaderTabs = () =>
+    const renderHeaderTabs = () =>
     {
-        return <>
-            <Tabs
-                className={classes.tabs}
-                value={activeTabIndex}
-                onChange={(e, index : number) => setActiveTabIndex(index)}
-            >
-                { tabs.map( tab => <Tab key={`tab-filter-${tab.name}`} label={tab.name} /> ) }
-            </Tabs>
-        </>;
+        return <Tabs
+            className={classes.tabs}
+            value={activeTabIndex}
+            onChange={(e, index : number) => setActiveTabIndex(index)}
+        >
+            { tabs.map( tab => <Tab key={`tab-filter-${tab.name}`} label={tab.name} /> ) }
+        </Tabs>;
     }
 
-    const renderListViewTypeButton = () =>
+    const renderViewTypeButton = () =>
     {
-        if (!hasItems) return <></>;
+        if (!hasItems || view === Views.DETAIL) return <></>;
 
-        return <>
-            <Button
-                className={classes.btnListView}
-                onClick=
+        return <Button
+            className={classes.btnListView}
+            onClick=
+            {
+                () =>
                 {
-                    () =>
-                    {
-                        let newView = view === Views.CARDLIST ? Views.ROWLIST : Views.CARDLIST;
+                    let newView = view === Views.CARDLIST ? Views.ROWLIST : selectedOption !== null ? Views.DETAIL : Views.CARDLIST;
 
-                        localStorage[viewTypeStorageKey] = newView;
+                    localStorage[viewTypeStorageKey] = newView;
 
-                        setView(newView);
-                    }
+                    setView(newView);
                 }
-            >{ view === Views.CARDLIST ? "Rows" : "Cards" }</Button>
-        </>
+            }
+        >{ view === Views.CARDLIST ? "Rows" : "Cards" }</Button>
     }
 
     const renderFilterBoxButton = () =>
     {
-        if (!hasItems) return <></>;
+        if (!hasItems || view === Views.DETAIL) return <></>;
 
-        return <>
-            <Button
-                className={classes.btnShow}
-                onClick={ (e) => { e.stopPropagation(); setFilterBoxVisibile(true); } }
-            >🔰</Button>
-        </>
+        return <Button
+            className={classes.btnShow}
+            onClick={ (e) => { e.stopPropagation(); setFilterBoxVisibile(true); } }
+        >🔰</Button>;
     }
 
     const renderStatusText = () =>
@@ -242,81 +238,49 @@ function OptionViewContainer()
 
     const renderList = () =>
     {
-        if (view == Views.CARDLIST)
-            return <OptionListView
-                list={viewedOptions}
-                onSelect={setSelectedOption}
-                viewIndex={viewStateIndex}
-                { ... selectedOption && { selectedValue: selectedOption } }
-            />;
+        let props =
+        {
+            list      : viewedOptions
+        ,   onSelect  : setSelectedOption
+        ,   viewIndex : viewStateIndex
+        };
 
-        return <OptionTableView
-            list={viewedOptions}
-            onSelect={setSelectedOption}
-            { ... selectedOption && { selectedValue: selectedOption } }
-        />
+        if (selectedOption) props["selectedValue"] = selectedOption;
+
+        return view === Views.ROWLIST
+            ? <OptionTableView { ... props} />
+            : <OptionListView { ... props} />;
     }
 
     const renderViewStateTabs = () =>
     {
-        if (!hasItems) return <></>;
+        if (!hasItems || view === Views.DETAIL) return <></>;
 
-        return <>
-            <Tabs
-                className={classes.tabsState}
-                value={viewStateIndex}
-                onChange={handleViewStateChanged}
-            >
-                { viewStates[view]?.map( state => <Tab key={`tab-view-state-${state}`} label={state} /> ) }
-            </Tabs>
-        </>;
-    }
-
-    const renderDetailView = () =>
-    {
-        if (view !== Views.DETAIL || selectedOption === null) return <></>;
-
-        return <>
-            <div className={classes.containerItem}>
-                <OptionDetailsView
-                    option={selectedOption}
-                    showListView={ () => setSelectedOption(null) } />
-            </div>
-        </>;
+        return <Tabs
+            className={classes.tabsState}
+            value={viewStateIndex}
+            onChange={handleViewStateChanged}
+        >
+            { viewStates[view]?.map( state => <Tab key={`tab-view-state-${state}`} label={state} /> ) }
+        </Tabs>;
     }
 
     return <>
         <p className="page-title">Explore NFT Options</p>
 
-        <div className={classes.root}>
-        {
-            view === Views.DETAIL
-            ?   renderDetailView()
-            :   <>
-                    { renderListViewTypeButton() }
-                    { renderFilterBoxButton() }
+        <div className={clsx(classes.root, hasItems && classes.withOptions)}>
+            { renderViewTypeButton() }
+            { renderFilterBoxButton() }
 
-                    { isFilterBoxVisible && <FilterBox onChange={ () => handleFilteredWithReset(tabs[activeTabIndex].value) }/> }
+            { isFilterBoxVisible && <FilterBox onChange={ () => handleFilteredWithReset(tabs[activeTabIndex].value) }/> }
 
-                    { renderListHeaderTabs() }
+            { renderHeaderTabs() }
 
-                    <div className=
-                    {
-                        clsx
-                        (
-                            classes.containerGrid
-                        ,   network() && hasItems && classes[ view === Views.CARDLIST ? getViewClassName(view, viewStateIndex) : "rows" ]
-                        ,   hasItems && classes.gridWithOptions
-                        )
-                    } >
-                        { renderStatusText() }
-                        { renderList() }
-                    </div>
-
-                    { renderViewStateTabs() }
-                </>
-        }
+            { renderStatusText() }
+            { renderList() }
         </div>
+
+        { renderViewStateTabs() }
     </>;
 }
 

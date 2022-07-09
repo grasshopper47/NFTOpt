@@ -21,3 +21,13 @@
         }
     };
 }
+
+.containerGrid
+{
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    overflow: auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}

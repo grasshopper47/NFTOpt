@@ -9,7 +9,7 @@ import OptionDetailsView from "./OptionDetailsView";
 
 type OptionRowView =
 {
-    option      : OptionWithAsset
+    option       : OptionWithAsset
 ,   showDetails ?: boolean
 };
 

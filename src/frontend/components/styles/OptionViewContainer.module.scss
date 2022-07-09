@@ -8,10 +8,15 @@
 .root
 {
     max-width: 900px;
-    height: calc(100% - 98px);
+    max-height: calc(100% - 98px);
     display: flex;
     flex-direction: column;
     margin: auto;
+}
+
+.withOptions
+{
+    border-bottom: 1px solid $color-primary;
 }
 
 .btnListView
@@ -76,10 +81,10 @@
 
 .tabsState
 {
-    margin-top: -10px;
-    align-self: center;
+    margin-top: 10px;
+    justify-content: center;
     animation: fadeIn 333ms;
-
+    display:grid;
     button
     {
         text-transform: none;
@@ -107,39 +112,6 @@
     {
         background-color: transparent;
     }
-}
-
-.containerGrid
-{
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    justify-items: center;
-    overflow: auto;
-    margin-top: 40px;
-    margin-bottom: 20px;
-
-    &.S
-    {
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-    }
-
-    &.rows
-    {
-        margin-top: 20px;
-        grid-template-columns: 1fr;
-        padding-bottom: 20px;
-    }
-}
-
-.gridWithOptions
-{
-    border-bottom: 1px solid $color-primary;
-}
-
-.containerItem
-{
-    animation: fadeIn 333ms;
-    margin-top: 40px;
 }
 
 .noOptions

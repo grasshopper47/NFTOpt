@@ -18,18 +18,18 @@ import { dismissLastToast, showToast } from "../utils/toasting";
 import Button_OptionDetailsView from "../fragments/Button.OptionDetailsView";
 import Field_OptionDetailsView from "../fragments/Field.OptionDetailsView";
 import FieldLink_OptionDetailsView from "../fragments/FieldLink.OptionDetailsView";
-import { ArrowBackIosRounded } from "@mui/icons-material";
-import { IconButton } from "@mui/material";
 
-type OptionDetailsViewProps =
+type Props =
 {
-    option        : OptionWithAsset;
-    showListView ?: () => void;
+    option    : OptionWithAsset
+,   onAction ?: () => void
 };
 
-function OptionDetailsView(props: OptionDetailsViewProps)
+function OptionDetailsView(props: Props)
 {
-    const { option, showListView } = props;
+    const { option } = props;
+
+    const showTitle = props.onAction !== null && props.onAction !== undefined;
 
     const [ isApproved, setApproved ] = useState(false);
 
@@ -86,7 +86,7 @@ function OptionDetailsView(props: OptionDetailsViewProps)
                 if (promise === onWithdrawOption) requests.changing[option.id] = 1;
                 else                              options.changing[option.id] = 1;
 
-                if (showListView) showListView();
+                if (props.onAction) props.onAction();
             }
         )
     );
@@ -133,15 +133,18 @@ function OptionDetailsView(props: OptionDetailsViewProps)
                     label="Cancel Option"
                     variant="outlined"
                     className="btnSecondary"
-                     handleClick={() => onAction(onCancelOption)}
+                    handleClick={() => onAction(onCancelOption)}
                 />
             );
 
             if (isExpired(option))
             {
-                if (isBuyer || option.seller === account) return <>{btnCancel}</>;
+                if (isBuyer || option.seller === account) return btnCancel;
+
+                return <></>;
             }
-            else if (isBuyer)
+
+            if (isBuyer)
             {
                 return <>
                     {btnCancel}
@@ -158,61 +161,50 @@ function OptionDetailsView(props: OptionDetailsViewProps)
         }
     }
 
-    return <>
-        <div
-            className={classes.root}
-            onClick={ (e) => e.stopPropagation() }
-        >
+    return <div
+        className={classes.detailsWrapper}
+        onClick={ (e) => e.stopPropagation() }
+    >
+        <div>
+            <img src={option.asset.image} alt="NFT Image" />
+
             {
-                showListView &&
-                <IconButton className={classes.goBackBtn} onClick={showListView}>
-                    <ArrowBackIosRounded />
-                </IconButton>
+                showTitle &&
+                <a  target="_blank"
+                    href={getStateTransactionScannerLink()}
+                    className={clsx(classes.link, classes.state)}
+                >
+                    {stateLabels[option.state]}
+                </a>
             }
+        </div>
 
-            <div className={classes.detailsContainer}>
+        <div className={classes.detailsSub}>
+
+            { showTitle && <p className={classes.title}>{option.asset.name}</p> }
+
+            <div>
                 <div>
-                    <img src={option.asset.image} alt="NFT Image" />
-
+                    <FieldLink_OptionDetailsView label="NFT contract" value={option.asset.nftContract} />
+                    <Field_OptionDetailsView     label="NFT token"    value={option.asset.nftId.toString()} />
+                    <FieldLink_OptionDetailsView label="Buyer"        value={option.buyer} />
                     {
-                        showListView &&
-                        <a  target="_blank"
-                            href={getStateTransactionScannerLink()}
-                            className={clsx(classes.link, classes.state)}
-                        >
-                            {stateLabels[option.state]}
-                        </a>
+                        option.seller !== ADDRESS0 &&
+                        <FieldLink_OptionDetailsView label="Seller"   value={option.seller} />
                     }
                 </div>
 
-                <div className={clsx(classes.detailsSub, !connected() && classes.offline) }>
-
-                    { showListView && <p className={classes.title}>{option.asset.name}</p> }
-
-                    <div>
-                        <div>
-                            <FieldLink_OptionDetailsView label="NFT contract" value={option.asset.nftContract} />
-                            <Field_OptionDetailsView     label="NFT token"    value={option.asset.nftId.toString()} />
-                            <FieldLink_OptionDetailsView label="Buyer"        value={option.buyer} />
-                            {
-                                option.seller !== ADDRESS0 &&
-                                <FieldLink_OptionDetailsView label="Seller"   value={option.seller} />
-                            }
-                        </div>
-
-                        <div>
-                            <Field_OptionDetailsView     label="Premium"      value={ethers.utils.formatEther(option.premium)} />
-                            <Field_OptionDetailsView     label="Strike Price" value={ethers.utils.formatEther(option.strikePrice)} />
-                            <Field_OptionDetailsView     label="Expiration"   value={`${option.interval} day${option.interval > 1 ? 's' : ''}`} />
-                            <Field_OptionDetailsView     label="Style"        value={flavorLabels[option.flavor]} className="flavor"/>
-                        </div>
-                    </div>
-
-                    { connected() && <div className={classes.buttonsContainer}>{ createButtonsFromOptionState() }</div> }
+                <div>
+                    <Field_OptionDetailsView     label="Premium"      value={ethers.utils.formatEther(option.premium)} />
+                    <Field_OptionDetailsView     label="Strike Price" value={ethers.utils.formatEther(option.strikePrice)} />
+                    <Field_OptionDetailsView     label="Expiration"   value={`${option.interval} day${option.interval > 1 ? 's' : ''}`} />
+                    <Field_OptionDetailsView     label="Style"        value={flavorLabels[option.flavor]} className="flavor"/>
                 </div>
             </div>
+
+            { connected() && <div className={classes.buttonsContainer}>{ createButtonsFromOptionState() }</div> }
         </div>
-    </>;
+    </div>;
 }
 
 export default OptionDetailsView;
