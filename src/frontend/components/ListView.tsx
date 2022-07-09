@@ -5,7 +5,7 @@ import clsx from "clsx";
 import React from 'react';
 import { OptionWithAsset } from "../../models/extended";
 import OptionCardView from "./OptionCardView";
-import OptionDetailsView from './OptionDetailsView';
+import DetailsView from './DetailsView';
 import { IconButton } from "@mui/material";
 import { ArrowBackIosRounded } from "@mui/icons-material";
 
@@ -45,7 +45,7 @@ function ListView(props: Props)
             <ArrowBackIosRounded />
         </IconButton>
 
-        <OptionDetailsView
+        <DetailsView
             option={props.selectedValue}
             onAction={() => props.onSelect(null)} />
     </div>;

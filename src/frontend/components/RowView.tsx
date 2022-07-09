@@ -5,7 +5,7 @@ import React from 'react';
 import { ethers } from "ethers";
 import { OptionWithAsset } from "../../models/extended";
 import clsx from "clsx";
-import OptionDetailsView from "./OptionDetailsView";
+import DetailsView from "./DetailsView";
 
 type RowView =
 {
@@ -25,7 +25,7 @@ function RowView(props: RowView)
         </div>
         {
             props.showDetails &&
-            <div className={classes.detailWrapper}><OptionDetailsView option={props.option}/></div>
+            <div className={classes.detailWrapper}><DetailsView option={props.option}/></div>
         }
     </>;
 }

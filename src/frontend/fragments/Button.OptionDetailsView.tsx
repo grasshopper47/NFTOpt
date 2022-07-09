@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "../components/styles/OptionDetailsView.module.scss";
+import classes from "../components/styles/DetailsView.module.scss";
 
 import { Button } from "@mui/material";
 

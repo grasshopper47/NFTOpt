@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/OptionDetailsView.module.scss";
+import classes from "./styles/DetailsView.module.scss";
 import clsx from "clsx";
 
 import React from 'react';
@@ -15,9 +15,9 @@ import { ADDRESS0 } from "../../utils/constants";
 import { connected, scanner, signer } from "../utils/metamask";
 import { flavorLabels, stateLabels } from "../utils/labels";
 import { dismissLastToast, showToast } from "../utils/toasting";
-import Button_OptionDetailsView from "../fragments/Button.OptionDetailsView";
-import Field_OptionDetailsView from "../fragments/Field.OptionDetailsView";
-import FieldLink_OptionDetailsView from "../fragments/FieldLink.OptionDetailsView";
+import Button_DetailsView from "../fragments/Button.DetailsView";
+import Field_DetailsView from "../fragments/Field.DetailsView";
+import FieldLink_DetailsView from "../fragments/FieldLink.DetailsView";
 
 type Props =
 {
@@ -25,7 +25,7 @@ type Props =
 ,   onAction ?: () => void
 };
 
-function OptionDetailsView(props: Props)
+function DetailsView(props: Props)
 {
     const { option } = props;
 
@@ -111,14 +111,14 @@ function OptionDetailsView(props: Props)
 
         if (option.state === OptionState.PUBLISHED)
             if (isBuyer)
-                return <Button_OptionDetailsView
+                return <Button_DetailsView
                     label="Withdraw Request"
                     variant="outlined"
                     className="btnSecondary"
                     handleClick={() => onAction(onWithdrawOption)}
                 />;
             else
-                return <Button_OptionDetailsView
+                return <Button_DetailsView
                     label="Create Option"
                     variant="contained"
                     className="btnPrimary"
@@ -129,7 +129,7 @@ function OptionDetailsView(props: Props)
         {
             let btnCancel =
             (
-                <Button_OptionDetailsView
+                <Button_DetailsView
                     label="Cancel Option"
                     variant="outlined"
                     className="btnSecondary"
@@ -148,7 +148,7 @@ function OptionDetailsView(props: Props)
             {
                 return <>
                     {btnCancel}
-                    <Button_OptionDetailsView
+                    <Button_DetailsView
                         label={isApproved ? "Exercise Option" : "Approve NFT"}
                         variant="contained"
                         className="btnPrimary"
@@ -185,20 +185,20 @@ function OptionDetailsView(props: Props)
 
             <div>
                 <div>
-                    <FieldLink_OptionDetailsView label="NFT contract" value={option.asset.nftContract} />
-                    <Field_OptionDetailsView     label="NFT token"    value={option.asset.nftId.toString()} />
-                    <FieldLink_OptionDetailsView label="Buyer"        value={option.buyer} />
+                    <FieldLink_DetailsView label="NFT contract" value={option.asset.nftContract} />
+                    <Field_DetailsView     label="NFT token"    value={option.asset.nftId.toString()} />
+                    <FieldLink_DetailsView label="Buyer"        value={option.buyer} />
                     {
                         option.seller !== ADDRESS0 &&
-                        <FieldLink_OptionDetailsView label="Seller"   value={option.seller} />
+                        <FieldLink_DetailsView label="Seller"   value={option.seller} />
                     }
                 </div>
 
                 <div>
-                    <Field_OptionDetailsView     label="Premium"      value={ethers.utils.formatEther(option.premium)} />
-                    <Field_OptionDetailsView     label="Strike Price" value={ethers.utils.formatEther(option.strikePrice)} />
-                    <Field_OptionDetailsView     label="Expiration"   value={`${option.interval} day${option.interval > 1 ? 's' : ''}`} />
-                    <Field_OptionDetailsView     label="Style"        value={flavorLabels[option.flavor]} className="flavor"/>
+                    <Field_DetailsView     label="Premium"      value={ethers.utils.formatEther(option.premium)} />
+                    <Field_DetailsView     label="Strike Price" value={ethers.utils.formatEther(option.strikePrice)} />
+                    <Field_DetailsView     label="Expiration"   value={`${option.interval} day${option.interval > 1 ? 's' : ''}`} />
+                    <Field_DetailsView     label="Style"        value={flavorLabels[option.flavor]} className="flavor"/>
                 </div>
             </div>
 
@@ -207,4 +207,4 @@ function OptionDetailsView(props: Props)
     </div>;
 }
 
-export default OptionDetailsView;
+export default DetailsView;
