@@ -11,10 +11,12 @@ import { AccessTime } from "@mui/icons-material";
 
 type Props =
 {
-    option          : OptionWithAsset
-,   viewIndex       : number
-,   showDetailsView : (OptionWithAsset: OptionWithAsset | null) => void
+    option        : OptionWithAsset
+,   onViewDetails : (o: OptionWithAsset | null) => void
+,   viewIndex     : number
 };
+
+const viewStates = [ "S", "M", "L" ];
 
 function OptionCardView(props: Props)
 {
@@ -23,7 +25,7 @@ function OptionCardView(props: Props)
     const requests = useRequests();
     const options  = useOptions();
 
-    const className = classes[ getViewClassName(Views.CARDLIST, viewIndex) ];
+    const viewClass = classes[viewStates[viewIndex]];
 
     return <>
         <div
@@ -32,34 +34,34 @@ function OptionCardView(props: Props)
                 clsx
                 (
                     classes.card
-                ,   className
+                ,   viewClass
                 ,   (requests.changing[option.id] || options.changing[option.id]) && classes.changing
                 )
             }
-            onClick={ () => props.showDetailsView(option) }
+            onClick={ () => props.onViewDetails(option) }
         >
             <img
                 style={{ backgroundImage: `url(${option.asset.image})`}}
-                className={className}
+                className={viewClass}
                 alt=""
             />
 
-            <div className={clsx(classes.content, className)}>
-                <p className={clsx(classes.title, className)}>
+            <div className={clsx(classes.content, viewClass)}>
+                <p className={clsx(classes.title, viewClass)}>
                     #{option.id + 1}
                 </p>
 
-                <p className={clsx(classes.title, className)}>
+                <p className={clsx(classes.title, viewClass)}>
                     {option.asset.name}
                 </p>
 
-                <div className={clsx(classes.moreInfoContainer, className)}>
-                    <p className={className}>
+                <div className={clsx(classes.moreInfoContainer, viewClass)}>
+                    <p className={viewClass}>
                         {ethers.utils.formatEther(option.strikePrice)} ETH
                     </p>
 
-                    <p className={className}>
-                        <AccessTime className={className} />
+                    <p className={viewClass}>
+                        <AccessTime className={viewClass} />
                         <span>
                             {option.interval} day{option.interval > 1 && "s"}
                         </span>

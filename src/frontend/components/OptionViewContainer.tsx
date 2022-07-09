@@ -14,6 +14,7 @@ import { Button, Tab, Tabs } from "@mui/material";
 import OptionCardView from "./OptionCardView";
 import OptionDetailsView from "./OptionDetailsView";
 import OptionTableView from "./OptionTableView";
+import OptionListView from "./OptionListView";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
@@ -61,10 +62,10 @@ const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
 
 function OptionViewContainer()
 {
-    const [ view              , setView ]              = useState<Views>( parseInt(localStorage[viewTypeStorageKey] ?? Views.CARDLIST) );
-    const [ viewStateIndex    , setViewStateIndex ]    = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
-    const [ activeTabIndex    , setActiveTabIndex ]    = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
-    const [ viewedOptions     , setViewedOptions ]     = useState<OptionWithAsset[]>([]);
+    const [ view              , setView ]           = useState<Views>( parseInt(localStorage[viewTypeStorageKey] ?? Views.CARDLIST) );
+    const [ viewStateIndex    , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
+    const [ activeTabIndex    , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
+    const [ viewedOptions     , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
 
     const [ isFilterBoxVisible, setFilterBoxVisibile ] = useState(false);
     const hideFilterBox = () => setFilterBoxVisibile(false);
@@ -242,16 +243,12 @@ function OptionViewContainer()
     const renderList = () =>
     {
         if (view == Views.CARDLIST)
-            return viewedOptions.map
-            (
-                option =>
-                <OptionCardView
-                    key={`option-card-${activeTabIndex}-${option.id}`}
-                    option={option}
-                    viewIndex={viewStateIndex}
-                    showDetailsView={setSelectedOption}
-                />
-            )
+            return <OptionListView
+                list={viewedOptions}
+                onSelect={setSelectedOption}
+                viewIndex={viewStateIndex}
+                { ... selectedOption && { selectedValue: selectedOption } }
+            />;
 
         return <OptionTableView
             list={viewedOptions}
@@ -260,7 +257,7 @@ function OptionViewContainer()
         />
     }
 
-    const renderListViewStateTabs = () =>
+    const renderViewStateTabs = () =>
     {
         if (!hasItems) return <></>;
 
@@ -316,7 +313,7 @@ function OptionViewContainer()
                         { renderList() }
                     </div>
 
-                    { renderListViewStateTabs() }
+                    { renderViewStateTabs() }
                 </>
         }
         </div>
