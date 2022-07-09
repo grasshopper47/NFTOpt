@@ -15,6 +15,7 @@ type Props =
     list           : OptionWithAsset[]
 ,   onSelect       : (obj: OptionWithAsset | null) => void
 ,   selectedValue ?: OptionWithAsset
+,   viewIndex     ?: number
 };
 
 export const TableViewStates = [ "25", "50", "100" ];
