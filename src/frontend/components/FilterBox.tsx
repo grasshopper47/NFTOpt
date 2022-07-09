@@ -3,6 +3,7 @@ import classes from "./styles/FilterBox.module.scss";
 import clsx from "clsx";
 
 import React from "react";
+import { connected } from "../utils/metamask";
 import { getFloatString, getIntervalString } from "../utils/helpers";
 import Row_FilterBox from "../fragments/Row.FilterBox";
 import { Button, FormControlLabel, Switch } from "@mui/material";
@@ -41,12 +42,15 @@ function FilterBox(props : Props)
                 onClick={ () => { resetFilterParams(); props.onChange(); } }
             >🧹</Button>
 
-            <FormControlLabel
-                className={clsx(classes.checkbox, filterParams.showAll ? classes.checked : classes.unchecked)}
-                control={<Switch checked={!filterParams.showAll} onChange={ () => { filterParams.showAll = !filterParams.showAll; props.onChange(); } } />}
-                label={(filterParams.showAll ? "All" : "Account's") + " Options"}
-                labelPlacement="start"
-            />
+            {
+                connected() &&
+                <FormControlLabel
+                    className={clsx(classes.checkbox, filterParams.showAll ? classes.checked : classes.unchecked)}
+                    control={<Switch checked={!filterParams.showAll} onChange={ () => { filterParams.showAll = !filterParams.showAll; props.onChange(); } } />}
+                    label={ (filterParams.showAll ? "All" : "Account's") + " Options" }
+                    labelPlacement="start"
+                />
+            }
 
             <Row_FilterBox
                 onChange={props.onChange}

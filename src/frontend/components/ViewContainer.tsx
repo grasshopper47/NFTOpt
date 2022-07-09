@@ -177,7 +177,7 @@ function ViewContainer()
 
     const renderViewTypeButton = () =>
     {
-        if (!hasItems || view === Views.DETAIL) return <></>;
+        if (!hasItems || view === Views.DETAIL || !network()) return <></>;
 
         return <Button
             className={classes.btnListView}
@@ -197,7 +197,7 @@ function ViewContainer()
 
     const renderFilterBoxButton = () =>
     {
-        if (!hasItems || view === Views.DETAIL) return <></>;
+        if (!hasItems || view === Views.DETAIL || !network()) return <></>;
 
         return <Button
             className={classes.btnShow}
@@ -254,7 +254,7 @@ function ViewContainer()
 
     const renderViewStateTabs = () =>
     {
-        if (!hasItems || view === Views.DETAIL) return <></>;
+        if (!hasItems || view === Views.DETAIL || !network()) return <></>;
 
         let list = view === Views.ROWLIST ? TableViewStates : ListViewStates;
 
