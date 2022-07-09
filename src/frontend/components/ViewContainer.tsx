@@ -192,7 +192,7 @@ function ViewContainer()
                     setView(newView);
                 }
             }
-        >{ view === Views.CARDLIST ? "Rows" : "Cards" }</Button>
+        >{ view === Views.CARDLIST ? "🧾" : "🎴" }</Button>
     }
 
     const renderFilterBoxButton = () =>
