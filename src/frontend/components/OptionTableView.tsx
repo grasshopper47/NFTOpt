@@ -17,11 +17,13 @@ type Props =
 ,   selectedValue ?: OptionWithAsset
 };
 
+export const TableViewStates = [ "25", "50", "100" ];
+
 function OptionTableView(props: Props)
 {
     const [ listHash , setListHash ] = useState(0);
 
-    // For sorting the viewed options in-place (ROWLIST view)
+    // Used to sort the options in place
     updateListHash = () => setListHash( h => ++h );
 
     let selectedValueID = props.selectedValue ? props.selectedValue.id : -1;

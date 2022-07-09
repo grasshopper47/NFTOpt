@@ -11,9 +11,9 @@ import { OptionWithAsset } from "../../models/extended";
 import { network } from "../utils/metamask";
 import FilterBox, { filterParams } from "./FilterBox";
 import { Button, Tab, Tabs } from "@mui/material";
-import OptionCardView from "./OptionCardView";
+import OptionCardView, { CardViewStates } from "./OptionCardView";
 import OptionDetailsView from "./OptionDetailsView";
-import OptionTableView from "./OptionTableView";
+import OptionTableView, { TableViewStates } from "./OptionTableView";
 import OptionListView from "./OptionListView";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
@@ -42,17 +42,9 @@ const tabs : ViewTab[] =
     }
 ];
 
-const viewStates =
-{
-    [Views.CARDLIST] : [ "S", "M", "L" ]
-,   [Views.ROWLIST]  : [ "25", "50", "100" ]
-}
-
-const viewTypeStorageKey = "ListViewType";
+const viewTypeStorageKey  = "ListViewType";
 const viewStateStorageKey = "ListViewState";
-const tabIndexStorageKey = "ActiveTabIndex";
-
-export const getViewClassName = (view : Views, state : number) => viewStates[view][state];
+const tabIndexStorageKey  = "ActiveTabIndex";
 
 let selectedOption: OptionWithAsset | null = null;
 
@@ -256,12 +248,14 @@ function OptionViewContainer()
     {
         if (!hasItems || view === Views.DETAIL) return <></>;
 
+        let list = view === Views.ROWLIST ? TableViewStates : CardViewStates;
+
         return <Tabs
             className={classes.tabsState}
             value={viewStateIndex}
             onChange={handleViewStateChanged}
         >
-            { viewStates[view]?.map( state => <Tab key={`tab-view-state-${state}`} label={state} /> ) }
+            { list.map( state => <Tab key={`tab-view-state-${state}`} label={state} /> ) }
         </Tabs>;
     }
 
