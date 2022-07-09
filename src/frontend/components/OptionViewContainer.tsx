@@ -2,17 +2,18 @@
 import classes from "./styles/OptionViewContainer.module.scss";
 import clsx from "clsx";
 
+import React from 'react';
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { useRequests, useOptions, useAccount } from "../../pages/_app";
 import { OptionState } from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
-import OptionCardView from "./OptionCardView";
-import OptionRowView from "./OptionRowView";
-import OptionDetailsView from "./OptionDetailsView";
 import { network } from "../utils/metamask";
 import FilterBox, { filterParams } from "./FilterBox";
 import { Button, Tab, Tabs } from "@mui/material";
+import OptionCardView from "./OptionCardView";
+import OptionDetailsView from "./OptionDetailsView";
+import OptionTableView from "./OptionTableView";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
@@ -58,21 +59,12 @@ let optionsByStateFiltered = {};
 
 const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
 
-let updateViewedOptionsHash : () => void;
-
-enum SortMode { ASCENDING, DESCENDING };
-let sortMode = SortMode.DESCENDING;
-
 function OptionViewContainer()
 {
     const [ view              , setView ]              = useState<Views>( parseInt(localStorage[viewTypeStorageKey] ?? Views.CARDLIST) );
     const [ viewStateIndex    , setViewStateIndex ]    = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
     const [ activeTabIndex    , setActiveTabIndex ]    = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
     const [ viewedOptions     , setViewedOptions ]     = useState<OptionWithAsset[]>([]);
-    const [ viewedOptionsHash , setViewedOptionsHash ] = useState(0);
-
-    // For sorting the viewed options in-place (ROWLIST view)
-    updateViewedOptionsHash = () => setViewedOptionsHash( h => ++h );
 
     const [ isFilterBoxVisible, setFilterBoxVisibile ] = useState(false);
     const hideFilterBox = () => setFilterBoxVisibile(false);
@@ -261,59 +253,11 @@ function OptionViewContainer()
                 />
             )
 
-        let selectedOptionID = selectedOption !== null ? selectedOption.id : -1;
-
-        let sortViewedOptions = (sorter : (a1: OptionWithAsset, a2: OptionWithAsset) => number) =>
-        {
-            if (sortMode === SortMode.ASCENDING) { viewedOptions.sort(sorter); sortMode = SortMode.DESCENDING; }
-            else                                 { viewedOptions.sort((a, b) => sorter(b, a)); sortMode = SortMode.ASCENDING; }
-
-            updateViewedOptionsHash();
-        }
-
-        return <>
-            {
-                hasItems &&
-                <div className={classes.listRowsHeader}>
-                    <p onClick={ () => sortViewedOptions( (a, b) => b.id - a.id ) }
-                    >#</p>
-
-                    <p onClick={ () => sortViewedOptions( (a, b) => b.asset.name.localeCompare(a.asset.name) ) }
-                    >Name</p>
-
-                    <p onClick={ () => sortViewedOptions( (a, b) => b.premium.toString().localeCompare(a.premium.toString()) ) }
-                    >Premium</p>
-
-                    <p onClick={ () => sortViewedOptions( (a, b) => b.strikePrice.toString().localeCompare(a.strikePrice.toString()) ) }
-                    >Strike Price</p>
-
-                    <p onClick={ () => sortViewedOptions( (a, b) => b.interval - a.interval ) }
-                    >Interval</p>
-                </div>
-            }
-
-            {
-                viewedOptions.map
-                (
-                    option =>
-                    <div
-                        key={`option-row-${activeTabIndex}-${option.id}`}
-                        style={{width:"100%", display:"grid"}}
-                        // If previously selected an option, and it is the same one, set it to null
-                        onClick={ () => setSelectedOption(option.id === selectedOptionID ? null : option) }
-                    >
-                        <OptionRowView
-                            option={option}
-                            showDetails={option.id === selectedOptionID}
-                        />
-                        {
-                            option.id === selectedOptionID &&
-                            <div className={classes.listRowsDetailWrapper}><OptionDetailsView option={option}/></div>
-                        }
-                    </div>
-                )
-            }
-        </>
+        return <OptionTableView
+            list={viewedOptions}
+            onSelect={setSelectedOption}
+            { ... selectedOption && { selectedValue: selectedOption } }
+        />
     }
 
     const renderListViewStateTabs = () =>
