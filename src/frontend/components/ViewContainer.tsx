@@ -52,10 +52,10 @@ const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
 
 function ViewContainer()
 {
-    const [ view              , setView ]           = useState<Views>( parseInt(localStorage[viewTypeStorageKey] ?? Views.CARDLIST) );
-    const [ viewStateIndex    , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
-    const [ activeTabIndex    , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
-    const [ viewedOptions     , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
+    const [ view           , setView ]           = useState<Views>( parseInt(localStorage[viewTypeStorageKey] ?? Views.CARDLIST) );
+    const [ viewStateIndex , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
+    const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
+    const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
 
     const [ isFilterBoxVisible, setFilterBoxVisibile ] = useState(false);
     const hideFilterBox = () => setFilterBoxVisibile(false);
@@ -99,7 +99,7 @@ function ViewContainer()
             if (optionsByStateFiltered[state] === undefined) handleFiltered(state);
             else setViewedOptions(optionsByStateFiltered[state]);
 
-            setSelectedOption(null);
+            selectedOption = null;
         }
     ,   [activeTabIndex]
     );
