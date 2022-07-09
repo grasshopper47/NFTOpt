@@ -28,15 +28,21 @@
     filter: drop-shadow(0 0 0.25rem $color-secondary);
 }
 
+.buttons
+{
+    display: grid;
+    grid-auto-flow: column;
+}
+
 .btnReset
 {
     cursor: pointer;
-    position: absolute;
-    top: 6px;
-    left: -4px;
     font-size: 16pt;
     transition: all 167ms ease-out;
-    padding:0;
+    padding: 0;
+    margin: 0;
+    justify-self: right;
+
     &:hover
     {
         background-color: transparent;
@@ -58,8 +64,7 @@
 
 .checkbox
 {
-    justify-self: right;
-    margin-right: 0px !important;
+    justify-self: left;
     text-shadow: 1px 1px rgb(25 25 25 / 65%);
     animation: fadeIn 333ms;
 

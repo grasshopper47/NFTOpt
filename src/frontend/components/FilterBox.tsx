@@ -35,22 +35,26 @@ type Props =
 
 function FilterBox(props : Props)
 {
-    return <div className={classes.containerRoot} onClick={(e) => e.stopPropagation()}>
+    return <div
+        className={classes.containerRoot}
+        onClick={ (e) => e.stopPropagation() }
+    >
         <div className={classes.root}>
-            <Button
-                className={classes.btnReset}
-                onClick={ () => { resetFilterParams(); props.onChange(); } }
-            >🧹</Button>
-
-            {
-                connected() &&
-                <FormControlLabel
-                    className={clsx(classes.checkbox, filterParams.showAll ? classes.checked : classes.unchecked)}
-                    control={<Switch checked={!filterParams.showAll} onChange={ () => { filterParams.showAll = !filterParams.showAll; props.onChange(); } } />}
-                    label={ (filterParams.showAll ? "All" : "Account's") + " Options" }
-                    labelPlacement="start"
-                />
-            }
+            <div className={classes.buttons}>
+                {
+                    connected() &&
+                    <FormControlLabel
+                        className={clsx(classes.checkbox, filterParams.showAll ? classes.checked : classes.unchecked)}
+                        control={<Switch checked={!filterParams.showAll} onChange={ () => { filterParams.showAll = !filterParams.showAll; props.onChange(); } } />}
+                        label={ (filterParams.showAll ? "All" : "Account's") + " Options" }
+                        labelPlacement="start"
+                    />
+                }
+                <Button
+                    className={classes.btnReset}
+                    onClick={ () => { resetFilterParams(); props.onChange(); } }
+                >🧹</Button>
+            </div>
 
             <Row_FilterBox
                 onChange={props.onChange}
