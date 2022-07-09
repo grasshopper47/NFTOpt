@@ -1,7 +1,7 @@
 // @ts-ignore
 import classes from "./styles/RowView.module.scss";
 
-import React from 'react';
+import React from "react";
 import { ethers } from "ethers";
 import { OptionWithAsset } from "../../models/extended";
 import clsx from "clsx";

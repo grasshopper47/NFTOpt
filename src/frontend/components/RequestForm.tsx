@@ -15,9 +15,9 @@ import { OptionFlavor } from "../../models/option";
 import { BIGNUMBER0, SECONDS_IN_A_DAY } from "../../utils/constants";
 import { getFloatString, getIntervalString } from "../utils/helpers";
 import { showToast } from "../utils/toasting";
-import TextBox_RequestForm from "../fragments/TextBox.OptionRequest";
-import Radio_RequestForm from "../fragments/Radio.OptionRequest";
-import DropDown_RequestForm from "../fragments/DropDown.OptionRequest";
+import TextBox_RequestForm from "../fragments/TextBox.Request";
+import Radio_RequestForm from "../fragments/Radio.Request";
+import DropDown_RequestForm from "../fragments/DropDown.Request";
 
 let request = { } as OptionRequest_DISPLAY;
 

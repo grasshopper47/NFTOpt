@@ -2,6 +2,7 @@
 import classes from "./styles/FilterBox.module.scss";
 import clsx from "clsx";
 
+import React from "react";
 import { getFloatString, getIntervalString } from "../utils/helpers";
 import Row_FilterBox from "../fragments/Row.FilterBox";
 import { Button, FormControlLabel, Switch } from "@mui/material";

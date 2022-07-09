@@ -2,7 +2,7 @@
 import classes from "./styles/CardView.module.scss";
 import clsx from "clsx";
 
-import React from 'react';
+import React from "react";
 import { ethers } from "ethers";
 import { useRequests, useOptions } from "../../pages/_app";
 import { OptionWithAsset } from "../../models/extended";

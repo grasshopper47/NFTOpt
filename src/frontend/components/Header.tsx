@@ -55,43 +55,41 @@ function Header()
     const hasProvider = provider() != null;
     const routes      = network() && connected() ? routesWithSigner : ( hasProvider ? routesReadOnly : [] );
 
-    return <>
-        <div className={classes.root}>
-            <Link key="route-link-main" href="/">
-                <a className={clsx(classes.link, classes.logo)}>
-                    NFT-OթͲ
-                </a>
-            </Link>
+    return <div className={classes.root}>
+        <Link key="route-link-main" href="/">
+            <a className={clsx(classes.link, classes.logo)}>
+                NFT-OթͲ
+            </a>
+        </Link>
 
-            { !network() && <p>{ hasProvider ? "Connect to localhost" : "Metamask required to access dapp" }</p> }
+        { !network() && <p>{ hasProvider ? "Connect to localhost" : "Metamask required to access dapp" }</p> }
 
-            <div>
-                {
-                    routes.map
-                    (
-                        route =>
-                        <Link
-                            key={`route-link-${route.href}`}
-                            href={route.href}>
-                            <a className={clsx(classes.link, router.pathname == route.href && classes.active)}>
-                                {route.name}
-                            </a>
-                        </Link>
-                    )
-                }
+        <div>
+            {
+                routes.map
+                (
+                    route =>
+                    <Link
+                        key={`route-link-${route.href}`}
+                        href={route.href}>
+                        <a className={clsx(classes.link, router.pathname == route.href && classes.active)}>
+                            {route.name}
+                        </a>
+                    </Link>
+                )
+            }
 
-                <ThemeSwitch />
+            <ThemeSwitch />
 
-                <Button
-                    className={clsx(classes.connectBtn, connected() && classes.connectBtnSmall)}
-                    variant="contained"
-                    { ... !connected() && { onClick : ( hasProvider ? connectWallet : () => window.open("https://metamask.io/download") ) } }
-                >
-                    <p>{ connected() ? getAccountDisplayValue(account) : (hasProvider ? "Connect wallet" : "Install Metamask") }</p>
-                </Button>
-            </div>
+            <Button
+                className={clsx(classes.connectBtn, connected() && classes.connectBtnSmall)}
+                variant="contained"
+                { ... !connected() && { onClick : ( hasProvider ? connectWallet : () => window.open("https://metamask.io/download") ) } }
+            >
+                <p>{ connected() ? getAccountDisplayValue(account) : (hasProvider ? "Connect wallet" : "Install Metamask") }</p>
+            </Button>
         </div>
-    </>;
+    </div>;
 }
 
 export default Header;

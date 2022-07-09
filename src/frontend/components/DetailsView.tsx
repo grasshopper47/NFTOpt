@@ -2,7 +2,7 @@
 import classes from "./styles/DetailsView.module.scss";
 import clsx from "clsx";
 
-import React from 'react';
+import React from "react";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";

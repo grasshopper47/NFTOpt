@@ -16,11 +16,11 @@ export default function(props: Props)
     let name = flavorLabels[props.flavor];
 
     return <FormControlLabel
-            key={`radio-${name}`}
-            label={name}
-            value={props.flavor}
-            control={<Radio checked={props.flavor === props.value} />}
-            onChange={props.onChange}
-            onKeyUp={props.onKeyUp}
-        />;
+        key={`radio-${name}`}
+        label={name}
+        value={props.flavor}
+        control={<Radio checked={props.flavor === props.value} />}
+        onChange={props.onChange}
+        onKeyUp={props.onKeyUp}
+    />;
 }
