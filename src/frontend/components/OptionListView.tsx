@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 import React from 'react';
 import { OptionWithAsset } from "../../models/extended";
-import OptionCardView, { CardViewStates } from "./OptionCardView";
+import OptionCardView from "./OptionCardView";
 import OptionDetailsView from './OptionDetailsView';
 import { IconButton } from "@mui/material";
 import { ArrowBackIosRounded } from "@mui/icons-material";
@@ -16,6 +16,8 @@ type Props =
 ,   selectedValue ?: OptionWithAsset
 ,   viewIndex     ?: number
 }
+
+export const CardViewStates = [ "S", "M", "L" ];
 
 function OptionListView(props: Props)
 {

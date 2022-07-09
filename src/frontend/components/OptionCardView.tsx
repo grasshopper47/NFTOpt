@@ -7,6 +7,7 @@ import { ethers } from "ethers";
 import { useRequests, useOptions } from "../../pages/_app";
 import { OptionWithAsset } from "../../models/extended";
 import { AccessTime } from "@mui/icons-material";
+import { CardViewStates } from "./OptionListView";
 
 type Props =
 {
@@ -14,8 +15,6 @@ type Props =
 ,   onViewDetails : (o: OptionWithAsset | null) => void
 ,   viewIndex     : number
 };
-
-export const CardViewStates = [ "S", "M", "L" ];
 
 function OptionCardView(props: Props)
 {
