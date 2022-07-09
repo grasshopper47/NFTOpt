@@ -11,7 +11,7 @@ import { OptionWithAsset } from "../../models/extended";
 import { network } from "../utils/metamask";
 import FilterBox, { filterParams } from "./FilterBox";
 import OptionTableView, { TableViewStates } from "./OptionTableView";
-import OptionListView, { CardViewStates } from "./OptionListView";
+import OptionListView, { ListViewStates } from "./OptionListView";
 import { Button, Tab, Tabs } from "@mui/material";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
@@ -246,7 +246,7 @@ function OptionViewContainer()
     {
         if (!hasItems || view === Views.DETAIL) return <></>;
 
-        let list = view === Views.ROWLIST ? TableViewStates : CardViewStates;
+        let list = view === Views.ROWLIST ? TableViewStates : ListViewStates;
 
         return <Tabs
             className={classes.tabsState}

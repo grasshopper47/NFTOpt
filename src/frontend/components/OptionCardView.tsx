@@ -7,7 +7,7 @@ import { ethers } from "ethers";
 import { useRequests, useOptions } from "../../pages/_app";
 import { OptionWithAsset } from "../../models/extended";
 import { AccessTime } from "@mui/icons-material";
-import { CardViewStates } from "./OptionListView";
+import { ListViewStates } from "./OptionListView";
 
 type Props =
 {
@@ -23,7 +23,7 @@ function OptionCardView(props: Props)
     const requests = useRequests();
     const options  = useOptions();
 
-    const viewClass = classes[CardViewStates[viewIndex]];
+    const viewClass = classes[ListViewStates[viewIndex]];
 
     return <div
         className=

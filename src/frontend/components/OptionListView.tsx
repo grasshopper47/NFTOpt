@@ -17,12 +17,12 @@ type Props =
 ,   viewIndex     ?: number
 }
 
-export const CardViewStates = [ "S", "M", "L" ];
+export const ListViewStates = [ "S", "M", "L" ];
 
 function OptionListView(props: Props)
 {
     if (!props.selectedValue)
-        return <div className={clsx(classes.containerGrid, classes[CardViewStates[props.viewIndex ?? 0]])}>
+        return <div className={clsx(classes.containerGrid, classes[ListViewStates[props.viewIndex ?? 0]])}>
             {
                 props.list.map
                 (
