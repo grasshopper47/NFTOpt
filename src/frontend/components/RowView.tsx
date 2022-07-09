@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/OptionRowView.module.scss";
+import classes from "./styles/RowView.module.scss";
 
 import React from 'react';
 import { ethers } from "ethers";
@@ -7,13 +7,13 @@ import { OptionWithAsset } from "../../models/extended";
 import clsx from "clsx";
 import OptionDetailsView from "./OptionDetailsView";
 
-type OptionRowView =
+type RowView =
 {
     option       : OptionWithAsset
 ,   showDetails ?: boolean
 };
 
-function OptionRowView(props: OptionRowView)
+function RowView(props: RowView)
 {
     return <>
         <div className={classes.container}>
@@ -30,4 +30,4 @@ function OptionRowView(props: OptionRowView)
     </>;
 }
 
-export default OptionRowView;
+export default RowView;

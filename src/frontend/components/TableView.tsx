@@ -3,7 +3,7 @@ import classes from "./styles/TableView.module.scss";
 
 import React, { useState } from 'react';
 import { OptionWithAsset } from "../../models/extended";
-import OptionRowView from "./OptionRowView";
+import RowView from "./RowView";
 
 enum SortMode { ASCENDING, DESCENDING };
 let sortMode = SortMode.DESCENDING;
@@ -68,7 +68,7 @@ function TableView(props: Props)
                     // If previously selected an option, and it is the same one, set it to null
                     { ... props.onSelect && { onClick: () => props.onSelect(option.id === selectedValueID ? null : option) } }
                 >
-                    <OptionRowView option={option} showDetails={option.id === selectedValueID} />
+                    <RowView option={option} showDetails={option.id === selectedValueID} />
                 </div>
             )
         }
