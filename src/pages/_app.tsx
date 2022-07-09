@@ -1,4 +1,5 @@
 import "./styles/_app.scss";
+import React from 'react';
 import { AppProps } from "next/app";
 import toast, { Toaster } from "react-hot-toast";
 import { createContext, useContext, useState, useEffect } from "react";

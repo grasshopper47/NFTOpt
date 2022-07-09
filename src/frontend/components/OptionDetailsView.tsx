@@ -2,6 +2,7 @@
 import classes from "./styles/OptionDetailsView.module.scss";
 import clsx from "clsx";
 
+import React from 'react';
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
