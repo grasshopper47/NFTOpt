@@ -11,12 +11,13 @@ type RowView =
 {
     option       : OptionWithAsset
 ,   showDetails ?: boolean
+,   onClick     ?: () => void
 };
 
 function RowView(props: RowView)
 {
     return <>
-        <div className={classes.container}>
+        <div className={classes.container} { ... props.onClick && { onClick : props.onClick } }>
             <p className={classes.field}>{ !props.showDetails && props.option.id + 1}</p>
             <p className={clsx(classes.field, props.showDetails && classes.selected)}>{props.option.asset.name}</p>
             <p className={classes.field}>{ !props.showDetails && ethers.utils.formatEther(props.option.premium)}</p>

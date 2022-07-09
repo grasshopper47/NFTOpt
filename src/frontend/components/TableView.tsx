@@ -62,14 +62,13 @@ function TableView(props: Props)
             props.list.map
             (
                 option =>
-                <div
+                <RowView
                     key={`option-row-${option.id}`}
-                    style={{width:"100%", display:"grid"}}
+                    option={option}
+                    showDetails={option.id === selectedValueID}
                     // If previously selected an option, and it is the same one, set it to null
                     onClick={ () => props.onSelect(option.id === selectedValueID ? null : option) }
-                >
-                    <RowView option={option} showDetails={option.id === selectedValueID} />
-                </div>
+                />
             )
         }
     </div>;
