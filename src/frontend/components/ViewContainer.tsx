@@ -213,12 +213,22 @@ function ViewContainer()
         {
             if (activeTabIndex === 0)
             {
-                if (network() && requests.hash === 0) return "Loading Requests ...";
+                if (network())
+                {
+                    if (requests.hash === 0) return "Loading Requests ...";
+
+                    return "Done";
+                }
 
                 return "No Requests";
             }
 
-            if (network() && options.hash === 0) return "Loading Options ...";
+            if (network())
+            {
+                if (options.hash === 0) return "Loading Options ...";
+
+                return "Done";
+            }
 
             return "No Options";
         }
