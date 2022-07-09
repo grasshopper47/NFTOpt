@@ -12,9 +12,9 @@ let updateListHash : () => void;
 
 type Props =
 {
-    list   : OptionWithAsset[]
+    list           : OptionWithAsset[]
+,   onSelect       : (obj: OptionWithAsset | null) => void
 ,   selectedValue ?: OptionWithAsset
-,   onSelect ?: (obj: OptionWithAsset | null) => void
 };
 
 function OptionTableView(props: Props)
@@ -34,7 +34,7 @@ function OptionTableView(props: Props)
         updateListHash();
     }
 
-    return <>
+    return <div className={classes.containerGrid}>
         {
             props.list.length !== 0 &&
             <div className={classes.listRowsHeader}>
@@ -69,7 +69,7 @@ function OptionTableView(props: Props)
                 </div>
             )
         }
-    </>;
+    </div>;
 }
 
 export default OptionTableView;
