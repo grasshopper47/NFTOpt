@@ -10,7 +10,7 @@ import { OptionState } from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
 import { network } from "../utils/metamask";
 import FilterBox, { filterParams } from "./FilterBox";
-import OptionTableView, { TableViewStates } from "./OptionTableView";
+import TableView, { TableViewStates } from "./TableView";
 import OptionListView, { ListViewStates } from "./OptionListView";
 import { Button, Tab, Tabs } from "@mui/material";
 
@@ -238,7 +238,7 @@ function ViewContainer()
         if (selectedOption) props["selectedValue"] = selectedOption;
 
         return view === Views.ROWLIST
-            ? <OptionTableView { ... props} />
+            ? <TableView { ... props} />
             : <OptionListView { ... props} />;
     }
 

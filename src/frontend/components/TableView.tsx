@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/OptionTableView.module.scss";
+import classes from "./styles/TableView.module.scss";
 
 import React, { useState } from 'react';
 import { OptionWithAsset } from "../../models/extended";
@@ -20,7 +20,7 @@ type Props =
 
 export const TableViewStates = [ "25", "50", "100" ];
 
-function OptionTableView(props: Props)
+function TableView(props: Props)
 {
     const [ listHash , setListHash ] = useState(0);
 
@@ -75,4 +75,4 @@ function OptionTableView(props: Props)
     </div>;
 }
 
-export default OptionTableView;
+export default TableView;
