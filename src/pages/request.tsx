@@ -1,11 +1,11 @@
 import Layout from "../frontend/fragments/Layout";
-import OptionRequestForm from "../frontend/components/OptionRequestForm";
+import RequestForm from "../frontend/components/RequestForm";
 
 export default function()
 {
     return <>
         <Layout>
-            <OptionRequestForm />
+            <RequestForm />
         </Layout>
     </>;
 }

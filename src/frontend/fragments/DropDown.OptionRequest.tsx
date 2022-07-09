@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "../components/styles/OptionRequestForm.module.scss";
+import classes from "../components/styles/RequestForm.module.scss";
 
 import { useEffect, useState } from "react";
 import { useAccount } from "../../pages/_app";

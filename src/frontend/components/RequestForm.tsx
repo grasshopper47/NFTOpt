@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/OptionRequestForm.module.scss";
+import classes from "./styles/RequestForm.module.scss";
 import clsx from "clsx";
 
 import { Button, FormControl, RadioGroup } from "@mui/material";
@@ -14,9 +14,9 @@ import { OptionFlavor } from "../../models/option";
 import { BIGNUMBER0, SECONDS_IN_A_DAY } from "../../utils/constants";
 import { getFloatString, getIntervalString } from "../utils/helpers";
 import { showToast } from "../utils/toasting";
-import TextBox_OptionRequestForm from "../fragments/TextBox.OptionRequest";
-import Radio_OptionRequestForm from "../fragments/Radio.OptionRequest";
-import DropDown_OptionRequestForm from "../fragments/DropDown.OptionRequest";
+import TextBox_RequestForm from "../fragments/TextBox.OptionRequest";
+import Radio_RequestForm from "../fragments/Radio.OptionRequest";
+import DropDown_RequestForm from "../fragments/DropDown.OptionRequest";
 
 let request = { } as OptionRequest_DISPLAY;
 
@@ -40,7 +40,7 @@ const isRequestOK = () =>
         && request.interval    !== ""
 }
 
-function OptionRequestForm()
+function RequestForm()
 {
     const [ image , setImage ]          = useState("");
     const [ flag  , setRequestChanged ] = useState(0);
@@ -121,16 +121,16 @@ function OptionRequestForm()
         <div className={classes.root}>
             <div className={classes.form}>
 
-                <DropDown_OptionRequestForm value={keyOf(request)} setAsset={setAsset}/>
+                <DropDown_RequestForm value={keyOf(request)} setAsset={setAsset}/>
 
-                <TextBox_OptionRequestForm fieldName="premium"     value={request.premium}     onChange={setAmount}   onKeyUp={onHandleKey} />
-                <TextBox_OptionRequestForm fieldName="strikePrice" value={request.strikePrice} onChange={setAmount}   onKeyUp={onHandleKey} />
-                <TextBox_OptionRequestForm fieldName="interval"    value={request.interval}    onChange={setInterval} onKeyUp={onHandleKey} />
+                <TextBox_RequestForm fieldName="premium"     value={request.premium}     onChange={setAmount}   onKeyUp={onHandleKey} />
+                <TextBox_RequestForm fieldName="strikePrice" value={request.strikePrice} onChange={setAmount}   onKeyUp={onHandleKey} />
+                <TextBox_RequestForm fieldName="interval"    value={request.interval}    onChange={setInterval} onKeyUp={onHandleKey} />
 
                 <FormControl className={classes.field}>
                     <RadioGroup defaultValue={OptionFlavor.AMERICAN}>
-                        <Radio_OptionRequestForm flavor={OptionFlavor.AMERICAN} value={request.flavor} onChange={setFlavor} onKeyUp={onHandleKey} />
-                        <Radio_OptionRequestForm flavor={OptionFlavor.EUROPEAN} value={request.flavor} onChange={setFlavor} onKeyUp={onHandleKey} />
+                        <Radio_RequestForm flavor={OptionFlavor.AMERICAN} value={request.flavor} onChange={setFlavor} onKeyUp={onHandleKey} />
+                        <Radio_RequestForm flavor={OptionFlavor.EUROPEAN} value={request.flavor} onChange={setFlavor} onKeyUp={onHandleKey} />
                     </RadioGroup>
                 </FormControl>
 
@@ -152,4 +152,4 @@ function OptionRequestForm()
     </>;
 }
 
-export default OptionRequestForm;
+export default RequestForm;
