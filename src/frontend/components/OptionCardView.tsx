@@ -6,7 +6,6 @@ import React from 'react';
 import { ethers } from "ethers";
 import { useRequests, useOptions } from "../../pages/_app";
 import { OptionWithAsset } from "../../models/extended";
-import { getViewClassName, Views } from "./OptionViewContainer";
 import { AccessTime } from "@mui/icons-material";
 
 type Props =
