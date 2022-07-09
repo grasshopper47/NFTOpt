@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 import React from 'react';
 import { OptionWithAsset } from "../../models/extended";
-import OptionCardView from "./OptionCardView";
+import CardView from "./CardView";
 import DetailsView from './DetailsView';
 import { IconButton } from "@mui/material";
 import { ArrowBackIosRounded } from "@mui/icons-material";
@@ -27,7 +27,7 @@ function ListView(props: Props)
                 props.list.map
                 (
                     option =>
-                    <OptionCardView
+                    <CardView
                         key={`option-card-${option.id}`}
                         option={option}
                         viewIndex={props.viewIndex ?? 0}

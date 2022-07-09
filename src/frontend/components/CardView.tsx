@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/OptionCardView.module.scss";
+import classes from "./styles/CardView.module.scss";
 import clsx from "clsx";
 
 import React from 'react';
@@ -16,7 +16,7 @@ type Props =
 ,   viewIndex     : number
 };
 
-function OptionCardView(props: Props)
+function CardView(props: Props)
 {
     const { option, viewIndex } = props;
 
@@ -68,4 +68,4 @@ function OptionCardView(props: Props)
     </div>;
 }
 
-export default OptionCardView;
+export default CardView;
