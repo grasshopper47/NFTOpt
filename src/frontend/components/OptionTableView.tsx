@@ -8,7 +8,7 @@ import OptionRowView from "./OptionRowView";
 enum SortMode { ASCENDING, DESCENDING };
 let sortMode = SortMode.DESCENDING;
 
-let updateViewedOptionsHash : () => void;
+let updateListHash : () => void;
 
 type Props =
 {
@@ -19,38 +19,38 @@ type Props =
 
 function OptionTableView(props: Props)
 {
-    const [ listHash , setViewedOptionsHash ] = useState(0);
+    const [ listHash , setListHash ] = useState(0);
 
     // For sorting the viewed options in-place (ROWLIST view)
-    updateViewedOptionsHash = () => setViewedOptionsHash( h => ++h );
+    updateListHash = () => setListHash( h => ++h );
 
     let selectedValueID = props.selectedValue ? props.selectedValue.id : -1;
 
-    let sortViewedOptions = (sorter : (a1: OptionWithAsset, a2: OptionWithAsset) => number) =>
+    let sortList = (sorter : (a1: OptionWithAsset, a2: OptionWithAsset) => number) =>
     {
         if (sortMode === SortMode.ASCENDING) { props.list.sort(sorter); sortMode = SortMode.DESCENDING; }
         else                                 { props.list.sort((a, b) => sorter(b, a)); sortMode = SortMode.ASCENDING; }
 
-        updateViewedOptionsHash();
+        updateListHash();
     }
 
     return <>
         {
             props.list.length !== 0 &&
             <div className={classes.listRowsHeader}>
-                <p onClick={ () => sortViewedOptions( (a, b) => b.id - a.id ) }
+                <p onClick={ () => sortList( (a, b) => b.id - a.id ) }
                 >#</p>
 
-                <p onClick={ () => sortViewedOptions( (a, b) => b.asset.name.localeCompare(a.asset.name) ) }
+                <p onClick={ () => sortList( (a, b) => b.asset.name.localeCompare(a.asset.name) ) }
                 >Name</p>
 
-                <p onClick={ () => sortViewedOptions( (a, b) => b.premium.toString().localeCompare(a.premium.toString()) ) }
+                <p onClick={ () => sortList( (a, b) => b.premium.toString().localeCompare(a.premium.toString()) ) }
                 >Premium</p>
 
-                <p onClick={ () => sortViewedOptions( (a, b) => b.strikePrice.toString().localeCompare(a.strikePrice.toString()) ) }
+                <p onClick={ () => sortList( (a, b) => b.strikePrice.toString().localeCompare(a.strikePrice.toString()) ) }
                 >Strike Price</p>
 
-                <p onClick={ () => sortViewedOptions( (a, b) => b.interval - a.interval ) }
+                <p onClick={ () => sortList( (a, b) => b.interval - a.interval ) }
                 >Interval</p>
             </div>
         }
