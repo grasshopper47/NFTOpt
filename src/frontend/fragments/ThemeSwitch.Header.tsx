@@ -1,6 +1,7 @@
 // @ts-ignore
 import classes from "../components/styles/ThemeSwitch.module.scss";
 
+import React from "react";
 import { useEffect, useState } from "react";
 import { IconButton } from "@mui/material";
 
@@ -34,11 +35,9 @@ function ThemeSwitch()
         document.documentElement.setAttribute("data-theme", theme);
     };
 
-    return <>
-        <IconButton onClick={handleThemeChanged} className={classes.button}>
-            { themeState === "white" ? "☀" : "🌒" }
-        </IconButton>
-    </>;
+    return <IconButton onClick={handleThemeChanged} className={classes.button}>
+        { themeState === "white" ? "☀" : "🌒" }
+    </IconButton>;
 }
 
 export default ThemeSwitch;

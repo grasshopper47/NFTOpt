@@ -1,6 +1,7 @@
-import { FormControlLabel, Radio } from "@mui/material";
+import React from "react";
 import { OptionFlavor } from "../../models/option";
 import { flavorLabels } from "../utils/labels";
+import { FormControlLabel, Radio } from "@mui/material";
 
 type Props =
 {
@@ -14,14 +15,12 @@ export default function(props: Props)
 {
     let name = flavorLabels[props.flavor];
 
-    return <>
-        <FormControlLabel
+    return <FormControlLabel
             key={`radio-${name}`}
             label={name}
             value={props.flavor}
             control={<Radio checked={props.flavor === props.value} />}
             onChange={props.onChange}
             onKeyUp={props.onKeyUp}
-        />
-    </>;
+        />;
 }

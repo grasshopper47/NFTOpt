@@ -1,6 +1,7 @@
 // @ts-ignore
 import classes from "../components/styles/DetailsView.module.scss";
 
+import React from "react";
 import { Button } from "@mui/material";
 
 type Props =
@@ -13,13 +14,9 @@ type Props =
 
 export default function(props: Props)
 {
-    return <>
-        <Button
-            variant={props.variant}
-            className={classes[props.className]}
-            onClick={props.handleClick}
-        >
-            {props.label}
-        </Button>
-    </>;
+    return <Button
+        variant={props.variant}
+        className={classes[props.className]}
+        onClick={props.handleClick}
+    >{props.label}</Button>;
 }

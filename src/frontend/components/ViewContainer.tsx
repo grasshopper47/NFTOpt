@@ -2,7 +2,7 @@
 import classes from "./styles/ViewContainer.module.scss";
 import clsx from "clsx";
 
-import React from 'react';
+import React from "react";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { useRequests, useOptions, useAccount } from "../../pages/_app";

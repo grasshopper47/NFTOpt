@@ -1,6 +1,7 @@
 // @ts-ignore
 import classes from "../components/styles/FilterBox.module.scss";
 
+import React from "react";
 import { useState } from "react";
 import { TextField } from "@mui/material";
 
@@ -34,39 +35,37 @@ export default function(props : Props)
         props.onChange();
     };
 
-    return <>
-        <div className={classes.wrapperMain}>
-            <label className={classes.label}>{props.label}:</label>
+    return <div className={classes.wrapperMain}>
+        <label className={classes.label}>{props.label}:</label>
 
-            <div
-                className={classes.wrapperTextBox}
-                onBlur={hide}
-                onFocus={show}
-                onMouseLeave={hide}
-                onMouseEnter={show}
-            >
-                <TextField
-                    { ... showPlaceholders && { label : "min" } }
-                    value={props.value.min}
-                    onChange={onChangeMin}
-                    color="secondary"
-                    className={classes.textBox}
-                    size="small"
-                    autoComplete="off"
-                />
+        <div
+            className={classes.wrapperTextBox}
+            onBlur={hide}
+            onFocus={show}
+            onMouseLeave={hide}
+            onMouseEnter={show}
+        >
+            <TextField
+                { ... showPlaceholders && { label : "min" } }
+                value={props.value.min}
+                onChange={onChangeMin}
+                color="secondary"
+                className={classes.textBox}
+                size="small"
+                autoComplete="off"
+            />
 
-                <TextField
-                    { ... showPlaceholders && { label : "max" } }
-                    value={props.value.max}
-                    onChange={onChangeMax}
-                    color="primary"
-                    className={classes.textBox}
-                    size="small"
-                    autoComplete="off"
-                />
-            </div>
-
-            <label className={classes.endAdornment}>{endAdornment}</label>
+            <TextField
+                { ... showPlaceholders && { label : "max" } }
+                value={props.value.max}
+                onChange={onChangeMax}
+                color="primary"
+                className={classes.textBox}
+                size="small"
+                autoComplete="off"
+            />
         </div>
-    </>;
+
+        <label className={classes.endAdornment}>{endAdornment}</label>
+    </div>;
 }

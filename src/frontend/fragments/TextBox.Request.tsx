@@ -1,7 +1,7 @@
-
 // @ts-ignore
 import classes from "../components/styles/RequestForm.module.scss";
 
+import React from "react";
 import { TextField } from "@mui/material";
 
 type Props =
@@ -40,20 +40,19 @@ export default function(props: Props)
         inputProps.endAdornment = "days";
     }
 
-    return <>
-        <div className={classes.fieldWrapper}>
-            <label>{label}</label>
-            <TextField
-                id={`${props.fieldName}`}
-                InputProps={inputProps}
-                placeholder={`Enter the ${description}`}
-                type={props.fieldName === "interval" ? "number" : ""}
-                className={classes.field}
-                value={props.value}
-                onChange={props.onChange}
-                onKeyUp={props.onKeyUp}
-                size="small"
-            />
-        </div>
-    </>;
+    return <div className={classes.fieldWrapper}>
+        <label>{label}</label>
+
+        <TextField
+            id={`${props.fieldName}`}
+            InputProps={inputProps}
+            placeholder={`Enter the ${description}`}
+            type={props.fieldName === "interval" ? "number" : ""}
+            className={classes.field}
+            value={props.value}
+            onChange={props.onChange}
+            onKeyUp={props.onKeyUp}
+            size="small"
+        />
+    </div>;
 }
