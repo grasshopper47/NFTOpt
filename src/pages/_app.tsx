@@ -157,10 +157,10 @@ export default function App({ Component, pageProps }: AppProps)
             setRequestsHash(0);
             setOptionsHash(0);
 
+            let provider_ = createProvider();
+
             let network_ = network();
             if (!network_) return;
-
-            let provider_ = createProvider();
 
             provider_.getBlockNumber().then(r => blockNumber = r);
 
