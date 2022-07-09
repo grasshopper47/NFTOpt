@@ -10,15 +10,13 @@ import { OptionState } from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
 import { network } from "../utils/metamask";
 import FilterBox, { filterParams } from "./FilterBox";
-import { Button, Tab, Tabs } from "@mui/material";
-import OptionCardView, { CardViewStates } from "./OptionCardView";
-import OptionDetailsView from "./OptionDetailsView";
 import OptionTableView, { TableViewStates } from "./OptionTableView";
-import OptionListView from "./OptionListView";
+import OptionListView, { CardViewStates } from "./OptionListView";
+import { Button, Tab, Tabs } from "@mui/material";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
-export enum Views { CARDLIST, DETAIL, ROWLIST };
+enum Views { CARDLIST, DETAIL, ROWLIST };
 
 type ViewTab =
 {
