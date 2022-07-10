@@ -42,12 +42,14 @@
     padding: 0;
     margin: 0;
     justify-self: right;
+    right: -10px;
+    top: -4px;
 
     &:hover
     {
         background-color: transparent;
         font-size: 19pt;
-        left: -2px;
+        top: -6px;
         filter: drop-shadow(0 0 0.25rem $color-secondary);
     }
 }
@@ -67,6 +69,8 @@
     justify-self: left;
     text-shadow: 1px 1px rgb(25 25 25 / 65%);
     animation: fadeIn 333ms;
+    margin-left: -4px;
+    margin-top: -4px;
 
     :global(.MuiSwitch-track)
     {

@@ -1,0 +1,69 @@
+@import "src/styles/variables.scss";
+
+.dropDown
+{
+    justify-content: center;
+    animation: fadeIn 333ms;
+    height:27px;
+    width: fit-content;
+    margin-right: 20px;
+    margin-top: 12px;
+    color: $text-primary;
+}
+
+div.dropDown:global(.MuiPaper-root)
+{
+    height: fit-content;
+    border-radius: 8px;
+    margin-top:-10px;
+    background-color: azure;
+    li
+    {
+        color: #334155;
+    }
+}
+
+[data-theme="dark"]
+{
+    div.dropDown:global(.MuiPaper-root)
+    {
+        background-color: #334155;
+        li
+        {
+            color: #f1f5f9;
+        }
+    }
+}
+
+.records
+{
+    display: grid;
+    grid-auto-flow: column;
+    justify-items: center;
+    color: $color-primary;
+    font-weight: bold;
+    max-width: 900px;
+    margin: auto;
+
+    button
+    {
+        margin-top: 26px;
+        padding:0;
+        max-width: 0;
+        max-height: 0;
+        cursor: pointer;
+        font-size: 14pt;
+        font-family: $emoji-font;
+        transition: filter 250ms ease-out;
+
+        &:hover
+        {
+            filter: drop-shadow(0 0 0.25rem $color-secondary);
+        }
+    }
+
+    p
+    {
+        text-shadow: 1px 1px rgba(36, 36, 36, 0.8);
+    }
+}

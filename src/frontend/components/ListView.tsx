@@ -18,6 +18,7 @@ type Props =
 }
 
 export const ListViewStates = [ "S", "M", "L" ];
+export const ListViewLimits = [ 12, 24, 48 ];
 
 function ListView(props: Props)
 {

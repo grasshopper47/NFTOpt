@@ -10,9 +10,10 @@ import { OptionState } from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
 import { network } from "../utils/metamask";
 import FilterBox, { filterParams } from "./FilterBox";
-import TableView, { TableViewStates } from "./TableView";
-import ListView, { ListViewStates } from "./ListView";
-import { Button, Tab, Tabs } from "@mui/material";
+import TableView, { TableViewLimits } from "./TableView";
+import ListView, { ListViewLimits, ListViewStates } from "./ListView";
+import { Button, MenuItem, Select, Tab, Tabs } from "@mui/material";
+import FooterNavigation from "./FooterNavigation";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
@@ -40,8 +41,8 @@ const tabs : ViewTab[] =
     }
 ];
 
-const viewTypeStorageKey  = "ListViewType";
-const viewStateStorageKey = "ListViewState";
+const viewStateStorageKey = "ViewState";
+const viewTypeStorageKey  = "ViewType";
 const tabIndexStorageKey  = "ActiveTabIndex";
 
 let selectedOption: OptionWithAsset | null = null;
@@ -50,15 +51,21 @@ let optionsByStateFiltered = {};
 
 const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
 
+export type ViewPage =
+{
+    index : number
+,   count : number
+};
+
 function ViewContainer()
 {
     const [ view           , setView ]           = useState<Views>( parseInt(localStorage[viewTypeStorageKey] ?? Views.CARDLIST) );
+    const [ page           , setPage ]           = useState<ViewPage>({} as ViewPage);
     const [ viewStateIndex , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
     const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
     const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
 
     const [ isFilterBoxVisible, setFilterBoxVisibile ] = useState(false);
-    const hideFilterBox = () => setFilterBoxVisibile(false);
 
     // Force-update the view even when the selectedOption is the same value; this is to cover the edge-case
     // when the user modifies 2 or more options, with transactions queued in Metamask and aproving 1 by 1
@@ -78,7 +85,7 @@ function ViewContainer()
 
     useEffect
     (
-        () => document.body.onclick = hideFilterBox
+        () => document.body.onclick = () => setFilterBoxVisibile(false)
     ,   []
     );
 
@@ -100,6 +107,8 @@ function ViewContainer()
             else setViewedOptions(optionsByStateFiltered[state]);
 
             selectedOption = null;
+
+            setPage({ index: 0, count: page.count });
         }
     ,   [activeTabIndex]
     );
@@ -124,8 +133,10 @@ function ViewContainer()
     ,   [selectedOptionCounter]
     );
 
-    const handleViewStateChanged = (event: any, index : number) =>
+    const handleViewStateChanged = (event : any) =>
     {
+        let index = event.target.value;
+
         localStorage[viewStateStorageKey] = index;
 
         setViewStateIndex(index);
@@ -165,45 +176,49 @@ function ViewContainer()
         handleFiltered();
     }
 
-    const renderHeaderTabs = () =>
+    const renderViewSettings = () =>
     {
-        return <Tabs
-            className={classes.tabs}
-            value={activeTabIndex}
-            onChange={(e, index : number) => setActiveTabIndex(index)}
-        >
-            { tabs.map( tab => <Tab key={`tab-filter-${tab.name}`} label={tab.name} /> ) }
-        </Tabs>;
-    }
+        if (!hasItems || view === Views.DETAIL) return <></>;
 
-    const renderViewTypeButton = () =>
-    {
-        if (!hasItems || view === Views.DETAIL || !network()) return <></>;
-
-        return <Button
-            className={classes.btnListView}
-            onClick=
+        return <div className={classes.viewSettingsWrapper}>
             {
-                () =>
-                {
-                    let newView = view === Views.CARDLIST ? Views.ROWLIST : selectedOption !== null ? Views.DETAIL : Views.CARDLIST;
-
-                    localStorage[viewTypeStorageKey] = newView;
-
-                    setView(newView);
-                }
+                view === Views.CARDLIST &&
+                <Select
+                    MenuProps={{ classes: { paper: classes.dropDown } }}
+                    className={clsx(classes.dropDown, classes.viewStateDropDown)}
+                    value={viewStateIndex}
+                    onChange={handleViewStateChanged}
+                >
+                    {
+                        ListViewStates.map
+                        (
+                            (state, index) =>
+                            <MenuItem key={`tab-view-states-${state}`} value={index}>{state}</MenuItem>
+                        )
+                    }
+                </Select>
             }
-        >{ view === Views.CARDLIST ? "🧾" : "🎴" }</Button>
-    }
 
-    const renderFilterBoxButton = () =>
-    {
-        if (!hasItems || view === Views.DETAIL || !network()) return <></>;
+            <Button
+                className={classes.btnListView}
+                onClick=
+                {
+                    () =>
+                    {
+                        let newView = view === Views.CARDLIST ? Views.ROWLIST : selectedOption !== null ? Views.DETAIL : Views.CARDLIST;
 
-        return <Button
-            className={classes.btnShow}
-            onClick={ (e) => { e.stopPropagation(); setFilterBoxVisibile(true); } }
-        >🔰</Button>;
+                        localStorage[viewTypeStorageKey] = newView;
+
+                        setView(newView);
+                    }
+                }
+            >{ view === Views.CARDLIST ? "🧾" : "🎴" }</Button>
+
+            <Button
+                className={classes.btnShow}
+                onClick={ (e) => { e.stopPropagation(); setFilterBoxVisibile(true); } }
+            >🔰</Button>
+        </div>;
     }
 
     const renderStatusText = () =>
@@ -249,9 +264,10 @@ function ViewContainer()
 
     const renderList = () =>
     {
+        let startIndex = page.index * page.count;
         let props =
         {
-            list      : viewedOptions
+            list      : viewedOptions.slice(startIndex, startIndex + page.count)
         ,   onSelect  : setSelectedOption
         ,   viewIndex : viewStateIndex
         };
@@ -263,37 +279,33 @@ function ViewContainer()
             : <ListView { ... props} />;
     }
 
-    const renderViewStateTabs = () =>
-    {
-        if (!hasItems || view === Views.DETAIL || !network()) return <></>;
-
-        let list = view === Views.ROWLIST ? TableViewStates : ListViewStates;
-
-        return <Tabs
-            className={classes.tabsState}
-            value={viewStateIndex}
-            onChange={handleViewStateChanged}
-        >
-            { list.map( state => <Tab key={`tab-view-state-${state}`} label={state} /> ) }
-        </Tabs>;
-    }
-
     return <>
         <p className="page-title">Explore NFT Options</p>
 
         <div className={clsx(classes.root, hasItems && classes.withOptions)}>
-            { renderViewTypeButton() }
-            { renderFilterBoxButton() }
+            { renderViewSettings() }
 
-            { isFilterBoxVisible && <FilterBox onFilter={handleFilteredWithReset}/> }
+            { isFilterBoxVisible && <FilterBox onFilter={handleFilteredWithReset} /> }
 
-            { renderHeaderTabs() }
+            <Tabs
+                className={classes.tabs}
+                value={activeTabIndex}
+                onChange={(e, index : number) => setActiveTabIndex(index)}
+            >
+                { tabs.map( tab => <Tab key={`tab-filter-${tab.name}`} label={tab.name} /> ) }
+            </Tabs>
 
             { renderStatusText() }
             { renderList() }
         </div>
-
-        { renderViewStateTabs() }
+        {
+            hasItems && view !== Views.DETAIL &&
+            <FooterNavigation
+                list={viewedOptions}
+                rowCountList={view === Views.ROWLIST ? TableViewLimits : ListViewLimits}
+                onChange={setPage}
+            />
+        }
     </>;
 }
 
