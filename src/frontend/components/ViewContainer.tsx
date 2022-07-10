@@ -180,30 +180,27 @@ function ViewContainer()
     {
         if (!hasItems || view === Views.DETAIL || !network()) return <></>;
 
-        return <Button
-            className={classes.btnListView}
-            onClick=
-            {
-                () =>
+        return <div className={classes.viewSettingsWrapper}>
+            <Button
+                className={classes.btnListView}
+                onClick=
                 {
-                    let newView = view === Views.CARDLIST ? Views.ROWLIST : selectedOption !== null ? Views.DETAIL : Views.CARDLIST;
+                    () =>
+                    {
+                        let newView = view === Views.CARDLIST ? Views.ROWLIST : selectedOption !== null ? Views.DETAIL : Views.CARDLIST;
 
-                    localStorage[viewTypeStorageKey] = newView;
+                        localStorage[viewTypeStorageKey] = newView;
 
-                    setView(newView);
+                        setView(newView);
+                    }
                 }
-            }
-        >{ view === Views.CARDLIST ? "🧾" : "🎴" }</Button>
-    }
+            >{ view === Views.CARDLIST ? "🧾" : "🎴" }</Button>
 
-    const renderFilterBoxButton = () =>
-    {
-        if (!hasItems || view === Views.DETAIL || !network()) return <></>;
-
-        return <Button
-            className={classes.btnShow}
-            onClick={ (e) => { e.stopPropagation(); setFilterBoxVisibile(true); } }
-        >🔰</Button>;
+            <Button
+                className={classes.btnShow}
+                onClick={ (e) => { e.stopPropagation(); setFilterBoxVisibile(true); } }
+            >🔰</Button>
+        </div>;
     }
 
     const renderStatusText = () =>
@@ -283,7 +280,6 @@ function ViewContainer()
 
         <div className={clsx(classes.root, hasItems && classes.withOptions)}>
             { renderViewTypeButton() }
-            { renderFilterBoxButton() }
 
             { isFilterBoxVisible && <FilterBox onFilter={handleFilteredWithReset}/> }
 

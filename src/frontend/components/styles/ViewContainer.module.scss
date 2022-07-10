@@ -19,42 +19,40 @@
     border-bottom: 1px solid $color-primary;
 }
 
+.viewSettingsWrapper
+{
+    z-index: 99;
+    position: absolute;
+    left: calc(100% - 90px - (100% - 900px) / 2);
+    width: 90px;
+    display: grid;
+    grid-auto-flow: column;
+
+    button
+    {
+        padding:0;
+        min-width: 0;
+        cursor: pointer;
+        font-size: 16pt;
+        font-family: $emoji-font;
+        transition: filter 250ms ease-in;
+
+        &:hover
+        {
+            filter: drop-shadow(0 0 0.25rem $color-secondary);
+        }
+    }
+}
+
 .btnListView
 {
-    position:absolute;
-    left:calc(100% - 90px - (100% - 900px) / 2);
-    cursor: pointer;
-    font-size: 16pt;
-    z-index: 98;
-    font-family: $emoji-font;
     margin-top: 6px;
-    padding:0;
-    min-width: 0;
-    margin-bottom: 0;
-
-    &:hover
-    {
-        filter: drop-shadow(0 0 0.25rem $color-secondary);
-    }
+    margin-right: 40px;
 }
 
 .btnShow
 {
-    position:absolute;
-    left:calc(100% - 30px - (100% - 900px) / 2);
     margin-top: 6px;
-    cursor: pointer;
-    z-index: 99;
-    font-size: 16pt;
-    padding:0;
-    min-width: 0;
-    margin-bottom: 0;
-    font-family: $emoji-font;
-
-    &:hover
-    {
-        filter: drop-shadow(0 0 0.25rem $color-secondary);
-    }
 }
 
 .tabs
