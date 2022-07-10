@@ -178,7 +178,7 @@ function ViewContainer()
 
     const renderViewSettings = () =>
     {
-        if (!hasItems || view === Views.DETAIL || !network()) return <></>;
+        if (!hasItems || view === Views.DETAIL) return <></>;
 
         return <div className={classes.viewSettingsWrapper}>
             {
