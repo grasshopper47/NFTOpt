@@ -299,7 +299,7 @@ function ViewContainer()
             { renderList() }
         </div>
         {
-            viewedOptions.length !== 0 && view !== Views.DETAIL &&
+            hasItems && view !== Views.DETAIL &&
             <FooterNavigation
                 list={viewedOptions}
                 rowCountList={view === Views.ROWLIST ? TableViewLimits : ListViewLimits}
