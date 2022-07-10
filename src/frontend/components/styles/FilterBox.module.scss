@@ -42,12 +42,14 @@
     padding: 0;
     margin: 0;
     justify-self: right;
+    right: -10px;
+    top: -4px;
 
     &:hover
     {
         background-color: transparent;
         font-size: 19pt;
-        left: -2px;
+        top: -6px;
         filter: drop-shadow(0 0 0.25rem $color-secondary);
     }
 }
