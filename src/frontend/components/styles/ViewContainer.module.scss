@@ -23,15 +23,17 @@
 {
     z-index: 99;
     position: absolute;
-    left: calc(100% - 90px - (100% - 900px) / 2);
-    width: 90px;
+    right: calc((100% - 900px) / 2 - 10px);
     display: grid;
     grid-auto-flow: column;
+    margin-top: 12px;
 
     button
     {
+        margin-top: 14px;
         padding:0;
-        min-width: 0;
+        max-width: 0;
+        max-height: 0;
         cursor: pointer;
         font-size: 16pt;
         font-family: $emoji-font;
@@ -44,15 +46,49 @@
     }
 }
 
+.dropDownLimits
+{
+    justify-content: center;
+    animation: fadeIn 333ms;
+    height:27px;
+    width: 76px;
+    margin-right: 20px;
+    margin-top: 2px;
+    color: $text-primary;
+}
+
+div.dropDownLimits:global(.MuiPaper-root)
+{
+    height: fit-content;
+    border-radius: 8px;
+    margin-top:-10px;
+    background-color: azure;
+    li
+    {
+        color: #334155;
+    }
+}
+
+[data-theme="dark"]
+{
+    div.dropDownLimits:global(.MuiPaper-root)
+    {
+        background-color: #334155;
+        li
+        {
+            color: #f1f5f9;
+        }
+    }
+}
+
 .btnListView
 {
-    margin-top: 6px;
-    margin-right: 40px;
+    margin-right: 0px;
 }
 
 .btnShow
 {
-    margin-top: 6px;
+    margin-right: 0px;
 }
 
 .tabs
@@ -78,41 +114,6 @@
     :global(.MuiTabs-indicator)
     {
         background-color: $color-tertiary;
-    }
-}
-
-.tabsState
-{
-    margin-top: 10px;
-    justify-content: center;
-    animation: fadeIn 333ms;
-    display:grid;
-    button
-    {
-        text-transform: none;
-        letter-spacing: 1px;
-        padding: 0px 20px;
-        font-weight: bold;
-        font-style: italic;
-        text-shadow: 1px 1px rgb(25, 25, 25);
-        color: $color-primary;
-        min-width: 0;
-        font-size: 10pt;
-
-        &:hover
-        {
-            font-style: normal;
-        }
-    }
-
-    :global(.Mui-selected)
-    {
-        color: $color-secondary;
-    }
-
-    :global(.MuiTabs-indicator)
-    {
-        background-color: transparent;
     }
 }
 

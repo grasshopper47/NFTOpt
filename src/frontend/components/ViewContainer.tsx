@@ -10,9 +10,9 @@ import { OptionState } from "../../models/option";
 import { OptionWithAsset } from "../../models/extended";
 import { network } from "../utils/metamask";
 import FilterBox, { filterParams } from "./FilterBox";
-import TableView, { TableViewStates } from "./TableView";
-import ListView, { ListViewStates } from "./ListView";
-import { Button, Tab, Tabs } from "@mui/material";
+import TableView, { TableViewLimits } from "./TableView";
+import ListView, { ListViewLimits } from "./ListView";
+import { Button, MenuItem, Select, Tab, Tabs } from "@mui/material";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
@@ -40,8 +40,9 @@ const tabs : ViewTab[] =
     }
 ];
 
-const viewTypeStorageKey  = "ListViewType";
-const viewStateStorageKey = "ListViewState";
+const viewLimitStorageKey = "ViewLimit";
+const viewStateStorageKey = "ViewState";
+const viewTypeStorageKey  = "ViewType";
 const tabIndexStorageKey  = "ActiveTabIndex";
 
 let selectedOption: OptionWithAsset | null = null;
@@ -54,6 +55,7 @@ function ViewContainer()
 {
     const [ view           , setView ]           = useState<Views>( parseInt(localStorage[viewTypeStorageKey] ?? Views.CARDLIST) );
     const [ viewStateIndex , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
+    const [ viewLimitIndex , setViewLimitIndex ] = useState( parseInt(localStorage[viewLimitStorageKey] ?? 0) );
     const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
     const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
 
@@ -124,6 +126,15 @@ function ViewContainer()
     ,   [selectedOptionCounter]
     );
 
+    const handleViewLimitChanged = (event : any) =>
+    {
+        let index = event.target.value;
+
+        localStorage[viewLimitStorageKey] = index;
+
+        setViewLimitIndex(index);
+    }
+
     const handleViewStateChanged = (event: any, index : number) =>
     {
         localStorage[viewStateStorageKey] = index;
@@ -176,11 +187,31 @@ function ViewContainer()
         </Tabs>;
     }
 
-    const renderViewTypeButton = () =>
+    const renderViewSettings = () =>
     {
         if (!hasItems || view === Views.DETAIL || !network()) return <></>;
 
+        let list = view === Views.ROWLIST ? TableViewLimits : ListViewLimits;
+
         return <div className={classes.viewSettingsWrapper}>
+            <Select
+                MenuProps={{ classes: { paper: classes.dropDownLimits } }}
+                className={classes.dropDownLimits}
+                value={viewLimitIndex}
+                onChange={handleViewLimitChanged}
+            >
+                {
+                    list.map
+                    (
+                        (limit, index) =>
+                        <MenuItem
+                            key={`tab-view-limits-${limit}`}
+                            value={index}
+                        >{limit}</MenuItem>
+                    )
+                }
+            </Select>
+
             <Button
                 className={classes.btnListView}
                 onClick=
@@ -260,26 +291,11 @@ function ViewContainer()
             : <ListView { ... props} />;
     }
 
-    const renderViewStateTabs = () =>
-    {
-        if (!hasItems || view === Views.DETAIL || !network()) return <></>;
-
-        let list = view === Views.ROWLIST ? TableViewStates : ListViewStates;
-
-        return <Tabs
-            className={classes.tabsState}
-            value={viewStateIndex}
-            onChange={handleViewStateChanged}
-        >
-            { list.map( state => <Tab key={`tab-view-state-${state}`} label={state} /> ) }
-        </Tabs>;
-    }
-
     return <>
         <p className="page-title">Explore NFT Options</p>
 
         <div className={clsx(classes.root, hasItems && classes.withOptions)}>
-            { renderViewTypeButton() }
+            { renderViewSettings() }
 
             { isFilterBoxVisible && <FilterBox onFilter={handleFilteredWithReset}/> }
 
@@ -288,8 +304,6 @@ function ViewContainer()
             { renderStatusText() }
             { renderList() }
         </div>
-
-        { renderViewStateTabs() }
     </>;
 }
 
