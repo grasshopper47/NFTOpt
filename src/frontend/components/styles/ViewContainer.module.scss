@@ -26,7 +26,7 @@
     cursor: pointer;
     font-size: 16pt;
     z-index: 98;
-    font-family: "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", Times, Symbola, Aegyptus, Code2000, Code2001, Code2002, Musica, serif, LastResort;
+    font-family: $emoji-font;
     margin-top: 6px;
     padding:0;
     min-width: 0;
@@ -49,7 +49,7 @@
     padding:0;
     min-width: 0;
     margin-bottom: 0;
-    font-family: "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", Times, Symbola, Aegyptus, Code2000, Code2001, Code2002, Musica, serif, LastResort;
+    font-family: $emoji-font;
 
     &:hover
     {

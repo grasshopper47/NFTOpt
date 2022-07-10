@@ -7,7 +7,7 @@ button.button
     margin-top: -6px;
     background-color: $background-primary;
 
-    font-family: "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", Times, Symbola, Aegyptus, Code2000, Code2001, Code2002, Musica, serif, LastResort;
+    font-family: $emoji-font;
 
     &:hover
     {
