@@ -51,6 +51,8 @@ let optionsByStateFiltered = {};
 
 const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
 
+let viewCountList : number[];
+
 function ViewContainer()
 {
     const [ view           , setView ]           = useState<Views>( parseInt(localStorage[viewTypeStorageKey] ?? Views.CARDLIST) );
@@ -58,6 +60,10 @@ function ViewContainer()
     const [ viewLimitIndex , setViewLimitIndex ] = useState( parseInt(localStorage[viewLimitStorageKey] ?? 0) );
     const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
     const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
+    const [ pageIndex      , setPageIndex ]      = useState(0);
+
+    viewCountList = view === Views.ROWLIST ? TableViewLimits : ListViewLimits;
+    const [ pageCount      , setPageCount ]      = useState(viewCountList[0]);
 
     const [ isFilterBoxVisible, setFilterBoxVisibile ] = useState(false);
     const hideFilterBox = () => setFilterBoxVisibile(false);
@@ -102,6 +108,8 @@ function ViewContainer()
             else setViewedOptions(optionsByStateFiltered[state]);
 
             selectedOption = null;
+
+            setPageIndex(0);
         }
     ,   [activeTabIndex]
     );
@@ -126,22 +134,30 @@ function ViewContainer()
     ,   [selectedOptionCounter]
     );
 
-    const handleViewLimitChanged = (event : any) =>
-    {
-        let index = event.target.value;
-
-        localStorage[viewLimitStorageKey] = index;
-
-        setViewLimitIndex(index);
-    }
-
-    const handleViewStateChanged = (event: any) =>
+    const handleViewStateChanged = (event : any) =>
     {
         let index = event.target.value;
 
         localStorage[viewStateStorageKey] = index;
 
         setViewStateIndex(index);
+    }
+
+    const handleViewLimitChanged = (event: any) =>
+    {
+        let index = event.target.value;
+
+        localStorage[viewLimitStorageKey] = index;
+
+        setViewLimitIndex(index);
+
+        let count = viewCountList[index];
+
+        setPageCount(count);
+
+        let maxPageCount = Math.floor(viewedOptions.length / count);
+
+        if (pageIndex > maxPageCount) setPageIndex(maxPageCount);
     }
 
     const handleFiltered = () =>
@@ -182,14 +198,12 @@ function ViewContainer()
     {
         if (!hasItems || view === Views.DETAIL || !network()) return <></>;
 
-        let list = view === Views.ROWLIST ? TableViewLimits : ListViewLimits;
-
         return <div className={classes.viewSettingsWrapper}>
             {
                 view === Views.CARDLIST &&
                 <Select
                     MenuProps={{ classes: { paper: classes.dropDown } }}
-                    className={classes.dropDown}
+                    className={clsx(classes.dropDown, classes.viewStateDropDown)}
                     value={viewStateIndex}
                     onChange={handleViewStateChanged}
                 >
@@ -197,32 +211,11 @@ function ViewContainer()
                         ListViewStates.map
                         (
                             (state, index) =>
-                            <MenuItem
-                                key={`tab-view-states-${state}`}
-                                value={index}
-                            >{state}</MenuItem>
+                            <MenuItem key={`tab-view-states-${state}`} value={index}>{state}</MenuItem>
                         )
                     }
                 </Select>
             }
-
-            <Select
-                MenuProps={{ classes: { paper: classes.dropDown } }}
-                className={classes.dropDown}
-                value={viewLimitIndex}
-                onChange={handleViewLimitChanged}
-            >
-                {
-                    list.map
-                    (
-                        (limit, index) =>
-                        <MenuItem
-                            key={`tab-view-limits-${limit}`}
-                            value={index}
-                        >{limit}</MenuItem>
-                    )
-                }
-            </Select>
 
             <Button
                 className={classes.btnListView}
@@ -289,9 +282,10 @@ function ViewContainer()
 
     const renderList = () =>
     {
+        let startIndex = pageIndex * pageCount;
         let props =
         {
-            list      : viewedOptions
+            list      : viewedOptions.slice(startIndex, startIndex + pageCount)
         ,   onSelect  : setSelectedOption
         ,   viewIndex : viewStateIndex
         };
@@ -324,7 +318,46 @@ function ViewContainer()
         </div>
         {
             viewedOptions.length !== 0 && view !== Views.DETAIL &&
-            <p className={classes.records}>{viewedOptions.length} records</p>
+            <div className={classes.records}>
+                <Select
+                    MenuProps={{ classes: { paper: classes.dropDown } }}
+                    className={classes.dropDown}
+                    value={viewLimitIndex}
+                    onChange={handleViewLimitChanged}
+                >
+                    {
+                        viewCountList.map
+                        (
+                            (limit, index) =>
+                            <MenuItem key={`tab-view-limits-${limit}`} value={index}>{limit}</MenuItem>
+                        )
+                    }
+                </Select>
+
+                <Button
+                    disabled={pageIndex === 0}
+                    onClick={() => setPageIndex(0)}
+                >⏪</Button>
+
+                <Button
+                    disabled={pageIndex === 0}
+                    onClick={() => setPageIndex(i => --i)}
+                >◀</Button>
+
+                <p>Page {pageIndex + 1} of {Math.ceil(viewedOptions.length / pageCount)}</p>
+
+                <Button
+                    disabled={pageIndex === Math.floor(viewedOptions.length / pageCount)}
+                    onClick={() => setPageIndex(i => ++i)}
+                >▶</Button>
+
+                <Button
+                    disabled={pageIndex === Math.floor(viewedOptions.length / pageCount)}
+                    onClick={() => setPageIndex(Math.floor(viewedOptions.length / pageCount))}
+                >⏩</Button>
+
+                <p>{viewedOptions.length} records</p>
+            </div>
         }
     </>;
 }
