@@ -39,7 +39,7 @@ button.MuiButton-root {
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: transparent;
+    background-color: rgb(25,25,25, 0.15);
     border-radius: 15px;
 }
 
@@ -60,6 +60,5 @@ button.MuiButton-root {
     margin: 20px auto 30px auto;
     border-radius: 4px;
     align-content: flex-start;
-    text-shadow: 2px 2px color-primary;
     background: linear-gradient(90deg, $color-primary 0%, $color-tertiary 65%,  $color-secondary 100%);
 }
