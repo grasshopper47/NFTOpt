@@ -46,18 +46,18 @@
     }
 }
 
-.dropDownLimits
+.dropDown
 {
     justify-content: center;
     animation: fadeIn 333ms;
     height:27px;
-    width: 76px;
+    width: fit-content;
     margin-right: 20px;
     margin-top: 2px;
     color: $text-primary;
 }
 
-div.dropDownLimits:global(.MuiPaper-root)
+div.dropDown:global(.MuiPaper-root)
 {
     height: fit-content;
     border-radius: 8px;
@@ -71,7 +71,7 @@ div.dropDownLimits:global(.MuiPaper-root)
 
 [data-theme="dark"]
 {
-    div.dropDownLimits:global(.MuiPaper-root)
+    div.dropDown:global(.MuiPaper-root)
     {
         background-color: #334155;
         li

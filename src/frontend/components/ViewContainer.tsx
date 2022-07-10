@@ -11,7 +11,7 @@ import { OptionWithAsset } from "../../models/extended";
 import { network } from "../utils/metamask";
 import FilterBox, { filterParams } from "./FilterBox";
 import TableView, { TableViewLimits } from "./TableView";
-import ListView, { ListViewLimits } from "./ListView";
+import ListView, { ListViewLimits, ListViewStates } from "./ListView";
 import { Button, MenuItem, Select, Tab, Tabs } from "@mui/material";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
@@ -135,8 +135,10 @@ function ViewContainer()
         setViewLimitIndex(index);
     }
 
-    const handleViewStateChanged = (event: any, index : number) =>
+    const handleViewStateChanged = (event: any) =>
     {
+        let index = event.target.value;
+
         localStorage[viewStateStorageKey] = index;
 
         setViewStateIndex(index);
@@ -194,9 +196,30 @@ function ViewContainer()
         let list = view === Views.ROWLIST ? TableViewLimits : ListViewLimits;
 
         return <div className={classes.viewSettingsWrapper}>
+            {
+                view === Views.CARDLIST &&
+                <Select
+                    MenuProps={{ classes: { paper: classes.dropDown } }}
+                    className={classes.dropDown}
+                    value={viewStateIndex}
+                    onChange={handleViewStateChanged}
+                >
+                    {
+                        ListViewStates.map
+                        (
+                            (state, index) =>
+                            <MenuItem
+                                key={`tab-view-states-${state}`}
+                                value={index}
+                            >{state}</MenuItem>
+                        )
+                    }
+                </Select>
+            }
+
             <Select
-                MenuProps={{ classes: { paper: classes.dropDownLimits } }}
-                className={classes.dropDownLimits}
+                MenuProps={{ classes: { paper: classes.dropDown } }}
+                className={classes.dropDown}
                 value={viewLimitIndex}
                 onChange={handleViewLimitChanged}
             >
