@@ -178,17 +178,6 @@ function ViewContainer()
         handleFiltered();
     }
 
-    const renderHeaderTabs = () =>
-    {
-        return <Tabs
-            className={classes.tabs}
-            value={activeTabIndex}
-            onChange={(e, index : number) => setActiveTabIndex(index)}
-        >
-            { tabs.map( tab => <Tab key={`tab-filter-${tab.name}`} label={tab.name} /> ) }
-        </Tabs>;
-    }
-
     const renderViewSettings = () =>
     {
         if (!hasItems || view === Views.DETAIL || !network()) return <></>;
@@ -322,7 +311,13 @@ function ViewContainer()
 
             { isFilterBoxVisible && <FilterBox onFilter={handleFilteredWithReset}/> }
 
-            { renderHeaderTabs() }
+            <Tabs
+                className={classes.tabs}
+                value={activeTabIndex}
+                onChange={(e, index : number) => setActiveTabIndex(index)}
+            >
+                { tabs.map( tab => <Tab key={`tab-filter-${tab.name}`} label={tab.name} /> ) }
+            </Tabs>
 
             { renderStatusText() }
             { renderList() }
