@@ -322,6 +322,10 @@ function ViewContainer()
             { renderStatusText() }
             { renderList() }
         </div>
+        {
+            viewedOptions.length !== 0 && view !== Views.DETAIL &&
+            <p className={classes.records}>{viewedOptions.length} records</p>
+        }
     </>;
 }
 

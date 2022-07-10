@@ -124,3 +124,12 @@ div.dropDown:global(.MuiPaper-root)
     font-size: 16px;
     margin: 40px auto 0px auto;
 }
+
+.records
+{
+    display: grid;
+    justify-items: center;
+    color: $color-primary;
+    font-weight: bold;
+    text-shadow: 1px 1px rgba(36, 36, 36, 0.8);
+}
