@@ -13,6 +13,7 @@ import FilterBox, { filterParams } from "./FilterBox";
 import TableView, { TableViewLimits } from "./TableView";
 import ListView, { ListViewLimits, ListViewStates } from "./ListView";
 import { Button, MenuItem, Select, Tab, Tabs } from "@mui/material";
+import FooterNavigation from "./FooterNavigation";
 
 enum ViewTabValues { REQUEST, OPEN, CLOSED };
 
@@ -40,7 +41,6 @@ const tabs : ViewTab[] =
     }
 ];
 
-const viewLimitStorageKey = "ViewLimit";
 const viewStateStorageKey = "ViewState";
 const viewTypeStorageKey  = "ViewType";
 const tabIndexStorageKey  = "ActiveTabIndex";
@@ -51,22 +51,21 @@ let optionsByStateFiltered = {};
 
 const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
 
-let viewCountList : number[];
+export type ViewPage =
+{
+    index : number
+,   count : number
+};
 
 function ViewContainer()
 {
     const [ view           , setView ]           = useState<Views>( parseInt(localStorage[viewTypeStorageKey] ?? Views.CARDLIST) );
+    const [ page           , setPage ]           = useState<ViewPage>({} as ViewPage);
     const [ viewStateIndex , setViewStateIndex ] = useState( parseInt(localStorage[viewStateStorageKey] ?? 0) );
-    const [ viewLimitIndex , setViewLimitIndex ] = useState( parseInt(localStorage[viewLimitStorageKey] ?? 0) );
     const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
     const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
-    const [ pageIndex      , setPageIndex ]      = useState(0);
-
-    viewCountList = view === Views.ROWLIST ? TableViewLimits : ListViewLimits;
-    const [ pageCount      , setPageCount ]      = useState(viewCountList[0]);
 
     const [ isFilterBoxVisible, setFilterBoxVisibile ] = useState(false);
-    const hideFilterBox = () => setFilterBoxVisibile(false);
 
     // Force-update the view even when the selectedOption is the same value; this is to cover the edge-case
     // when the user modifies 2 or more options, with transactions queued in Metamask and aproving 1 by 1
@@ -86,7 +85,7 @@ function ViewContainer()
 
     useEffect
     (
-        () => document.body.onclick = hideFilterBox
+        () => document.body.onclick = () => setFilterBoxVisibile(false)
     ,   []
     );
 
@@ -109,7 +108,7 @@ function ViewContainer()
 
             selectedOption = null;
 
-            setPageIndex(0);
+            setPage({ index: 0, count: page.count });
         }
     ,   [activeTabIndex]
     );
@@ -141,23 +140,6 @@ function ViewContainer()
         localStorage[viewStateStorageKey] = index;
 
         setViewStateIndex(index);
-    }
-
-    const handleViewLimitChanged = (event: any) =>
-    {
-        let index = event.target.value;
-
-        localStorage[viewLimitStorageKey] = index;
-
-        setViewLimitIndex(index);
-
-        let count = viewCountList[index];
-
-        setPageCount(count);
-
-        let maxPageCount = Math.floor(viewedOptions.length / count);
-
-        if (pageIndex > maxPageCount) setPageIndex(maxPageCount);
     }
 
     const handleFiltered = () =>
@@ -282,10 +264,10 @@ function ViewContainer()
 
     const renderList = () =>
     {
-        let startIndex = pageIndex * pageCount;
+        let startIndex = page.index * page.count;
         let props =
         {
-            list      : viewedOptions.slice(startIndex, startIndex + pageCount)
+            list      : viewedOptions.slice(startIndex, startIndex + page.count)
         ,   onSelect  : setSelectedOption
         ,   viewIndex : viewStateIndex
         };
@@ -303,7 +285,7 @@ function ViewContainer()
         <div className={clsx(classes.root, hasItems && classes.withOptions)}>
             { renderViewSettings() }
 
-            { isFilterBoxVisible && <FilterBox onFilter={handleFilteredWithReset}/> }
+            { isFilterBoxVisible && <FilterBox onFilter={handleFilteredWithReset} /> }
 
             <Tabs
                 className={classes.tabs}
@@ -318,46 +300,11 @@ function ViewContainer()
         </div>
         {
             viewedOptions.length !== 0 && view !== Views.DETAIL &&
-            <div className={classes.records}>
-                <Select
-                    MenuProps={{ classes: { paper: classes.dropDown } }}
-                    className={classes.dropDown}
-                    value={viewLimitIndex}
-                    onChange={handleViewLimitChanged}
-                >
-                    {
-                        viewCountList.map
-                        (
-                            (limit, index) =>
-                            <MenuItem key={`tab-view-limits-${limit}`} value={index}>{limit}</MenuItem>
-                        )
-                    }
-                </Select>
-
-                <Button
-                    disabled={pageIndex === 0}
-                    onClick={() => setPageIndex(0)}
-                >⏪</Button>
-
-                <Button
-                    disabled={pageIndex === 0}
-                    onClick={() => setPageIndex(i => --i)}
-                >◀</Button>
-
-                <p>Page {pageIndex + 1} of {Math.ceil(viewedOptions.length / pageCount)}</p>
-
-                <Button
-                    disabled={pageIndex === Math.floor(viewedOptions.length / pageCount)}
-                    onClick={() => setPageIndex(i => ++i)}
-                >▶</Button>
-
-                <Button
-                    disabled={pageIndex === Math.floor(viewedOptions.length / pageCount)}
-                    onClick={() => setPageIndex(Math.floor(viewedOptions.length / pageCount))}
-                >⏩</Button>
-
-                <p>{viewedOptions.length} records</p>
-            </div>
+            <FooterNavigation
+                list={viewedOptions}
+                rowCountList={view === Views.ROWLIST ? TableViewLimits : ListViewLimits}
+                onChange={setPage}
+            />
         }
     </>;
 }

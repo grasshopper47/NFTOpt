@@ -129,36 +129,3 @@ div.dropDown:global(.MuiPaper-root)
     font-size: 16px;
     margin: 40px auto 0px auto;
 }
-
-.records
-{
-    display: grid;
-    grid-auto-flow: column;
-    justify-items: center;
-    color: $color-primary;
-    font-weight: bold;
-    max-width: 900px;
-    margin: auto;
-
-    button
-    {
-        margin-top: 26px;
-        padding:0;
-        max-width: 0;
-        max-height: 0;
-        cursor: pointer;
-        font-size: 14pt;
-        font-family: $emoji-font;
-        transition: filter 250ms ease-out;
-
-        &:hover
-        {
-            filter: drop-shadow(0 0 0.25rem $color-secondary);
-        }
-    }
-
-    p
-    {
-        text-shadow: 1px 1px rgba(36, 36, 36, 0.8);
-    }
-}
