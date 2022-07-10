@@ -47,7 +47,7 @@ function FilterBox(props : Props)
                         className={clsx(classes.checkbox, filterParams.showAll ? classes.checked : classes.unchecked)}
                         control={<Switch checked={!filterParams.showAll} onChange={ () => { filterParams.showAll = !filterParams.showAll; props.onFilter(); } } />}
                         label={ (filterParams.showAll ? "All" : "Account's") + " Options" }
-                        labelPlacement="start"
+                        labelPlacement="end"
                     />
                 }
                 <Button

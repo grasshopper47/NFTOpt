@@ -69,6 +69,8 @@
     justify-self: left;
     text-shadow: 1px 1px rgb(25 25 25 / 65%);
     animation: fadeIn 333ms;
+    margin-left: -4px;
+    margin-top: -4px;
 
     :global(.MuiSwitch-track)
     {
