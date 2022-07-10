@@ -30,7 +30,7 @@ resetFilterParams();
 
 type Props =
 {
-    onChange : () => void
+    onFilter : () => void
 };
 
 function FilterBox(props : Props)
@@ -45,31 +45,31 @@ function FilterBox(props : Props)
                     connected() &&
                     <FormControlLabel
                         className={clsx(classes.checkbox, filterParams.showAll ? classes.checked : classes.unchecked)}
-                        control={<Switch checked={!filterParams.showAll} onChange={ () => { filterParams.showAll = !filterParams.showAll; props.onChange(); } } />}
+                        control={<Switch checked={!filterParams.showAll} onChange={ () => { filterParams.showAll = !filterParams.showAll; props.onFilter(); } } />}
                         label={ (filterParams.showAll ? "All" : "Account's") + " Options" }
                         labelPlacement="start"
                     />
                 }
                 <Button
                     className={classes.btnReset}
-                    onClick={ () => { resetFilterParams(); props.onChange(); } }
+                    onClick={ () => { resetFilterParams(); props.onFilter(); } }
                 >🧹</Button>
             </div>
 
             <Row_FilterBox
-                onChange={props.onChange}
+                onFilter={props.onFilter}
                 onValidate={getFloatString}
                 value={filterParams.premium}
                 label="Premium" />
 
             <Row_FilterBox
-                onChange={props.onChange}
+                onFilter={props.onFilter}
                 onValidate={getFloatString}
                 value={filterParams.strikePrice}
                 label="Strike Price" />
 
             <Row_FilterBox
-                onChange={props.onChange}
+                onFilter={props.onFilter}
                 onValidate={getIntervalString}
                 value={filterParams.interval}
                 label="Interval" />

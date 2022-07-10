@@ -84,7 +84,7 @@ function ViewContainer()
 
     useEffect
     (
-        () => handleFilteredWithReset(tabs[activeTabIndex].value)
+        () => handleFilteredWithReset()
     ,   [requests.hash, options.hash]
     );
 
@@ -96,7 +96,7 @@ function ViewContainer()
 
             let state = tabs[activeTabIndex].value;
 
-            if (optionsByStateFiltered[state] === undefined) handleFiltered(state);
+            if (optionsByStateFiltered[state] === undefined) handleFiltered();
             else setViewedOptions(optionsByStateFiltered[state]);
 
             selectedOption = null;
@@ -131,8 +131,9 @@ function ViewContainer()
         setViewStateIndex(index);
     }
 
-    const handleFiltered = (state : ViewTabValues) =>
+    const handleFiltered = () =>
     {
+        let state = tabs[activeTabIndex].value;
         let map = state === ViewTabValues.REQUEST ? requests.map : options.map;
 
         let stateFilter = (s : OptionState) => true;
@@ -157,11 +158,11 @@ function ViewContainer()
         setViewedOptions(map);
     }
 
-    const handleFilteredWithReset = (state : ViewTabValues) =>
+    const handleFilteredWithReset = () =>
     {
         optionsByStateFiltered = { };
 
-        handleFiltered(state);
+        handleFiltered();
     }
 
     const renderHeaderTabs = () =>
@@ -217,6 +218,11 @@ function ViewContainer()
                 {
                     if (requests.hash === 0) return "Loading Requests ...";
 
+                    if (optionsByStateFiltered[tabs[activeTabIndex].value].length === 0)
+                    {
+                        return "No Requests";
+                    }
+
                     return "Done";
                 }
 
@@ -226,6 +232,11 @@ function ViewContainer()
             if (network())
             {
                 if (options.hash === 0) return "Loading Options ...";
+
+                if (optionsByStateFiltered[tabs[activeTabIndex].value].length === 0)
+                {
+                    return "No Options";
+                }
 
                 return "Done";
             }
@@ -274,7 +285,7 @@ function ViewContainer()
             { renderViewTypeButton() }
             { renderFilterBoxButton() }
 
-            { isFilterBoxVisible && <FilterBox onChange={ () => handleFilteredWithReset(tabs[activeTabIndex].value) }/> }
+            { isFilterBoxVisible && <FilterBox onFilter={handleFilteredWithReset}/> }
 
             { renderHeaderTabs() }
 

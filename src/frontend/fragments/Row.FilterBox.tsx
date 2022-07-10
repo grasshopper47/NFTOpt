@@ -9,7 +9,7 @@ type Props =
 {
     label      : string
 ,   value      : { min : string, max: string }
-,   onChange   : () => void
+,   onFilter   : () => void
 ,   onValidate : (value : string) => string
 };
 
@@ -19,21 +19,21 @@ export default function(props : Props)
     const show = () => setPlaceholders(true);
     const hide = () => setPlaceholders(false);
 
-    let endAdornment = "ETH";
-
-    if (props.label === "Interval") endAdornment = "days";
-
     const onChangeMin = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
         props.value.min = props.onValidate(event.target.value);
-        props.onChange();
+        props.onFilter();
     };
 
     const onChangeMax = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
         props.value.max = props.onValidate(event.target.value);
-        props.onChange();
+        props.onFilter();
     };
+
+    let endAdornment = "ETH";
+
+    if (props.label === "Interval") endAdornment = "days";
 
     return <div className={classes.wrapperMain}>
         <label className={classes.label}>{props.label}:</label>
