@@ -16,7 +16,7 @@ type Props =
 ,   viewIndex     ?: number
 };
 
-export const TableViewStates = [ "25", "50", "100" ];
+export const TableViewLimits = [ 25, 50, 100 ];
 
 let sortList : (sorter : (a1: OptionWithAsset, a2: OptionWithAsset) => number) => void;
 
