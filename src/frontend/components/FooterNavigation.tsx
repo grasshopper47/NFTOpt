@@ -4,18 +4,29 @@ import classes from "./styles/FooterNavigation.module.scss";
 import React, { useEffect } from "react";
 import { OptionWithAsset } from "../../models/extended";
 import { Button, MenuItem, Select } from "@mui/material";
-import { ViewPage } from "./ViewContainer";
+
+export type ViewPage =
+{
+    index : number
+,   count : number
+};
+
+export let page : ViewPage =
+{
+    index: 0
+,   count: 0
+};
+
+let itemLimitIndex = 0;
+
+const itemLimitStorageKey = "ItemLimit";
 
 type Props =
 {
-    list         : OptionWithAsset[]
-,   rowCountList : number[]
-,   onChange     : (page: ViewPage) => void
+    list             : OptionWithAsset[]
+,   rowViewLimitList : number[]
+,   onNavigate       : () => void
 };
-
-const itemLimitStorageKey = "ItemLimit";
-let itemLimitIndex = 0;
-let page : ViewPage = { index: 0, count: 0 };
 
 function FooterNavigation(props: Props)
 {
@@ -29,11 +40,11 @@ function FooterNavigation(props: Props)
     (
         () =>
         {
-            page.count = props.rowCountList[itemLimitIndex];
+            page.count = props.rowViewLimitList[itemLimitIndex];
 
-            props.onChange({ ... page });
+            props.onNavigate();
         }
-    ,   [props.rowCountList]
+    ,   [props.rowViewLimitList]
     );
 
     const setPageCount = (event: any) =>
@@ -44,20 +55,20 @@ function FooterNavigation(props: Props)
 
         itemLimitIndex = index;
 
-        page.count = props.rowCountList[index];
+        page.count = props.rowViewLimitList[index];
 
         let maxPageCount = Math.floor(props.list.length / page.count);
 
         if (page.index > maxPageCount) page.index = maxPageCount;
 
-        props.onChange({ ... page });
+        props.onNavigate();
     }
 
     const setPageIndex = (a : number) =>
     {
         page.index = a;
 
-        props.onChange({ ... page });
+        props.onNavigate();
     }
 
     return <div className={classes.records}>
@@ -68,7 +79,7 @@ function FooterNavigation(props: Props)
             onChange={setPageCount}
         >
             {
-                props.rowCountList.map
+                props.rowViewLimitList.map
                 (
                     (limit, index) =>
                     <MenuItem key={`tab-view-limits-${limit}`} value={index}>{limit}</MenuItem>
