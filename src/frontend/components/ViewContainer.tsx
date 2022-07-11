@@ -13,7 +13,7 @@ import ListView, { ListViewLimits } from "./ListView";
 import { Tab, Tabs } from "@mui/material";
 import FooterNavigation, { page } from "./FooterNavigation";
 import ViewSettings, { view, ViewTypes } from "./ViewSettings";
-import { doFilter, optionsByStateFiltered, OptionViewGroup } from "../../datasources/globals";
+import { doFilter, optionsByStateFiltered, OptionViewGroup } from "../../datasources/filtering";
 
 const tabs =
 [
