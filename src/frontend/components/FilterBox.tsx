@@ -7,20 +7,14 @@ import { connected } from "../utils/metamask";
 import { getFloatString, getIntervalString } from "../utils/helpers";
 import Row_FilterBox from "../fragments/Row.FilterBox";
 import { Button, FormControlLabel, Switch } from "@mui/material";
+import { FilterParams } from "../../datasources/globals";
+import { useAccount } from "../../pages/_app";
 
 export let filterParams = { } as FilterParams;
 
-type FilterParams =
-{
-    showAll     : boolean
-,   premium     : { min : string, max: string }
-,   strikePrice : { min : string, max: string }
-,   interval    : { min : string, max: string }
-}
-
 const resetFilterParams = () =>
 {
-    filterParams.showAll     = true;
+    filterParams.account     = "";
     filterParams.premium     = { min: "", max: "" };
     filterParams.strikePrice = { min: "", max: "" };
     filterParams.interval    = { min: "", max: "" };
@@ -35,6 +29,10 @@ type Props =
 
 function FilterBox(props : Props)
 {
+    const account  = useAccount();
+
+    const showAll = filterParams.account === "";
+
     return <div
         className={classes.containerRoot}
         onClick={ (e) => e.stopPropagation() }
@@ -44,9 +42,9 @@ function FilterBox(props : Props)
                 {
                     connected() &&
                     <FormControlLabel
-                        className={clsx(classes.checkbox, filterParams.showAll ? classes.checked : classes.unchecked)}
-                        control={<Switch checked={!filterParams.showAll} onChange={ () => { filterParams.showAll = !filterParams.showAll; props.onFilter(); } } />}
-                        label={ (filterParams.showAll ? "All" : "Account's") + " Options" }
+                        className={clsx(classes.checkbox, showAll ? classes.checked : classes.unchecked)}
+                        control={<Switch checked={!showAll} onChange={ () => { filterParams.account === "" ? account : ""; props.onFilter(); } } />}
+                        label={ (showAll ? "All" : "Account's") + " Options" }
                         labelPlacement="end"
                     />
                 }

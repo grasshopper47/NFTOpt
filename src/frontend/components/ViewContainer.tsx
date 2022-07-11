@@ -3,10 +3,8 @@ import classes from "./styles/ViewContainer.module.scss";
 import clsx from "clsx";
 
 import React from "react";
-import { ethers } from "ethers";
 import { useEffect, useState } from "react";
-import { useRequests, useOptions, useAccount } from "../../pages/_app";
-import { OptionState } from "../../models/option";
+import { useRequests, useOptions } from "../../pages/_app";
 import { OptionWithAsset } from "../../models/extended";
 import { network } from "../utils/metamask";
 import { filterParams } from "./FilterBox";
@@ -15,28 +13,21 @@ import ListView, { ListViewLimits } from "./ListView";
 import { Tab, Tabs } from "@mui/material";
 import FooterNavigation, { page } from "./FooterNavigation";
 import ViewSettings, { view, ViewTypes } from "./ViewSettings";
+import { doFilter, optionsByStateFiltered, OptionViewGroup } from "../../datasources/globals";
 
-enum ViewTabValues { REQUEST, OPEN, CLOSED };
-
-type ViewTab =
-{
-    name  : string
-,   value : ViewTabValues
-};
-
-const tabs : ViewTab[] =
+const tabs =
 [
     {
         name  : "Requests"
-    ,   value : ViewTabValues.REQUEST
+    ,   value : OptionViewGroup.REQUEST
     }
 ,   {
         name  : "Open"
-    ,   value : ViewTabValues.OPEN
+    ,   value : OptionViewGroup.OPEN
     }
 ,   {
         name  : "Closed"
-    ,   value : ViewTabValues.CLOSED
+    ,   value : OptionViewGroup.CLOSED
     }
 ];
 
@@ -44,12 +35,7 @@ const tabIndexStorageKey  = "ActiveTabIndex";
 
 let selectedOption: OptionWithAsset | null = null;
 
-let optionsByStateFiltered = {};
-for (let k of Object.keys(ViewTabValues)) optionsByStateFiltered[k] = [] as OptionWithAsset[];
-
-const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
-
-let optionViewState = ViewTabValues.REQUEST;
+let optionViewState = OptionViewGroup.REQUEST;
 
 function ViewContainer()
 {
@@ -83,7 +69,6 @@ function ViewContainer()
         updateView();
     }
 
-    const account  = useAccount();
     const requests = useRequests();
     const options  = useOptions();
 
@@ -91,7 +76,7 @@ function ViewContainer()
 
     useEffect
     (
-        () => handleFilteredWithReset()
+        () => handleFiltered()
     ,   [requests.hash, options.hash]
     );
 
@@ -114,35 +99,8 @@ function ViewContainer()
 
     const handleFiltered = () =>
     {
-        let map = optionViewState === ViewTabValues.REQUEST ? requests.map : options.map;
-
-        let stateFilter = (s : OptionState) => true;
-        if (optionViewState === ViewTabValues.OPEN)   stateFilter = (s : OptionState) => s === OptionState.OPEN;
-        if (optionViewState === ViewTabValues.CLOSED) stateFilter = (s : OptionState) => s === OptionState.CANCELED || s === OptionState.EXERCISED;
-
-        map = map.filter
-        (
-            o =>
-            stateFilter(o.state)
-            && (filterParams.showAll || (o.buyer === account || o.seller === account))
-            && o.premium.gte(ethers.utils.parseEther(filterParams.premium.min === "" ? "0" : filterParams.premium.min))
-            && o.premium.lte(ethers.utils.parseEther(filterParams.premium.max === "" ? MAX_INT_STRING : filterParams.premium.max))
-            && o.strikePrice.gte(ethers.utils.parseEther(filterParams.strikePrice.min === "" ? "0" : filterParams.strikePrice.min))
-            && o.strikePrice.lte(ethers.utils.parseEther(filterParams.strikePrice.max === "" ? MAX_INT_STRING : filterParams.strikePrice.max))
-            && o.interval >= (filterParams.interval.min === "" ? 0  : parseInt(filterParams.interval.min))
-            && o.interval <= (filterParams.interval.max === "" ? 30 : parseInt(filterParams.interval.max))
-        );
-
-        optionsByStateFiltered[optionViewState] = map;
-
-        setViewedOptions(map);
-    }
-
-    const handleFilteredWithReset = () =>
-    {
-        optionsByStateFiltered = { };
-
-        handleFiltered();
+        doFilter(optionViewState, filterParams)
+        .then(setViewedOptions);
     }
 
     const renderStatusText = () =>
@@ -155,8 +113,8 @@ function ViewContainer()
             {
                 if (network())
                 {
-                    if (requests.hash === 0)                                  return "Loading Requests ...";
-                    if (optionsByStateFiltered[optionViewState].length === 0) return "No Requests matching filter";
+                    if (requests.hash === 0)                                   return "Loading Requests ...";
+                    if (optionsByStateFiltered[optionViewState]?.length === 0) return "No Requests matching filter";
 
                     return "Done";
                 }
@@ -166,8 +124,8 @@ function ViewContainer()
 
             if (network())
             {
-                if (options.hash === 0)                                   return "Loading Options ...";
-                if (optionsByStateFiltered[optionViewState].length === 0) return "No Options matching filter";
+                if (options.hash === 0)                                    return "Loading Options ...";
+                if (optionsByStateFiltered[optionViewState]?.length === 0) return "No Options matching filter";
 
                 return "Done";
             }
