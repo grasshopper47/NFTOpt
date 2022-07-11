@@ -114,7 +114,7 @@ function ViewContainer()
                 if (network())
                 {
                     if (requests.hash === 0)                                   return "Loading Requests ...";
-                    if (optionsByStateFiltered[optionViewState]?.length === 0) return "No Requests matching filter";
+                    if (optionsByStateFiltered[optionViewState]?.length === 0) return "Filter matched no requests";
 
                     return "Done";
                 }
@@ -125,7 +125,7 @@ function ViewContainer()
             if (network())
             {
                 if (options.hash === 0)                                    return "Loading Options ...";
-                if (optionsByStateFiltered[optionViewState]?.length === 0) return "No Options matching filter";
+                if (optionsByStateFiltered[optionViewState]?.length === 0) return "Filter matched no options";
 
                 return "Done";
             }
