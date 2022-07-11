@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import { useContracts, useRequests, useOptions, useAccount } from "../../pages/_app";
 import { OptionState} from "../../models/option";
 import { isExpired } from "../../datasources/options";
-import { getCachedContract } from "../../datasources/globals";
+import { getCachedContract } from "../../datasources/NFTAssets";
 import { OptionWithAsset } from "../../models/extended";
 import { ADDRESS0 } from "../../utils/constants";
 import { connected, scanner, signer } from "../utils/metamask";

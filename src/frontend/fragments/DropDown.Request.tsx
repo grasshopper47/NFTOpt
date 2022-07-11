@@ -4,7 +4,7 @@ import classes from "../components/styles/RequestForm.module.scss";
 import React, { useEffect, useState } from "react";
 import { useAccount } from "../../pages/_app";
 import { loadAssetsFor } from "../../datasources/NFT/localhost";
-import { assetsOf, keyOf } from "../../datasources/globals";
+import { assetsOf, keyOf } from "../../datasources/NFTAssets";
 import { NFTAsset } from "../../models/NFTAsset";
 import { Select, MenuItem } from "@mui/material";
 

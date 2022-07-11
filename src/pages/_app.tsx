@@ -1,20 +1,21 @@
 import "./styles/_app.scss";
 import React from 'react';
 import { AppProps } from "next/app";
-import toast, { Toaster } from "react-hot-toast";
+import { BigNumber, ethers } from "ethers";
 import { createContext, useContext, useState, useEffect } from "react";
 import addresses from "../../addresses.json";
 import { NFTOpt } from "../../typechain-types";
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
-import { clearData, contracts, loadAllRequestsAsOptionsWithAsset, createOptionFromRequest, requests, withdrawRequest, cancelOption, exerciseOption } from "../datasources/globals"
-import { BigNumber, ethers } from "ethers";
+import { requests, createOptionFromRequest, loadAllRequestsAsOptionsWithAsset, loadRequestAsOptionWithAsset, withdrawRequest, clearRequests } from "../datasources/requests"
+import { options, cancelOption, exerciseOption, loadAllOptionsWithAsset, clearOptions  } from "../datasources/options"
 import { OptionState } from "../models/option";
-import { options, loadRequestAsOptionWithAsset, loadAllOptionsWithAsset } from "../datasources/globals";
 import { OptionWithAsset } from "../models/extended";
 import { createProvider, hookMetamask, network, provider, signerOrProvider } from "../frontend/utils/metamask";
 import { dismissLastToast, TOAST_DURATION } from "../frontend/utils/toasting";
 import { actions, stateLabels } from "../frontend/utils/labels";
 import Header from "../frontend/components/Header";
+import toast, { Toaster } from "react-hot-toast";
+import { clearContractsAndAssets } from "../datasources/NFTAssets";
 
 type ContextType =
 {
@@ -113,6 +114,19 @@ const handleEvent = (ID : BigNumber, transaction : any) =>
             handler.method(requestID, id);
         }
     );
+}
+
+export let contracts = { NFTOpt: null as unknown as NFTOpt };
+
+function clearData()
+{
+    clearRequests();
+    clearOptions();
+
+    clearContractsAndAssets();
+
+    contracts.NFTOpt?.removeAllListeners();
+    contracts = { NFTOpt: null as unknown as NFTOpt };
 }
 
 export default function App({ Component, pageProps }: AppProps)

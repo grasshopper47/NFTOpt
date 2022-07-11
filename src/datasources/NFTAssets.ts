@@ -1,6 +1,47 @@
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
+import { provider } from "../frontend/utils/metamask";
 import { NFTAsset } from "../models/nftAsset";
-import { getCachedContract, images, keyOf } from "./globals";
+import { ABIs } from "../utils/constants";
+
+type minObj = { nftId : BigNumber, nftContract : string };
+
+export let images = {};
+export let assets = {};
+
+export let NFTContractsCache = {};
+
+export const clearContractsAndAssets = () => NFTContractsCache = images = assets = {};
+
+export const keyOf    = (obj : minObj )    => obj.nftId + "_" + obj.nftContract;
+export const imageOf  = (obj : minObj)     => images[keyOf(obj)] as string;
+export const assetsOf = (account : string) => assets[account] as NFTAsset[];
+
+export function getCachedContract(address : string)
+{
+    let contract = NFTContractsCache[address];
+
+    if (contract) return contract;
+
+    contract =
+    new ethers.Contract
+    (
+        address
+    ,   [
+            ABIs.ERC721.name
+        ,   ABIs.ERC721.ownerOf
+        ,   ABIs.ERC721.tokenURI
+        ,   ABIs.ERC721.getApproved
+        ,   ABIs.ERC721.approve
+        ,   ABIs.ERC721.Events.Approval
+        ]
+    ,   provider()
+    );
+
+    NFTContractsCache[address] = contract;
+
+    return contract;
+}
+
 
 export async function loadNFTImage(address: string, id: BigNumber)
 {

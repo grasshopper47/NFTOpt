@@ -2,7 +2,7 @@ import { BigNumber } from "ethers";
 import addresses from "../../../addresses.json";
 import { MAX_MINTABLE_TOKENS } from "../../utils/constants";
 import { NFTAsset } from "../../models/NFTAsset";
-import { getCachedContract, assets } from "../globals";
+import { getCachedContract, assets } from "../NFTAssets";
 
 export async function loadAssetsFor(account: string)
 {
@@ -43,5 +43,4 @@ export async function loadAssetsFor(account: string)
     assets[account] = arr;
 
     return arr;
-    //assets.sort( a => a.nftId + "_" + a.nftContract );
 }

@@ -1,7 +1,11 @@
-import { Option, OptionFlavor } from "../models/option";
+import { Option, OptionFlavor, OptionState } from "../models/option";
 import { OptionWithAsset, Option_SOLIDITY } from "../models/extended";
-import { contracts } from "./globals";
 import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
+import { getNFTAsset } from "./NFTAssets";
+import { contracts } from "../pages/_app";
+
+export let options  : OptionWithAsset[] = [];
+export const clearOptions = () => options = [];
 
 export function isExpired(option : Option | OptionWithAsset)
 {
@@ -48,4 +52,57 @@ export async function getOption(id: number)
     };
 
     return option as Option;
+}
+
+export async function loadOptionWithAsset(id: number)
+{
+    let option = await getOption(id);
+
+    option["asset"] = await getNFTAsset(option);
+
+    // @ts-ignore
+    delete option.nftContract; delete option.nftId;
+
+    options.push(option as unknown as OptionWithAsset);
+}
+
+export async function loadAllOptionsWithAsset()
+{
+    let id     : number;
+    let length : number;
+
+    let promises : Promise<any>[] = [];
+
+    clearOptions();
+
+    let IDPromise = await contracts.NFTOpt.optionID();
+    if (!IDPromise) return;
+
+    // TODO: handle optionsLength > 2^53
+    length = IDPromise.toNumber();
+
+    id = length;
+    while (--id !== -1)
+    {
+        promises.push( loadOptionWithAsset(id).catch( e => console.log(e, `Option ${id} failed to fetch`) ) );
+    }
+
+    await Promise.allSettled(promises);
+
+    options.sort( (a, b) => b.id - a.id );
+}
+
+export async function exerciseOption(ID: number) { _setOptionState(ID, OptionState.EXERCISED); return ID; }
+export async function cancelOption(ID: number)   { _setOptionState(ID, OptionState.CANCELED); return ID; }
+
+function _setOptionState(ID: number, state : OptionState)
+{
+    for (let o of options)
+    {
+        if (o.id !== ID) continue;
+
+        o.state = state;
+
+        break;
+    }
 }
