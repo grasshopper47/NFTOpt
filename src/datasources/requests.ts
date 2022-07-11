@@ -4,9 +4,10 @@ import { OptionWithAsset } from "../models/extended";
 import { OptionState } from "../models/option";
 import { getNFTAsset } from "./NFTAssets";
 import { options } from "./options";
-import { contracts } from "../pages/_app";
+import { contracts } from "./NFTOpt";
 
 export let requests : OptionWithAsset[] = [];
+export const requestChangingIDs = {};
 
 export const clearRequests = () => requests = [];
 

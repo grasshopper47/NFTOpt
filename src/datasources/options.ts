@@ -2,9 +2,10 @@ import { Option, OptionFlavor, OptionState } from "../models/option";
 import { OptionWithAsset, Option_SOLIDITY } from "../models/extended";
 import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { getNFTAsset } from "./NFTAssets";
-import { contracts } from "../pages/_app";
+import { contracts } from "./NFTOpt";
 
 export let options  : OptionWithAsset[] = [];
+export const optionChangingIDs = {};
 export const clearOptions = () => options = [];
 
 export function isExpired(option : Option | OptionWithAsset)
