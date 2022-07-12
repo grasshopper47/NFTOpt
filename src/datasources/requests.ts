@@ -11,7 +11,7 @@ export const requestChangingIDs = {};
 
 export const clearRequests = () => requests = [];
 
-export async function getRequest(id: number)
+export async function loadRequestAsOptionWithAsset(id: number)
 {
     let request = await contracts.NFTOpt.requests(id) as unknown as OptionRequest;
 
@@ -23,24 +23,7 @@ export async function getRequest(id: number)
     && request.strikePrice !== BIGNUMBER0
     && request.interval    !== 0;
 
-    if (!isValid) return null;
-
-    return {
-        nftContract : request.nftContract
-    ,   nftId       : request.nftId
-    ,   interval    : request.interval / SECONDS_IN_A_DAY
-    ,   premium     : request.premium
-    ,   strikePrice : request.strikePrice
-    ,   flavor      : request.flavor
-    ,   buyer       : request.buyer.toLowerCase()
-    } as OptionRequest;
-}
-
-export async function loadRequestAsOptionWithAsset(id: number)
-{
-    let request = await getRequest(id);
-
-    if (!request) return;
+    if (!isValid) return;
 
     requests.push
     (
@@ -53,7 +36,7 @@ export async function loadRequestAsOptionWithAsset(id: number)
         ,   buyer       : request.buyer
         ,   seller      : ADDRESS0
         ,   startDate   : 0
-        ,   state       : OptionState.PUBLISHED
+        ,   state       : -1
         ,   asset       : await getNFTAsset(request)
         } as OptionWithAsset
     );
