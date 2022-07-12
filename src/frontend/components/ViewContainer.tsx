@@ -13,21 +13,21 @@ import ListView, { ListViewLimits } from "./ListView";
 import { Tab, Tabs } from "@mui/material";
 import FooterNavigation, { page } from "./FooterNavigation";
 import ViewSettings, { view, ViewTypes } from "./ViewSettings";
-import { doFilter, optionsByStateFiltered, OptionViewGroup } from "../../datasources/filtering";
+import { doFilter, optionsByStateFiltered, OptionStateViewed } from "../../datasources/filtering";
 
 const tabs =
 [
     {
         name  : "Requests"
-    ,   value : OptionViewGroup.REQUEST
+    ,   value : OptionStateViewed.REQUEST
     }
 ,   {
         name  : "Open"
-    ,   value : OptionViewGroup.OPEN
+    ,   value : OptionStateViewed.OPEN
     }
 ,   {
         name  : "Closed"
-    ,   value : OptionViewGroup.CLOSED
+    ,   value : OptionStateViewed.CLOSED
     }
 ];
 
@@ -35,7 +35,7 @@ const tabIndexStorageKey  = "ActiveTabIndex";
 
 let selectedOption: OptionWithAsset | null = null;
 
-let optionViewState = OptionViewGroup.REQUEST;
+let optionViewState = OptionStateViewed.REQUEST;
 
 function ViewContainer()
 {

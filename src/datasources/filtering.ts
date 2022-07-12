@@ -3,7 +3,7 @@ import { OptionState } from "../models/option";
 import { requests } from "./requests";
 import { options } from "./options";
 
-export enum OptionViewGroup { REQUEST, OPEN, CLOSED };
+export enum OptionStateViewed { REQUEST, OPEN, CLOSED };
 
 export type FilterParams =
 {
@@ -17,13 +17,13 @@ export let optionsByStateFiltered = {};
 
 const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
 
-export async function doFilter(state : OptionViewGroup, filterParams : FilterParams)
+export async function doFilter(state : OptionStateViewed, filterParams : FilterParams)
 {
-    let map = state === OptionViewGroup.REQUEST ? requests : options;
+    let map = state === OptionStateViewed.REQUEST ? requests : options;
 
     let stateFilter = (s : OptionState) => true;
-    if (state === OptionViewGroup.OPEN)   stateFilter = (s : OptionState) => s === OptionState.OPEN;
-    if (state === OptionViewGroup.CLOSED) stateFilter = (s : OptionState) => s === OptionState.CANCELED || s === OptionState.EXERCISED;
+    if (state === OptionStateViewed.OPEN)   stateFilter = (s : OptionState) => s === OptionState.OPEN;
+    if (state === OptionStateViewed.CLOSED) stateFilter = (s : OptionState) => s === OptionState.CANCELED || s === OptionState.EXERCISED;
 
     map = map.filter
     (
