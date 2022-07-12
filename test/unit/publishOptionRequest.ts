@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { ethers } from "hardhat";
 import { NFTOptContract, deployMainContract } from "../../src/utils/deployment";
 import {
     buyer,
@@ -55,7 +56,7 @@ describe("publishOptionRequest", function () {
     });
 
     it("succeeds when called with valid values", async function () {
-        const balance0 = await NFTOptContract.getBalance();
+        const balance0 = await ethers.provider.getBalance(NFTOptContract.address);
         const requestID0 = await NFTOptContract.requestID();
 
         expect(balance0).to.equal(0);
@@ -63,7 +64,7 @@ describe("publishOptionRequest", function () {
 
         await publishDummyOptionRequest();
 
-        const balance1 = await NFTOptContract.getBalance();
+        const balance1 = await ethers.provider.getBalance(NFTOptContract.address);
         const requestID1 = await NFTOptContract.requestID();
 
         expect(balance1).to.equal(dummyOptionRequest.premium);

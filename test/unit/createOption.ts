@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { OptionState } from "../../src/models/option";
 import { buyer, seller, initializer, dummyOptionRequest, publishDummyOptionRequest } from "../helpers";
 import { NFTOptContract, deployMainContract } from "../../src/utils/deployment";
+import { ethers } from "hardhat";
 
 describe("createOption", function () {
     before("prepareEnv", async function () {
@@ -52,13 +53,13 @@ describe("createOption", function () {
     });
 
     it("succeeds when called with valid values", async function () {
-        let contractBalance = await NFTOptContract.getBalance();
+        let contractBalance = await ethers.provider.getBalance(NFTOptContract.address);
 
         expect(contractBalance).to.equal(0);
 
         await publishDummyOptionRequest();
 
-        contractBalance = await NFTOptContract.getBalance();
+        contractBalance = await ethers.provider.getBalance(NFTOptContract.address);
 
         expect(contractBalance).to.equal(dummyOptionRequest.premium);
 
@@ -78,7 +79,7 @@ describe("createOption", function () {
         await expect(tx).to.emit(NFTOptContract, "Opened");
 
         // Check that the collateral was paid
-        contractBalance = await NFTOptContract.getBalance();
+        contractBalance = await ethers.provider.getBalance(NFTOptContract.address);
         expect(contractBalance).to.equal(dummyOptionRequest.strikePrice);
 
         const option = await NFTOptContract.connect(seller).options(0);
