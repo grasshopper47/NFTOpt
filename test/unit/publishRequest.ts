@@ -18,7 +18,7 @@ describe("publishRequest", function () {
     it("reverts when called with an invalid (non ERC-721 compliant) NFT Contract", async function () {
         await expect(NFTOptContract.connect(buyer)
             .publishRequest(buyer.address, 1, 0, 0, 0))
-            .to.be.revertedWith("NOT_AN_INTERFACE_OF");
+            .to.be.revertedWith("MISSING_IMPLEMENTATION");
     });
 
     it("reverts when called with 0 as NFT Token ID", async function () {
