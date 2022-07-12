@@ -21,5 +21,5 @@ export type Option =
 ,   premium     : BigNumber
 ,   strikePrice : BigNumber
 ,   flavor      : OptionFlavor
-,   state       : OptionState
+,   state       : OptionState | -1
 };
