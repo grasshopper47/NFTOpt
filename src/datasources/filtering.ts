@@ -2,7 +2,6 @@ import { ethers } from "ethers";
 import { OptionState } from "../models/option";
 import { requests } from "./requests";
 import { options } from "./options";
-import { SECONDS_IN_A_DAY } from "../utils/constants";
 
 export enum OptionStateViewed { REQUEST, OPEN, CLOSED };
 
