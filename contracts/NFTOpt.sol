@@ -81,6 +81,7 @@ contract NFTOpt {
 
         if (msg.value == 0)                            revert INVALID_PREMIUM_AMOUNT(0);
         if (_strikePrice == 0)                         revert INVALID_STRIKE_PRICE_AMOUNT(0);
+        if (msg.value >= _strikePrice)                 revert INVALID_PREMIUM_AMOUNT(_strikePrice);
         if (_interval < 86400 || _interval > 2592000 ) revert INVALID_EXPIRATION_INTERVAL(_interval); // [1, 30] days, in seconds
 
         /// @dev Optimize for gas by caching id

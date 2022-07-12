@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { SECONDS_IN_A_DAY } from "../../src/utils/constants";
 import { NFTOptContract, deployMainContract } from "../../src/utils/deployment";
 import {
     buyer,
@@ -43,15 +44,39 @@ describe("publishRequest", function () {
             .to.be.revertedWith("INVALID_PREMIUM_AMOUNT");
     });
 
-    it("reverts when called with 0 as Strike Price", async function () {
+    it("reverts when called with 0 as strike price", async function () {
         await expect(NFTOptContract.connect(buyer)
             .publishRequest(NFTDummyContract.address, 1, 0, 0, 0, { value: 1 }))
             .to.be.revertedWith("INVALID_STRIKE_PRICE_AMOUNT");
     });
 
-    it("reverts when called with 0 as Interval", async function () {
+    it("reverts when called with premium is equal to strike price", async function () {
         await expect(NFTOptContract.connect(buyer)
-            .publishRequest(NFTDummyContract.address, 1, 1, 0, 0, { value: 1 }))
+            .publishRequest(NFTDummyContract.address, 1, 10, SECONDS_IN_A_DAY + 1, 0, { value: 10 }))
+            .to.be.revertedWith("INVALID_PREMIUM_AMOUNT");
+    });
+
+    it("reverts when called with premium is greater than strike price", async function () {
+        await expect(NFTOptContract.connect(buyer)
+            .publishRequest(NFTDummyContract.address, 1, 10, SECONDS_IN_A_DAY + 1, 0, { value: 11 }))
+            .to.be.revertedWith("INVALID_PREMIUM_AMOUNT");
+    });
+
+    it("reverts when called with 0 as interval", async function () {
+        await expect(NFTOptContract.connect(buyer)
+            .publishRequest(NFTDummyContract.address, 1, 10, 0, 0, { value: 1 }))
+            .to.be.revertedWith("INVALID_EXPIRATION_INTERVAL");
+    });
+
+    it("reverts when called with interval less than 1 day", async function () {
+        await expect(NFTOptContract.connect(buyer)
+            .publishRequest(NFTDummyContract.address, 1, 10, SECONDS_IN_A_DAY - 1, 0, { value: 1 }))
+            .to.be.revertedWith("INVALID_EXPIRATION_INTERVAL");
+    });
+
+    it("reverts when called with interval over 30 days", async function () {
+        await expect(NFTOptContract.connect(buyer)
+            .publishRequest(NFTDummyContract.address, 1, 10, 30 * SECONDS_IN_A_DAY + 1, 0, { value: 1 }))
             .to.be.revertedWith("INVALID_EXPIRATION_INTERVAL");
     });
 
