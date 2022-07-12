@@ -86,6 +86,40 @@ describe("withdrawRequest", function () {
         await deployMainContract();
     });
 
+    it("reuses storage slots after successful withdrawal", async function () {
+        await publishDummyRequest();
+        await publishDummyRequest();
+
+        await expect(NFTOptContract.connect(buyer)
+            .withdrawRequest(0))
+            .to.emit(NFTOptContract, "Withdrawn");
+
+        let request = await NFTOptContract.requests(0);
+
+        expect(request[0]).to.be.equal(BIGNUMBER0);
+        expect(request[1]).to.be.equal(BIGNUMBER0);
+        expect(request[2]).to.be.equal(BIGNUMBER0);
+        expect(request[3]).to.be.equal(ADDRESS0);
+        expect(request[4]).to.be.equal(0);
+        expect(request[5]).to.be.equal(BIGNUMBER0);
+        expect(request[6]).to.be.equal(ADDRESS0);
+
+        await publishDummyRequest();
+
+        request = await NFTOptContract.requests(0);
+
+        expect(request.buyer).to.equal(dummyOptionRequest.buyer);
+        expect(request.nftContract).to.equal(dummyOptionRequest.nftContract);
+        expect(request.nftId).to.equal(dummyOptionRequest.nftId);
+        expect(request.interval).to.equal(dummyOptionRequest.interval);
+        expect(request.premium).to.equal(dummyOptionRequest.premium);
+        expect(request.strikePrice).to.equal(dummyOptionRequest.strikePrice);
+        expect(request.flavor).to.equal(dummyOptionRequest.flavor);
+
+        // Reset the state
+        await deployMainContract();
+    });
+
     it("prints gas limit", async function () {
         await publishDummyRequest();
 
