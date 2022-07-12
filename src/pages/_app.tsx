@@ -13,6 +13,7 @@ import { clearContractsAndAssets } from "../datasources/NFTAssets";
 import { setOptionsUpdatedCallback, setRequestUpdatedCallback, createNFTOptInstance } from "../frontend/utils/contracts";
 import { optionIDsTransactions, requestIDsTransactions } from "../frontend/utils/contracts";
 import { clearNFTOpt, contracts } from "../datasources/NFTOpt";
+import Head from "next/head";
 
 type ContextType =
 {
@@ -97,6 +98,11 @@ export default function App({ Component, pageProps }: AppProps)
     );
 
     return <>
+        <Head>
+            <title>NFT-OթͲ</title>
+            <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        </Head>
+
         <Toaster containerClassName={"toast-container"} />
 
         <AccountContext.Provider   value={account}>
