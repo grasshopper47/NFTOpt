@@ -35,13 +35,13 @@ const onEndUpdateOption = (ID: number) =>
     optionsUpdated();
 }
 
-const eventHandlers =
+const handlers =
 {
-    "Published" : (ID: number) => loadRequestAsOptionWithAsset(ID).then(requestsUpdated)
-,   "Withdrawn" : (ID: number) => withdrawRequest(ID).then(onEndUpdateRequest)
-,   "Opened"    : (rID : number, oID : number) => createOptionFromRequest(rID, oID).then(onEndUpdateRequest).then(optionsUpdated)
-,   "Canceled"  : (ID: number) => cancelOption(ID).then(onEndUpdateOption)
-,   "Exercised" : (ID: number) => exerciseOption(ID).then(onEndUpdateOption)
+    Published : (ID: number) => loadRequestAsOptionWithAsset(ID).then(requestsUpdated)
+,   Withdrawn : (ID: number) => withdrawRequest(ID).then(onEndUpdateRequest)
+,   Opened    : (rID : number, oID : number) => createOptionFromRequest(rID, oID).then(onEndUpdateRequest).then(optionsUpdated)
+,   Canceled  : (ID: number) => cancelOption(ID).then(onEndUpdateOption)
+,   Exercised : (ID: number) => exerciseOption(ID).then(onEndUpdateOption)
 }
 
 const handleEvent = (ID : BigNumber, transaction : any) =>
@@ -72,13 +72,15 @@ const handleEvent = (ID : BigNumber, transaction : any) =>
     console.log(actionLabel);
 
     let id = ID.toNumber();
-    let handler = eventHandlers[transaction.event];
 
     // Store hash in logs
     if (action === 'W') delete hashlogs[id];
-    else handler.hashlogs[id] = transaction.transactionHash;
+    else hashlogs[id] = transaction.transactionHash;
 
-    if (action !== 'O') { handler.method(id); return; }
+    // Execute expected handler
+    let handler = handlers[transaction.event];
+
+    if (action !== 'O') { handler(id); return; }
 
     transaction.getTransaction()
     .then
@@ -88,7 +90,7 @@ const handleEvent = (ID : BigNumber, transaction : any) =>
             // extract request ID from transaction input data (createOption called with requestID)
             let requestID = BigNumber.from("0x" + tx.data.slice(10)).toNumber();
 
-            handler.method(requestID, id);
+            handler(requestID, id);
         }
     );
 }
