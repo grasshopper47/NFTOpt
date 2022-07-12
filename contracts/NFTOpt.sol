@@ -127,7 +127,6 @@ contract NFTOpt {
 
         _require_exists(request_);
         _require_buyer(request_.buyer);
-        _require_sufficient_funds(request_.premium);
 
         /// @dev Update storage
         delete requests[_requestID];
@@ -152,7 +151,6 @@ contract NFTOpt {
         Request memory request_ = requests[_requestID];
 
         _require_exists(request_);
-        _require_sufficient_funds(request_.premium);
         if (request_.buyer == msg.sender)      revert BUYER_MUST_DIFFER_FROM_SELLER();
         if (msg.value != request_.strikePrice) revert INVALID_STRIKE_PRICE_AMOUNT(request_.strikePrice);
         /// @dev TODO: perhaps check that interval + block.timestamp don't overflow
@@ -223,7 +221,6 @@ contract NFTOpt {
 
         _require_exists(option_.request);
         _require_buyer(option_.request.buyer);
-        _require_sufficient_funds(option_.request.strikePrice);
         _require_open_state(option_.state);
 
         /// @dev Check for NFT access and ownership
@@ -266,12 +263,6 @@ contract NFTOpt {
         if (buyer != msg.sender) revert NOT_AUTHORIZED("Only Buyer can call this method");
     }
 
-    function _require_sufficient_funds(uint256 amount)
-    private view
-    {
-        if (address(this).balance < amount) revert INSUFFICIENT_FUNDS();
-    }
-
     function _require_exists(Request memory _request)
     private pure
     {
@@ -303,11 +294,8 @@ contract NFTOpt {
     error BUYER_MUST_DIFFER_FROM_SELLER();
     error EXERCISE_WINDOW_IS_CLOSED(uint256 expirationTimestamp);
 
-    /// @dev -- Funds-related
-    error INSUFFICIENT_FUNDS();
-    error FUNDS_TRANSFER_FAILED();
-
     /// @dev -- General
+    error FUNDS_TRANSFER_FAILED();
     error NOT_AN_INTERFACE_OF(string interfaceName, address contractAddress);
     error UNSIGNED_INTEGER_OVERFLOW();
 }
