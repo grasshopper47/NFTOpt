@@ -59,7 +59,7 @@ export let publishDummyOptionRequest = async () =>
 {
     await expect
     (
-        NFTOptContract.connect(buyer).publishOptionRequest
+        NFTOptContract.connect(buyer).publishRequest
         (
             dummyOptionRequest.nftContract
         ,   dummyOptionRequest.nftId

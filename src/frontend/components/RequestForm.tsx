@@ -98,7 +98,7 @@ function RequestForm()
     {
         showToast
         (
-            contracts.NFTOpt.publishOptionRequest
+            contracts.NFTOpt.publishRequest
             (
                 request.nftContract
             ,   request.nftId

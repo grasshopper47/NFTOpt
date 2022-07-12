@@ -20,7 +20,7 @@ describe("exerciseOption", function () {
         await initializer();
 
         // Publish American option
-        await NFTOptContract.connect(buyer).publishOptionRequest(
+        await NFTOptContract.connect(buyer).publishRequest(
             dummyOptionRequest.nftContract,
             dummyOptionRequest.nftId,
             dummyOptionRequest.strikePrice,
@@ -30,7 +30,7 @@ describe("exerciseOption", function () {
         );
 
         // Publish European option
-        await NFTOptContract.connect(buyer).publishOptionRequest(
+        await NFTOptContract.connect(buyer).publishRequest(
             dummyOptionRequest.nftContract,
             3,
             dummyOptionRequest.strikePrice,

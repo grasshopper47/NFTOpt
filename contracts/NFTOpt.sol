@@ -61,7 +61,7 @@ contract NFTOpt {
     /// @param _strikePrice: floor price of NFT to insure against
     /// @param _interval: time the option is to be available for, in seconds
     /// @param _flavor: EUROPEAN or AMERICAN
-    function publishOptionRequest
+    function publishRequest
     (
         address      _nftContract
     ,   uint256      _nftTokenID
@@ -79,8 +79,8 @@ contract NFTOpt {
         IERC721 _instance = IERC721(_nftContract);
         if (_instance.ownerOf(_nftTokenID) != msg.sender) revert NFT_NOT_OWNER(msg.sender);
 
-        if (msg.value == 0)                              revert INVALID_PREMIUM_AMOUNT(0);
-        if (_strikePrice == 0)                          revert INVALID_STRIKE_PRICE_AMOUNT(0);
+        if (msg.value == 0)                            revert INVALID_PREMIUM_AMOUNT(0);
+        if (_strikePrice == 0)                         revert INVALID_STRIKE_PRICE_AMOUNT(0);
         if (_interval < 86400 || _interval > 2592000 ) revert INVALID_EXPIRATION_INTERVAL(_interval); // [1, 30] days, in seconds
 
         /// @dev Optimize for gas by caching id
@@ -125,8 +125,8 @@ contract NFTOpt {
         Request memory request_ = requests[_requestID];
 
         _require_exists(request_);
+        _require_buyer(request_.buyer);
         _require_sufficient_funds(request_.premium);
-        _require_buyer(request_);
 
         /// @dev Update storage
         delete requests[_requestID];
@@ -190,7 +190,7 @@ contract NFTOpt {
         Option memory option_ = options[_optionID];
 
         _require_exists(option_.request);
-        if (option_.state != OptionState.OPEN) revert INVALID_OPTION_STATE(option_.state, OptionState.OPEN);
+        _require_open_state(option_.state);
 
         IERC721 nftContract = IERC721(option_.request.nftContract);
         if (nftContract.getApproved(option_.request.nftId) == address(this)) revert NOT_AUTHORIZED("Cancel while approved contract to transfer NFT");
@@ -202,7 +202,7 @@ contract NFTOpt {
         /// @dev Restrict calling rights of seller: permit only after expiration
         uint256 expirationDate_;
         unchecked { expirationDate_ = option_.startDate + option_.request.interval; }
-        if (expirationDate_ >= block.timestamp) _require_buyer(option_.request);
+        if (expirationDate_ >= block.timestamp) _require_buyer(option_.request.buyer);
 
         options[_optionID].state = OptionState.CANCELED;
 
@@ -221,9 +221,9 @@ contract NFTOpt {
         Option memory option_ = options[_optionID];
 
         _require_exists(option_.request);
+        _require_buyer(option_.request.buyer);
         _require_sufficient_funds(option_.request.strikePrice);
-        _require_buyer(option_.request);
-        if (option_.state != OptionState.OPEN) revert INVALID_OPTION_STATE(option_.state, OptionState.OPEN);
+        _require_open_state(option_.state);
 
         /// @dev Check for NFT access and ownership
         IERC721 nftContract = IERC721(option_.request.nftContract);
@@ -259,10 +259,10 @@ contract NFTOpt {
         if (!success) revert FUNDS_TRANSFER_FAILED();
     }
 
-    function _require_buyer(Request memory _request)
+    function _require_buyer(address buyer)
     private view
     {
-        if (_request.buyer != msg.sender) revert NOT_AUTHORIZED("Only Buyer can call this method");
+        if (buyer != msg.sender) revert NOT_AUTHORIZED("Only Buyer can call this method");
     }
 
     function _require_sufficient_funds(uint256 amount)
@@ -275,6 +275,12 @@ contract NFTOpt {
     private pure
     {
         if (_request.buyer == address(0)) revert INVALID_ID();
+    }
+
+    function _require_open_state(OptionState state)
+    private pure
+    {
+        if (state != OptionState.OPEN) revert INVALID_OPTION_STATE(state, OptionState.OPEN);
     }
 
     /// @dev -- CUSTOM ERRORS -------------------------

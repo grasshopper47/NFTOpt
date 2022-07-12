@@ -9,20 +9,20 @@ import {
     publishDummyOptionRequest,
 } from "../helpers";
 
-describe("publishOptionRequest", function () {
+describe("publishRequest", function () {
     before("prepareEnv", async function () {
         await initializer();
     });
 
     it("reverts when called with an invalid (non ERC-721 compliant) NFT Contract", async function () {
         await expect(NFTOptContract.connect(buyer)
-            .publishOptionRequest(buyer.address, 1, 0, 0, 0))
+            .publishRequest(buyer.address, 1, 0, 0, 0))
             .to.be.revertedWith("NOT_AN_INTERFACE_OF");
     });
 
     it("reverts when called with 0 as NFT Token ID", async function () {
         await expect(NFTOptContract.connect(buyer)
-            .publishOptionRequest(NFTDummyContract.address, 0, 0, 0, 0))
+            .publishRequest(NFTDummyContract.address, 0, 0, 0, 0))
             .to.be.revertedWith("INVALID_TOKEN_ID");
     });
 
@@ -33,25 +33,25 @@ describe("publishOptionRequest", function () {
 
         // Can't publish option request when not an owner
         await expect(NFTOptContract.connect(buyer)
-            .publishOptionRequest(NFTDummyContract.address, 9999, 0, 0, 0))
+            .publishRequest(NFTDummyContract.address, 9999, 0, 0, 0))
             .to.be.revertedWith("NFT_NOT_OWNER");
     });
 
     it("reverts when called without a premium (transaction value)", async function () {
         await expect(NFTOptContract.connect(buyer)
-            .publishOptionRequest(NFTDummyContract.address, 1, 0, 0, 0))
+            .publishRequest(NFTDummyContract.address, 1, 0, 0, 0))
             .to.be.revertedWith("INVALID_PREMIUM_AMOUNT");
     });
 
     it("reverts when called with 0 as Strike Price", async function () {
         await expect(NFTOptContract.connect(buyer)
-            .publishOptionRequest(NFTDummyContract.address, 1, 0, 0, 0, { value: 1 }))
+            .publishRequest(NFTDummyContract.address, 1, 0, 0, 0, { value: 1 }))
             .to.be.revertedWith("INVALID_STRIKE_PRICE_AMOUNT");
     });
 
     it("reverts when called with 0 as Interval", async function () {
         await expect(NFTOptContract.connect(buyer)
-            .publishOptionRequest(NFTDummyContract.address, 1, 1, 0, 0, { value: 1 }))
+            .publishRequest(NFTDummyContract.address, 1, 1, 0, 0, { value: 1 }))
             .to.be.revertedWith("INVALID_EXPIRATION_INTERVAL");
     });
 
@@ -87,7 +87,7 @@ describe("publishOptionRequest", function () {
 
     it("emits 'Published' event when succeeded", async function () {
         await expect(
-            NFTOptContract.connect(buyer).publishOptionRequest(
+            NFTOptContract.connect(buyer).publishRequest(
                 dummyOptionRequest.nftContract,
                 dummyOptionRequest.nftId,
                 dummyOptionRequest.strikePrice,
@@ -106,7 +106,7 @@ describe("publishOptionRequest", function () {
     it("prints gas limit", async function () {
         await publishDummyOptionRequest();
         const currentGas = (
-            await NFTOptContract.connect(buyer).estimateGas.publishOptionRequest(
+            await NFTOptContract.connect(buyer).estimateGas.publishRequest(
                 dummyOptionRequest.nftContract,
                 dummyOptionRequest.nftId,
                 dummyOptionRequest.strikePrice,
