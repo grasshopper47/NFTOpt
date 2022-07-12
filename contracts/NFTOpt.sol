@@ -119,7 +119,7 @@ contract NFTOpt {
     /// @custom:author GregVanDell and LuisImagiire
     /// @notice Removes a published option request from the marketplace
     /// @param _requestID: id of the option request to remove
-    function withdrawOptionRequest(uint256 _requestID)
+    function withdrawRequest(uint256 _requestID)
     external
     {
         Request memory request_ = requests[_requestID];

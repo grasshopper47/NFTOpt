@@ -72,7 +72,7 @@ function DetailsView(props: Props)
         );
     }
 
-    let onWithdrawOption = () => contracts.NFTOpt.withdrawOptionRequest(option.id);
+    let onWithdrawOption = () => contracts.NFTOpt.withdrawRequest(option.id);
     let onCreateOption   = () => contracts.NFTOpt.createOption(option.id, { value: option.strikePrice });
     let onCancelOption   = () => contracts.NFTOpt.cancelOption(option.id);
     let onExerciseOption = () => contracts.NFTOpt.exerciseOption(option.id);

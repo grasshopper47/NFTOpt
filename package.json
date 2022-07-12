@@ -41,7 +41,7 @@
         "test - createOption": "npx hardhat test test/unit/createOption.ts",
         "test - exerciseOption": "npx hardhat test test/unit/exerciseOption.ts",
         "test - publishRequest": "npx hardhat test test/unit/publishRequest.ts",
-        "test - withdrawOptionRequest": "npx hardhat test test/unit/withdrawOptionRequest.ts",
+        "test - withdrawRequest": "npx hardhat test test/unit/withdrawRequest.ts",
         "---": "",
         "start blockchain node": "npx hardhat node",
         "deploy contracts": "npx hardhat run scripts/deploy.ts --network localhost",

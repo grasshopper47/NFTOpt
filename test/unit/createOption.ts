@@ -19,7 +19,7 @@ describe("createOption", function () {
         await publishDummyOptionRequest();
 
         expect(
-            await NFTOptContract.connect(buyer).withdrawOptionRequest(0)
+            await NFTOptContract.connect(buyer).withdrawRequest(0)
         ).to.not.throw;
 
         await expect(NFTOptContract.connect(seller)

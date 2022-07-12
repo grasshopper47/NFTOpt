@@ -5,7 +5,7 @@ import { buyer, seller, initializer, dummyOptionRequest, publishDummyOptionReque
 import { NFTOptContract, deployMainContract } from "../../src/utils/deployment";
 import { ADDRESS0, BIGNUMBER0 } from "../../src/utils/constants";
 
-describe("withdrawOptionRequest", function () {
+describe("withdrawRequest", function () {
     before("prepareEnv", async function () {
         await initializer();
 
@@ -14,13 +14,13 @@ describe("withdrawOptionRequest", function () {
 
     it("fails when option request does not exist", async function () {
         await expect(NFTOptContract.connect(buyer)
-            .withdrawOptionRequest(9999))
+            .withdrawRequest(9999))
             .to.be.revertedWith("INVALID_ID");
     });
 
     it("fails when caller is not the buyer", async function () {
         await expect(NFTOptContract.connect(seller)
-            .withdrawOptionRequest(0))
+            .withdrawRequest(0))
             .to.be.revertedWith("NOT_AUTHORIZED");
     });
 
@@ -31,7 +31,7 @@ describe("withdrawOptionRequest", function () {
             .to.emit(NFTOptContract, "Opened");
 
         await expect(NFTOptContract.connect(buyer)
-            .withdrawOptionRequest(0))
+            .withdrawRequest(0))
             .to.be.revertedWith("INVALID_ID");
 
         // Reset the state
@@ -44,7 +44,7 @@ describe("withdrawOptionRequest", function () {
         let buyerBalance0 = await buyer.getBalance();
 
         // Withdraw option request
-        let tx = NFTOptContract.connect(buyer).withdrawOptionRequest(0);
+        let tx = NFTOptContract.connect(buyer).withdrawRequest(0);
         await expect(tx).to.emit(NFTOptContract, "Withdrawn");
 
         let transaction = await tx;
@@ -70,7 +70,7 @@ describe("withdrawOptionRequest", function () {
         await publishDummyOptionRequest();
 
         await expect(NFTOptContract.connect(buyer)
-            .withdrawOptionRequest(0))
+            .withdrawRequest(0))
             .to.emit(NFTOptContract, "Withdrawn");
 
         let request = await NFTOptContract.requests(0);
@@ -90,7 +90,7 @@ describe("withdrawOptionRequest", function () {
     it("prints gas limit", async function () {
         await publishDummyOptionRequest();
 
-        const currentGas = (await NFTOptContract.connect(buyer).estimateGas.withdrawOptionRequest(0)).toNumber();
+        const currentGas = (await NFTOptContract.connect(buyer).estimateGas.withdrawRequest(0)).toNumber();
 
         console.log(currentGas);
     });
