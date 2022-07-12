@@ -1,6 +1,6 @@
 import { Option, OptionFlavor, OptionState } from "../models/option";
 import { OptionWithAsset, Option_SOLIDITY } from "../models/extended";
-import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
+import { ADDRESS0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { getNFTAsset } from "./NFTAssets";
 import { contracts } from "./NFTOpt";
 import { NFTAsset } from "../models/nftAsset";
@@ -12,7 +12,7 @@ export const clearOptions = () => options = [];
 export function isExpired(option : Option | OptionWithAsset)
 {
     let timeNow = new Date().getTime() / 1000;
-    let timeOption = option.startDate + option.interval * SECONDS_IN_A_DAY;
+    let timeOption = option.startDate + option.interval;
     let diff = timeOption - timeNow;
 
     // Can exercise any time before & including the end day (AMERICAN)

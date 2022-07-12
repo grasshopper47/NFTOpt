@@ -33,7 +33,7 @@ export async function loadRequestAsOptionWithAsset(id: number)
         ,   premium     : request.premium
         ,   strikePrice : request.strikePrice
         ,   flavor      : request.flavor
-        ,   buyer       : request.buyer
+        ,   buyer       : request.buyer.toLowerCase()
         ,   seller      : ADDRESS0
         ,   startDate   : 0
         ,   state       : -1

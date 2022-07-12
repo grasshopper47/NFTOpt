@@ -1,6 +1,8 @@
+import { SECONDS_IN_A_DAY } from "../../utils/constants";
+
 export function getIntervalString(value : string)
 {
-    if (value) return Math.max(1, Math.min(parseInt(value), 30)).toString();
+    if (value) return ( SECONDS_IN_A_DAY * Math.max(1, Math.min(parseInt(value), 30)) ).toString();
 
     return "";
 }

@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import { OptionState } from "../models/option";
 import { requests } from "./requests";
 import { options } from "./options";
+import { SECONDS_IN_A_DAY } from "../utils/constants";
 
 export enum OptionStateViewed { REQUEST, OPEN, CLOSED };
 
@@ -16,6 +17,7 @@ export type FilterParams =
 export let optionsByStateFiltered = {};
 
 const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
+const MAX_INTERVAL_SECS = 30 * SECONDS_IN_A_DAY;
 
 export async function doFilter(state : OptionStateViewed, filterParams : FilterParams)
 {
@@ -35,7 +37,7 @@ export async function doFilter(state : OptionStateViewed, filterParams : FilterP
         && o.strikePrice.gte(ethers.utils.parseEther(filterParams.strikePrice.min === "" ? "0" : filterParams.strikePrice.min))
         && o.strikePrice.lte(ethers.utils.parseEther(filterParams.strikePrice.max === "" ? MAX_INT_STRING : filterParams.strikePrice.max))
         && o.interval >= (filterParams.interval.min === "" ? 0  : parseInt(filterParams.interval.min))
-        && o.interval <= (filterParams.interval.max === "" ? 30 : parseInt(filterParams.interval.max))
+        && o.interval <= (filterParams.interval.max === "" ? MAX_INTERVAL_SECS : parseInt(filterParams.interval.max))
     );
 
     optionsByStateFiltered[state] = map;

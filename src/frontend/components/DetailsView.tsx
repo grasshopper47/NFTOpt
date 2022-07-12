@@ -11,7 +11,7 @@ import { OptionState} from "../../models/option";
 import { isExpired } from "../../datasources/options";
 import { getCachedContract } from "../../datasources/NFTAssets";
 import { OptionWithAsset } from "../../models/extended";
-import { ADDRESS0 } from "../../utils/constants";
+import { ADDRESS0, SECONDS_IN_A_DAY } from "../../utils/constants";
 import { connected, scanner, signer } from "../utils/metamask";
 import { flavorLabels, stateLabels } from "../utils/labels";
 import { dismissLastToast, showToast } from "../utils/toasting";
@@ -160,6 +160,8 @@ function DetailsView(props: Props)
         }
     }
 
+    const intervalInDays = Math.floor(option.interval / SECONDS_IN_A_DAY);
+
     return <div
         className={classes.detailsWrapper}
         onClick={ (e) => e.stopPropagation() }
@@ -196,7 +198,7 @@ function DetailsView(props: Props)
                 <div>
                     <Field_DetailsView     label="Premium"      value={ethers.utils.formatEther(option.premium)} />
                     <Field_DetailsView     label="Strike Price" value={ethers.utils.formatEther(option.strikePrice)} />
-                    <Field_DetailsView     label="Expiration"   value={`${option.interval} day${option.interval > 1 ? 's' : ''}`} />
+                    <Field_DetailsView     label="Expiration"   value={`${intervalInDays} day${intervalInDays > 1 ? 's' : ''}`} />
                     <Field_DetailsView     label="Style"        value={flavorLabels[option.flavor]} className="flavor"/>
                 </div>
             </div>
