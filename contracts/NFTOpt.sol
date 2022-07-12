@@ -243,11 +243,11 @@ contract NFTOpt {
         if (isExpired) revert EXERCISE_WINDOW_IS_CLOSED(expirationDate_);
 
         nftContract.transferFrom
-        ({
-            to      : option_.seller
-        ,   from    : msg.sender
-        ,   tokenId : option_.request.nftId
-        });
+        (
+            msg.sender
+        ,   option_.seller
+        ,   option_.request.nftId
+        );
 
         options[_optionID].state = OptionState.EXERCISED;
 
