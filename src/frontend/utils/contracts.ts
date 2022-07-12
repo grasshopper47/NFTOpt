@@ -37,36 +37,11 @@ const onEndUpdateOption = (ID: number) =>
 
 const eventHandlers =
 {
-    "Published" :
-    {
-        hashlogs : requestIDsTransactions
-    ,   method   : (ID: number) => loadRequestAsOptionWithAsset(ID).then(requestsUpdated)
-    ,   action   : "published request"
-    }
-,   "Withdrawn" :
-    {
-        hashlogs : requestIDsTransactions
-    ,   method   : (ID: number) => withdrawRequest(ID).then(onEndUpdateRequest)
-    ,   action   : "withdrawn request"
-    }
-,   "Opened" :
-    {
-        hashlogs : optionIDsTransactions
-    ,   method   : (rID : number, oID : number) => createOptionFromRequest(rID, oID).then(onEndUpdateRequest).then(optionsUpdated)
-    ,   action   : "opened option"
-    }
-,   "Canceled" :
-    {
-        hashlogs : optionIDsTransactions
-    ,   method   : (ID: number) => cancelOption(ID).then(onEndUpdateOption)
-    ,   action   : "canceled option"
-    }
-,   "Exercised" :
-    {
-        hashlogs : optionIDsTransactions
-    ,   method   : (ID: number) => exerciseOption(ID).then(onEndUpdateOption)
-    ,   action   : "exercised option"
-    }
+    "Published" : (ID: number) => loadRequestAsOptionWithAsset(ID).then(requestsUpdated)
+,   "Withdrawn" : (ID: number) => withdrawRequest(ID).then(onEndUpdateRequest)
+,   "Opened"    : (rID : number, oID : number) => createOptionFromRequest(rID, oID).then(onEndUpdateRequest).then(optionsUpdated)
+,   "Canceled"  : (ID: number) => cancelOption(ID).then(onEndUpdateOption)
+,   "Exercised" : (ID: number) => exerciseOption(ID).then(onEndUpdateOption)
 }
 
 const handleEvent = (ID : BigNumber, transaction : any) =>
@@ -76,21 +51,34 @@ const handleEvent = (ID : BigNumber, transaction : any) =>
 
     blockNumber = transaction.blockNumber;
 
-    let action = eventHandlers[transaction.event].action;
+    let hashlogs : any;
+    let action = transaction.event[0];
+    let actionLabel = transaction.event.toLowerCase() + " ";
 
-    // Show toast of success only when called by the user action (already a toast in progress)
-    if (dismissLastToast()) toast.success("Successfully " + action, { duration: TOAST_DURATION });
+    if (action === 'P' || action === 'W')
+    {
+        actionLabel += "request"
+        hashlogs = requestIDsTransactions;
+    }
+    else
+    {
+        actionLabel += "option"
+        hashlogs = optionIDsTransactions;
+    }
 
-    console.log(action);
+    // Show toast of success only when called by the user actionLabel (already a toast in progress)
+    if (dismissLastToast()) toast.success("Successfully " + actionLabel, { duration: TOAST_DURATION });
+
+    console.log(actionLabel);
 
     let id = ID.toNumber();
-    let handler = eventHandlers[action.state];
+    let handler = eventHandlers[transaction.event];
 
     // Store hash in logs
-    if (action[0] === 'W') delete handler.hashlogs[id];
+    if (action === 'W') delete hashlogs[id];
     else handler.hashlogs[id] = transaction.transactionHash;
 
-    if (action[0] !== 'O') { handler.method(id); return; }
+    if (action !== 'O') { handler.method(id); return; }
 
     transaction.getTransaction()
     .then
