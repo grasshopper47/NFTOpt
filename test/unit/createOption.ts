@@ -11,7 +11,7 @@ describe("createOption", function () {
     it("reverts with non-existent requestID", async function () {
         await expect(NFTOptContract.connect(seller)
             .createOption(9999))
-            .to.be.revertedWith("INVALID_REQUEST_ID");
+            .to.be.revertedWith("INVALID_ID");
     });
 
     it("reverts when the option is not in REQUEST state", async function () {
@@ -23,7 +23,7 @@ describe("createOption", function () {
 
         await expect(NFTOptContract.connect(seller)
             .createOption(0))
-            .to.be.revertedWith("INVALID_REQUEST_ID");
+            .to.be.revertedWith("INVALID_ID");
 
         // Reset the state
         await deployMainContract();
@@ -111,5 +111,11 @@ describe("createOption", function () {
 
         // Reset the state
         await deployMainContract();
+    });
+
+    it("prints gas limit", async function () {
+        await publishDummyOptionRequest();
+        const currentGas = (await NFTOptContract.connect(seller).estimateGas.createOption(0, { value: dummyOptionRequest.strikePrice })).toNumber();
+        console.log(currentGas);
     });
 });

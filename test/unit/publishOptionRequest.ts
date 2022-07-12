@@ -101,4 +101,19 @@ describe("publishOptionRequest", function () {
         // Reset the state
         await deployMainContract();
     });
+
+    it("prints gas limit", async function () {
+        await publishDummyOptionRequest();
+        const currentGas = (
+            await NFTOptContract.connect(buyer).estimateGas.publishOptionRequest(
+                dummyOptionRequest.nftContract,
+                dummyOptionRequest.nftId,
+                dummyOptionRequest.strikePrice,
+                dummyOptionRequest.interval,
+                dummyOptionRequest.flavor,
+                { value: 1 }
+            )
+        ).toNumber();
+        console.log(currentGas);
+      });
 });

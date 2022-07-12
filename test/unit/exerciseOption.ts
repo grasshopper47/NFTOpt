@@ -53,7 +53,7 @@ describe("exerciseOption", function () {
     it("reverts with non-existent optionID", async function () {
         await expect(NFTOptContract.connect(buyer)
             .exerciseOption(9999))
-            .to.be.revertedWith("INVALID_OPTION_ID");
+            .to.be.revertedWith("INVALID_ID");
     });
 
     it("reverts when msg.sender isn't the buyer", async function () {
@@ -186,5 +186,16 @@ describe("exerciseOption", function () {
         // Check NFT ownership
         let owner = await NFTDummyContract.ownerOf(option.request.nftId);
         expect(owner).to.equal(seller.address);
+    });
+
+    it("prints gas limit", async function () {
+        // Load option
+        const option = await NFTOptContract.options(0);
+
+        // Approve contract to transfer NFT
+        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, option.request.nftId);
+
+        const currentGas = (await NFTOptContract.connect(buyer).estimateGas.exerciseOption(0)).toNumber();
+        console.log(currentGas);
     });
 });

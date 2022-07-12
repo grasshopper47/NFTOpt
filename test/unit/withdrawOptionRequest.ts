@@ -15,7 +15,7 @@ describe("withdrawOptionRequest", function () {
     it("fails when option request does not exist", async function () {
         await expect(NFTOptContract.connect(buyer)
             .withdrawOptionRequest(9999))
-            .to.be.revertedWith("INVALID_REQUEST_ID");
+            .to.be.revertedWith("INVALID_ID");
     });
 
     it("fails when caller is not the buyer", async function () {
@@ -32,7 +32,7 @@ describe("withdrawOptionRequest", function () {
 
         await expect(NFTOptContract.connect(buyer)
             .withdrawOptionRequest(0))
-            .to.be.revertedWith("INVALID_REQUEST_ID");
+            .to.be.revertedWith("INVALID_ID");
 
         // Reset the state
         await deployMainContract();
@@ -85,5 +85,13 @@ describe("withdrawOptionRequest", function () {
 
         // Reset the state
         await deployMainContract();
+    });
+
+    it("prints gas limit", async function () {
+        await publishDummyOptionRequest();
+
+        const currentGas = (await NFTOptContract.connect(buyer).estimateGas.withdrawOptionRequest(0)).toNumber();
+
+        console.log(currentGas);
     });
 });

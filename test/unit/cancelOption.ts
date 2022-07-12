@@ -22,7 +22,7 @@ describe("cancelOption", function () {
     it("reverts with non-existent optionID", async function () {
         await expect(NFTOptContract.connect(buyer)
             .cancelOption(9999))
-            .to.be.revertedWith("INVALID_OPTION_ID");
+            .to.be.revertedWith("INVALID_ID");
     });
 
     it("reverts when option has already been exercised", async function () {
@@ -188,5 +188,19 @@ describe("cancelOption", function () {
 
         // Reset the state
         await deployMainContract();
+    });
+
+    it("prints gas limit", async function () {
+        await publishDummyOptionRequest();
+
+        // Fill option
+        expect(
+            await NFTOptContract.connect(seller).createOption(0, { value: dummyOptionRequest.strikePrice })
+        ).to.not.throw;
+
+            // Cancel the option
+        const currentGas = (await NFTOptContract.connect(buyer).estimateGas.cancelOption(0)).toNumber();
+
+        console.log(currentGas);
     });
 });
