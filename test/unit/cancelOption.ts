@@ -8,7 +8,7 @@ import {
     initializer,
     NFTDummyContract,
     dummyOptionRequest,
-    publishDummyOptionRequest,
+    publishDummyRequest,
     deployHardHatDummyNFTCollection,
 } from "../helpers";
 import { SECONDS_IN_A_DAY } from "../../src/utils/constants";
@@ -26,7 +26,7 @@ describe("cancelOption", function () {
     });
 
     it("reverts when option has already been exercised", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         // Fill option
         expect(
@@ -63,7 +63,7 @@ describe("cancelOption", function () {
     });
 
     it("reverts when non-participant tries to cancel", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         // Fill option
         await expect(
@@ -94,7 +94,7 @@ describe("cancelOption", function () {
     });
 
     it("succeeds when called by seller after expiration date", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         // Fill option
         await expect(NFTOptContract.connect(seller)
@@ -121,7 +121,7 @@ describe("cancelOption", function () {
     });
 
     it("succeeds when called by buyer within specified interval", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         // Fill option
         await expect(NFTOptContract.connect(seller)
@@ -143,7 +143,7 @@ describe("cancelOption", function () {
     });
 
     it("sends the collateral back to the seller", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         // Fill option
         await expect(NFTOptContract.connect(seller)
@@ -170,7 +170,7 @@ describe("cancelOption", function () {
     });
 
     it("emits 'Canceled' event", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         // Fill option
         await expect(NFTOptContract.connect(seller)
@@ -191,7 +191,7 @@ describe("cancelOption", function () {
     });
 
     it("prints gas limit", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         // Fill option
         expect(

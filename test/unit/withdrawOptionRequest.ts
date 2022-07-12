@@ -1,7 +1,6 @@
 import { expect } from "chai";
-import { OptionState } from "../../src/models/option";
 
-import { buyer, seller, initializer, dummyOptionRequest, publishDummyOptionRequest } from "../helpers";
+import { buyer, seller, initializer, dummyOptionRequest, publishDummyRequest } from "../helpers";
 import { NFTOptContract, deployMainContract } from "../../src/utils/deployment";
 import { ADDRESS0, BIGNUMBER0 } from "../../src/utils/constants";
 
@@ -9,7 +8,7 @@ describe("withdrawRequest", function () {
     before("prepareEnv", async function () {
         await initializer();
 
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
     });
 
     it("fails when option request does not exist", async function () {
@@ -39,7 +38,7 @@ describe("withdrawRequest", function () {
     });
 
     it("sends premium to buyer on success", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         let buyerBalance0 = await buyer.getBalance();
 
@@ -67,7 +66,7 @@ describe("withdrawRequest", function () {
     });
 
     it("removes request from storage after successful withdrawal", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         await expect(NFTOptContract.connect(buyer)
             .withdrawRequest(0))
@@ -88,7 +87,7 @@ describe("withdrawRequest", function () {
     });
 
     it("prints gas limit", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         const currentGas = (await NFTOptContract.connect(buyer).estimateGas.withdrawRequest(0)).toNumber();
 

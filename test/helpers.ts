@@ -55,7 +55,7 @@ export const initializer = async () =>
     await deployHardHatDummyNFTCollection();
 };
 
-export let publishDummyOptionRequest = async () =>
+export let publishDummyRequest = async () =>
 {
     await expect
     (

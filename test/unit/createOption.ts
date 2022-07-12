@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { OptionState } from "../../src/models/option";
-import { buyer, seller, initializer, dummyOptionRequest, publishDummyOptionRequest } from "../helpers";
+import { buyer, seller, initializer, dummyOptionRequest, publishDummyRequest } from "../helpers";
 import { NFTOptContract, deployMainContract } from "../../src/utils/deployment";
 import { ethers } from "hardhat";
 
@@ -16,7 +16,7 @@ describe("createOption", function () {
     });
 
     it("reverts when the option is not in REQUEST state", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         expect(
             await NFTOptContract.connect(buyer).withdrawRequest(0)
@@ -31,7 +31,7 @@ describe("createOption", function () {
     });
 
     it("reverts when the option seller is the same as the option buyer", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         await expect(NFTOptContract.connect(buyer)
             .createOption(0))
@@ -42,7 +42,7 @@ describe("createOption", function () {
     });
 
     it("reverts when the wrong strike price is provided by the seller", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         await expect(NFTOptContract.connect(seller)
             .createOption(0, { value: dummyOptionRequest.strikePrice.sub(1) }))
@@ -57,7 +57,7 @@ describe("createOption", function () {
 
         expect(contractBalance).to.equal(0);
 
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         contractBalance = await ethers.provider.getBalance(NFTOptContract.address);
 
@@ -103,7 +103,7 @@ describe("createOption", function () {
     });
 
     it("emits 'Opened' event when succeeded", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         await expect(NFTOptContract.connect(seller)
             .createOption(0, { value: dummyOptionRequest.strikePrice }))
@@ -115,7 +115,7 @@ describe("createOption", function () {
     });
 
     it("prints gas limit", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
         const currentGas = (await NFTOptContract.connect(seller).estimateGas.createOption(0, { value: dummyOptionRequest.strikePrice })).toNumber();
         console.log(currentGas);
     });

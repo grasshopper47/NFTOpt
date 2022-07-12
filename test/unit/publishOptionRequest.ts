@@ -6,7 +6,7 @@ import {
     initializer,
     NFTDummyContract,
     dummyOptionRequest,
-    publishDummyOptionRequest,
+    publishDummyRequest,
 } from "../helpers";
 
 describe("publishRequest", function () {
@@ -62,7 +62,7 @@ describe("publishRequest", function () {
         expect(balance0).to.equal(0);
         expect(requestID0).to.equal(0);
 
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         const balance1 = await ethers.provider.getBalance(NFTOptContract.address);
         const requestID1 = await NFTOptContract.requestID();
@@ -104,7 +104,7 @@ describe("publishRequest", function () {
     });
 
     it("prints gas limit", async function () {
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
         const currentGas = (
             await NFTOptContract.connect(buyer).estimateGas.publishRequest(
                 dummyOptionRequest.nftContract,

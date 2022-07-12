@@ -7,7 +7,7 @@ import {
     addDaysToEVM,
     NFTDummyContract,
     dummyOptionRequest,
-    publishDummyOptionRequest,
+    publishDummyRequest,
 } from "../helpers";
 import { SECONDS_IN_A_DAY } from "../../src/utils/constants";
 import { NFTOptContract } from "../../src/utils/deployment";
@@ -39,7 +39,7 @@ describe("exerciseOption", function () {
             { value: dummyOptionRequest.premium }
         );
 
-        await publishDummyOptionRequest();
+        await publishDummyRequest();
 
         // Fill option requests
         await NFTOptContract.connect(seller).createOption(0, { value: dummyOptionRequest.strikePrice });
