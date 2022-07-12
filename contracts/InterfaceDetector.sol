@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 library InterfaceDetector {
 
-    function isInterfaceOf_ERC721(address _self)
-    public
+    function implements_ERC721_ownerOf(address _self)
+    external
     returns (bool)
     {
         /// @dev Testing by trying to call two methods: ownerOf, getApproved
@@ -36,15 +36,41 @@ library InterfaceDetector {
             )
         }
 
-        if (_error) { return false; }
+        return !_error;
+    }
 
-        ///@dev Repeat the check, this time for getApproved
-        data = abi.encodeWithSelector(bytes4(keccak256("getApproved(uint256)")), 0);
+    function implements_ERC721_getApproved(address _self)
+    external
+    returns (bool)
+    {
+        bool _error;
 
-        assembly
-        {
-            _error := call(0, _self, 0, add(data, 32), mload(data), 0, 0)
-        }
+        bytes memory data =
+        abi.encodeWithSelector
+        (
+            bytes4(keccak256("getApproved(uint256)"))
+        ,   0
+        );
+
+        assembly { _error := call(0, _self, 0, add(data, 32), mload(data), 0, 0) }
+
+        return !_error;
+    }
+
+    function implements_ERC721_transferFrom(address _self)
+    external
+    returns (bool)
+    {
+        bool _error;
+
+        bytes memory data =
+        abi.encodeWithSelector
+        (
+            bytes4(keccak256("transferFrom(address, address, uint256)"))
+        ,   0, 0, 0
+        );
+
+        assembly { _error := call(0, _self, 0, add(data, 32), mload(data), 0, 0) }
 
         return !_error;
     }

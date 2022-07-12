@@ -72,8 +72,10 @@ contract NFTOpt {
     external
     payable
     {
-        if (_nftTokenID == 0)                     revert INVALID_TOKEN_ID(_nftTokenID);
-        if (!_nftContract.isInterfaceOf_ERC721()) revert NOT_AN_INTERFACE_OF("ERC-721", _nftContract);
+        if (_nftTokenID == 0)                               revert INVALID_TOKEN_ID(_nftTokenID);
+        if (!_nftContract.implements_ERC721_ownerOf())      revert MISSING_IMPLEMENTATION("ownerOf", _nftContract);
+        if (!_nftContract.implements_ERC721_getApproved())  revert MISSING_IMPLEMENTATION("getApproved", _nftContract);
+        if (!_nftContract.implements_ERC721_transferFrom()) revert MISSING_IMPLEMENTATION("transferFrom", _nftContract);
 
         /// @dev Check for NFT ownership
         IERC721 _instance = IERC721(_nftContract);
@@ -296,6 +298,6 @@ contract NFTOpt {
 
     /// @dev -- General
     error FUNDS_TRANSFER_FAILED();
-    error NOT_AN_INTERFACE_OF(string interfaceName, address contractAddress);
+    error MISSING_IMPLEMENTATION(string methodName, address contractAddress);
     error UNSIGNED_INTEGER_OVERFLOW();
 }
