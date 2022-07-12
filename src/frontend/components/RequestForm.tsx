@@ -19,18 +19,15 @@ import Radio_RequestForm from "../fragments/Radio.Request";
 import DropDown_RequestForm from "../fragments/DropDown.Request";
 
 let request = { } as OptionRequest_DISPLAY;
-let intervalInDays = "0";
 
 const resetRequest = () =>
 {
     request.nftContract = "";
     request.nftId       = BIGNUMBER0;
-    request.interval    = "86400";
+    request.interval    = "3";
     request.premium     = "0.1";
     request.strikePrice = "1";
     request.flavor      = OptionFlavor.AMERICAN;
-
-    intervalInDays = "1";
 }
 
 resetRequest();
@@ -89,9 +86,7 @@ function RequestForm()
 
     const setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
-        request.interval = getIntervalString(event.target.value);
-        intervalInDays = Math.floor(parseInt(request.interval) / SECONDS_IN_A_DAY).toString();
-        requestChanged();
+        request.interval = getIntervalString(event.target.value); requestChanged();
     };
 
     const setFlavor = (event: React.ChangeEvent<HTMLInputElement>) =>
@@ -108,7 +103,7 @@ function RequestForm()
                 request.nftContract
             ,   request.nftId
             ,   ethers.utils.parseEther(request.strikePrice)
-            ,   request.interval
+            ,   parseInt(request.interval) * SECONDS_IN_A_DAY
             ,   request.flavor
             ,   { value: ethers.utils.parseEther(request.premium) }
             )
@@ -130,7 +125,7 @@ function RequestForm()
 
                 <TextBox_RequestForm fieldName="premium"     value={request.premium}     onChange={setAmount}   onKeyUp={onHandleKey} />
                 <TextBox_RequestForm fieldName="strikePrice" value={request.strikePrice} onChange={setAmount}   onKeyUp={onHandleKey} />
-                <TextBox_RequestForm fieldName="interval"    value={intervalInDays}      onChange={setInterval} onKeyUp={onHandleKey} />
+                <TextBox_RequestForm fieldName="interval"    value={request.interval}    onChange={setInterval} onKeyUp={onHandleKey} />
 
                 <FormControl className={classes.field}>
                     <RadioGroup defaultValue={OptionFlavor.AMERICAN}>

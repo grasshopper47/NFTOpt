@@ -1,4 +1,4 @@
-import { ADDRESS0, BIGNUMBER0 } from "../utils/constants";
+import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { OptionRequest } from "../models/optionRequest";
 import { OptionWithAsset } from "../models/extended";
 import { OptionState } from "../models/option";
@@ -29,7 +29,7 @@ export async function loadRequestAsOptionWithAsset(id: number)
     (
         {
             id          : id
-        ,   interval    : request.interval
+        ,   interval    : request.interval / SECONDS_IN_A_DAY
         ,   premium     : request.premium
         ,   strikePrice : request.strikePrice
         ,   flavor      : request.flavor
