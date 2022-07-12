@@ -95,8 +95,7 @@ function DetailsView(props: Props)
 
     const getStateTransactionScannerLink = () =>
     {
-        let hash =
-        option.state === OptionState.PUBLISHED
+        let hash = option.state === -1
         ?   requests.transactions[option.id]
         :   options.transactions[option.id];
 
@@ -109,7 +108,7 @@ function DetailsView(props: Props)
 
         let isBuyer = (option.buyer === account);
 
-        if (option.state === OptionState.PUBLISHED)
+        if (option.state === -1)
             if (isBuyer)
                 return <Button_DetailsView
                     label="Withdraw Request"

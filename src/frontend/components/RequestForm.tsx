@@ -24,8 +24,8 @@ const resetRequest = () =>
 {
     request.nftContract = "";
     request.nftId       = BIGNUMBER0;
-    request.interval    = "1";
-    request.premium     = "1";
+    request.interval    = "3";
+    request.premium     = "0.1";
     request.strikePrice = "1";
     request.flavor      = OptionFlavor.AMERICAN;
 }

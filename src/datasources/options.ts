@@ -3,6 +3,7 @@ import { OptionWithAsset, Option_SOLIDITY } from "../models/extended";
 import { ADDRESS0, BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { getNFTAsset } from "./NFTAssets";
 import { contracts } from "./NFTOpt";
+import { NFTAsset } from "../models/nftAsset";
 
 export let options  : OptionWithAsset[] = [];
 export const optionChangingIDs = {};
@@ -23,25 +24,17 @@ export function isExpired(option : Option | OptionWithAsset)
     return true;
 }
 
-export async function getOption(id: number)
+export async function loadOptionWithAsset(id: number)
 {
     let optionSolidity = await contracts.NFTOpt.options(id) as unknown as Option_SOLIDITY;
 
-    let isValid =
-    optionSolidity.request.buyer          !== ADDRESS0
-    && optionSolidity.request.nftContract !== ADDRESS0
-    && optionSolidity.request.nftId       !== BIGNUMBER0
-    && optionSolidity.request.premium     !== BIGNUMBER0
-    && optionSolidity.request.strikePrice !== BIGNUMBER0
-    && optionSolidity.request.interval    !== 0;
+    let isValid = optionSolidity.request.buyer !== ADDRESS0;
 
     if (!isValid) throw "Invalid option data received!";
 
     let option =
     {
         id          : id
-    ,   nftContract : optionSolidity.request.nftContract
-    ,   nftId       : optionSolidity.request.nftId
     ,   interval    : optionSolidity.request.interval / SECONDS_IN_A_DAY
     ,   premium     : optionSolidity.request.premium
     ,   strikePrice : optionSolidity.request.strikePrice
@@ -50,21 +43,16 @@ export async function getOption(id: number)
     ,   seller      : optionSolidity.seller.toLowerCase()
     ,   startDate   : optionSolidity.startDate.toNumber()
     ,   state       : optionSolidity.state
-    };
+    ,   asset :
+        {
+            nftContract : optionSolidity.request.nftContract
+        ,   nftId       : optionSolidity.request.nftId
+        } as NFTAsset
+    } as OptionWithAsset;
 
-    return option as Option;
-}
+    option.asset = await getNFTAsset(option.asset);
 
-export async function loadOptionWithAsset(id: number)
-{
-    let option = await getOption(id);
-
-    option["asset"] = await getNFTAsset(option);
-
-    // @ts-ignore
-    delete option.nftContract; delete option.nftId;
-
-    options.push(option as unknown as OptionWithAsset);
+    options.push(option);
 }
 
 export async function loadAllOptionsWithAsset()
