@@ -1,15 +1,13 @@
-import { OptionState } from "../../models/option";
-
 export const flavorLabels =
 [
     "European"
 ,   "American"
 ];
 
-export const stateLabels =
+export const eventLabels =
 [
-    "Published"
-,   "Withdrawn"
+    "Withdrawn"
+,   "Published"
 ,   "Opened"
 ,   "Canceled"
 ,   "Exercised"

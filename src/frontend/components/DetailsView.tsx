@@ -13,7 +13,7 @@ import { getCachedContract } from "../../datasources/NFTAssets";
 import { OptionWithAsset } from "../../models/extended";
 import { ADDRESS0, SECONDS_IN_A_DAY } from "../../utils/constants";
 import { connected, scanner, signer } from "../utils/metamask";
-import { flavorLabels, stateLabels } from "../utils/labels";
+import { flavorLabels, eventLabels } from "../utils/labels";
 import { dismissLastToast, showToast } from "../utils/toasting";
 import Button_DetailsView from "../fragments/Button.DetailsView";
 import Field_DetailsView from "../fragments/Field.DetailsView";
@@ -175,7 +175,7 @@ function DetailsView(props: Props)
                     href={getStateTransactionScannerLink()}
                     className={clsx(classes.link, classes.state)}
                 >
-                    {stateLabels[option.state]}
+                    {eventLabels[option.state + 2]}
                 </a>
             }
         </div>

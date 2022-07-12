@@ -6,7 +6,7 @@ import { network, provider } from "./metamask";
 import { cancelOption, exerciseOption, optionChangingIDs } from "../../datasources/options";
 import { createOptionFromRequest, loadRequestAsOptionWithAsset, requestChangingIDs, withdrawRequest } from "../../datasources/requests";
 import { NFTOpt } from "../../../typechain-types";
-import { stateLabels } from "./labels";
+import { eventLabels } from "./labels";
 import { dismissLastToast, TOAST_DURATION } from "./toasting";
 import { contracts } from "../../datasources/NFTOpt";
 
@@ -111,5 +111,5 @@ export const createNFTOptInstance = () =>
     ) as NFTOpt;
 
     // Subscribe to events
-    for (let event of stateLabels) contracts.NFTOpt.on(event, handleEvent);
+    for (let event of eventLabels) contracts.NFTOpt.on(event, handleEvent);
 }
