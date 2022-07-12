@@ -6,8 +6,7 @@ import { network, provider } from "./metamask";
 import { cancelOption, exerciseOption, optionChangingIDs } from "../../datasources/options";
 import { createOptionFromRequest, loadRequestAsOptionWithAsset, requestChangingIDs, withdrawRequest } from "../../datasources/requests";
 import { NFTOpt } from "../../../typechain-types";
-import { OptionState } from "../../models/option";
-import { actions, stateLabels } from "./labels";
+import { stateLabels } from "./labels";
 import { dismissLastToast, TOAST_DURATION } from "./toasting";
 import { contracts } from "../../datasources/NFTOpt";
 
@@ -38,30 +37,35 @@ const onEndUpdateOption = (ID: number) =>
 
 const eventHandlers =
 {
-    [OptionState.PUBLISHED] :
+    "Published" :
     {
         hashlogs : requestIDsTransactions
-    ,   method : (ID: number) => loadRequestAsOptionWithAsset(ID).then(requestsUpdated)
+    ,   method   : (ID: number) => loadRequestAsOptionWithAsset(ID).then(requestsUpdated)
+    ,   action   : "published request"
     }
-,   [OptionState.WITHDRAWN] :
+,   "Withdrawn" :
     {
         hashlogs : requestIDsTransactions
     ,   method   : (ID: number) => withdrawRequest(ID).then(onEndUpdateRequest)
+    ,   action   : "withdrawn request"
     }
-,   [OptionState.OPEN] :
+,   "Opened" :
     {
         hashlogs : optionIDsTransactions
-    ,   method : (rID : number, oID : number) => createOptionFromRequest(rID, oID).then(onEndUpdateRequest).then(optionsUpdated)
+    ,   method   : (rID : number, oID : number) => createOptionFromRequest(rID, oID).then(onEndUpdateRequest).then(optionsUpdated)
+    ,   action   : "opened option"
     }
-,   [OptionState.CANCELED] :
+,   "Canceled" :
     {
         hashlogs : optionIDsTransactions
     ,   method   : (ID: number) => cancelOption(ID).then(onEndUpdateOption)
+    ,   action   : "canceled option"
     }
-,   [OptionState.EXERCISED] :
+,   "Exercised" :
     {
         hashlogs : optionIDsTransactions
-    ,   method : (ID: number) => exerciseOption(ID).then(onEndUpdateOption)
+    ,   method   : (ID: number) => exerciseOption(ID).then(onEndUpdateOption)
+    ,   action   : "exercised option"
     }
 }
 
@@ -72,21 +76,21 @@ const handleEvent = (ID : BigNumber, transaction : any) =>
 
     blockNumber = transaction.blockNumber;
 
-    let action = actions[transaction.event];
+    let action = eventHandlers[transaction.event].action;
 
     // Show toast of success only when called by the user action (already a toast in progress)
-    if (dismissLastToast()) toast.success("Successfully " + action.label, { duration: TOAST_DURATION });
+    if (dismissLastToast()) toast.success("Successfully " + action, { duration: TOAST_DURATION });
 
-    console.log(action.label);
+    console.log(action);
 
     let id = ID.toNumber();
     let handler = eventHandlers[action.state];
 
     // Store hash in logs
-    if (action.state === OptionState.WITHDRAWN) delete handler.hashlogs[id];
+    if (action[0] === 'W') delete handler.hashlogs[id];
     else handler.hashlogs[id] = transaction.transactionHash;
 
-    if (action.state !== OptionState.OPEN) { handler.method(id); return; }
+    if (action[0] !== 'O') { handler.method(id); return; }
 
     transaction.getTransaction()
     .then

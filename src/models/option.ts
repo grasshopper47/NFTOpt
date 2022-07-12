@@ -4,9 +4,7 @@ export enum OptionFlavor { EUROPEAN, AMERICAN }
 
 export enum OptionState
 {
-    PUBLISHED
-,   WITHDRAWN
-,   OPEN
+    OPEN
 ,   CANCELED
 ,   EXERCISED
 }

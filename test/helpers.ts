@@ -47,7 +47,7 @@ export const initializer = async () =>
     ,   premium     : ethers.utils.parseEther("1")
     ,   strikePrice : ethers.utils.parseEther("50")
     ,   flavor      : OptionFlavor.EUROPEAN
-    ,   state       : OptionState.PUBLISHED
+    ,   state       : -1
     };
 
     await deployMainContractLibraries();

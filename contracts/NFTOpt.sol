@@ -12,7 +12,7 @@ contract NFTOpt {
 
     /// @dev -- SCAFFOLDING ---------------------------
 
-    enum OptionState  { PUBLISHED, WITHDRAWN, OPEN, CANCELED, EXERCISED }
+    enum OptionState  { OPEN, CANCELED, EXERCISED }
     enum OptionFlavor { EUROPEAN, AMERICAN }
 
     struct Request
