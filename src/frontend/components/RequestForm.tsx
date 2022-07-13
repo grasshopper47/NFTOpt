@@ -20,6 +20,8 @@ import DropDown_RequestForm from "../fragments/DropDown.Request";
 
 let request = { } as OptionRequest_DISPLAY;
 
+let invalidPremium = request.premium <= request.strikePrice;
+
 const resetRequest = () =>
 {
     request.nftContract = "";
@@ -28,6 +30,8 @@ const resetRequest = () =>
     request.premium     = "0.1";
     request.strikePrice = "1";
     request.flavor      = OptionFlavor.AMERICAN;
+
+    invalidPremium = false;
 }
 
 resetRequest();
@@ -38,6 +42,7 @@ const isRequestOK = () =>
         && request.premium     !== ""
         && request.strikePrice !== ""
         && request.interval    !== ""
+        && !invalidPremium;
 }
 
 function RequestForm()
@@ -82,6 +87,7 @@ function RequestForm()
     const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
         request[event.target.id] = getFloatString(event.target.value); requestChanged();
+        invalidPremium = parseInt(request.premium) >= parseInt(request.strikePrice);
     };
 
     const setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
@@ -123,8 +129,8 @@ function RequestForm()
 
                 <DropDown_RequestForm value={keyOf(request)} setAsset={setAsset}/>
 
-                <TextBox_RequestForm fieldName="premium"     value={request.premium}     onChange={setAmount}   onKeyUp={onHandleKey} />
-                <TextBox_RequestForm fieldName="strikePrice" value={request.strikePrice} onChange={setAmount}   onKeyUp={onHandleKey} />
+                <TextBox_RequestForm fieldName="premium"     value={request.premium}     onChange={setAmount}   onKeyUp={onHandleKey} { ... invalidPremium && { errorText : "Must be less than Strike Price" } }/>
+                <TextBox_RequestForm fieldName="strikePrice" value={request.strikePrice} onChange={setAmount}   onKeyUp={onHandleKey} { ... invalidPremium && { errorText : "Must be greater than Premium" } }/>
                 <TextBox_RequestForm fieldName="interval"    value={request.interval}    onChange={setInterval} onKeyUp={onHandleKey} />
 
                 <FormControl className={classes.field}>

@@ -8,8 +8,9 @@ type Props =
 {
     fieldName   : string
 ,   value       : string
-,   onChange   ?: any
-,   onKeyUp    ?: any
+,   errorText  ?: string | undefined
+,   onChange   ?: any    | undefined
+,   onKeyUp    ?: any    | undefined
 };
 
 export default function(props: Props)
@@ -41,10 +42,10 @@ export default function(props: Props)
     }
 
     return <div className={classes.fieldWrapper}>
-        <label>{label}</label>
-
         <TextField
+            { ... props.errorText && { error: true, helperText: props.errorText } }
             id={`${props.fieldName}`}
+            label={label}
             InputProps={inputProps}
             placeholder={`Enter the ${description}`}
             type={props.fieldName === "interval" ? "number" : ""}
@@ -52,7 +53,6 @@ export default function(props: Props)
             value={props.value}
             onChange={props.onChange}
             onKeyUp={props.onKeyUp}
-            size="small"
         />
     </div>;
 }
