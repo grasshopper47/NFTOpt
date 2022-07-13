@@ -49,14 +49,6 @@
     {
         border-color: $text-primary;
     }
-
-    &:hover
-    {
-        fieldset
-        {
-            border-color: $color-secondary !important;
-        }
-    }
 }
 
 .field
@@ -74,9 +66,15 @@
         margin-left: 14px;
     }
 
+    :global(.MuiFormControlLabel-root)
+    {
+        text-shadow: 2px 1px rgba(10, 10, 10, 0.6);
+    }
+
     :global(.MuiRadio-root.MuiRadio-colorPrimary)
     {
         color: $color-secondary;
+        text-shadow: 1px 1px rgba(10, 10, 10, 0.4);
     }
 
     :global(.MuiInputAdornment-root) p
@@ -142,23 +140,34 @@ div.menuPaper:global(.MuiPaper-root)
     border-radius: 8px;
 }
 
+[data-theme="white"]
+{
+    .field
+    {
+        :global(.MuiFormControlLabel-root)
+        {
+            text-shadow: 1px 1px rgba(10, 10, 10, 0.6);
+        }
+    }
+
+    .fieldWrapper
+    {
+        text-shadow: 1px 1px rgba(10, 10, 10, 0.4);
+    }
+}
+
 [data-theme="dark"]
 {
-    // .form
-    // {
-    //     fieldset
-    //     {
-    //         border-color: $text-primary;
-    //     }
-
-    //     &:hover
-    //     {
-    //         fieldset
-    //         {
-    //             border-color: $color-secondary;
-    //         }
-    //     }
-    // }
+    .fieldWrapper
+    {
+        &:hover
+        {
+            fieldset
+            {
+                border-color: $text-tertiary !important;
+            }
+        }
+    }
 
     div.menuPaper:global(.MuiPaper-root)
     {
