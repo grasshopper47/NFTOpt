@@ -86,8 +86,9 @@ function RequestForm()
 
     const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
-        request[event.target.id] = getFloatString(event.target.value); requestChanged();
+        request[event.target.id] = getFloatString(event.target.value);
         invalidPremium = parseInt(request.premium) >= parseInt(request.strikePrice);
+        requestChanged();
     };
 
     const setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
