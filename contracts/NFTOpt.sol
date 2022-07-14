@@ -193,9 +193,6 @@ contract NFTOpt {
         _require_exists(option_.request);
         _require_open_state(option_.state);
 
-        IERC721 nftContract = IERC721(option_.request.nftContract);
-        if (nftContract.getApproved(option_.request.nftId) == address(this)) revert NOT_AUTHORIZED("Cancel while approved contract to transfer NFT");
-
         /// @dev Restrict calling rights to buyer (permitted anytime) or seller (restricted)
         bool isSeller = msg.sender == option_.seller;
         if (!isSeller && msg.sender != option_.request.buyer) revert NOT_AUTHORIZED("Only Buyer or Seller can call this method");
