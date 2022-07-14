@@ -73,14 +73,7 @@ describe("withdrawRequest", function () {
             .to.emit(NFTOptContract, "Withdrawn");
 
         let request = await NFTOptContract.requests(0);
-
-        expect(request[0]).to.be.equal(BIGNUMBER0);
-        expect(request[1]).to.be.equal(BIGNUMBER0);
-        expect(request[2]).to.be.equal(BIGNUMBER0);
-        expect(request[3]).to.be.equal(ADDRESS0);
-        expect(request[4]).to.be.equal(0);
-        expect(request[5]).to.be.equal(BIGNUMBER0);
-        expect(request[6]).to.be.equal(ADDRESS0);
+        expect(request[6]).to.be.equal(ADDRESS0); // buyer (6th field) == 0 means invalid option
 
         // Reset the state
         await deployMainContract();
@@ -90,23 +83,13 @@ describe("withdrawRequest", function () {
         await publishDummyRequest();
         await publishDummyRequest();
 
-        await expect(NFTOptContract.connect(buyer)
-            .withdrawRequest(0))
-            .to.emit(NFTOptContract, "Withdrawn");
-
-        let request = await NFTOptContract.requests(0);
-
-        expect(request[0]).to.be.equal(BIGNUMBER0);
-        expect(request[1]).to.be.equal(BIGNUMBER0);
-        expect(request[2]).to.be.equal(BIGNUMBER0);
-        expect(request[3]).to.be.equal(ADDRESS0);
-        expect(request[4]).to.be.equal(0);
-        expect(request[5]).to.be.equal(BIGNUMBER0);
-        expect(request[6]).to.be.equal(ADDRESS0);
+        expect(
+            await NFTOptContract.connect(buyer).withdrawRequest(0)
+        ).to.not.throw;
 
         await publishDummyRequest();
 
-        request = await NFTOptContract.requests(0);
+        let request = await NFTOptContract.requests(0);
 
         expect(request.buyer).to.equal(dummyOptionRequest.buyer);
         expect(request.nftContract).to.equal(dummyOptionRequest.nftContract);

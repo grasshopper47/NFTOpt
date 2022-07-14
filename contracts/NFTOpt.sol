@@ -130,8 +130,8 @@ contract NFTOpt {
         _require_exists(request_);
         _require_buyer(request_.buyer);
 
-        /// @dev Update storage
-        delete requests[_requestID];
+        /// @dev Update storage by marking as "invalid"
+        requests[_requestID].buyer = payable(address(0));
 
         requestDeletedIDs.push(_requestID);
 
