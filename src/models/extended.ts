@@ -25,7 +25,6 @@ Omit<OptionRequest,
     interval    : string
 ,   premium     : string
 ,   strikePrice : string
-,   key         : AssetKey
 };
 
 export type OptionWithAsset = Omit<Option, "nftContract" | "nftId"> & { asset: NFTAsset };

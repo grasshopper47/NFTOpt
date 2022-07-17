@@ -20,13 +20,14 @@ import DropDown_RequestForm from "../fragments/DropDown.Assets.Request";
 import DropDown_Flavor_RequestForm from "../fragments/DropDown.Flavor.RequestForm";
 import CustomAssetForm from "./CustomAssetForm";
 
-let request = { key : {} as AssetKey } as OptionRequest_DISPLAY;
+let request  = {} as OptionRequest_DISPLAY;
+let assetKey = {} as AssetKey
 
 let areAmountsInvalid = false;
 
 const isRequestValid = () =>
 {
-    return isValid(request.key)
+    return isValid(assetKey)
         && request.premium     !== ""
         && request.strikePrice !== ""
         && request.interval    !== ""
@@ -35,8 +36,8 @@ const isRequestValid = () =>
 
 const resetRequest = () =>
 {
-    request.key.nftContract = "";
-    request.key.nftId       = "";
+    assetKey = { nftId : "", nftContract: "" };
+
     request.interval        = "3";
     request.premium         = "0.1";
     request.strikePrice     = "1";
@@ -65,31 +66,33 @@ function RequestForm()
     ,   [account]
     );
 
+    console.log(assetKey, stringOf(assetKey));
+
     const setAsset = (asset : NFTAsset | undefined | null) =>
     {
         console.log("setAsset");
 
         if (asset == null)
         {
-            request.key = { nftId : "", nftContract: "" } as AssetKey;
+            assetKey = { nftId : "", nftContract: "" };
 
             setImage("");
 
             return;
         }
 
-        request.key = { ... asset.key };
+        assetKey = asset.key;
 
-        let image = imageOf(request.key);
+        let image = imageOf(assetKey);
 
         if (image) setImage(image);
-        else       loadNFTImage(request.key).then(setImage);
+        else       loadNFTImage(assetKey).then(setImage);
     };
 
     const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
         request[event.target.id] = getFloatString(event.target.value);
-        areAmountsInvalid = parseInt(request.premium) >= parseInt(request.strikePrice);
+        areAmountsInvalid = parseFloat(request.premium) >= parseFloat(request.strikePrice);
         requestChanged();
     };
 
@@ -111,14 +114,14 @@ function RequestForm()
         (
             contracts.NFTOpt.publishRequest
             (
-                request.key.nftContract
-            ,   request.key.nftId
+                assetKey.nftContract
+            ,   assetKey.nftId
             ,   ethers.utils.parseEther(request.strikePrice)
             ,   parseInt(request.interval) * SECONDS_IN_A_DAY
             ,   request.flavor
             ,   { value: ethers.utils.parseEther(request.premium) }
             )
-            .then( () => { resetRequest(); setAsset(null); } )
+            .then( () => { resetRequest(); setImage(""); } )
         );
     };
 
@@ -143,7 +146,7 @@ function RequestForm()
                         />
                     :   <>
                             <DropDown_RequestForm
-                                value={stringOf(request.key)}
+                                value={stringOf(assetKey)}
                                 list={assets}
                                 onChange={setAsset}
                             />
@@ -190,9 +193,9 @@ function RequestForm()
 
             </div>
 
-            <div className={clsx(classes.imageContainer, !request.key.nftContract && classes.dummyImageContainer)}>
+            <div className={clsx(classes.imageContainer, !assetKey.nftContract && classes.dummyImageContainer)}>
             {
-                request.key.nftContract
+                assetKey.nftContract
                 ?   <img src={image} alt="NFT image data"/>
                 :   [0, 0, 0].map( (_, i) => <div key={`dot-${i}`} className={classes.dot} /> )
             }
