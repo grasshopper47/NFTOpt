@@ -11,7 +11,7 @@ import { OptionState} from "../../models/option";
 import { isExpired } from "../../datasources/options";
 import { getCachedContract } from "../../datasources/NFTAssets";
 import { OptionWithAsset } from "../../models/extended";
-import { ADDRESS0, SECONDS_IN_A_DAY } from "../../utils/constants";
+import { ADDRESS0 } from "../../utils/constants";
 import { connected, scanner, signer } from "../utils/metamask";
 import { flavorLabels, eventLabels } from "../utils/labels";
 import { dismissLastToast, showToast } from "../utils/toasting";
@@ -46,9 +46,9 @@ function DetailsView(props: Props)
         {
             if (option.state !== OptionState.OPEN) return;
 
-            contract = getCachedContract(option.asset.nftContract);
+            contract = getCachedContract(option.asset.key.nftContract);
 
-            contract.getApproved(option.asset.nftId).then(checkAndSetApproved);
+            contract.getApproved(option.asset.key.nftId).then(checkAndSetApproved);
         }
     ,   []
     );
@@ -91,7 +91,7 @@ function DetailsView(props: Props)
         )
     );
 
-    let onApproveNFT = () => showToast(contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.nftId));
+    let onApproveNFT = () => showToast(contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.key.nftId));
 
     const getStateTransactionScannerLink = () =>
     {
@@ -114,14 +114,14 @@ function DetailsView(props: Props)
                     label="Withdraw Request"
                     variant="outlined"
                     className="btnSecondary"
-                    handleClick={() => onAction(onWithdrawOption)}
+                    handleClick={ () => onAction(onWithdrawOption) }
                 />;
             else
                 return <Button_DetailsView
                     label="Create Option"
                     variant="contained"
                     className="btnPrimary"
-                    handleClick={() => onAction(onCreateOption)}
+                    handleClick={ () => onAction(onCreateOption) }
                 />;
 
         if (option.state === OptionState.OPEN)
@@ -132,7 +132,7 @@ function DetailsView(props: Props)
                     label="Cancel Option"
                     variant="outlined"
                     className="btnSecondary"
-                    handleClick={() => onAction(onCancelOption)}
+                    handleClick={ () => onAction(onCancelOption) }
                 />
             );
 
@@ -151,7 +151,7 @@ function DetailsView(props: Props)
                         label={isApproved ? "Exercise Option" : "Approve NFT"}
                         variant="contained"
                         className="btnPrimary"
-                        handleClick={isApproved ? () => onAction(onExerciseOption) : onApproveNFT }
+                        handleClick={ isApproved ? () => onAction(onExerciseOption) : onApproveNFT }
                     />
                 </>;
             }
@@ -184,8 +184,8 @@ function DetailsView(props: Props)
 
             <div>
                 <div>
-                    <FieldLink_DetailsView label="NFT contract" value={option.asset.nftContract} />
-                    <Field_DetailsView     label="NFT token"    value={option.asset.nftId.toString()} />
+                    <FieldLink_DetailsView label="NFT contract" value={option.asset.key.nftContract} />
+                    <Field_DetailsView     label="NFT token"    value={option.asset.key.nftId.toString()} />
                     <FieldLink_DetailsView label="Buyer"        value={option.buyer} />
                     {
                         option.seller !== ADDRESS0 &&

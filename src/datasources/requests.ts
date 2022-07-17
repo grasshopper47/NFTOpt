@@ -37,7 +37,12 @@ export async function loadRequestAsOptionWithAsset(id: number)
         ,   seller      : ADDRESS0
         ,   startDate   : 0
         ,   state       : -1
-        ,   asset       : await getNFTAsset(request)
+        ,   asset :
+            await getNFTAsset
+            ({
+                nftContract : request.nftContract
+            ,   nftId       : request.nftId.toString()
+            })
         } as OptionWithAsset
     );
 }

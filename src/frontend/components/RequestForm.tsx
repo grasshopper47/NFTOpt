@@ -2,158 +2,200 @@
 import classes from "./styles/RequestForm.module.scss";
 import clsx from "clsx";
 
-import React from "react";
-import { Button, FormControl, RadioGroup } from "@mui/material";
+import React, { useEffect } from "react";
+import { Button, SelectChangeEvent, TextField } from "@mui/material";
 import { useState } from "react";
 import { ethers } from "ethers";
-import { useContracts } from "../../pages/_app";
-import { imageOf, keyOf, loadNFTImage } from "../../datasources/NFTAssets";
-import { NFTAsset } from "../../models/nftAsset";
+import { useAccount, useContracts } from "../../pages/_app";
+import { loadAssetsFor } from "../../datasources/NFT/localhost";
+import { imageOf, stringOf, loadNFTImage, isValid } from "../../datasources/NFTAssets";
+import { AssetKey, NFTAsset } from "../../models/nftAsset";
 import { OptionRequest_DISPLAY } from "../../models/extended";
 import { OptionFlavor } from "../../models/option";
-import { BIGNUMBER0, SECONDS_IN_A_DAY } from "../../utils/constants";
+import { SECONDS_IN_A_DAY } from "../../utils/constants";
 import { getFloatString, getIntervalString } from "../utils/helpers";
 import { showToast } from "../utils/toasting";
 import TextBox_RequestForm from "../fragments/TextBox.Request";
-import Radio_RequestForm from "../fragments/Radio.Request";
-import DropDown_RequestForm from "../fragments/DropDown.Request";
+import DropDown_RequestForm from "../fragments/DropDown.Assets.Request";
+import DropDown_Flavor_RequestForm from "../fragments/DropDown.Flavor.RequestForm";
+import CustomAssetForm from "./CustomAssetForm";
 
-let request = { } as OptionRequest_DISPLAY;
+let request = { key : {} as AssetKey } as OptionRequest_DISPLAY;
 
-let invalidPremium = request.premium <= request.strikePrice;
+let areAmountsInvalid = false;
+
+const isRequestValid = () =>
+{
+    return isValid(request.key)
+        && request.premium     !== ""
+        && request.strikePrice !== ""
+        && request.interval    !== ""
+        && !areAmountsInvalid;
+}
 
 const resetRequest = () =>
 {
-    request.nftContract = "";
-    request.nftId       = BIGNUMBER0;
-    request.interval    = "3";
-    request.premium     = "0.1";
-    request.strikePrice = "1";
-    request.flavor      = OptionFlavor.AMERICAN;
+    request.key.nftContract = "";
+    request.key.nftId       = "";
+    request.interval        = "3";
+    request.premium         = "0.1";
+    request.strikePrice     = "1";
+    request.flavor          = OptionFlavor.AMERICAN;
 
-    invalidPremium = false;
+    areAmountsInvalid = false;
 }
 
 resetRequest();
 
-const isRequestOK = () =>
-{
-    return request.nftContract !== ""
-        && request.premium     !== ""
-        && request.strikePrice !== ""
-        && request.interval    !== ""
-        && !invalidPremium;
-}
-
 function RequestForm()
 {
-    const [ image , setImage ]          = useState("");
-    const [ flag  , setRequestChanged ] = useState(0);
-    const requestChanged = () => setRequestChanged(flag ^ 1);
+    const [                , setRequestChanged ]  = useState(0);
+    const [ image          , setImage ]           = useState("");
+    const [ assets         , setAssets ]          = useState<NFTAsset[]>([]);
+    const [ showAddContract, setShowAddContract ] = useState(false);
 
+    const requestChanged = () => setRequestChanged(f => f ^ 1);
+
+    const account   = useAccount();
     const contracts = useContracts();
 
-    const setAsset = (asset? : NFTAsset | null) =>
+    useEffect
+    (
+        () => { loadAssetsFor(account).then(setAssets); }
+    ,   [account]
+    );
+
+    const setAsset = (asset : NFTAsset | undefined | null) =>
     {
-        // Triggered by dropdown to refresh the image
-        if (asset === undefined)
-        {
-            setImage(imageOf(request));
+        console.log("setAsset");
 
-            return;
-        }
-
-        if (asset === null)
+        if (asset == null)
         {
-            request.nftId       = BIGNUMBER0;
-            request.nftContract = "";
+            request.key = { nftId : "", nftContract: "" } as AssetKey;
 
             setImage("");
 
             return;
         }
 
-        console.log("setAsset");
+        request.key = { ... asset.key };
 
-        request.nftId       = asset.nftId;
-        request.nftContract = asset.nftContract;
-
-        let image = imageOf(request);
+        let image = imageOf(request.key);
 
         if (image) setImage(image);
-        else       loadNFTImage(request.nftContract, request.nftId).then(setImage);
+        else       loadNFTImage(request.key).then(setImage);
     };
 
     const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
         request[event.target.id] = getFloatString(event.target.value);
-        invalidPremium = parseInt(request.premium) >= parseInt(request.strikePrice);
+        areAmountsInvalid = parseInt(request.premium) >= parseInt(request.strikePrice);
         requestChanged();
     };
 
     const setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
-        request.interval = getIntervalString(event.target.value); requestChanged();
+        request.interval = getIntervalString(event.target.value);
+        requestChanged();
     };
 
-    const setFlavor = (event: React.ChangeEvent<HTMLInputElement>) =>
+    const setFlavor = (event: SelectChangeEvent<OptionFlavor>) =>
     {
-        request.flavor = parseInt(event.target.value) as OptionFlavor; requestChanged();
-    };
+        request.flavor = event.target.value as OptionFlavor;
+        requestChanged();
+    }
 
-    const onPublishRequest = () =>
+    const handlePublish = () =>
     {
         showToast
         (
             contracts.NFTOpt.publishRequest
             (
-                request.nftContract
-            ,   request.nftId
+                request.key.nftContract
+            ,   request.key.nftId
             ,   ethers.utils.parseEther(request.strikePrice)
             ,   parseInt(request.interval) * SECONDS_IN_A_DAY
             ,   request.flavor
             ,   { value: ethers.utils.parseEther(request.premium) }
             )
-            .then( () => { resetRequest(); requestChanged(); } )
+            .then( () => { resetRequest(); setAsset(null); } )
         );
     };
 
-    const onHandleKey = (event: React.KeyboardEvent<HTMLInputElement>) => { if (isRequestOK() && event.key === "Enter") onPublishRequest(); }
+    const handleCustomContract = () =>
+    {
+        setAsset(assets[assets.length - 1]);
+        setShowAddContract(false);
+    }
 
-    const create3Dots = () => [0, 0, 0].map( (_, i) => <div key={`dot-${i}`} className={classes.dot} /> );
+    const handleKey = (event: React.KeyboardEvent<HTMLInputElement>) => { if (isRequestValid() && event.key === "Enter") handlePublish(); }
 
     return <>
         <p className="page-title">Request a PUT Option</p>
 
         <div className={classes.root}>
             <div className={classes.form}>
+                {
+                    showAddContract
+                    ?   <CustomAssetForm
+                            onSuccess={handleCustomContract}
+                            onCancel={ () => setShowAddContract(false) }
+                        />
+                    :   <>
+                            <DropDown_RequestForm
+                                value={stringOf(request.key)}
+                                list={assets}
+                                onChange={setAsset}
+                            />
 
-                <DropDown_RequestForm value={keyOf(request)} setAsset={setAsset}/>
+                            <Button
+                                className={classes.btnAddContract}
+                                size="small"
+                                onClick={ () => setShowAddContract(true) }
+                            >🆕</Button>
+                        </>
+                }
 
-                <TextBox_RequestForm fieldName="premium"     value={request.premium}     onChange={setAmount}   onKeyUp={onHandleKey} { ... invalidPremium && { errorText : "Must be less than Strike Price" } }/>
-                <TextBox_RequestForm fieldName="strikePrice" value={request.strikePrice} onChange={setAmount}   onKeyUp={onHandleKey} { ... invalidPremium && { errorText : "Must be greater than Premium" } }/>
-                <TextBox_RequestForm fieldName="interval"    value={request.interval}    onChange={setInterval} onKeyUp={onHandleKey} />
+                <div className={classes.twoFieldWrapper}>
+                    <TextBox_RequestForm fieldName="premium"
+                        value={request.premium}
+                        onChange={setAmount}
+                        onKeyUp={handleKey}
+                        { ... areAmountsInvalid && { errorText : "Must be less than Strike Price" } }/>
 
-                <FormControl className={classes.field}>
-                    <RadioGroup defaultValue={OptionFlavor.AMERICAN}>
-                        <Radio_RequestForm flavor={OptionFlavor.AMERICAN} value={request.flavor} onChange={setFlavor} onKeyUp={onHandleKey} />
-                        <Radio_RequestForm flavor={OptionFlavor.EUROPEAN} value={request.flavor} onChange={setFlavor} onKeyUp={onHandleKey} />
-                    </RadioGroup>
-                </FormControl>
+                    <TextBox_RequestForm fieldName="strikePrice"
+                        value={request.strikePrice}
+                        onChange={setAmount}
+                        onKeyUp={handleKey}
+                        { ... areAmountsInvalid && { errorText : "Must be greater than Premium" } }/>
+                </div>
+
+                <div className={classes.twoFieldWrapper}>
+                    <TextBox_RequestForm fieldName="interval"
+                        value={request.interval}
+                        onChange={setInterval}
+                        onKeyUp={handleKey} />
+
+                    <DropDown_Flavor_RequestForm
+                        value={request.flavor}
+                        onChange={setFlavor} />
+                </div>
 
                 <Button
-                    className={classes.submitBtn}
+                    className={classes.btnPublishRequest}
                     variant="contained"
-                    onClick={onPublishRequest}
-                    disabled={!isRequestOK()}
-                >
-                    Publish Request
-                </Button>
+                    onClick={handlePublish}
+                    disabled={!isRequestValid()}
+                >Publish Request</Button>
 
             </div>
 
-            <div className={clsx(classes.imageContainer, !request.nftContract && classes.dummyImageContainer)}>
-                { request.nftContract ? <img src={image} alt="NFT image data"/> : create3Dots() }
+            <div className={clsx(classes.imageContainer, !request.key.nftContract && classes.dummyImageContainer)}>
+            {
+                request.key.nftContract
+                ?   <img src={image} alt="NFT image data"/>
+                :   [0, 0, 0].map( (_, i) => <div key={`dot-${i}`} className={classes.dot} /> )
+            }
             </div>
         </div>
     </>;

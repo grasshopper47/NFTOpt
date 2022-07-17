@@ -1,19 +1,24 @@
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { provider } from "../frontend/utils/metamask";
-import { NFTAsset } from "../models/nftAsset";
+import { AssetKey, NFTAsset } from "../models/nftAsset";
 import { ABIs } from "../utils/constants";
-
-type minObj = { nftId : BigNumber, nftContract : string };
 
 export let images = {};
 export let assets = {};
 
-export let NFTContractsCache = {};
+let NFTContractsCache = {};
 
 export const clearContractsAndAssets = () => NFTContractsCache = images = assets = {};
 
-export const keyOf    = (obj : minObj )    => obj.nftId + "_" + obj.nftContract;
-export const imageOf  = (obj : minObj)     => images[keyOf(obj)] as string;
+export const isValid = (key : AssetKey) =>
+{
+    return key.nftContract.length === 42
+        && key.nftContract.slice(0,2) =="0x"
+        && key.nftId !== ""
+};
+
+export const stringOf = (obj : AssetKey )  => obj.nftId + "_" + obj.nftContract;
+export const imageOf  = (obj : AssetKey)   => images[stringOf(obj)] as string;
 export const assetsOf = (account : string) => assets[account] as NFTAsset[];
 
 export function getCachedContract(address : string)
@@ -42,41 +47,38 @@ export function getCachedContract(address : string)
     return contract;
 }
 
-
-export async function loadNFTImage(address: string, id: BigNumber)
+export async function loadNFTImage(key : AssetKey)
 {
     console.log("loadNFTImage");
-    let contract = getCachedContract(address);
+    let contract = getCachedContract(key.nftContract);
 
-    let data = await contract.tokenURI(id);
-
+    let data = await contract.tokenURI(key.nftId);
     let image = JSON.parse(data).image;
 
-    images[id.toString() + "_" + address] = image;
+    images[key.nftId + "_" + key.nftContract] = image;
 
     return image;
 }
 
-export async function getNFTAsset(option: { nftId : BigNumber, nftContract : string })
+export async function getNFTAsset(key : AssetKey)
 {
-    let NFTContract = getCachedContract(option.nftContract);
+    let NFTContract = getCachedContract(key.nftContract);
 
     let promises =
     [
-        /* name  */ NFTContract.name().then(r => r + " - " + option.nftId.toString())
-    ,   /* image */ NFTContract.tokenURI(option.nftId).then(r => JSON.parse(r).image)
+        /* name  */ NFTContract.name().then(r => r + " - " + key.nftId)
+    ,   /* image */ NFTContract.tokenURI(key.nftId).then(r => JSON.parse(r).image)
     ];
 
     // Use the image from cache, if available
-    let cache = images[keyOf(option)];
+    let cache = images[stringOf(key)];
     if (cache) promises[1] = cache;
 
     await Promise.allSettled(promises);
 
     return {
-        nftId       : option.nftId
-    ,   nftContract : option.nftContract
-    ,   name        : await promises[0]
-    ,   image       : await promises[1]
+        key   : { ... key }
+    ,   name  : await promises[0]
+    ,   image : await promises[1]
     } as NFTAsset;
 }

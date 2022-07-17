@@ -19,8 +19,9 @@
 {
     display: flex;
     flex-direction: column;
-    width: 35%;
+    width: 45%;
     margin-top: 14px;
+    position: relative;
 
     :global(.MuiInputBase-root)
     {
@@ -40,24 +41,19 @@
     margin-bottom: 24px;
     text-shadow: 2px 1px rgba(10, 10, 10, 0.8);
 
-    label
-    {
-        margin-bottom: 4px;
-    }
-
     fieldset
     {
         border-color: $text-primary;
+    }
+
+    label:global(.MuiFormLabel-root)
+    {
+        color: $text-primary;
     }
 }
 
 .field
 {
-    label:global(.MuiFormLabel-root)
-    {
-        color: $text-primary;
-    }
-
     :global(.MuiFormGroup-root)
     {
         display: flex;
@@ -119,13 +115,52 @@
     height: 50px;
 }
 
-button.submitBtn
+.twoFieldWrapper
 {
-    margin-top: 40px;
-    padding: 8px;
-    font-size: 16px;
-    font-weight: 500;
-    border-radius: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 20px;
+}
+
+.twoFieldWrapperAddContract
+{
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    grid-column-gap: 20px;
+}
+
+button.btnAddContract,
+button.btnOK,
+button.btnCancel
+{
+    top: 28px;
+    position:absolute;
+    padding:0;
+    max-width: 0;
+    max-height: 0;
+    cursor: pointer;
+    font-size: 16pt;
+    font-family: $emoji-font;
+    transition: filter 250ms ease-out;
+
+    &:hover
+    {
+        filter: drop-shadow(0 0 0.25rem $color-secondary);
+    }
+}
+
+button.btnOK
+{
+    right: -64px;
+}
+
+button.btnCancel
+{
+    right: -98px;
+}
+
+button.btnPublishRequest
+{
     background: $color-secondary;
 
     &:hover
@@ -134,10 +169,25 @@ button.submitBtn
     }
 }
 
+button.btnAddContract
+{
+    right: -64px;
+}
+
+button.btnPublishRequest
+{
+    margin-top: 40px;
+    padding: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 10px;
+}
+
 div.menuPaper:global(.MuiPaper-root)
 {
     max-height: 360px;
     border-radius: 8px;
+    text-shadow: 1px 1px rgba(25, 25, 25, 0.2);
 }
 
 [data-theme="white"]
@@ -175,6 +225,7 @@ div.menuPaper:global(.MuiPaper-root)
         li
         {
             color: white;
+            text-shadow: 2px 1px rgba(10, 10, 10, 0.8);
         }
     }
 }

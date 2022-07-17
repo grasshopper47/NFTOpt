@@ -1,9 +1,12 @@
-import { BigNumber } from "ethers";
+export type AssetKey =
+{
+    nftId       : string
+,   nftContract : string
+};
 
 export type NFTAsset =
 {
-    nftId       : BigNumber
-,   nftContract : string
-,   name        : string
-,   image       : string
+    key   : AssetKey
+,   name  : string
+,   image : string
 };
