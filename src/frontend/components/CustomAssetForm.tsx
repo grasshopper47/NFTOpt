@@ -103,22 +103,22 @@ function CustomAssetForm(props : Props)
 
     return <>
         <div className={classes.twoFieldWrapperAddContract}>
-                <TextField
-                    className={clsx(classes.fieldWrapper, classes.field)}
-                    { ... errorText && { error: true, helperText: errorText } }
-                    label="NFT Contract Address"
-                    placeholder={`Enter an address`}
-                    value={newAssetKey.nftContract}
-                    onChange={setContract}
-                />
+            <TextField
+                className={clsx(classes.fieldWrapper, classes.field)}
+                { ... errorText && { error: true, helperText: errorText } }
+                label="NFT Contract Address"
+                placeholder={`Enter an address`}
+                value={newAssetKey.nftContract}
+                onChange={setContract}
+            />
 
-                <TextField
-                    className={clsx(classes.fieldWrapper, classes.field)}
-                    label="Token ID"
-                    placeholder={`Enter token ID`}
-                    value={newAssetKey.nftId}
-                    onChange={setID}
-                />
+            <TextField
+                className={clsx(classes.fieldWrapper, classes.field)}
+                label="Token ID"
+                placeholder={`Enter token ID`}
+                value={newAssetKey.nftId}
+                onChange={setID}
+            />
         </div>
 
         <Button

@@ -1,10 +1,10 @@
 // @ts-ignore
 import classes from "./styles/RowView.module.scss";
+import clsx from "clsx";
 
 import React from "react";
 import { ethers } from "ethers";
 import { OptionWithAsset } from "../../models/extended";
-import clsx from "clsx";
 import DetailsView from "./DetailsView";
 
 type RowView =

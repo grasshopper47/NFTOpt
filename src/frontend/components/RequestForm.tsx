@@ -2,10 +2,8 @@
 import classes from "./styles/RequestForm.module.scss";
 import clsx from "clsx";
 
-import React, { useEffect } from "react";
-import { Button, SelectChangeEvent, TextField } from "@mui/material";
-import { useState } from "react";
 import { ethers } from "ethers";
+import React, { useEffect, useState } from "react";
 import { useAccount, useContracts } from "../../pages/_app";
 import { loadAssetsFor } from "../../datasources/NFT/localhost";
 import { imageOf, stringOf, loadNFTImage, isValid } from "../../datasources/NFTAssets";
@@ -19,6 +17,7 @@ import TextBox_RequestForm from "../fragments/TextBox.Request";
 import DropDown_RequestForm from "../fragments/DropDown.Assets.Request";
 import DropDown_Flavor_RequestForm from "../fragments/DropDown.Flavor.RequestForm";
 import CustomAssetForm from "./CustomAssetForm";
+import { Button, SelectChangeEvent } from "@mui/material";
 
 let request  = {} as OptionRequest_DISPLAY;
 let assetKey = {} as AssetKey

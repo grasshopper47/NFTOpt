@@ -1,4 +1,3 @@
-import { BigNumber } from "ethers";
 import addresses from "../../../addresses.json";
 import { MAX_MINTABLE_TOKENS } from "../../utils/constants";
 import { AssetKey, NFTAsset } from "../../models/NFTAsset";
