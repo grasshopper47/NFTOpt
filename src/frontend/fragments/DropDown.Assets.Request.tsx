@@ -13,13 +13,6 @@ type Props =
 ,   onChange : (asset: NFTAsset | undefined) => void
 };
 
-const handleRenderRequest = (asset) =>
-{
-    if (asset) return asset.name;
-
-    return <em>Select an NFT</em>;
-};
-
 let selectedAsset : NFTAsset | undefined | null = null;
 
 export default function(props: Props)
@@ -32,7 +25,7 @@ export default function(props: Props)
             value={props.value}
             labelId="select-label"
             label="NFT Item"
-            renderValue={() => handleRenderRequest(selectedAsset)}
+            renderValue={(value) => { return value === "_" || !selectedAsset ? <em>Select an NFT</em> : selectedAsset.name; } }
             onChange={ (event) => { selectedAsset = props.list.find(a => stringOf(a.key) === event.target.value); props.onChange(selectedAsset) } }
         >
             <MenuItem disabled value="_" />
