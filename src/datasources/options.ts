@@ -3,7 +3,6 @@ import { OptionWithAsset, Option_SOLIDITY } from "../models/extended";
 import { ADDRESS0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { getNFTAsset } from "./NFTAssets";
 import { contracts } from "./NFTOpt";
-import { NFTAsset } from "../models/nftAsset";
 
 export let options  : OptionWithAsset[] = [];
 export const optionChangingIDs = {};
@@ -12,7 +11,7 @@ export const clearOptions = () => options = [];
 export function isExpired(option : Option | OptionWithAsset)
 {
     let timeNow = new Date().getTime() / 1000;
-    let timeOption = option.startDate + option.interval;
+    let timeOption = option.startDate + option.interval * SECONDS_IN_A_DAY;
     let diff = timeOption - timeNow;
 
     // Can exercise any time before & including the end day (AMERICAN)
@@ -44,13 +43,12 @@ export async function loadOptionWithAsset(id: number)
     ,   startDate   : optionSolidity.startDate.toNumber()
     ,   state       : optionSolidity.state
     ,   asset :
-        {
+        await getNFTAsset
+        ({
             nftContract : optionSolidity.request.nftContract
-        ,   nftId       : optionSolidity.request.nftId
-        } as NFTAsset
+        ,   nftId       : optionSolidity.request.nftId.toString()
+        })
     } as OptionWithAsset;
-
-    option.asset = await getNFTAsset(option.asset);
 
     options.push(option);
 }

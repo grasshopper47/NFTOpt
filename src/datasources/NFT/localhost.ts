@@ -1,12 +1,12 @@
-import { BigNumber } from "ethers";
 import addresses from "../../../addresses.json";
 import { MAX_MINTABLE_TOKENS } from "../../utils/constants";
-import { NFTAsset } from "../../models/NFTAsset";
+import { AssetKey, NFTAsset } from "../../models/NFTAsset";
 import { getCachedContract, assets } from "../NFTAssets";
 
 export async function loadAssetsFor(account: string)
 {
     console.log("loadAssetsFor");
+
     let arr      : NFTAsset[]     = [];
     let promises : Promise<any>[] = [];
 
@@ -18,22 +18,24 @@ export async function loadAssetsFor(account: string)
         {
             promises.push
             (
-                (async (address : string, tokenID : number) =>
+                (async (key : AssetKey) =>
                 {
-                    let contract = getCachedContract(address);
+                    let contract = getCachedContract(key.nftContract);
 
-                    let owner = await contract.ownerOf(tokenID);
+                    let owner = await contract.ownerOf(key.nftId);
                     if (owner.toLowerCase() !== account) return;
 
                     arr.push
                     ({
-                        nftId       : BigNumber.from(tokenID)
-                    ,   nftContract : address
-                    ,   name        : await contract.name() + " - " + tokenID.toString()
-                    ,   image       : ""
+                        key   : key
+                    ,   name  : await contract.name() + " - " + key.nftId.toString()
+                    ,   image : ""
                     });
                 })
-                (addresses["localhost"][name], i)
+                ({
+                    nftId       : i.toString()
+                ,   nftContract : addresses["localhost"][name]
+                })
             );
         }
     }
