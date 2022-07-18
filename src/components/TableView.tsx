@@ -12,7 +12,6 @@ type Props =
 {
     list           : OptionWithAsset[]
 ,   selectedValue ?: OptionWithAsset | null | undefined
-,   viewIndex     ?: number
 ,   onSelect       : (obj: OptionWithAsset | null) => void
 ,   onSorted       : (list: OptionWithAsset[]) => void
 };
@@ -44,7 +43,7 @@ let header =
 function TableView(props: Props)
 {
     const selectedID = props.selectedValue ? props.selectedValue.id : -1;
-    const length = props.list.length;
+    const length = props.list ? props.list.length : 0;
 
     sortList = (sorter : (a1: OptionWithAsset, a2: OptionWithAsset) => number) =>
     {
@@ -58,11 +57,12 @@ function TableView(props: Props)
         { length !== 0 && header }
 
         {
+            length !== 0 &&
             props.list.map
             (
-                option =>
+                (option, index) =>
                 <RowView
-                    key={`option-row-${length + option.id}`}
+                    key={`option-row-${index}`}
                     option={option}
                     showDetails={option.id === selectedID}
                     // If previously selected an option, and it is the same one, set it to null
