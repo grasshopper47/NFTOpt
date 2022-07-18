@@ -45,7 +45,7 @@
         "---": "",
         "start blockchain node": "npx hardhat node",
         "deploy contracts": "npx hardhat run scripts/deploy.ts --network localhost",
-        "publish 100 requests": "npx hardhat run scripts/publishRequests.ts --network localhost",
+        "publish 10 requests": "npx hardhat run scripts/publishRequests.ts --network localhost",
         "---": "",
         "start webserver": "next dev -p 3003"
     }

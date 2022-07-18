@@ -50,8 +50,6 @@ export async function publishRequests()
 
         let flavor = Math.floor(Math.random() * 2);
 
-        console.log(premium,strikePrice,flavor, interval);
-
         await NFTOpt.connect(buyer).publishRequest
         (
             nftContract
