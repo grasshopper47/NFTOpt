@@ -6,10 +6,12 @@ import { AppProps } from "next/app";
 import { createContext, useContext, useState, useEffect } from "react";
 
 import { NFTOpt } from "../../typechain-types";
+import { loadAssetsFor } from "../../datasources/NFT/localhost";
 import { clearNFTOpt, contracts } from "../../datasources/NFTOpt";
 import { clearContractsAndAssets } from "../../datasources/NFTAssets";
 import { requests, loadAllRequestsAsOptionsWithAsset, clearRequests, requestChangingIDs } from "../../datasources/requests"
 import { options, loadAllOptionsWithAsset, clearOptions, optionChangingIDs  } from "../../datasources/options"
+import { NFTAsset } from "../../models/nftAsset";
 import { OptionWithAsset } from "../../models/extended";
 import { setOptionsUpdatedCallback, setRequestUpdatedCallback, createNFTOptInstance, optionIDsTransactions, requestIDsTransactions } from "../utils/contracts";
 import { createProvider, hookMetamask, network, provider, signerOrProvider } from "../utils/metamask";
@@ -26,12 +28,14 @@ type ContextType =
 };
 
 const AccountContext   = createContext("");
+const AssetsContext    = createContext<NFTAsset[]>([])
 const ContractsContext = createContext<{ NFTOpt : NFTOpt }>({ NFTOpt: null as unknown as NFTOpt });
 
 const RequestsContext = createContext<ContextType>({} as unknown as ContextType);
 const OptionsContext  = createContext<ContextType>({} as unknown as ContextType);
 
 export const useAccount   = () => useContext(AccountContext);
+export const useAssets    = () => useContext(AssetsContext);
 export const useContracts = () => useContext(ContractsContext);
 
 export const useRequests  = () => useContext(RequestsContext);
@@ -41,6 +45,7 @@ export default function App({ Component, pageProps }: AppProps)
 {
     const [ account      , setAccount ]      = useState("");
     const [ chainID      , setChainID ]      = useState(-1);
+    const [ assets       , setAssets ]       = useState<NFTAsset[]>([]);
     const [ requestsHash , setRequestsHash ] = useState(0);
     const [ optionsHash  , setOptionsHash ]  = useState(0);
 
@@ -80,7 +85,6 @@ export default function App({ Component, pageProps }: AppProps)
             // Re-fetch cache anew
             loadAllRequestsAsOptionsWithAsset().then(updateRequestsHash);
             loadAllOptionsWithAsset().then(updateOptionsHash);
-
         }
     ,   [chainID]
     );
@@ -95,6 +99,8 @@ export default function App({ Component, pageProps }: AppProps)
             // Create an upgraded/downgraded instance with connected address as signer OR with the default provider (readonly)
             // NOTE: event subscription is maintained
             contracts.NFTOpt = contracts.NFTOpt?.connect(signerOrProvider());
+
+            loadAssetsFor(account).then(setAssets);
         }
     ,   [account]
     );
@@ -107,8 +113,9 @@ export default function App({ Component, pageProps }: AppProps)
 
         <Toaster containerClassName={"toast-container"} />
 
-        <AccountContext.Provider   value={account}>
         <ContractsContext.Provider value={contracts}>
+        <AccountContext.Provider   value={account}>
+        <AssetsContext.Provider    value={assets}>
 
         <RequestsContext.Provider
             value=
@@ -136,7 +143,8 @@ export default function App({ Component, pageProps }: AppProps)
         </OptionsContext.Provider>
         </RequestsContext.Provider>
 
-        </ContractsContext.Provider>
+        </AssetsContext.Provider>
         </AccountContext.Provider>
+        </ContractsContext.Provider>
     </>;
 }

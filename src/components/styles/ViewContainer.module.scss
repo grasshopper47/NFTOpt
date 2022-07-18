@@ -84,6 +84,11 @@ div.dropDown:global(.MuiPaper-root)
             color: #f1f5f9;
         }
     }
+
+    .button
+    {
+        text-shadow: 2px 1px rgb(25, 25, 25, 0.8);
+    }
 }
 
 .btnListView
@@ -107,7 +112,7 @@ div.dropDown:global(.MuiPaper-root)
         letter-spacing: 1px;
         font-size: 18px;
         font-weight: bold;
-        text-shadow: 1px 1px rgb(25, 25, 25);
+        text-shadow: 1px 1px rgba(25, 40, 60, 0.8);
         color: $color-primary;
     }
 

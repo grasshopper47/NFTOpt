@@ -1,12 +1,12 @@
 // @ts-ignore
 import classes from "./styles/ViewContainer.module.scss";
+import clsx from "clsx";
 
 import React, { useEffect, useState } from "react";
 import { OptionWithAsset } from "../../models/extended";
-import { Button, MenuItem, Select } from "@mui/material";
-import clsx from "clsx";
 import FilterBox from "./FilterBox";
 import { ListViewStates } from "./ListView";
+import { Button, MenuItem, Select } from "@mui/material";
 
 const viewTypeStorageKey  = "ViewType";
 const viewStateStorageKey = "ViewState";
@@ -27,10 +27,10 @@ export let view : ViewConfig =
 
 type Props =
 {
-    list            : OptionWithAsset[]
+    list           : OptionWithAsset[]
 ,   selectedValue ?: OptionWithAsset | null
-,   onViewChanged   : () => void
-,   onFilter        : () => void
+,   onViewChanged  : () => void
+,   onFilter       : () => void
 };
 
 function ViewSettings(props: Props)
@@ -65,7 +65,7 @@ function ViewSettings(props: Props)
         props.onViewChanged();
     }
 
-    const hasItems = props.list.length !== 0;
+    const hasItems = props.list ? props.list.length !== 0 : false;
 
     return <div className={classes.viewSettingsWrapper}>
         {
