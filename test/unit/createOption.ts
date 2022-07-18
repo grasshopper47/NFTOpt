@@ -3,6 +3,7 @@ import { OptionState } from "../../models/option";
 import { buyer, seller, initializer, dummyOptionRequest, publishDummyRequest } from "../helpers";
 import { NFTOptContract, deployMainContract } from "../../utils/deployment";
 import { ethers } from "hardhat";
+import { ADDRESS0 } from "../../utils/constants";
 
 describe("createOption", function () {
     before("prepareEnv", async function () {
@@ -109,6 +110,32 @@ describe("createOption", function () {
             .createOption(0, { value: dummyOptionRequest.strikePrice }))
             .to.emit(NFTOptContract, "Opened")
             .withArgs(0);
+
+        // Reset the state
+        await deployMainContract();
+    });
+
+    it("reuses storage slots after successful withdrawal", async function () {
+        await publishDummyRequest();
+        await publishDummyRequest();
+
+        expect(
+            await NFTOptContract.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice} )
+        ).to.not.throw;
+
+        let request = await NFTOptContract.requests(1);
+        expect(request.buyer).to.equal(ADDRESS0);
+
+        await publishDummyRequest();
+        request = await NFTOptContract.requests(1);
+
+        expect(request.buyer).to.equal(dummyOptionRequest.buyer);
+        expect(request.nftContract).to.equal(dummyOptionRequest.nftContract);
+        expect(request.nftId).to.equal(dummyOptionRequest.nftId);
+        expect(request.interval).to.equal(dummyOptionRequest.interval);
+        expect(request.premium).to.equal(dummyOptionRequest.premium);
+        expect(request.strikePrice).to.equal(dummyOptionRequest.strikePrice);
+        expect(request.flavor).to.equal(dummyOptionRequest.flavor);
 
         // Reset the state
         await deployMainContract();
