@@ -74,11 +74,10 @@ function ViewContainer()
 
     const hasItems = viewedOptions.length !== 0;
 
-    useEffect
-    (
-        () => handleFiltered()
-    ,   [requests.hash, options.hash]
-    );
+    const handleFiltered = () => { doFilter(optionViewState, filterParams).then(setViewedOptions); }
+
+    // Re-apply filter when hashes change
+    useEffect(handleFiltered, [requests.hash, options.hash]);
 
     useEffect
     (
@@ -90,18 +89,13 @@ function ViewContainer()
             localStorage[tabIndexStorageKey] = activeTabIndex;
 
             optionViewState = tabs[activeTabIndex].value;
+            let options = optionsByStateFiltered[optionViewState];
 
-            if (optionsByStateFiltered[optionViewState] === undefined) handleFiltered();
-            else setViewedOptions(optionsByStateFiltered[optionViewState]);
+            if (options?.length === 0) handleFiltered();
+            else setViewedOptions(options);
         }
     ,   [activeTabIndex]
     );
-
-    const handleFiltered = () =>
-    {
-        doFilter(optionViewState, filterParams)
-        .then(setViewedOptions);
-    }
 
     const renderStatusText = () =>
     {
