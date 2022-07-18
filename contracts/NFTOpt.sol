@@ -132,7 +132,6 @@ contract NFTOpt {
 
         /// @dev Update storage by marking as "invalid"
         requests[_requestID].buyer = payable(address(0));
-
         requestDeletedIDs.push(_requestID);
 
         emit Withdrawn(_requestID);
@@ -159,7 +158,8 @@ contract NFTOpt {
         // if (block.timestamp + request_.interval < block.timestamp) revert UNSIGNED_INTEGER_OVERFLOW();
 
         /// @dev Update storage
-        delete requests[_requestID];
+        requests[_requestID].buyer = payable(address(0));
+        requestDeletedIDs.push(_requestID);
 
         /// @dev Optimize for gas by caching id
         uint256 optionID_ = optionID;
