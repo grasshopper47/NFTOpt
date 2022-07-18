@@ -142,8 +142,9 @@ function ViewContainer()
         let props =
         {
             list      : viewedOptions.slice(startIndex, startIndex + page.count)
-        ,   onSelect  : setSelectedOption
         ,   viewIndex : view.state
+        ,   onSelect  : setSelectedOption
+        ,   onSorted  : (list: OptionWithAsset[]) => setViewedOptions(list)
         };
 
         if (selectedOption) props["selectedValue"] = selectedOption;

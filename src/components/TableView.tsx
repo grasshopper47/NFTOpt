@@ -11,9 +11,10 @@ let sortMode = SortMode.DESCENDING;
 type Props =
 {
     list           : OptionWithAsset[]
-,   onSelect       : (obj: OptionWithAsset | null) => void
-,   selectedValue ?: OptionWithAsset
+,   selectedValue ?: OptionWithAsset | null | undefined
 ,   viewIndex     ?: number
+,   onSelect       : (obj: OptionWithAsset | null) => void
+,   onSorted       : (list: OptionWithAsset[]) => void
 };
 
 export const TableViewLimits = [ 10, 20, 50 ];
@@ -42,17 +43,14 @@ let header =
 
 function TableView(props: Props)
 {
-    // Used to sort the options in place
-    const [ listHash , setListHash ] = useState(0);
-
-    let selectedValueID = props.selectedValue ? props.selectedValue.id : -1;
+    let selectedID = props.selectedValue ? props.selectedValue.id : -1;
 
     sortList = (sorter : (a1: OptionWithAsset, a2: OptionWithAsset) => number) =>
     {
         if (sortMode === SortMode.ASCENDING) { props.list.sort(sorter); sortMode = SortMode.DESCENDING; }
         else                                 { props.list.sort((a, b) => sorter(b, a)); sortMode = SortMode.ASCENDING; }
 
-        setListHash( h => ++h );
+        props.onSorted(props.list);
     }
 
     return <div className={classes.containerGrid}>
@@ -65,9 +63,9 @@ function TableView(props: Props)
                 <RowView
                     key={`option-row-${option.id}`}
                     option={option}
-                    showDetails={option.id === selectedValueID}
+                    showDetails={option.id === selectedID}
                     // If previously selected an option, and it is the same one, set it to null
-                    onClick={ () => props.onSelect(option.id === selectedValueID ? null : option) }
+                    onClick={ () => props.onSelect(option.id === selectedID ? null : option) }
                 />
             )
         }
