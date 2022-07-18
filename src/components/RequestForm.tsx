@@ -4,8 +4,7 @@ import clsx from "clsx";
 
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
-import { useAccount, useContracts } from "../pages/_app";
-import { loadAssetsFor } from "../../datasources/NFT/localhost";
+import { useAccount, useAssets, useContracts } from "../pages/_app";
 import { imageOf, stringOf, loadNFTImage, isValid } from "../../datasources/NFTAssets";
 import { AssetKey, NFTAsset } from "../../models/nftAsset";
 import { OptionRequest_DISPLAY } from "../../models/extended";
@@ -50,22 +49,17 @@ resetRequest();
 function RequestForm()
 {
     const [                , setRequestChanged ]  = useState(0);
-    const [ image          , setImage ]           = useState("");
-    const [ assets         , setAssets ]          = useState<NFTAsset[]>([]);
+    const [ image          , setImage ]           = useState(imageOf(assetKey));
     const [ showAddContract, setShowAddContract ] = useState(false);
 
     const requestChanged = () => setRequestChanged(f => f ^ 1);
 
     const account   = useAccount();
+    const assets    = useAssets();
     const contracts = useContracts();
 
-    useEffect
-    (
-        () => { loadAssetsFor(account).then(setAssets); }
-    ,   [account]
-    );
-
-    console.log(assetKey, stringOf(assetKey));
+    // When account changes, clear request
+    useEffect(resetRequest, [account]);
 
     const setAsset = (asset : NFTAsset | undefined | null) =>
     {
@@ -98,6 +92,7 @@ function RequestForm()
     const setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
         request.interval = getIntervalString(event.target.value);
+        console.log(event.target.labels);
         requestChanged();
     };
 
