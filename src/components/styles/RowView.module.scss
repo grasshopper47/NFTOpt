@@ -20,8 +20,8 @@
     animation: fadeIn 333ms;
 
     cursor: pointer;
-    color: $text-secondary;
-    text-shadow: 1px 1px rgba(25, 25, 25, 0.9);
+    color: $text-primary;
+    text-shadow: 2px 1px rgba(5, 15, 25, 0.8);
 
     &:hover
     {
@@ -95,8 +95,8 @@
 
 [data-theme="white"]
 {
-    .root
+    .container
     {
-        text-shadow: 1px 1px rgba(25, 40, 60, 0.9);
+        text-shadow: 1px 1px rgba(25, 30, 40, 0.3);
     }
 }
