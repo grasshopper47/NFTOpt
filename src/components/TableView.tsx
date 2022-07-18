@@ -43,7 +43,8 @@ let header =
 
 function TableView(props: Props)
 {
-    let selectedID = props.selectedValue ? props.selectedValue.id : -1;
+    const selectedID = props.selectedValue ? props.selectedValue.id : -1;
+    const length = props.list.length;
 
     sortList = (sorter : (a1: OptionWithAsset, a2: OptionWithAsset) => number) =>
     {
@@ -54,14 +55,14 @@ function TableView(props: Props)
     }
 
     return <div className={classes.containerGrid}>
-        { props.list.length !== 0 && header }
+        { length !== 0 && header }
 
         {
             props.list.map
             (
                 option =>
                 <RowView
-                    key={`option-row-${option.id}`}
+                    key={`option-row-${length + option.id}`}
                     option={option}
                     showDetails={option.id === selectedID}
                     // If previously selected an option, and it is the same one, set it to null
