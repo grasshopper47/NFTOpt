@@ -22,9 +22,9 @@ export async function createOptions()
     ) as NFTOpt;
 
     let i = 0;
-    let max = 10;
+    let max = 9;
 
-    console.log(`Fulfilling ${max} requests ...`);
+    console.log(`Fulfilling ${max + 1} requests ...`);
 
     let requestID = await NFTOpt.requestID();
 
