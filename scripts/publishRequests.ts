@@ -1,11 +1,49 @@
-import { contracts } from "../utils/deployment";
 import NFTOptSolContract from "../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
 
 import addresses from "../addresses.json";
 import { ethers } from "hardhat";
 import { NFTOpt } from "../typechain-types";
-import { BigNumber } from "ethers";
 import { BIGNUMBER0 } from "../utils/constants";
+
+let contractAddresses =
+[
+    addresses.localhost.AI_NFT
+,   addresses.localhost.AN_NFT
+,   addresses.localhost.EH_NFT
+,   addresses.localhost.NK_NFT
+,   addresses.localhost.SP_NFT
+,   addresses.localhost.THP_NFT
+,   addresses.localhost.TH_NFT
+];
+
+let maxIndex = contractAddresses.length;
+
+const generateRequest = () =>
+{
+    let nftContract = contractAddresses[Math.floor(Math.random() * maxIndex)];
+    let nftId       = Math.floor(Math.random() * 4) + 1;
+
+    let strikePrice = ethers.utils.parseEther((Math.random() * 25 + 1).toString().slice(0, Math.floor(Math.random() * 18) + 1));
+
+    let premium = BIGNUMBER0;
+    while (premium.toString() === "0")
+    {
+        premium = ethers.utils.parseEther(Math.random().toString().slice(0, Math.floor(Math.random() * Math.random() * 18) + 1));
+    }
+
+    let interval = Math.floor(Math.random() * 30) + 1;
+
+    let flavor = Math.floor(Math.random() * 2);
+
+    return {
+        nftContract : nftContract
+    ,   nftId       : nftId
+    ,   strikePrice : strikePrice
+    ,   interval    : interval * 86400
+    ,   flavor      : flavor
+    ,   premium     : premium
+    };
+}
 
 export async function publishRequests()
 {
@@ -20,46 +58,41 @@ export async function publishRequests()
     ,   buyer.provider
     ) as NFTOpt;
 
-    let contractAddresses =
-    [
-        addresses.localhost.AI_NFT
-    ,   addresses.localhost.AN_NFT
-    ,   addresses.localhost.EH_NFT
-    ,   addresses.localhost.NK_NFT
-    ,   addresses.localhost.SP_NFT
-    ,   addresses.localhost.THP_NFT
-    ,   addresses.localhost.TH_NFT
-    ];
-
-    let maxIndex = contractAddresses.length;
-
     let i = 0;
-    while (++i !== 11)
+    let max = 10;
+
+    console.log(`Publishing ${max} requests ...`);
+
+    let request;
+
+    while (++i !== max)
     {
-        let nftContract = contractAddresses[Math.floor(Math.random() * maxIndex)];
-        let nftId       = Math.floor(Math.random() * 4) + 1;
+        request = generateRequest();
 
-        let strikePrice = ethers.utils.parseEther((Math.random() * 25 + 1).toString().slice(0, Math.floor(Math.random() * 18) + 1));
-        let premium = BIGNUMBER0;
-        while (premium.toString() === "0")
-        {
-            premium = ethers.utils.parseEther(Math.random().toString().slice(0, Math.floor(Math.random() * Math.random() * 18) + 1));
-        }
-
-        let interval = Math.floor(Math.random() * 30) + 1;
-
-        let flavor = Math.floor(Math.random() * 2);
-
-        await NFTOpt.connect(buyer).publishRequest
+        NFTOpt.connect(buyer).publishRequest
         (
-            nftContract
-        ,   nftId
-        ,   strikePrice
-        ,   interval * 86400
-        ,   flavor
-        ,   { value: premium }
+            request.nftContract
+        ,   request.nftId
+        ,   request.strikePrice
+        ,   request.interval
+        ,   request.flavor
+        ,   { value: request.premium }
         );
     }
+
+    request = generateRequest();
+
+    await NFTOpt.connect(buyer).publishRequest
+    (
+        request.nftContract
+    ,   request.nftId
+    ,   request.strikePrice
+    ,   request.interval
+    ,   request.flavor
+    ,   { value: request.premium }
+    );
+
+    console.log("Done");
 }
 
 publishRequests()
