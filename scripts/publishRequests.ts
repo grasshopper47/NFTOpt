@@ -74,7 +74,10 @@ export async function publishRequests()
         ,   request.strikePrice
         ,   request.interval
         ,   request.flavor
-        ,   { value: request.premium }
+        ,   {
+                value: request.premium
+            ,   gasLimit: 500_000
+            }
         );
     }
 
@@ -87,7 +90,10 @@ export async function publishRequests()
     ,   request.strikePrice
     ,   request.interval
     ,   request.flavor
-    ,   { value: request.premium }
+    ,   {
+            value: request.premium
+        ,   gasLimit: 500_000
+        }
     );
 
     console.log("Done");

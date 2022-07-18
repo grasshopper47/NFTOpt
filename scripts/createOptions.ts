@@ -50,7 +50,10 @@ export async function createOptions()
         NFTOpt.connect(signers[Math.floor(Math.random() * signers.length)]).createOption
         (
             requestID
-        ,   { value: request.strikePrice }
+        ,   {
+                value: request.strikePrice
+            ,   gasLimit: 500_000
+            }
         );
 
         console.log("Fulfilled " + requestID);
@@ -75,7 +78,10 @@ export async function createOptions()
         await NFTOpt.connect(signers[Math.floor(Math.random() * signers.length)]).createOption
         (
             requestID
-        ,   { value: request.strikePrice }
+        ,   {
+                value: request.strikePrice
+            ,   gasLimit: 500_000
+            }
         );
 
         console.log("Fulfilled " + requestID);
