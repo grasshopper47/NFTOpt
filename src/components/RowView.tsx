@@ -20,8 +20,8 @@ function RowView(props: RowView)
         <div className={classes.container} { ... props.onClick && { onClick : props.onClick } }>
             <p className={classes.field}>{ !props.showDetails && props.option.id + 1}</p>
             <p className={clsx(classes.field, props.showDetails && classes.selected)}>{props.option.asset.name}</p>
-            <p className={classes.field}>{ !props.showDetails && ethers.utils.formatEther(props.option.premium)}</p>
-            <p className={classes.field}>{ !props.showDetails && ethers.utils.formatEther(props.option.strikePrice)}</p>
+            <p className={classes.field}>{ !props.showDetails && ethers.utils.formatEther(props.option.premium).slice(0, 10)}</p>
+            <p className={classes.field}>{ !props.showDetails && ethers.utils.formatEther(props.option.strikePrice).slice(0, 10)}</p>
             <p className={classes.field}>{ !props.showDetails && props.option.interval}</p>
         </div>
         {
