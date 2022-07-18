@@ -1,4 +1,4 @@
-import { NFTOpt } from "../../typechain-types";
+import { NFTOpt } from "../typechain-types";
 
 export let contracts = { NFTOpt: null as unknown as NFTOpt };
 

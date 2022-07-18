@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { SECONDS_IN_A_DAY } from "../../src/utils/constants";
-import { NFTOptContract, deployMainContract } from "../../src/utils/deployment";
+import { SECONDS_IN_A_DAY } from "../../utils/constants";
+import { NFTOptContract, deployMainContract } from "../../utils/deployment";
 import {
     buyer,
     initializer,

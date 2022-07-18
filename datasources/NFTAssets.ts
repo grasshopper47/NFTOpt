@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { provider } from "../frontend/utils/metamask";
+import { provider } from "../src/utils/metamask";
 import { AssetKey, NFTAsset } from "../models/nftAsset";
 import { ABIs } from "../utils/constants";
 

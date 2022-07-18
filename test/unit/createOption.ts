@@ -1,7 +1,7 @@
 import { expect } from "chai";
-import { OptionState } from "../../src/models/option";
+import { OptionState } from "../../models/option";
 import { buyer, seller, initializer, dummyOptionRequest, publishDummyRequest } from "../helpers";
-import { NFTOptContract, deployMainContract } from "../../src/utils/deployment";
+import { NFTOptContract, deployMainContract } from "../../utils/deployment";
 import { ethers } from "hardhat";
 
 describe("createOption", function () {

@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 import React from "react";
 import { useEffect, useState } from "react";
-import { useRequests, useOptions } from "../../pages/_app";
+import { useRequests, useOptions } from "../pages/_app";
 import { OptionWithAsset } from "../../models/extended";
 import { network } from "../utils/metamask";
 import { filterParams } from "./FilterBox";

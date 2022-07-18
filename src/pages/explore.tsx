@@ -1,6 +1,6 @@
 import React from 'react';
-import Layout from "../frontend/fragments/Layout";
-import ViewContainer from "../frontend/components/ViewContainer";
+import Layout from "../fragments/Layout";
+import ViewContainer from "../components/ViewContainer";
 
 export default function()
 {

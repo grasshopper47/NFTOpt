@@ -1,8 +1,8 @@
 import { expect } from "chai";
 
 import { buyer, seller, initializer, dummyOptionRequest, publishDummyRequest } from "../helpers";
-import { NFTOptContract, deployMainContract } from "../../src/utils/deployment";
-import { ADDRESS0, BIGNUMBER0 } from "../../src/utils/constants";
+import { NFTOptContract, deployMainContract } from "../../utils/deployment";
+import { ADDRESS0, BIGNUMBER0 } from "../../utils/constants";
 
 describe("withdrawRequest", function () {
     before("prepareEnv", async function () {

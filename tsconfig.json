@@ -23,6 +23,7 @@
     "include": [
         "./scripts",
         "./test",
+        "./frontend",
         "./typechain-types"
     ],
     "files": [

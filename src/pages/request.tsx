@@ -1,6 +1,6 @@
 import React from 'react';
-import Layout from "../frontend/fragments/Layout";
-import RequestForm from "../frontend/components/RequestForm";
+import Layout from "../fragments/Layout";
+import RequestForm from "../components/RequestForm";
 
 export default function()
 {

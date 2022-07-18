@@ -1,19 +1,21 @@
 import "./styles/_app.scss";
+
 import React from 'react';
+import Head from "next/head";
 import { AppProps } from "next/app";
 import { createContext, useContext, useState, useEffect } from "react";
+
 import { NFTOpt } from "../../typechain-types";
-import { requests, loadAllRequestsAsOptionsWithAsset, clearRequests, requestChangingIDs } from "../datasources/requests"
-import { options, loadAllOptionsWithAsset, clearOptions, optionChangingIDs  } from "../datasources/options"
-import { OptionWithAsset } from "../models/extended";
-import { createProvider, hookMetamask, network, provider, signerOrProvider } from "../frontend/utils/metamask";
-import Header from "../frontend/components/Header";
+import { clearNFTOpt, contracts } from "../../datasources/NFTOpt";
+import { clearContractsAndAssets } from "../../datasources/NFTAssets";
+import { requests, loadAllRequestsAsOptionsWithAsset, clearRequests, requestChangingIDs } from "../../datasources/requests"
+import { options, loadAllOptionsWithAsset, clearOptions, optionChangingIDs  } from "../../datasources/options"
+import { OptionWithAsset } from "../../models/extended";
+import { setOptionsUpdatedCallback, setRequestUpdatedCallback, createNFTOptInstance, optionIDsTransactions, requestIDsTransactions } from "../utils/contracts";
+import { createProvider, hookMetamask, network, provider, signerOrProvider } from "../utils/metamask";
+import Header from "../components/Header";
+
 import { Toaster } from "react-hot-toast";
-import { clearContractsAndAssets } from "../datasources/NFTAssets";
-import { setOptionsUpdatedCallback, setRequestUpdatedCallback, createNFTOptInstance } from "../frontend/utils/contracts";
-import { optionIDsTransactions, requestIDsTransactions } from "../frontend/utils/contracts";
-import { clearNFTOpt, contracts } from "../datasources/NFTOpt";
-import Head from "next/head";
 
 type ContextType =
 {
