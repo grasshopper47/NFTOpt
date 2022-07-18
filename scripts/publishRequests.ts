@@ -34,7 +34,7 @@ export async function publishRequests()
     let maxIndex = contractAddresses.length;
 
     let i = 0;
-    while (++i != 10)
+    while (++i !== 11)
     {
         let nftContract = contractAddresses[Math.floor(Math.random() * maxIndex)];
         let nftId       = Math.floor(Math.random() * 4) + 1;
