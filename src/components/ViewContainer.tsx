@@ -82,8 +82,6 @@ function ViewContainer()
 
     const handleFiltered = () =>
     {
-        console.log("filter");
-
         doFilter(optionViewState, filterParams).then(setViewedOptions);
 
         if (activeTabIndex === 0) { previousHash.requests = requests.hash; }
