@@ -27,10 +27,10 @@ export let view : ViewConfig =
 
 type Props =
 {
-    list            : OptionWithAsset[]
+    list           : OptionWithAsset[]
 ,   selectedValue ?: OptionWithAsset | null
-,   onViewChanged   : () => void
-,   onFilter        : () => void
+,   onViewChanged  : () => void
+,   onFilter       : () => void
 };
 
 function ViewSettings(props: Props)
@@ -65,7 +65,7 @@ function ViewSettings(props: Props)
         props.onViewChanged();
     }
 
-    const hasItems = props.list.length !== 0;
+    const hasItems = props.list ? props.list.length !== 0 : false;
 
     return <div className={classes.viewSettingsWrapper}>
         {
