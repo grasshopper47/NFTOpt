@@ -47,10 +47,10 @@ const generateRequest = () =>
 
 export async function publishRequests()
 {
-    let [ buyer ] = await ethers.getSigners();
+    const [ buyer ] = await ethers.getSigners();
 
     // Create completely new instance with the default provider (readonly)
-    let NFTOpt =
+    const NFTOpt =
     new ethers.Contract
     (
         addresses.localhost.NFTOpt
@@ -63,11 +63,9 @@ export async function publishRequests()
 
     console.log(`Publishing ${max} requests ...`);
 
-    let request;
-
     while (++i !== max)
     {
-        request = generateRequest();
+        const request = generateRequest();
 
         NFTOpt.connect(buyer).publishRequest
         (
@@ -80,7 +78,7 @@ export async function publishRequests()
         );
     }
 
-    request = generateRequest();
+    const request = generateRequest();
 
     await NFTOpt.connect(buyer).publishRequest
     (
