@@ -1,12 +1,12 @@
 // @ts-ignore
 import classes from "./styles/ViewContainer.module.scss";
+import clsx from "clsx";
 
 import React, { useEffect, useState } from "react";
 import { OptionWithAsset } from "../../models/extended";
-import { Button, MenuItem, Select } from "@mui/material";
-import clsx from "clsx";
 import FilterBox from "./FilterBox";
 import { ListViewStates } from "./ListView";
+import { Button, MenuItem, Select } from "@mui/material";
 
 const viewTypeStorageKey  = "ViewType";
 const viewStateStorageKey = "ViewState";
