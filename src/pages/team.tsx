@@ -2,9 +2,9 @@
 import classes from "./styles/team.module.scss";
 
 import React from 'react';
-import Layout from "../frontend/fragments/Layout";
-import {team} from "../datasources/team";
 import Image from "next/image";
+import {team} from "../../datasources/team";
+import Layout from "../fragments/Layout";
 
 function TeamPage() {
     return (

@@ -4,7 +4,7 @@ import {
     deployMainContractLibraries,
     deployNFTCollectionContract,
     NFTOptContract
-} from "../src/utils/deployment";
+} from "../utils/deployment";
 
 export async function deployAll()
 {

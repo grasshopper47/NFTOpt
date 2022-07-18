@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers";
-import { NFTAsset } from "../../models/nftAsset";
-import { Option } from "../../models/option";
+import { NFTAsset } from "../../src/models/nftAsset";
+import { Option } from "../../src/models/option";
 
 export async function fetchAssetsOfAccount(account: string, setAssetsCallback: (assets: NFTAsset[]) => void) {
     const assets: NFTAsset[] = [];

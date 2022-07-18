@@ -66,7 +66,7 @@ export async function connectWallet()
     .then(handleAccountChanged)
     .catch
     (
-        (err) =>
+        (err: { code: number; }) =>
         {
             if (err.code === 4001)   { toast.error("User rejected connection"); }
             if (err.code === -32002) { toast.error("Connection request in progress"); }

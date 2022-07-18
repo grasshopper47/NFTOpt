@@ -3,7 +3,7 @@ import classes from "./styles/RequestForm.module.scss";
 import clsx from "clsx";
 
 import React, { useState } from "react";
-import { useAccount } from "../../pages/_app";
+import { useAccount } from "../pages/_app";
 import { getCachedContract, assets, getNFTAsset, stringOf, isValid } from "../../datasources/NFTAssets";
 import { AssetKey } from "../../models/nftAsset";
 import { TextField, Button } from "@mui/material";

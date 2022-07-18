@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 import React from "react";
 import { ethers } from "ethers";
-import { useRequests, useOptions } from "../../pages/_app";
+import { useRequests, useOptions } from "../pages/_app";
 import { OptionWithAsset } from "../../models/extended";
 import { AccessTime } from "@mui/icons-material";
 import { ListViewStates } from "./ListView";

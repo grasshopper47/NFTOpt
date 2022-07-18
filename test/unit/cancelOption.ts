@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { OptionState } from "../../src/models/option";
+import { OptionState } from "../../models/option";
 import {
     buyer,
     seller,
@@ -11,8 +11,8 @@ import {
     publishDummyRequest,
     deployHardHatDummyNFTCollection,
 } from "../helpers";
-import { SECONDS_IN_A_DAY } from "../../src/utils/constants";
-import { deployMainContract, NFTOptContract } from "../../src/utils/deployment";
+import { SECONDS_IN_A_DAY } from "../../utils/constants";
+import { deployMainContract, NFTOptContract } from "../../utils/deployment";
 
 describe("cancelOption", function () {
     before("prepareEnv", async function () {

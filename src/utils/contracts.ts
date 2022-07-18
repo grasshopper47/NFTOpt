@@ -1,14 +1,14 @@
 import { BigNumber, ethers } from "ethers";
-import toast from "react-hot-toast";
-import addresses from "../../../addresses.json";
-import NFTOptSolContract from "../../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
-import { network, provider } from "./metamask";
+import addresses from "../../addresses.json";
+import { NFTOpt } from "../../typechain-types";
+import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
+import { contracts } from "../../datasources/NFTOpt";
 import { cancelOption, exerciseOption, optionChangingIDs } from "../../datasources/options";
 import { createOptionFromRequest, loadRequestAsOptionWithAsset, requestChangingIDs, withdrawRequest } from "../../datasources/requests";
-import { NFTOpt } from "../../../typechain-types";
 import { eventLabels } from "./labels";
+import { network, provider } from "./metamask";
 import { dismissLastToast, TOAST_DURATION } from "./toasting";
-import { contracts } from "../../datasources/NFTOpt";
+import toast from "react-hot-toast";
 
 let blockNumber = ~0;
 

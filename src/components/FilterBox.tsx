@@ -8,7 +8,7 @@ import { getFloatString, getIntervalString } from "../utils/helpers";
 import Row_FilterBox from "../fragments/Row.FilterBox";
 import { Button, FormControlLabel, Switch } from "@mui/material";
 import { FilterParams } from "../../datasources/filtering";
-import { useAccount } from "../../pages/_app";
+import { useAccount } from "../pages/_app";
 
 export let filterParams = { } as FilterParams;
 

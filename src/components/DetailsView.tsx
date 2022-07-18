@@ -6,7 +6,7 @@ import React from "react";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useContracts, useRequests, useOptions, useAccount } from "../../pages/_app";
+import { useContracts, useRequests, useOptions, useAccount } from "../pages/_app";
 import { OptionState} from "../../models/option";
 import { isExpired } from "../../datasources/options";
 import { getCachedContract } from "../../datasources/NFTAssets";

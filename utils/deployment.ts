@@ -1,5 +1,4 @@
-// @ts-ignore
-import { NFTOpt } from "../../typechain-types";
+import { NFTOpt } from "../typechain-types";
 import { ethers } from "hardhat";
 import fs from 'fs';
 

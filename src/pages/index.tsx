@@ -3,7 +3,7 @@ import classes from "./styles/index.module.scss";
 
 import React from "react";
 import Image from "next/image";
-import Layout from "../frontend/fragments/Layout";
+import Layout from "../fragments/Layout";
 
 type PresentationCard =
 {
