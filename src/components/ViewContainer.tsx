@@ -37,6 +37,12 @@ let selectedOption: OptionWithAsset | null = null;
 
 let optionViewState = OptionStateViewed.REQUEST;
 
+let previousHash =
+{
+    requests : 0
+,   options  : 0
+}
+
 function ViewContainer()
 {
     const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
@@ -72,12 +78,24 @@ function ViewContainer()
     const requests = useRequests();
     const options  = useOptions();
 
-    const hasItems = viewedOptions.length !== 0;
+    const hasItems = viewedOptions ? viewedOptions.length !== 0 : false;
 
-    const handleFiltered = () => { doFilter(optionViewState, filterParams).then(setViewedOptions); }
+    const handleFiltered = () =>
+    {
+        console.log("filter");
+
+        doFilter(optionViewState, filterParams).then(setViewedOptions);
+
+        if (activeTabIndex === 0) { previousHash.requests = requests.hash; }
+        if (activeTabIndex === 1) { previousHash.options = options.hash; }
+    }
 
     // Re-apply filter when hashes change
-    useEffect(handleFiltered, [requests.hash, options.hash]);
+    useEffect
+    (
+        () => { handleFiltered(); }
+    ,   [requests.hash, options.hash]
+    );
 
     useEffect
     (
@@ -89,10 +107,20 @@ function ViewContainer()
             localStorage[tabIndexStorageKey] = activeTabIndex;
 
             optionViewState = tabs[activeTabIndex].value;
-            let options = optionsByStateFiltered[optionViewState];
+            let optionsFiltered = optionsByStateFiltered[optionViewState];
 
-            if (options?.length === 0) handleFiltered();
-            else setViewedOptions(options);
+            if
+            (
+                !optionsFiltered || optionsFiltered.length === 0
+                || ( previousHash.requests !== requests.hash && activeTabIndex == 0)
+                || ( previousHash.options !== options.hash && activeTabIndex == 1)
+            )
+            {
+                handleFiltered();
+                return;
+            }
+
+            setViewedOptions(optionsFiltered);
         }
     ,   [activeTabIndex]
     );
@@ -135,7 +163,7 @@ function ViewContainer()
         let startIndex = page.index * page.count;
         let props =
         {
-            list      : viewedOptions.slice(startIndex, startIndex + page.count)
+            list      : viewedOptions?.slice(startIndex, startIndex + page.count)
         ,   viewIndex : view.state
         ,   onSelect  : setSelectedOption
         ,   onSorted  : (list: OptionWithAsset[]) => setViewedOptions(list)
