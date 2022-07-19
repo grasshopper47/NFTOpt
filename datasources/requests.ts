@@ -89,7 +89,9 @@ export async function withdrawRequest(ID: number)
     return ID;
 }
 
-export async function createOptionFromRequest(requestID : number, optionID : number)
+export type RequestOptionIDType = { request : number, option : number };
+
+export async function createOptionFromRequest(ID : RequestOptionIDType)
 {
     let length = requests.length;
     let i = -1;
@@ -97,17 +99,17 @@ export async function createOptionFromRequest(requestID : number, optionID : num
     while (++i !== length)
     {
         let request = requests[i];
-        if (request.id !== requestID) continue;
+        if (request.id !== ID.request) continue;
 
         requests.splice(i, 1);
 
         // Caterpillar >> Butterfly
-        request.id = optionID;
+        request.id = ID.option;
         request.state = OptionState.OPEN;
         options.unshift(request);
 
         break;
     }
 
-    return requestID;
+    return ID;
 }
