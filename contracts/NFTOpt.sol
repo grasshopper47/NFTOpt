@@ -127,7 +127,7 @@ contract NFTOpt {
     {
         Request memory request_ = requests[_requestID];
 
-        _require_exists(request_);
+        _require_exists(request_,_requestID);
         _require_buyer(request_.buyer);
 
         /// @dev Update storage by marking as "invalid"
@@ -151,7 +151,7 @@ contract NFTOpt {
     {
         Request memory request_ = requests[_requestID];
 
-        _require_exists(request_);
+        _require_exists(request_,_requestID);
         if (request_.buyer == msg.sender)      revert BUYER_MUST_DIFFER_FROM_SELLER();
         if (msg.value != request_.strikePrice) revert INVALID_STRIKE_PRICE_AMOUNT(request_.strikePrice);
         /// @dev TODO: perhaps check that interval + block.timestamp don't overflow
@@ -190,7 +190,7 @@ contract NFTOpt {
     {
         Option memory option_ = options[_optionID];
 
-        _require_exists(option_.request);
+        _require_exists(option_.request, _optionID);
         _require_open_state(option_.state);
 
         /// @dev Restrict calling rights to buyer (permitted anytime) or seller (restricted)
@@ -218,7 +218,7 @@ contract NFTOpt {
     {
         Option memory option_ = options[_optionID];
 
-        _require_exists(option_.request);
+        _require_exists(option_.request, _optionID);
         _require_buyer(option_.request.buyer);
         _require_open_state(option_.state);
 
@@ -262,10 +262,10 @@ contract NFTOpt {
         if (buyer != msg.sender) revert NOT_AUTHORIZED("Only Buyer can call this method");
     }
 
-    function _require_exists(Request memory _request)
+    function _require_exists(Request memory _request, uint256 _requestID)
     private pure
     {
-        if (_request.buyer == address(0)) revert INVALID_ID();
+        if (_request.buyer == address(0)) revert INVALID_ID(_requestID);
     }
 
     function _require_open_state(OptionState state)
@@ -277,7 +277,7 @@ contract NFTOpt {
     /// @dev -- CUSTOM ERRORS -------------------------
 
     /// @dev -- Option Property
-    error INVALID_ID();
+    error INVALID_ID(uint256 id);
     error INVALID_TOKEN_ID(uint256 id);
     error INVALID_PREMIUM_AMOUNT(uint256 amount);
     error INVALID_STRIKE_PRICE_AMOUNT(uint256 amount);
