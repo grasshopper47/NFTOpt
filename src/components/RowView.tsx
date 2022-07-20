@@ -40,7 +40,9 @@ function RowView(props: RowView)
         </div>
         {
             props.showDetails &&
-            <div className={classes.detailWrapper}><DetailsView showTitle={false} option={props.option} onAction={props.onClick}/></div>
+            <div className={classes.detailWrapper}>
+                <DetailsView showTitle={false} option={props.option} onAction={props.onClick} />
+            </div>
         }
     </>;
 }
