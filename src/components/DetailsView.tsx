@@ -96,25 +96,22 @@ function DetailsView(props: Props)
 
     function createButtonsFromOptionState()
     {
-        if (requests.changing[option.id] || options.changing[option.id]) return;
+        if (requests.changing[option.id] || options.changing[option.id]) return <></>;
 
         let isBuyer = (option.buyer === account);
 
         if (option.state === -1)
-            if (isBuyer)
-                return <Button_DetailsView
-                    label="Withdraw Request"
-                    variant="outlined"
-                    className="btnSecondary"
-                    handleClick={ () => onAction(onWithdrawOption) }
-                />;
-            else
-                return <Button_DetailsView
-                    label="Create Option"
-                    variant="contained"
-                    className="btnPrimary"
-                    handleClick={ () => onAction(onCreateOption) }
-                />;
+            return isBuyer
+                ?   <Button_DetailsView
+                        label="Withdraw Request"
+                        variant="outlined"
+                        className="btnSecondary"
+                        handleClick={ () => onAction(onWithdrawOption) } />
+                :   <Button_DetailsView
+                        label="Create Option"
+                        variant="contained"
+                        className="btnPrimary"
+                        handleClick={ () => onAction(onCreateOption) }/>;
 
         if (option.state === OptionState.OPEN)
         {
@@ -124,32 +121,23 @@ function DetailsView(props: Props)
                     label="Cancel Option"
                     variant="outlined"
                     className="btnSecondary"
-                    handleClick={ () => onAction(onCancelOption) }
-                />
+                    handleClick={ () => onAction(onCancelOption) } />
             );
 
-            if (isExpired(option))
-            {
-                if (isBuyer || option.seller === account) return btnCancel;
+            if (isExpired(option)) return (isBuyer || option.seller === account) && btnCancel;
 
-                return <></>;
-            }
-
-            if (isBuyer)
-            {
-                return <>
-                    {btnCancel}
-                    <Button_DetailsView
-                        label={isApproved ? "Exercise Option" : "Approve NFT"}
-                        variant="contained"
-                        className="btnPrimary"
-                        handleClick={ isApproved ? () => onAction(onExerciseOption) : onApproveNFT }
-                    />
-                </>;
-            }
-
-            return <></>;
+            return isBuyer &&
+            <>
+                {btnCancel}
+                <Button_DetailsView
+                    label={isApproved ? "Exercise Option" : "Approve NFT"}
+                    variant="contained"
+                    className="btnPrimary"
+                    handleClick={ isApproved ? () => onAction(onExerciseOption) : onApproveNFT } />
+            </>;
         }
+
+        return <></>;
     }
 
     return <div
@@ -161,12 +149,11 @@ function DetailsView(props: Props)
 
             {
                 showTitle &&
-                <a  target="_blank"
+                <a
+                    target="_blank"
                     href={`${scanner()}/tx/${(option.state === -1 ? requests : options).transactions[option.id]}`}
                     className={clsx(classes.link, classes.state)}
-                >
-                    {eventLabels[option.state + 2]}
-                </a>
+                >{eventLabels[option.state + 2]}</a>
             }
         </div>
 
