@@ -90,11 +90,16 @@ function ViewContainer()
         if (activeTabIndex === 1) { previousHash.options = options.hash; }
     }
 
-    // Re-apply filter when hashes change
     useEffect
     (
-        () => { handleFiltered(); }
-    ,   [requests.hash, options.hash]
+        () => { if (activeTabIndex == 0) handleFiltered(); }
+    ,   [requests.hash]
+    );
+
+    useEffect
+    (
+        () => { if (activeTabIndex != 0) handleFiltered(); }
+    ,   [options.hash]
     );
 
     useEffect
@@ -171,9 +176,7 @@ function ViewContainer()
 
         if (selectedOption) props["selectedValue"] = selectedOption;
 
-        return view.type === ViewTypes.ROWLIST
-            ? <TableView { ... props} />
-            : <ListView { ... props} />;
+        return view.type === ViewTypes.ROWLIST ? <TableView { ... props} /> : <ListView { ... props} />;
     }
 
     return <>

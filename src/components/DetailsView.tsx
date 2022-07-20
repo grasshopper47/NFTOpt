@@ -21,15 +21,16 @@ import FieldLink_DetailsView from "../fragments/FieldLink.DetailsView";
 
 type Props =
 {
-    option    : OptionWithAsset
-,   onAction ?: () => void
+    option     : OptionWithAsset
+,   showTitle ?: true | boolean
+,   onAction  ?: () => void
 };
 
 function DetailsView(props: Props)
 {
     const { option } = props;
 
-    const showTitle = props.onAction !== null && props.onAction !== undefined;
+    const showTitle = props.showTitle === undefined ? true : props.showTitle;
 
     const [ isApproved, setApproved ] = useState(false);
 
@@ -92,15 +93,6 @@ function DetailsView(props: Props)
     );
 
     let onApproveNFT = () => showToast(contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.key.nftId));
-
-    const getStateTransactionScannerLink = () =>
-    {
-        let hash = option.state === -1
-        ?   requests.transactions[option.id]
-        :   options.transactions[option.id];
-
-        return `${scanner()}/tx/${hash}`;
-    }
 
     function createButtonsFromOptionState()
     {
@@ -170,7 +162,7 @@ function DetailsView(props: Props)
             {
                 showTitle &&
                 <a  target="_blank"
-                    href={getStateTransactionScannerLink()}
+                    href={`${scanner()}/tx/${(option.state === -1 ? requests : options).transactions[option.id]}`}
                     className={clsx(classes.link, classes.state)}
                 >
                     {eventLabels[option.state + 2]}

@@ -54,6 +54,11 @@
             font-weight: bold;
         }
     }
+    &.changing
+    {
+        animation: change 3996ms;
+        animation-iteration-count: infinite;
+    }
 }
 
 @keyframes open {
@@ -92,6 +97,14 @@
     animation: open 333ms ease-in;
     border-radius: 20px;
 }
+
+@keyframes change {
+    0% { opacity: 1; }
+    60% { opacity: 0; }
+    80% { opacity: 0.8; }
+    100% { opacity: 1; }
+}
+
 
 [data-theme="white"]
 {
