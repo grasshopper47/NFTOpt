@@ -83,9 +83,10 @@ describe("createOption", function () {
         contractBalance = await ethers.provider.getBalance(NFTOptContract.address);
         expect(contractBalance).to.equal(dummyOptionRequest.strikePrice);
 
-        const option = await NFTOptContract.connect(seller).options(0);
+        const option = await NFTOptContract.options(0);
+        const request = await NFTOptContract.requests(option.requestID);
 
-        expect(option.startDate).to.not.equal(0);
+        expect(request.startDate).to.not.equal(0);
         expect(option.seller).to.equal(seller.address);
         expect(option.state).to.equal(OptionState.OPEN);
 
@@ -93,7 +94,7 @@ describe("createOption", function () {
         let sellerBalance1 = await seller.getBalance();
 
         sellerBalance1 = sellerBalance1
-            .sub(option.request.premium)
+            .sub(request.premium)
             .add(dummyOptionRequest.strikePrice)
             .add(gasUsedInTransaction);
 
@@ -110,32 +111,6 @@ describe("createOption", function () {
             .createOption(0, { value: dummyOptionRequest.strikePrice }))
             .to.emit(NFTOptContract, "Opened")
             .withArgs(0);
-
-        // Reset the state
-        await deployMainContract();
-    });
-
-    it("reuses storage slots after successful withdrawal", async function () {
-        await publishDummyRequest();
-        await publishDummyRequest();
-
-        expect(
-            await NFTOptContract.connect(seller).createOption(1, {value: dummyOptionRequest.strikePrice} )
-        ).to.not.throw;
-
-        let request = await NFTOptContract.requests(1);
-        expect(request.buyer).to.equal(ADDRESS0);
-
-        await publishDummyRequest();
-        request = await NFTOptContract.requests(1);
-
-        expect(request.buyer).to.equal(dummyOptionRequest.buyer);
-        expect(request.nftContract).to.equal(dummyOptionRequest.nftContract);
-        expect(request.nftId).to.equal(dummyOptionRequest.nftId);
-        expect(request.interval).to.equal(dummyOptionRequest.interval);
-        expect(request.premium).to.equal(dummyOptionRequest.premium);
-        expect(request.strikePrice).to.equal(dummyOptionRequest.strikePrice);
-        expect(request.flavor).to.equal(dummyOptionRequest.flavor);
 
         // Reset the state
         await deployMainContract();
