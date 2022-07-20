@@ -17,25 +17,26 @@ contract NFTOpt {
 
     struct Request
     {
-        uint256         premium;
-        uint256         strikePrice;
-        uint256         nftId;
-        address         nftContract;
-        OptionFlavor    flavor;
-        uint32          interval;
-        address payable buyer;
+        uint256      premium;
+        uint256      strikePrice;
+        uint256      nftId;
+        address      nftContract;
+        OptionFlavor flavor;
+        uint32       interval;
+        address      buyer;
     }
 
     struct Option
     {
-        Request         request;
+        Request     request;
 
-        address payable seller;
-        OptionState     state;
-        uint256         startDate;
+        address     seller;
+        OptionState state;
+        uint256     startDate;
     }
 
     /// @dev -- STACK ---------------------------------
+    string constant _msg_OnlyBuyer = "Only Buyer can call this method";
 
     uint256[]                   private requestDeletedIDs;
     uint256                     public requestID;
@@ -101,17 +102,15 @@ contract NFTOpt {
         else requestID_ = requestID;
 
         /// @dev Update storage
-        requests[requestID_] =
-        Request
-        ({
-            buyer       : payable(msg.sender)
-        ,   nftContract : _nftContract
-        ,   nftId       : _nftTokenID
-        ,   interval    : _interval
-        ,   premium     : msg.value
-        ,   strikePrice : _strikePrice
-        ,   flavor      : OptionFlavor(_flavor)
-        });
+        Request storage request = requests[requestID_];
+
+        request.buyer       = msg.sender;
+        request.nftContract = _nftContract;
+        request.nftId       = _nftTokenID;
+        request.interval    = _interval;
+        request.premium     = msg.value;
+        request.strikePrice = _strikePrice;
+        request.flavor      = OptionFlavor(_flavor);
 
         emit Published(requestID_);
 
@@ -125,19 +124,18 @@ contract NFTOpt {
     function withdrawRequest(uint256 _requestID)
     external
     {
-        Request memory request_ = requests[_requestID];
-
-        _require_exists(request_,_requestID);
-        _require_buyer(request_.buyer);
+        address buyer = requests[_requestID].buyer;
+        if (buyer == address(0)) revert INVALID_ID(_requestID);
+        if (buyer != msg.sender) revert NOT_AUTHORIZED(_msg_OnlyBuyer);
 
         /// @dev Update storage by marking as "invalid"
-        requests[_requestID].buyer = payable(address(0));
+        requests[_requestID].buyer = address(0);
         requestDeletedIDs.push(_requestID);
 
         emit Withdrawn(_requestID);
 
         /// @dev Transfer premium back to buyer
-        (bool success,) = request_.buyer.call{ value : request_.premium }("");
+        (bool success,) = buyer.call{ value : requests[_requestID].premium }("");
         if (!success) revert FUNDS_TRANSFER_FAILED();
     }
 
@@ -151,27 +149,26 @@ contract NFTOpt {
     {
         Request memory request_ = requests[_requestID];
 
-        _require_exists(request_,_requestID);
+        if (request_.buyer == address(0))      revert INVALID_ID(_requestID);
         if (request_.buyer == msg.sender)      revert BUYER_MUST_DIFFER_FROM_SELLER();
         if (msg.value != request_.strikePrice) revert INVALID_STRIKE_PRICE_AMOUNT(request_.strikePrice);
         /// @dev TODO: perhaps check that interval + block.timestamp don't overflow
         // if (block.timestamp + request_.interval < block.timestamp) revert UNSIGNED_INTEGER_OVERFLOW();
 
-        /// @dev Update storage
-        requests[_requestID].buyer = payable(address(0));
+        /// @dev Update storage -- requests
+        requests[_requestID].buyer = address(0);
         requestDeletedIDs.push(_requestID);
 
         /// @dev Optimize for gas by caching id
         uint256 optionID_ = optionID;
 
-        options[optionID_] =
-        Option
-        ({
-            request   : request_
-        ,   seller    : payable(msg.sender)
-        ,   startDate : block.timestamp
-        ,   state     : OptionState.OPEN
-        });
+        /// @dev Update storage -- options
+        Option storage option_ = options[optionID_];
+
+        option_.request   = request_;
+        option_.seller    = msg.sender;
+        option_.startDate = block.timestamp;
+        option_.state     = OptionState.OPEN;
 
         emit Opened(optionID_);
 
@@ -190,8 +187,8 @@ contract NFTOpt {
     {
         Option memory option_ = options[_optionID];
 
-        _require_exists(option_.request, _optionID);
-        _require_open_state(option_.state);
+        if (option_.request.buyer == address(0)) revert INVALID_ID(_optionID);
+        if (option_.state != OptionState.OPEN)   revert INVALID_OPTION_STATE(option_.state, OptionState.OPEN);
 
         /// @dev Restrict calling rights to buyer (permitted anytime) or seller (restricted)
         bool isSeller = msg.sender == option_.seller;
@@ -200,7 +197,7 @@ contract NFTOpt {
         /// @dev Restrict calling rights of seller: permit only after expiration
         uint256 expirationDate_;
         unchecked { expirationDate_ = option_.startDate + option_.request.interval; }
-        if (expirationDate_ >= block.timestamp) _require_buyer(option_.request.buyer);
+        if (expirationDate_ >= block.timestamp && option_.request.buyer != msg.sender) revert NOT_AUTHORIZED(_msg_OnlyBuyer);
 
         options[_optionID].state = OptionState.CANCELED;
 
@@ -218,9 +215,9 @@ contract NFTOpt {
     {
         Option memory option_ = options[_optionID];
 
-        _require_exists(option_.request, _optionID);
-        _require_buyer(option_.request.buyer);
-        _require_open_state(option_.state);
+        if (option_.request.buyer == address(0)) revert INVALID_ID(_optionID);
+        if (option_.request.buyer != msg.sender) revert NOT_AUTHORIZED(_msg_OnlyBuyer);
+        if (option_.state != OptionState.OPEN)   revert INVALID_OPTION_STATE(option_.state, OptionState.OPEN);
 
         /// @dev Check for NFT access and ownership
         IERC721 nftContract = IERC721(option_.request.nftContract);
@@ -254,24 +251,6 @@ contract NFTOpt {
 
         (bool success,) = msg.sender.call{ value : option_.request.strikePrice }("");
         if (!success) revert FUNDS_TRANSFER_FAILED();
-    }
-
-    function _require_buyer(address buyer)
-    private view
-    {
-        if (buyer != msg.sender) revert NOT_AUTHORIZED("Only Buyer can call this method");
-    }
-
-    function _require_exists(Request memory _request, uint256 _requestID)
-    private pure
-    {
-        if (_request.buyer == address(0)) revert INVALID_ID(_requestID);
-    }
-
-    function _require_open_state(OptionState state)
-    private pure
-    {
-        if (state != OptionState.OPEN) revert INVALID_OPTION_STATE(state, OptionState.OPEN);
     }
 
     /// @dev -- CUSTOM ERRORS -------------------------
