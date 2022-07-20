@@ -31,7 +31,7 @@ describe("withdrawRequest", function () {
 
         await expect(NFTOptContract.connect(buyer)
             .withdrawRequest(0))
-            .to.be.revertedWith("INVALID_ID");
+            .to.be.revertedWith("INVALID_OPTION_STATE");
 
         // Reset the state
         await deployMainContract();
@@ -73,7 +73,7 @@ describe("withdrawRequest", function () {
             .to.emit(NFTOptContract, "Withdrawn");
 
         let request = await NFTOptContract.requests(0);
-        expect(request[6]).to.be.equal(ADDRESS0); // buyer (6th field) == 0 means invalid option
+        expect(request[7]).to.be.equal(ADDRESS0); // buyer (8th field) == 0 means invalid option
 
         // Reset the state
         await deployMainContract();

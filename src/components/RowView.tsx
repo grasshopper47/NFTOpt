@@ -6,6 +6,7 @@ import React from "react";
 import { ethers } from "ethers";
 import { OptionWithAsset } from "../../models/extended";
 import DetailsView from "./DetailsView";
+import { useRequests, useOptions } from "../pages/_app";
 
 type RowView =
 {
@@ -16,17 +17,32 @@ type RowView =
 
 function RowView(props: RowView)
 {
+    const requests = useRequests();
+    const options  = useOptions();
+
     return <>
         <div className={classes.container} { ... props.onClick && { onClick : props.onClick } }>
             <p className={classes.field}>{ !props.showDetails && props.option.id + 1}</p>
-            <p className={clsx(classes.field, props.showDetails && classes.selected)}>{props.option.asset.name}</p>
+            <p
+                className=
+                {
+                    clsx
+                    (
+                        classes.field
+                    ,   (requests.changing[props.option.id] || options.changing[props.option.id]) && classes.changing
+                    ,   props.showDetails && classes.selected
+                    )
+                }
+            >{props.option.asset.name}</p>
             <p className={classes.field}>{ !props.showDetails && ethers.utils.formatEther(props.option.premium).slice(0, 10)}</p>
             <p className={classes.field}>{ !props.showDetails && ethers.utils.formatEther(props.option.strikePrice).slice(0, 10)}</p>
             <p className={classes.field}>{ !props.showDetails && props.option.interval}</p>
         </div>
         {
             props.showDetails &&
-            <div className={classes.detailWrapper}><DetailsView option={props.option}/></div>
+            <div className={classes.detailWrapper}>
+                <DetailsView showTitle={false} option={props.option} onAction={props.onClick} />
+            </div>
         }
     </>;
 }

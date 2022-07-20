@@ -26,7 +26,7 @@ export async function createOptions()
 
     console.log(`Fulfilling ${max + 1} requests ...`);
 
-    let requestID = await NFTOpt.requestID();
+    let requestID = await NFTOpt.optionID();
 
     if (!requestID)
     {
@@ -39,7 +39,7 @@ export async function createOptions()
     {
         if (requestID.lt(1)) break;
 
-        let request = await NFTOpt.requests(requestID);
+        let request = await NFTOpt.options(requestID);
 
         if (request.buyer === ADDRESS0)
         {
@@ -62,7 +62,7 @@ export async function createOptions()
         requestID = requestID.sub(1);
     }
 
-    let request = await NFTOpt.requests(requestID);
+    let request = await NFTOpt.options(requestID);
 
     while (request.buyer === ADDRESS0)
     {
@@ -70,7 +70,7 @@ export async function createOptions()
 
         if (requestID.lt(0)) break;
 
-        request = await NFTOpt.requests(requestID);
+        request = await NFTOpt.options(requestID);
     }
 
     if (requestID.gt(-1))

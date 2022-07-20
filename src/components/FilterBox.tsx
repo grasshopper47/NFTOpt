@@ -2,7 +2,7 @@
 import classes from "./styles/FilterBox.module.scss";
 import clsx from "clsx";
 
-import React from "react";
+import React, { useState } from "react";
 import { connected } from "../utils/metamask";
 import { getFloatString, getIntervalString } from "../utils/helpers";
 import Row_FilterBox from "../fragments/Row.FilterBox";
@@ -29,9 +29,9 @@ type Props =
 
 function FilterBox(props : Props)
 {
-    const account  = useAccount();
+    const [ showAll, setShowAll ] = useState(filterParams.account === "");
 
-    const showAll = filterParams.account === "";
+    const account = useAccount();
 
     return <div
         className={classes.containerRoot}
@@ -43,7 +43,22 @@ function FilterBox(props : Props)
                     connected() &&
                     <FormControlLabel
                         className={clsx(classes.checkbox, showAll ? classes.checked : classes.unchecked)}
-                        control={<Switch checked={!showAll} onChange={ () => { filterParams.account === "" ? account : ""; props.onFilter(); } } />}
+                        control=
+                        {
+                            <Switch
+                                checked={!showAll}
+                                onChange=
+                                {
+                                    () =>
+                                    {
+                                        if (!showAll) filterParams.account = "";
+                                        else filterParams.account = account;
+
+                                        setShowAll(v => !v);
+                                        props.onFilter(); }
+                                }
+                            />
+                        }
                         label={ (showAll ? "All" : "Account's") + " Options" }
                         labelPlacement="end"
                     />

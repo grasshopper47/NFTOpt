@@ -12,8 +12,10 @@ import {
 import { SECONDS_IN_A_DAY } from "../../utils/constants";
 import { NFTOptContract } from "../../utils/deployment";
 
-let optionAmerican: any;
-let optionEuropean: any;
+let optionAmerican  : any;
+let requestAmerican : any;
+let optionEuropean  : any;
+let requestEuropean : any;
 
 describe("exerciseOption", function () {
     beforeEach("deploy", async function () {
@@ -47,7 +49,9 @@ describe("exerciseOption", function () {
 
         // Load option details -- TODO: store as Option struct; need to transform, as Solidity returns tuples
         optionAmerican = await NFTOptContract.options(0);
+        requestAmerican = await NFTOptContract.requests(optionAmerican.requestID);
         optionEuropean = await NFTOptContract.options(1);
+        requestEuropean = await NFTOptContract.requests(optionEuropean.requestID);
     });
 
     it("reverts with non-existent optionID", async function () {
@@ -64,7 +68,7 @@ describe("exerciseOption", function () {
 
     it("reverts when buyer isn't the owner of option NFT after option is in effect", async function () {
         // Transfer NFT from buyer to seller
-        await NFTDummyContract.connect(buyer).transferFrom(buyer.address, seller.address, optionAmerican.request.nftId);
+        await NFTDummyContract.connect(buyer).transferFrom(buyer.address, seller.address, requestAmerican.nftId);
 
         // Exercise option
         await expect(NFTOptContract.connect(buyer)
@@ -73,7 +77,7 @@ describe("exerciseOption", function () {
     });
 
     it("reverts when option state is not OPEN", async function () {
-        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, optionAmerican.request.nftId);
+        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, requestAmerican.nftId);
 
         expect(
             await NFTOptContract.connect(buyer).exerciseOption(0)
@@ -92,7 +96,7 @@ describe("exerciseOption", function () {
 
     it("reverts when european option is exercised before the expiration day", async function () {
         // Approve contract to transfer NFT
-        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, optionEuropean.request.nftId);
+        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, requestEuropean.nftId);
 
         // Exercise option
         await expect(NFTOptContract.connect(buyer)
@@ -114,7 +118,7 @@ describe("exerciseOption", function () {
 
     it("succeeds when european option is exercised on expiration day", async function () {
         // Approve contract to transfer NFT
-        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, optionEuropean.request.nftId);
+        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, requestEuropean.nftId);
 
         // Fast-foward EVM by interval - 1 day (to the day of exercise)
         await addDaysToEVM(dummyOptionRequest.interval / SECONDS_IN_A_DAY - 1);
@@ -128,7 +132,7 @@ describe("exerciseOption", function () {
 
     it("succeeds when american option is exercised on expiration day", async function () {
         // Approve contract to transfer NFT
-        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, optionAmerican.request.nftId);
+        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, requestAmerican.nftId);
 
         // Fast-foward EVM by 2 days
         await addDaysToEVM(2);
@@ -142,7 +146,7 @@ describe("exerciseOption", function () {
 
     it("succeeds when exercised and buyer's ETH balance has increased by strike price", async function () {
         // Approve contract to transfer NFT
-        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, optionAmerican.request.nftId);
+        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, requestAmerican.nftId);
 
         let buyerBalance0 = await buyer.getBalance();
 
@@ -160,7 +164,7 @@ describe("exerciseOption", function () {
         const gasPrice = transaction.gasPrice;
         const gasUsedInTransaction = gasUsed.mul(gasPrice ?? 0);
 
-        buyerBalance0 = buyerBalance0.add(optionAmerican.request.strikePrice).sub(gasUsedInTransaction);
+        buyerBalance0 = buyerBalance0.add(requestAmerican.strikePrice).sub(gasUsedInTransaction);
 
         const buyerBalance1 = await buyer.getBalance();
 
@@ -173,9 +177,10 @@ describe("exerciseOption", function () {
 
         // Load option
         const option = await NFTOptContract.options(id);
+        const request = await NFTOptContract.requests(option.requestID);
 
         // Approve contract to transfer NFT
-        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, option.request.nftId);
+        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, request.nftId);
 
         // Exercise option
         await expect(NFTOptContract.connect(buyer)
@@ -184,16 +189,17 @@ describe("exerciseOption", function () {
             .withArgs(id);
 
         // Check NFT ownership
-        let owner = await NFTDummyContract.ownerOf(option.request.nftId);
+        let owner = await NFTDummyContract.ownerOf(request.nftId);
         expect(owner).to.equal(seller.address);
     });
 
     it("prints gas limit", async function () {
         // Load option
         const option = await NFTOptContract.options(0);
+        const request = await NFTOptContract.requests(option.requestID);
 
         // Approve contract to transfer NFT
-        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, option.request.nftId);
+        await NFTDummyContract.connect(buyer).approve(NFTOptContract.address, request.nftId);
 
         const currentGas = (await NFTOptContract.connect(buyer).estimateGas.exerciseOption(0)).toNumber();
         console.log(currentGas);

@@ -17,18 +17,21 @@ export let optionsByStateFiltered = {};
 
 const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
 
+const stateFilter =
+{
+    [OptionStateViewed.REQUEST] : (s : OptionState) => true
+,   [OptionStateViewed.OPEN]    : (s : OptionState) => s === OptionState.OPEN
+,   [OptionStateViewed.CLOSED]  : (s : OptionState) => s === OptionState.CANCELED || s === OptionState.EXERCISED
+}
+
 export async function doFilter(state : OptionStateViewed, filterParams : FilterParams)
 {
     let map = state === OptionStateViewed.REQUEST ? requests : options;
 
-    let stateFilter = (s : OptionState) => true;
-    if (state === OptionStateViewed.OPEN)   stateFilter = (s : OptionState) => s === OptionState.OPEN;
-    if (state === OptionStateViewed.CLOSED) stateFilter = (s : OptionState) => s === OptionState.CANCELED || s === OptionState.EXERCISED;
-
     map = map.filter
     (
         o =>
-        stateFilter(o.state)
+        stateFilter[state](o.state)
         && (filterParams.account === "" || (o.buyer === filterParams.account || o.seller === filterParams.account))
         && o.premium.gte(ethers.utils.parseEther(filterParams.premium.min === "" ? "0" : filterParams.premium.min))
         && o.premium.lte(ethers.utils.parseEther(filterParams.premium.max === "" ? MAX_INT_STRING : filterParams.premium.max))
