@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.14;
+pragma solidity ^0.8.15;
 
 /// @dev OpenZeppelin's interface of EIP-721 https://eips.ethereum.org/EIPS/eip-721.
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";

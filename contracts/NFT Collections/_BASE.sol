@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.14;
+pragma solidity ^0.8.15;
 
 /**
  * @dev An authorization implementation for our smart contract, to restrict access to some functions.
