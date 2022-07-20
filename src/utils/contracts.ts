@@ -37,9 +37,6 @@ export const createNFTOptInstance = () =>
 
 let blockNumber = ~0;
 
-let requestsUICallback : () => void;
-let optionsUICallback  : () => void;
-
 type BatchFlagsType =
 {
     isLoading : boolean
@@ -114,6 +111,9 @@ const queueHandler = (ID : any, obj : BatchHandlerType) =>
 const deleteRequestChangingID = (ID : number) => delete requestChangingIDs[ID];
 const deleteOptionChangingID  = (ID : number) => delete optionChangingIDs[ID];
 
+let requestsUICallback : () => void;
+let optionsUICallback  : () => void;
+
 const requestsUpdater = () => requestsUICallback();
 const optionsUpdater  = () => optionsUICallback();
 
@@ -137,7 +137,7 @@ const handlers =
     (
         [] as RequestOptionIDType[]
     ,   (ID) => createOptionFromRequest(ID).then( (ID) => deleteRequestChangingID(ID.request) )
-    ,   optionsUpdater
+    ,   () => { requestsUpdater(); optionsUpdater(); }
     )
 
 ,   Canceled : createBatchHandler
