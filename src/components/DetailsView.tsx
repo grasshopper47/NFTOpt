@@ -6,11 +6,10 @@ import React from "react";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useContracts, useRequests, useOptions, useAccount } from "../pages/_app";
-import { OptionState} from "../../models/option";
+import { useRequests, useOptions, useAccount } from "../pages/_app";
 import { isExpired } from "../../datasources/options";
-import { getCachedContract } from "../../datasources/NFTAssets";
-import { OptionWithAsset } from "../../models/extended";
+import { OptionState} from "../../models/enums";
+import { OptionWithAsset } from "../../models/option";
 import { ADDRESS0 } from "../../utils/constants";
 import { connected, scanner, signer } from "../utils/metamask";
 import { flavorLabels, eventLabels } from "../utils/labels";
@@ -18,6 +17,8 @@ import { dismissLastToast, showToast } from "../utils/toasting";
 import Button_DetailsView from "../fragments/Button.DetailsView";
 import Field_DetailsView from "../fragments/Field.DetailsView";
 import FieldLink_DetailsView from "../fragments/FieldLink.DetailsView";
+import { getCachedContract } from "../../datasources/ERC-721/contracts";
+import { contracts } from "../../datasources/NFTOpt";
 
 type Props =
 {
@@ -35,7 +36,6 @@ function DetailsView(props: Props)
     const [ isApproved, setApproved ] = useState(false);
 
     const account   = useAccount();
-    const contracts = useContracts();
     const requests  = useRequests();
     const options   = useOptions();
 
@@ -92,7 +92,7 @@ function DetailsView(props: Props)
         )
     );
 
-    let onApproveNFT = () => showToast(contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.key.nftId));
+    let onApproveNFT = () => showToast( contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.key.nftId) );
 
     function createButtonsFromOptionState()
     {
@@ -100,7 +100,7 @@ function DetailsView(props: Props)
 
         let isBuyer = (option.buyer === account);
 
-        if (option.state === -1)
+        if (option.state === OptionState.PUBLISHED)
             return isBuyer
                 ?   <Button_DetailsView
                         label="Withdraw Request"
@@ -151,7 +151,7 @@ function DetailsView(props: Props)
                 showTitle &&
                 <a
                     target="_blank"
-                    href={`${scanner()}/tx/${(option.state === -1 ? requests : options).transactions[option.id]}`}
+                    href={`${scanner()}/tx/${(option.state === OptionState.PUBLISHED ? requests : options).transactions[option.id]}`}
                     className={clsx(classes.link, classes.state)}
                 >{eventLabels[option.state + 2]}</a>
             }
@@ -173,10 +173,10 @@ function DetailsView(props: Props)
                 </div>
 
                 <div>
-                    <Field_DetailsView     label="Premium"      value={ethers.utils.formatEther(option.premium)} />
-                    <Field_DetailsView     label="Strike Price" value={ethers.utils.formatEther(option.strikePrice)} />
-                    <Field_DetailsView     label="Expiration"   value={`${option.interval} day${option.interval > 1 ? 's' : ''}`} />
-                    <Field_DetailsView     label="Style"        value={flavorLabels[option.flavor]} className="flavor"/>
+                    <Field_DetailsView label="Premium"      value={ethers.utils.formatEther(option.premium)} />
+                    <Field_DetailsView label="Strike Price" value={ethers.utils.formatEther(option.strikePrice)} />
+                    <Field_DetailsView label="Expiration"   value={`${option.interval} day${option.interval > 1 ? 's' : ''}`} />
+                    <Field_DetailsView label="Style"        value={flavorLabels[option.flavor]} className="flavor"/>
                 </div>
             </div>
 

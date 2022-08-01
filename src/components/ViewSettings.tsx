@@ -3,7 +3,7 @@ import classes from "./styles/ViewContainer.module.scss";
 import clsx from "clsx";
 
 import React, { useEffect, useState } from "react";
-import { OptionWithAsset } from "../../models/extended";
+import { OptionWithAsset } from "../../models/option";
 import FilterBox from "./FilterBox";
 import { ListViewStates } from "./ListView";
 import { Button, MenuItem, Select } from "@mui/material";
@@ -33,9 +33,24 @@ type Props =
 ,   onFilter       : () => void
 };
 
+let _viewChangedCallback : () => void;
+
+const handleViewStateChanged = (event : any) =>
+{
+    let index = event.target.value;
+
+    localStorage[viewStateStorageKey] = index;
+
+    view.state = index;
+
+    _viewChangedCallback();
+}
+
 function ViewSettings(props: Props)
 {
     const [ isFilterBoxVisible , setFilterBoxVisibile ] = useState(false);
+
+    _viewChangedCallback = props.onViewChanged;
 
     useEffect
     (
@@ -53,17 +68,6 @@ function ViewSettings(props: Props)
         }
     ,   []
     );
-
-    const handleViewStateChanged = (event : any) =>
-    {
-        let index = event.target.value;
-
-        localStorage[viewStateStorageKey] = index;
-
-        view.state = index;
-
-        props.onViewChanged();
-    }
 
     const hasItems = props.list ? props.list.length !== 0 : false;
 

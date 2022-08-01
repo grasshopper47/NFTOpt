@@ -2,7 +2,7 @@
 import classes from "../components/styles/RequestForm.module.scss";
 
 import React from "react";
-import { OptionFlavor } from "../../models/option";
+import { OptionFlavor } from "../../models/enums";
 import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 
 type Props =

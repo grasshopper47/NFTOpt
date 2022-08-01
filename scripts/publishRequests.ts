@@ -63,30 +63,42 @@ export async function publishRequests()
 
     console.log(`Publishing ${max} requests ...`);
 
-    while (++i !== max)
-    {
-        const request = generateRequest();
+    // while (++i !== max)
+    // {
+    //     const request = generateRequest();
 
-        NFTOpt.connect(buyer).publishRequest
-        (
-            request.nftContract
-        ,   request.nftId
-        ,   request.strikePrice
-        ,   request.interval
-        ,   request.flavor
-        ,   {
-                value: request.premium
-            ,   gasLimit: 500_000
-            }
-        );
-    }
+    //     NFTOpt.connect(buyer).publishRequest
+    //     (
+    //         request.nftContract
+    //     ,   request.nftId
+    //     ,   request.strikePrice
+    //     ,   request.interval
+    //     ,   request.flavor
+    //     ,   {
+    //             value: request.premium
+    //         ,   gasLimit: 500_000
+    //         }
+    //     );
+    // }
 
     const request = generateRequest();
 
+    // await NFTOpt.connect(buyer).publishRequest
+    // (
+    //     request.nftContract
+    // ,   request.nftId
+    // ,   request.strikePrice
+    // ,   request.interval
+    // ,   request.flavor
+    // ,   {
+    //         value: request.premium
+    //     ,   gasLimit: 500_000
+    //     }
+    // );
     await NFTOpt.connect(buyer).publishRequest
     (
-        request.nftContract
-    ,   request.nftId
+        addresses.localhost.AN_NFT
+    ,   1
     ,   request.strikePrice
     ,   request.interval
     ,   request.flavor

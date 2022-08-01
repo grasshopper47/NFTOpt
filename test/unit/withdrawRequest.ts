@@ -1,8 +1,8 @@
 import { expect } from "chai";
 
 import { buyer, seller, initializer, dummyOptionRequest, publishDummyRequest } from "../helpers";
-import { NFTOptContract, deployMainContract } from "../../utils/deployment";
-import { ADDRESS0, BIGNUMBER0 } from "../../utils/constants";
+import { NFTOptContract, deployNFTOptContract } from "../../utils/deployment/NFTOpt";
+import { ADDRESS0 } from "../../utils/constants";
 
 describe("withdrawRequest", function () {
     before("prepareEnv", async function () {
@@ -23,7 +23,7 @@ describe("withdrawRequest", function () {
             .to.be.revertedWith("NOT_AUTHORIZED");
     });
 
-    it("fails when option not in REQUEST state", async function () {
+    it("fails when option not in PUBLISHED state", async function () {
         // Fill option
         await expect(NFTOptContract.connect(seller)
             .createOption(0, { value: dummyOptionRequest.strikePrice }))
@@ -34,7 +34,7 @@ describe("withdrawRequest", function () {
             .to.be.revertedWith("INVALID_OPTION_STATE");
 
         // Reset the state
-        await deployMainContract();
+        await deployNFTOptContract();
     });
 
     it("sends premium to buyer on success", async function () {
@@ -62,7 +62,7 @@ describe("withdrawRequest", function () {
         expect(buyerBalance0).to.be.equal(buyerBalance1);
 
         // Reset the state
-        await deployMainContract();
+        await deployNFTOptContract();
     });
 
     it("removes request from storage after successful withdrawal", async function () {
@@ -72,11 +72,11 @@ describe("withdrawRequest", function () {
             .withdrawRequest(0))
             .to.emit(NFTOptContract, "Withdrawn");
 
-        let request = await NFTOptContract.requests(0);
-        expect(request[7]).to.be.equal(ADDRESS0); // buyer (8th field) == 0 means invalid option
+        let request = await NFTOptContract.options(0);
+        expect(request[4]).to.be.equal(ADDRESS0); // buyer (5th field) == 0 means invalid option
 
         // Reset the state
-        await deployMainContract();
+        await deployNFTOptContract();
     });
 
     it("reuses storage slots after successful withdrawal", async function () {
@@ -89,7 +89,7 @@ describe("withdrawRequest", function () {
 
         await publishDummyRequest();
 
-        let request = await NFTOptContract.requests(0);
+        let request = await NFTOptContract.options(0);
 
         expect(request.buyer).to.equal(dummyOptionRequest.buyer);
         expect(request.nftContract).to.equal(dummyOptionRequest.nftContract);
@@ -100,7 +100,7 @@ describe("withdrawRequest", function () {
         expect(request.flavor).to.equal(dummyOptionRequest.flavor);
 
         // Reset the state
-        await deployMainContract();
+        await deployNFTOptContract();
     });
 
     it("prints gas limit", async function () {

@@ -4,9 +4,10 @@ import clsx from "clsx";
 
 import React, { useState } from "react";
 import { useAccount } from "../pages/_app";
-import { getCachedContract, assets, getNFTAsset, stringOf, isValid } from "../../datasources/NFTAssets";
-import { AssetKey } from "../../models/nftAsset";
 import { TextField, Button } from "@mui/material";
+import { assetsOf, getNFTAsset } from "../../datasources/assets";
+import { getCachedContract } from "../../datasources/ERC-721/contracts";
+import { AssetKey, isValid, stringOf } from "../../models/assetKey";
 
 let newAssetKey = {} as AssetKey;
 
@@ -61,14 +62,14 @@ function CustomAssetForm(props : Props)
         (
             owner =>
             {
-                if (owner.toLowerCase() !== account)
+                if (owner !== account)
                 {
                     setErrorText("Must own token");
 
                     return;
                 }
 
-                let arr = assets[account] ?? [];
+                let arr = assetsOf(account) ?? [];
 
                 getNFTAsset(newAssetKey).then
                 (

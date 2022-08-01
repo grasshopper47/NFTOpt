@@ -4,11 +4,9 @@ import clsx from "clsx";
 
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
-import { useAccount, useAssets, useContracts } from "../pages/_app";
-import { imageOf, stringOf, loadNFTImage, isValid } from "../../datasources/NFTAssets";
-import { AssetKey, NFTAsset } from "../../models/nftAsset";
-import { OptionRequest_DISPLAY } from "../../models/extended";
-import { OptionFlavor } from "../../models/option";
+import { useAccount } from "../pages/_app";
+import { Request_DISPLAY } from "../../models/request";
+import { OptionFlavor } from "../../models/enums";
 import { SECONDS_IN_A_DAY } from "../../utils/constants";
 import { getFloatString, getIntervalString } from "../utils/helpers";
 import { showToast } from "../utils/toasting";
@@ -17,8 +15,15 @@ import DropDown_RequestForm from "../fragments/DropDown.Assets.RequestForm";
 import DropDown_Flavor_RequestForm from "../fragments/DropDown.Flavor.RequestForm";
 import CustomAssetForm from "./CustomAssetForm";
 import { Button, SelectChangeEvent } from "@mui/material";
+import { imageOf, loadImage } from "../../datasources/ERC-721/images";
+import { AssetKey, isValid, stringOf } from "../../models/assetKey";
+import { NFTAsset } from "../../models/NFTAsset";
+import { assetsOf, loadAssetsFor } from "../../datasources/assets";
+import { contracts } from "../../datasources/NFTOpt";
+import { setAssetsUICallback } from "../controllers/NFTOptCollections";
+import { network } from "../utils/metamask";
 
-let request  = {} as OptionRequest_DISPLAY;
+let request  = {} as Request_DISPLAY;
 let assetKey = {} as AssetKey
 
 let areAmountsInvalid = false;
@@ -36,96 +41,115 @@ const resetRequest = () =>
 {
     assetKey = { nftId : "", nftContract: "" };
 
-    request.interval        = "3";
-    request.premium         = "0.1";
-    request.strikePrice     = "1";
-    request.flavor          = OptionFlavor.AMERICAN;
+    request.interval    = "3";
+    request.premium     = "0.1";
+    request.strikePrice = "1";
+    request.flavor      = OptionFlavor.AMERICAN;
 
     areAmountsInvalid = false;
 }
 
 resetRequest();
 
-function RequestForm()
+let _setImageCallback : (img : string) => void;
+
+const setAsset = (asset : NFTAsset | undefined | null) =>
 {
-    const [                , setRequestChanged ]  = useState(0);
-    const [ image          , setImage ]           = useState(imageOf(assetKey));
-    const [ showAddContract, setShowAddContract ] = useState(false);
+    console.log("setAsset");
 
-    const requestChanged = () => setRequestChanged(f => f ^ 1);
-
-    const account   = useAccount();
-    const assets    = useAssets();
-    const contracts = useContracts();
-
-    // When account changes, clear request
-    useEffect(resetRequest, [account]);
-
-    const setAsset = (asset : NFTAsset | undefined | null) =>
+    if (asset == null)
     {
-        console.log("setAsset");
+        assetKey = { nftId : "", nftContract: "" };
 
-        if (asset == null)
-        {
-            assetKey = { nftId : "", nftContract: "" };
+        _setImageCallback("");
 
-            setImage("");
-
-            return;
-        }
-
-        assetKey = asset.key;
-
-        let image = imageOf(assetKey);
-
-        if (image) setImage(image);
-        else       loadNFTImage(assetKey).then(setImage);
-    };
-
-    const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
-    {
-        request[event.target.id] = getFloatString(event.target.value);
-        areAmountsInvalid = parseFloat(request.premium) >= parseFloat(request.strikePrice);
-        requestChanged();
-    };
-
-    const setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
-    {
-        request.interval = getIntervalString(event.target.value);
-        console.log(event.target.labels);
-        requestChanged();
-    };
-
-    const setFlavor = (event: SelectChangeEvent<OptionFlavor>) =>
-    {
-        request.flavor = event.target.value as OptionFlavor;
-        requestChanged();
+        return;
     }
 
-    const handlePublish = () =>
-    {
-        showToast
-        (
-            contracts.NFTOpt.publishRequest
-            (
-                assetKey.nftContract
-            ,   assetKey.nftId
-            ,   ethers.utils.parseEther(request.strikePrice)
-            ,   parseInt(request.interval) * SECONDS_IN_A_DAY
-            ,   request.flavor
-            ,   { value: ethers.utils.parseEther(request.premium) }
-            )
-            .then( () => { resetRequest(); setImage(""); } )
-        );
-    };
+    assetKey = asset.key;
+
+    let image = imageOf(assetKey);
+
+    if (image) _setImageCallback(image);
+    else       loadImage(assetKey).then( img => { asset.image = img; _setImageCallback(img); } );
+};
+
+let _requestChangedCallback : () => void;
+
+const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
+{
+    request[event.target.id] = getFloatString(event.target.value);
+    areAmountsInvalid = parseFloat(request.premium) >= parseFloat(request.strikePrice);
+    _requestChangedCallback();
+};
+
+const setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
+{
+    request.interval = getIntervalString(event.target.value);
+    _requestChangedCallback();
+};
+
+const setFlavor = (event: SelectChangeEvent<OptionFlavor>) =>
+{
+    request.flavor = event.target.value as OptionFlavor;
+    _requestChangedCallback();
+}
+
+const handlePublish = () => showToast
+(
+    contracts.NFTOpt.publishRequest
+    (
+        assetKey.nftContract
+    ,   assetKey.nftId
+    ,   ethers.utils.parseEther(request.strikePrice)
+    ,   parseInt(request.interval) * SECONDS_IN_A_DAY
+    ,   request.flavor
+    ,   { value: ethers.utils.parseEther(request.premium) }
+    )
+    .then( () => { resetRequest(), _requestChangedCallback() } )
+);
+
+const handleKey = (event: React.KeyboardEvent<HTMLInputElement>) =>
+{
+    if (isRequestValid() && event.key === "Enter") handlePublish();
+}
+
+function RequestForm()
+{
+    const [                 , setAssetsChanged ]   = useState(0);
+    const [                 , setRequestChanged ]  = useState(0);
+    const [ image           , setImage ]           = useState(imageOf(assetKey));
+    const [ showAddContract , setShowAddContract ] = useState(false);
+
+    const assetsChanged  = () => setAssetsChanged(f => f ^ 1);
+    const requestChanged = () => setRequestChanged(f => f ^ 1);
+
+    _setImageCallback       = setImage;
+    _requestChangedCallback = requestChanged;
+    setAssetsUICallback(assetsChanged);
+
+    const account = useAccount();
+
+    const assets = assetsOf(account) ?? [];
+
+    useEffect
+    (
+        () =>
+        {
+            resetRequest();
+
+            if (!network()) return;
+
+            loadAssetsFor(account).then(assetsChanged);
+        }
+    ,   [account]
+    );
 
     const handleCustomContract = () =>
     {
         setAsset(assets[assets.length - 1]);
         setShowAddContract(false);
     }
-
-    const handleKey = (event: React.KeyboardEvent<HTMLInputElement>) => { if (isRequestValid() && event.key === "Enter") handlePublish(); }
 
     return <>
         <p className="page-title">Request a PUT Option</p>
@@ -184,7 +208,6 @@ function RequestForm()
                     onClick={handlePublish}
                     disabled={!isRequestValid()}
                 >Publish Request</Button>
-
             </div>
 
             <div className={clsx(classes.imageContainer, !assetKey.nftContract && classes.dummyImageContainer)}>

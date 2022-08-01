@@ -3,7 +3,7 @@ import classes from "./styles/ListView.module.scss";
 import clsx from "clsx";
 
 import React from 'react';
-import { OptionWithAsset } from "../../models/extended";
+import { OptionWithAsset } from "../../models/option";
 import CardView from "./CardView";
 import DetailsView from './DetailsView';
 import { IconButton } from "@mui/material";

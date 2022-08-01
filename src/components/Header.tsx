@@ -32,6 +32,10 @@ const routesReadOnly: Route[] =
 const routesWithSigner: Route[] =
 [
     {
+        href: "/mint"
+    ,   name: "Mint"
+    }
+,   {
         href: "/request"
     ,   name: "Publish"
     }

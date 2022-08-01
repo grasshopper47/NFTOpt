@@ -87,6 +87,8 @@ function handleAccountChanged(accounts : string[] | string)
     if (!_connected) console.log("MetaMasK: connect an account");
 
     _setAccount(window.ethereum.selectedAddress);
+
+    console.log("setAccount", window.ethereum.selectedAddress);
 }
 
 function handleChainIDChanged(id : string)
@@ -98,6 +100,8 @@ function handleChainIDChanged(id : string)
 
     if (!_network) console.log("MetaMasK: select a supported network");
 
+    console.log("setChainID", id_);
+
     // window.location.reload();
 }
 
@@ -106,4 +110,3 @@ export const scanner   = () => _scanner;
 export const connected = () => _connected;
 export const provider  = () => _provider;
 export const signer    = () => _signer;
-export const signerOrProvider = () => _connected ? _signer : _provider;

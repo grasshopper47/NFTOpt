@@ -29,7 +29,7 @@ type Props =
 
 function FilterBox(props : Props)
 {
-    const [ showAll, setShowAll ] = useState(filterParams.account === "");
+    const [ showAll , setShowAll ] = useState(filterParams.account === "");
 
     const account = useAccount();
 

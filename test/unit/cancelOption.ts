@@ -1,18 +1,17 @@
 import { expect } from "chai";
-import { OptionState } from "../../models/option";
+import { OptionState } from "../../models/enums";
 import {
     buyer,
     seller,
-    nonParticipant,
+    thirdParty,
     addDaysToEVM,
     initializer,
     NFTDummyContract,
     dummyOptionRequest,
-    publishDummyRequest,
-    deployHardHatDummyNFTCollection,
+    publishDummyRequest
 } from "../helpers";
 import { SECONDS_IN_A_DAY } from "../../utils/constants";
-import { deployMainContract, NFTOptContract } from "../../utils/deployment";
+import { deployNFTOptContract, NFTOptContract } from "../../utils/deployment/NFTOpt";
 
 describe("cancelOption", function () {
     before("prepareEnv", async function () {
@@ -58,8 +57,8 @@ describe("cancelOption", function () {
         ).to.be.revertedWith("INVALID_OPTION_STATE");
 
         // Reset the state
-        await deployMainContract();
-        await deployHardHatDummyNFTCollection();
+        await deployNFTOptContract();
+        await NFTDummyContract.connect(seller).transferFrom(seller.address, buyer.address, 1);
     });
 
     it("reverts when non-participant tries to cancel", async function () {
@@ -85,12 +84,11 @@ describe("cancelOption", function () {
 
         // Try to cancel again, by non-participant
         await expect(
-            NFTOptContract.connect(nonParticipant).cancelOption(0)
+            NFTOptContract.connect(thirdParty).cancelOption(0)
         ).to.be.revertedWith("NOT_AUTHORIZED");
 
         // Reset the state
-        await deployMainContract();
-        await deployHardHatDummyNFTCollection();
+        await deployNFTOptContract();
     });
 
     it("succeeds when called by seller after expiration date", async function () {
@@ -116,8 +114,7 @@ describe("cancelOption", function () {
             .withArgs(0);
 
         // Reset the state
-        await deployMainContract();
-        await deployHardHatDummyNFTCollection();
+        await deployNFTOptContract();
     });
 
     it("succeeds when called by buyer within specified interval", async function () {
@@ -138,8 +135,7 @@ describe("cancelOption", function () {
             .withArgs(0);
 
         // Reset the state
-        await deployMainContract();
-        await deployHardHatDummyNFTCollection();
+        await deployNFTOptContract();
     });
 
     it("sends the collateral back to the seller", async function () {
@@ -165,8 +161,7 @@ describe("cancelOption", function () {
         expect(sellerBalance0).to.equal(sellerBalance1);
 
         // Reset the state
-        await deployMainContract();
-        await deployHardHatDummyNFTCollection();
+        await deployNFTOptContract();
     });
 
     it("emits 'Canceled' event", async function () {
@@ -187,7 +182,7 @@ describe("cancelOption", function () {
         expect(cancelledOption.state).to.equal(OptionState.CANCELED);
 
         // Reset the state
-        await deployMainContract();
+        await deployNFTOptContract();
     });
 
     it("prints gas limit", async function () {
