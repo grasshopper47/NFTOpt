@@ -1,18 +1,18 @@
 {
     "name": "NFT-OpT project",
     "dependencies": {
-        "@emotion/react": "^11.9.3",
-        "@emotion/styled": "^11.9.3",
+        "@emotion/react": "^11.10.0",
+        "@emotion/styled": "^11.10.0",
         "@mui/icons-material": "^5.8.4",
-        "@mui/material": "^5.9.0",
-        "@openzeppelin/contracts": "^4.7.0",
+        "@mui/material": "^5.9.2",
+        "@openzeppelin/contracts": "^4.7.2",
         "clsx": "^1.2.1",
-        "next": "^12.2.2",
+        "next": "^12.2.3",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-hot-toast": "^2.3.0",
         "react-router-dom": "^6.3.0",
-        "sass": "^1.53.0"
+        "sass": "^1.54.0"
     },
     "devDependencies": {
         "@nomiclabs/hardhat-ethers": "^2.1.0",
@@ -21,7 +21,7 @@
         "@typechain/hardhat": "^6.1.2",
         "@types/chai": "^4.3.1",
         "@types/mocha": "^9.1.1",
-        "@types/node": "^18.0.6",
+        "@types/node": "^18.6.3",
         "@types/react": "^18.0.15",
         "chai": "^4.3.6",
         "ethereum-waffle": "^3.4.4",
@@ -34,20 +34,27 @@
     "scripts": {
         "clean": "npx hardhat clean",
         "compile": "npx hardhat compile",
-        "---": "",
+
+        "~~ TESTING ~~" : "",
         "test all": "npx hardhat test",
         "test coverage": "npx hardhat coverage",
-        "test - cancelOption": "npx hardhat test test/unit/cancelOption.ts",
-        "test - createOption": "npx hardhat test test/unit/createOption.ts",
-        "test - exerciseOption": "npx hardhat test test/unit/exerciseOption.ts",
-        "test - publishRequest": "npx hardhat test test/unit/publishRequest.ts",
-        "test - withdrawRequest": "npx hardhat test test/unit/withdrawRequest.ts",
-        "---": "",
-        "start blockchain node": "npx hardhat node",
-        "deploy contracts": "npx hardhat run scripts/deploy.ts --network localhost",
+        "cancelOption": "npx hardhat test test/unit/cancelOption.ts",
+        "createOption": "npx hardhat test test/unit/createOption.ts",
+        "exerciseOption": "npx hardhat test test/unit/exerciseOption.ts",
+        "publishRequest": "npx hardhat test test/unit/publishRequest.ts",
+        "withdrawRequest": "npx hardhat test test/unit/withdrawRequest.ts",
+
+        "~~ LOCALHOST NODES ~~" : "",
+        "start blockchain": "npx hardhat node",
+        "start webserver": "next dev -p 3003",
+
+        "~~ PUBLISH Contracts ~~" : "",
+        "publish NFTOpt": "npx hardhat run scripts/publish/NFTOpt.ts --network localhost",
+        "publish NFT Collections": "npx hardhat run scripts/publish/NFTCollections.ts --network localhost",
+
+        "~~ CREATE Data ~~" : "",
+        "mint NFT": "npx hardhat run scripts/mintNFT.ts --network localhost",
         "publish 10 requests": "npx hardhat run scripts/publishRequests.ts --network localhost",
-        "create 10 options": "npx hardhat run scripts/createOptions.ts --network localhost",
-        "---": "",
-        "start webserver": "next dev -p 3003"
+        "create 10 options": "npx hardhat run scripts/createOptions.ts --network localhost"
     }
 }

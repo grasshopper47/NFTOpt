@@ -1,25 +1,31 @@
 import { BigNumber } from "ethers";
-
-export enum OptionFlavor { EUROPEAN, AMERICAN }
-
-export enum OptionState
-{
-    OPEN
-,   CANCELED
-,   EXERCISED
-}
+import { NFTAsset } from "./nftAsset";
+import { OptionFlavor, OptionState } from "./enums";
 
 export type Option =
+{
+    buyer       : string
+    seller      : string
+    nftContract : string
+    nftId       : BigNumber
+    interval    : number
+    premium     : BigNumber
+    strikePrice : BigNumber
+    startDate   : BigNumber
+    flavor      : OptionFlavor
+    state       : OptionState
+};
+
+export type OptionWithAsset =
 {
     id          : number
 ,   buyer       : string
 ,   seller      : string
-,   nftContract : string
-,   nftId       : BigNumber
-,   startDate   : number
+,   asset       : NFTAsset
+,   startDate   : BigNumber
 ,   interval    : number
 ,   premium     : BigNumber
 ,   strikePrice : BigNumber
 ,   flavor      : OptionFlavor
-,   state       : OptionState | -1
+,   state       : OptionState
 };

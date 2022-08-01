@@ -1,58 +1,49 @@
 // @ts-ignore
-import { ERC721 } from "../typechain-types";
+import { Collection_BASE, Collection_BASE } from "../typechain-types";
 
 import { ethers } from "hardhat";
 import { expect } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { Option, OptionFlavor } from "../models/option";
-import { ADDRESS0, SECONDS_IN_A_DAY } from "../utils/constants";
+import { Option } from "../models/option";
+import { OptionFlavor } from "../models/enums";
+import { BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { BigNumber } from "ethers";
-import {
-    NFTOptContract,
-    deployMainContractLibraries,
-    deployMainContract,
-    deployNFTCollectionContract,
-    contracts,
-} from "../utils/deployment";
+import { NFTOptContract, deployNFTOptLibraries, deployNFTOptContract } from "../utils/deployment/NFTOpt";
+import { deployNFTCollectionContract, NFTCollectionContracts } from "../utils/deployment/NFTCollections";
 
-export let buyer: SignerWithAddress;
-export let seller: SignerWithAddress;
-export let nonParticipant: SignerWithAddress;
+export let buyer      : SignerWithAddress;
+export let seller     : SignerWithAddress;
+export let thirdParty : SignerWithAddress;
 
-export let dummyOptionRequest: Option;
-export let NFTDummyContract: ERC721;
-
-export async function deployHardHatDummyNFTCollection()
-{
-    const name = "NK_NFT";
-    await deployNFTCollectionContract(name);
-
-    NFTDummyContract = contracts[name].instance;
-    dummyOptionRequest.nftContract = NFTDummyContract.address;
-}
+export let dummyOptionRequest : Option;
+export let NFTDummyContract : Collection_BASE;
 
 export const initializer = async () =>
 {
-    [ buyer, seller, nonParticipant ] = await ethers.getSigners();
+    [ buyer, seller, thirdParty ] = await ethers.getSigners();
 
     dummyOptionRequest =
     {
-        id          : -1            // not used
-    ,   buyer       : buyer.address
-    ,   seller      : ADDRESS0
+        buyer       : buyer.address
     ,   nftContract : ""
     ,   nftId       : BigNumber.from(1)
-    ,   startDate   : 0
+    ,   startDate   : BIGNUMBER0
     ,   interval    : 7 * SECONDS_IN_A_DAY
     ,   premium     : ethers.utils.parseEther("1")
     ,   strikePrice : ethers.utils.parseEther("50")
     ,   flavor      : OptionFlavor.EUROPEAN
-    ,   state       : -1
-    };
+    } as Option;
 
-    await deployMainContractLibraries();
-    await deployMainContract();
-    await deployHardHatDummyNFTCollection();
+    await deployNFTOptLibraries();
+    await deployNFTOptContract();
+
+    const name = "NK_NFT";
+    await deployNFTCollectionContract(name);
+
+    NFTDummyContract = NFTCollectionContracts[name].instance;
+    dummyOptionRequest.nftContract = NFTDummyContract.address;
+
+    await NFTDummyContract.connect(buyer).mint();
 };
 
 export let publishDummyRequest = async () =>

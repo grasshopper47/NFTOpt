@@ -4,12 +4,13 @@ import addresses from "../addresses.json";
 import { ethers } from "hardhat";
 import { NFTOpt } from "../typechain-types";
 import { ADDRESS0 } from "../utils/constants";
+import { OptionState } from "../models/enums";
 
 export async function createOptions()
 {
     const signers = await ethers.getSigners();
 
-    // remove 1st account, it's the one that created all the requests
+    // remove 1st account, it's the one that created all the options
     signers.shift();
 
     // Create completely new instance with the default provider (readonly)
@@ -24,67 +25,67 @@ export async function createOptions()
     let i = 0;
     let max = 9;
 
-    console.log(`Fulfilling ${max + 1} requests ...`);
+    console.log(`Fulfilling ${max + 1} options ...`);
 
-    let requestID = await NFTOpt.optionID();
+    let optionID = await NFTOpt.optionID();
 
-    if (!requestID)
+    if (!optionID)
     {
-        console.log("Missing requests to fulfill!");
+        console.log("Missing options to fulfill!");
 
         return;
     }
 
     while (i !== max)
     {
-        if (requestID.lt(1)) break;
+        if (optionID.lt(1)) break;
 
-        let request = await NFTOpt.options(requestID);
+        let option = await NFTOpt.options(optionID);
 
-        if (request.buyer === ADDRESS0)
+        if (option.buyer === ADDRESS0 || option.state === OptionState.OPEN)
         {
-            requestID = requestID.sub(1);
+            optionID = optionID.sub(1);
             continue;
         }
 
         NFTOpt.connect(signers[Math.floor(Math.random() * signers.length)]).createOption
         (
-            requestID
+            optionID
         ,   {
-                value: request.strikePrice
+                value: option.strikePrice
             ,   gasLimit: 500_000
             }
         );
 
-        console.log("Fulfilled " + requestID);
+        console.log("Fulfilled " + optionID);
 
         ++i;
-        requestID = requestID.sub(1);
+        optionID = optionID.sub(1);
     }
 
-    let request = await NFTOpt.options(requestID);
+    let option = await NFTOpt.options(optionID);
 
-    while (request.buyer === ADDRESS0)
+    while (option.buyer === ADDRESS0 || option.state === OptionState.OPEN)
     {
-        requestID = requestID.sub(1);
+        optionID = optionID.sub(1);
 
-        if (requestID.lt(0)) break;
+        if (optionID.lt(0)) break;
 
-        request = await NFTOpt.options(requestID);
+        option = await NFTOpt.options(optionID);
     }
 
-    if (requestID.gt(-1))
+    if (optionID.gt(-1))
     {
         await NFTOpt.connect(signers[Math.floor(Math.random() * signers.length)]).createOption
         (
-            requestID
+            optionID
         ,   {
-                value: request.strikePrice
+                value: option.strikePrice
             ,   gasLimit: 500_000
             }
         );
 
-        console.log("Fulfilled " + requestID);
+        console.log("Fulfilled " + optionID);
     }
 
     console.log("Done");

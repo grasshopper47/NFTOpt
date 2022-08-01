@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { SECONDS_IN_A_DAY } from "../../utils/constants";
-import { NFTOptContract, deployMainContract } from "../../utils/deployment";
+import { NFTOptContract, deployNFTOptContract } from "../../utils/deployment/NFTOpt";
 import {
     buyer,
     initializer,
@@ -82,7 +82,7 @@ describe("publishRequest", function () {
 
     it("succeeds when called with valid values", async function () {
         const balance0 = await ethers.provider.getBalance(NFTOptContract.address);
-        const requestID0 = await NFTOptContract.requestID();
+        const requestID0 = await NFTOptContract.optionID();
 
         expect(balance0).to.equal(0);
         expect(requestID0).to.equal(0);
@@ -90,13 +90,13 @@ describe("publishRequest", function () {
         await publishDummyRequest();
 
         const balance1 = await ethers.provider.getBalance(NFTOptContract.address);
-        const requestID1 = await NFTOptContract.requestID();
+        const requestID1 = await NFTOptContract.optionID();
 
         expect(balance1).to.equal(dummyOptionRequest.premium);
         expect(requestID1).to.equal(1);
 
         // Check that details of the option data match those sent
-        const request = await NFTOptContract.requests(0);
+        const request = await NFTOptContract.options(0);
 
         expect(request.buyer).to.equal(dummyOptionRequest.buyer);
         expect(request.nftContract).to.equal(dummyOptionRequest.nftContract);
@@ -107,7 +107,7 @@ describe("publishRequest", function () {
         expect(request.flavor).to.equal(dummyOptionRequest.flavor);
 
         // Reset the state
-        await deployMainContract();
+        await deployNFTOptContract();
     });
 
     it("emits 'Published' event when succeeded", async function () {
@@ -125,7 +125,7 @@ describe("publishRequest", function () {
             .withArgs(0);
 
         // Reset the state
-        await deployMainContract();
+        await deployNFTOptContract();
     });
 
     it("prints gas limit", async function () {

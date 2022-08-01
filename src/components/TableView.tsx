@@ -1,8 +1,8 @@
 // @ts-ignore
 import classes from "./styles/TableView.module.scss";
 
-import React, { useState } from 'react';
-import { OptionWithAsset } from "../../models/extended";
+import React from 'react';
+import { OptionWithAsset } from "../../models/option";
 import RowView from "./RowView";
 
 enum SortMode { ASCENDING, DESCENDING };

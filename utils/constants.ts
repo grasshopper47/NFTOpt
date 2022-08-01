@@ -23,9 +23,9 @@ export const ABIs =
                     type: "string"
                 }
             ]
-        },
+        }
 
-        ownerOf:
+    ,   ownerOf:
         {
             name: "ownerOf",
             stateMutability: "view",
@@ -46,9 +46,9 @@ export const ABIs =
                     type: "address",
                 },
             ]
-        },
+        }
 
-        approve:
+    ,   approve:
         {
             name: "approve",
             stateMutability: "nonpayable",
@@ -67,9 +67,9 @@ export const ABIs =
                 },
             ],
             outputs: []
-        },
+        }
 
-        getApproved:
+    ,   getApproved:
         {
             name: "getApproved",
             stateMutability: "view",
@@ -90,9 +90,9 @@ export const ABIs =
                     type: "address",
                 },
             ],
-        },
+        }
 
-        tokenURI:
+    ,   tokenURI:
         {
             name: "tokenURI",
             stateMutability: "view",
@@ -113,9 +113,18 @@ export const ABIs =
                     type: "string",
                 },
             ],
-        },
+        }
 
-        Events:
+    ,   mint :
+        {
+            name: "mint",
+            type: "function",
+            stateMutability: "",
+            inputs: [],
+            outputs: []
+        }
+
+    ,   Events:
         {
             Approval:
             {
@@ -143,6 +152,33 @@ export const ABIs =
                     },
                 ],
             }
-        },
+
+        ,   Transfer:
+            {
+                name: "Transfer",
+                type: "event",
+                anonymous: false,
+                inputs: [
+                    {
+                        indexed: true,
+                        internalType: "address",
+                        name: "from",
+                        type: "address",
+                    },
+                    {
+                        indexed: true,
+                        internalType: "address",
+                        name: "to",
+                        type: "address",
+                    },
+                    {
+                        indexed: true,
+                        internalType: "uint256",
+                        name: "tokenId",
+                        type: "uint256",
+                    },
+                ],
+            }
+        }
     }
 };

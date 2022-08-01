@@ -1,8 +1,4 @@
-export type AssetKey =
-{
-    nftId       : string
-,   nftContract : string
-};
+import { AssetKey } from "./assetKey";
 
 export type NFTAsset =
 {

@@ -1,9 +1,9 @@
 import { expect } from "chai";
-import { OptionState } from "../../models/option";
+import { OptionState } from "../../models/enums";
 import { buyer, seller, initializer, dummyOptionRequest, publishDummyRequest } from "../helpers";
-import { NFTOptContract, deployMainContract } from "../../utils/deployment";
+import { NFTOptContract, deployNFTOptContract } from "../../utils/deployment/NFTOpt";
 import { ethers } from "hardhat";
-import { ADDRESS0 } from "../../utils/constants";
+import { ADDRESS0, BIGNUMBER0 } from "../../utils/constants";
 
 describe("createOption", function () {
     before("prepareEnv", async function () {
@@ -28,7 +28,7 @@ describe("createOption", function () {
             .to.be.revertedWith("INVALID_ID");
 
         // Reset the state
-        await deployMainContract();
+        await deployNFTOptContract();
     });
 
     it("reverts when the option seller is the same as the option buyer", async function () {
@@ -39,7 +39,7 @@ describe("createOption", function () {
             .to.be.revertedWith("BUYER_MUST_DIFFER_FROM_SELLER");
 
         // Reset the state
-        await deployMainContract();
+        await deployNFTOptContract();
     });
 
     it("reverts when the wrong strike price is provided by the seller", async function () {
@@ -50,7 +50,7 @@ describe("createOption", function () {
             .to.be.revertedWith("INVALID_STRIKE_PRICE_AMOUNT");
 
         // Reset the state
-        await deployMainContract();
+        await deployNFTOptContract();
     });
 
     it("succeeds when called with valid values", async function () {
@@ -84,9 +84,8 @@ describe("createOption", function () {
         expect(contractBalance).to.equal(dummyOptionRequest.strikePrice);
 
         const option = await NFTOptContract.options(0);
-        const request = await NFTOptContract.requests(option.requestID);
 
-        expect(request.startDate).to.not.equal(0);
+        expect(option.startDate).to.not.equal(BIGNUMBER0);
         expect(option.seller).to.equal(seller.address);
         expect(option.state).to.equal(OptionState.OPEN);
 
@@ -94,14 +93,14 @@ describe("createOption", function () {
         let sellerBalance1 = await seller.getBalance();
 
         sellerBalance1 = sellerBalance1
-            .sub(request.premium)
+            .sub(option.premium)
             .add(dummyOptionRequest.strikePrice)
             .add(gasUsedInTransaction);
 
         expect(sellerBalance0).to.equal(sellerBalance1);
 
         // Reset the state
-        await deployMainContract();
+        await deployNFTOptContract();
     });
 
     it("emits 'Opened' event when succeeded", async function () {
@@ -113,7 +112,7 @@ describe("createOption", function () {
             .withArgs(0);
 
         // Reset the state
-        await deployMainContract();
+        await deployNFTOptContract();
     });
 
     it("prints gas limit", async function () {

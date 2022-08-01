@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
-import { OptionState } from "../models/option";
-import { requests } from "./requests";
-import { options } from "./options";
+import { OptionState } from "../models/enums";
+import { requests, options } from "./options";
 
 export enum OptionStateViewed { REQUEST, OPEN, CLOSED };
 

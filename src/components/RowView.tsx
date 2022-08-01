@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 import React from "react";
 import { ethers } from "ethers";
-import { OptionWithAsset } from "../../models/extended";
+import { OptionWithAsset } from "../../models/option";
 import DetailsView from "./DetailsView";
 import { useRequests, useOptions } from "../pages/_app";
 

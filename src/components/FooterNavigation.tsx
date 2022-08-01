@@ -2,7 +2,7 @@
 import classes from "./styles/FooterNavigation.module.scss";
 
 import React, { useEffect } from "react";
-import { OptionWithAsset } from "../../models/extended";
+import { OptionWithAsset } from "../../models/option";
 import { Button, MenuItem, Select } from "@mui/material";
 
 export type ViewPage =
