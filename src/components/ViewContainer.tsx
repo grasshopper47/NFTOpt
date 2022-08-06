@@ -4,9 +4,9 @@ import clsx from "clsx";
 
 import React from "react";
 import { useEffect, useState } from "react";
-import { useAccount, useChainID } from "../pages/_app";
+import { useChainID } from "../pages/_app";
 import { OptionWithAsset } from "../../models/option";
-import { connected, network, provider, signer } from "../utils/metamask";
+import { network } from "../utils/metamask";
 import { filterParams } from "./FilterBox";
 import TableView, { TableViewLimits } from "./TableView";
 import ListView, { ListViewLimits } from "./ListView";
@@ -14,7 +14,7 @@ import { Tab, Tabs } from "@mui/material";
 import FooterNavigation, { page } from "./FooterNavigation";
 import ViewSettings, { view, ViewTypes } from "./ViewSettings";
 import { doFilter, optionsByStateFiltered, OptionStateViewed } from "../../datasources/filtering";
-import { contracts, createNFTOptInstance } from "../../datasources/NFTOpt";
+import { contracts } from "../../datasources/NFTOpt";
 import { loadAll } from "../../datasources/options";
 import { attachNFTOptHandlersToInstance } from "../controllers/NFTOpt";
 
@@ -132,7 +132,6 @@ function ViewContainer()
     _setViewedOptionsCallback = setViewedOptions;
     _updateViewCallback       = updateView;
 
-    const account = useAccount();
     const chainID = useChainID();
 
     const hasItems = viewedOptions ? viewedOptions.length !== 0 : false;
@@ -146,30 +145,13 @@ function ViewContainer()
             let network_ = network();
             if (!network_) return;
 
-            // Initialize
-            contracts.NFTOpt = createNFTOptInstance(provider(), network_);
-
             // Load data
             loadAll(contracts.NFTOpt).then(handleFiltered);
 
             // Subscribe to events
-            attachNFTOptHandlersToInstance(contracts.NFTOpt, handleFiltered, handleFiltered);
+            attachNFTOptHandlersToInstance(contracts.NFTOpt, handleFiltered);
         }
     ,   [chainID]
-    );
-
-    useEffect
-    (
-        () =>
-        {
-            if (!network()) return;
-
-            // Create an upgraded/downgraded instance with connected address as signer
-            // OR with the default provider (readonly)
-            // NOTE: event subscription is maintained
-            contracts.NFTOpt = contracts.NFTOpt?.connect(connected() ? signer() : provider());
-        }
-    ,   [account]
     );
 
     useEffect

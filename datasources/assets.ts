@@ -62,7 +62,7 @@ export const loadAssetsFor = async (account: string) =>
                     let contract = getCachedContract(key.nftContract);
 
                     let owner = await contract.ownerOf(key.nftId);
-                    if (owner.toLowerCase() !== account) return;
+                    if (owner !== account) return;
 
                     let asset = await getNFTAsset(key, contract);
                     arr.push(asset);

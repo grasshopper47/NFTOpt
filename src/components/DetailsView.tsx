@@ -27,6 +27,31 @@ type Props =
 ,   onAction  ?: () => void
 };
 
+let _setApprovedCallback : (a : boolean) => void;
+
+let checkAndSetApproved = (address : string, contract : any) =>
+{
+    if (address === contracts.NFTOpt.address) { _setApprovedCallback(true); return; }
+
+    contract.once
+    (
+        "Approval"
+    ,   () =>
+        {
+            _setApprovedCallback(true);
+
+            dismissLastToast();
+            toast.success("Approved to transfer NFT");
+            console.log("approved transfer");
+        }
+    );
+}
+
+let onWithdrawOption = (option : OptionWithAsset) => contracts.NFTOpt.withdrawRequest(option.id);
+let onCreateOption   = (option : OptionWithAsset) => contracts.NFTOpt.createOption(option.id, { value: option.strikePrice });
+let onCancelOption   = (option : OptionWithAsset) => contracts.NFTOpt.cancelOption(option.id);
+let onExerciseOption = (option : OptionWithAsset) => contracts.NFTOpt.exerciseOption(option.id);
+
 function DetailsView(props: Props)
 {
     const { option } = props;
@@ -35,9 +60,11 @@ function DetailsView(props: Props)
 
     const [ isApproved, setApproved ] = useState(false);
 
-    const account   = useAccount();
-    const requests  = useRequests();
-    const options   = useOptions();
+    _setApprovedCallback = setApproved;
+
+    const account  = useAccount();
+    const requests = useRequests();
+    const options  = useOptions();
 
     let contract;
 
@@ -49,34 +76,10 @@ function DetailsView(props: Props)
 
             contract = getCachedContract(option.asset.key.nftContract);
 
-            contract.getApproved(option.asset.key.nftId).then(checkAndSetApproved);
+            contract.getApproved(option.asset.key.nftId).then( address => checkAndSetApproved(address, contract) );
         }
     ,   []
     );
-
-    let checkAndSetApproved = (address : string) =>
-    {
-        if (address === contracts.NFTOpt.address) { setApproved(true); return; }
-
-        contract.once
-        (
-            "Approval"
-        ,   () =>
-            {
-                if (isApproved) return;
-                setApproved(true);
-
-                dismissLastToast();
-                toast.success("Approved to transfer NFT");
-                console.log("approved transfer");
-            }
-        );
-    }
-
-    let onWithdrawOption = () => contracts.NFTOpt.withdrawRequest(option.id);
-    let onCreateOption   = () => contracts.NFTOpt.createOption(option.id, { value: option.strikePrice });
-    let onCancelOption   = () => contracts.NFTOpt.cancelOption(option.id);
-    let onExerciseOption = () => contracts.NFTOpt.exerciseOption(option.id);
 
     let onAction = promise => showToast
     (

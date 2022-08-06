@@ -27,7 +27,7 @@ export const attachNFTOptCollectionHandlersToInstance = (collections : {}) =>
 
                 await addAssetByKeyTo
                 (
-                    address.toLowerCase()
+                    address
                 ,   { nftContract : transaction.address, nftId : tokenID.toString() }
                 );
 

@@ -8,7 +8,7 @@ import DropDown_MintForm from "../fragments/DropDown.Collections.MintForm";
 import { Avatar, Button, ListItem, ListItemAvatar, ListItemText, ListSubheader } from "@mui/material";
 import { List } from '@mui/material';
 import { AssetKey } from "../../models/assetKey";
-import { NFTAsset } from "../../models/NFTAsset";
+import { NFTAsset } from "../../models/nftAsset";
 import { network, provider, signer } from "../utils/metamask";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
 import { useAccount, useChainID } from "../pages/_app";
@@ -21,10 +21,16 @@ let asset = {} as NFTAsset;
 
 const resetAsset = () =>
 {
-    asset.key = {} as AssetKey;
-
-    asset.key.nftId =
-    asset.key.nftContract = "";
+    asset =
+    {
+        key :
+        {
+            nftId       : ""
+        ,   nftContract : ""
+        } as AssetKey
+    ,   name            : ""
+    ,   image           : ""
+    }
 }
 
 resetAsset();
@@ -40,7 +46,9 @@ const setAsset = (obj? : NFTAsset | null) =>
 
 const handleMint = () => showToast
 (
-    getCachedContract(asset.key.nftContract).connect(signer()).mint()
+    getCachedContract(asset.key.nftContract)
+    .connect(signer())
+    .mint()
     .then( () => setAsset(null) )
 );
 
@@ -56,14 +64,13 @@ function MintForm()
     const [ collections , setCollections ]   = useState<NFTAsset[]>([]);
 
     const assetsChanged = () => setAssetsChanged(f => f ^ 1);
+    setAssetsUICallback(assetsChanged);
 
     _setImageCallback = setImage;
-    setAssetsUICallback(assetsChanged);
 
     const account = useAccount();
     const chainID = useChainID();
-
-    const assets = assetsOf(account) ?? [];
+    const assets  = assetsOf(account) ?? [];
 
     useEffect
     (
@@ -104,15 +111,15 @@ function MintForm()
 
             <div className={classes.form}>
                 <DropDown_MintForm
-                    value={asset.key.nftContract === "" ? "_" : asset.key.nftContract}
+                    value={asset}
                     list={collections}
                     onChange={setAsset}
                 />
 
                 <List
                     className={classes.list}
-                    subheader={<ListSubheader>My assets</ListSubheader>}>
-
+                    subheader={<ListSubheader>My assets</ListSubheader>}
+                >
                     {
                         assets.map
                         (

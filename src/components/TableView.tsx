@@ -6,7 +6,7 @@ import { OptionWithAsset } from "../../models/option";
 import RowView from "./RowView";
 
 enum SortMode { ASCENDING, DESCENDING };
-let sortMode = SortMode.DESCENDING;
+let sortMode = SortMode.ASCENDING;
 
 type Props =
 {
