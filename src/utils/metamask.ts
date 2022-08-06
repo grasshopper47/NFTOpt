@@ -4,6 +4,8 @@ import toast from "react-hot-toast";
 // MetaMasK is present if this variable exists
 declare var window : Window & { ethereum?: any; };
 
+let _connected = false;
+
 const _networks : any =
 {
     "31337" : "localhost"
@@ -20,10 +22,8 @@ const _scanners : any =
 };
 let _scanner : string;
 
-let _connected = false;
-
 let _provider : ethers.providers.Web3Provider;
-let _signer : Signer;
+let _signer   : Signer;
 
 let _setAccount : (a : string) => void;
 let _setChainID : (a : number) => void;
@@ -41,7 +41,7 @@ export function hookMetamask
     _setAccount = setAccount;
     _setChainID = setChainID;
 
-    window.ethereum.on("chainChanged", handleChainIDChanged);
+    window.ethereum.on("chainChanged"   , handleChainIDChanged);
     window.ethereum.on('accountsChanged', handleAccountChanged);
 
     handleChainIDChanged(window.ethereum.networkVersion);
@@ -80,20 +80,26 @@ function _setNetwork(id : number)
     _scanner = _scanners[id];
 }
 
-function handleAccountChanged(accounts : string[] | string)
+function handleAccountChanged(account : string)
 {
-    _connected = accounts.length !== 0;
+    _connected = account != null && account.length !== 0;
 
     if (!_connected) console.log("MetaMasK: connect an account");
 
-    _setAccount(window.ethereum.selectedAddress);
+    _setAccount(account);
 
-    console.log("setAccount", window.ethereum.selectedAddress);
+    console.log("setAccount", account);
 }
 
 function handleChainIDChanged(id : string)
 {
     let id_ = parseInt(id);
+
+    if (id_ === NaN)
+    {
+        console.log("MetaMasK: connect a blockchain node");
+        return;
+    }
 
     _setNetwork(id_);
     _setChainID(id_);

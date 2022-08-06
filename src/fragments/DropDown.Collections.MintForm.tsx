@@ -1,19 +1,17 @@
 // @ts-ignore
 import classes from "../components/styles/RequestForm.module.scss";
 
-import React from "react";
+import React, { useEffect } from "react";
 
-import { NFTAsset } from "../../models/NFTAsset";
+import { NFTAsset } from "../../models/nftAsset";
 import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
 
 type Props =
 {
-    value    : string
+    value    : NFTAsset
 ,   list     : NFTAsset[]
 ,   onChange : (asset: NFTAsset | undefined | null) => void
 };
-
-let selectedAsset : NFTAsset | undefined | null = null;
 
 export default function(props: Props)
 {
@@ -22,11 +20,10 @@ export default function(props: Props)
 
         <Select
             MenuProps={{ classes: { paper: classes.menuPaper } }}
-            value={props.value}
+            value={props.value.key.nftContract === "" ? "_" : props.value.key.nftContract}
             labelId="select-label"
             label="NFT Collection"
-            renderValue={ (value) => { return value === "_" || !selectedAsset ? <em>Select a collection</em> : selectedAsset.name; } }
-            onChange={ (event) => { selectedAsset = props.list.find(c => c.key.nftContract === event.target.value); props.onChange(selectedAsset) } }
+            renderValue={ () => props.value?.name.length ? props.value.name : <em>Select a collection</em> }
         >
             <MenuItem disabled value="_" />
             {
@@ -34,7 +31,11 @@ export default function(props: Props)
                 props.list.map
                 (
                     (item, i) =>
-                    <MenuItem key={i} value={item.key.nftContract}>{item.name}</MenuItem>
+                    <MenuItem
+                        key={i}
+                        value={item.key.nftContract}
+                        onClick={ () => props.onChange(item) }
+                    >{item.name}</MenuItem>
                 )
             }
         </Select>

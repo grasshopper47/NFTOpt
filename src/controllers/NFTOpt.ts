@@ -15,12 +15,10 @@ export const optionIDsTransactions  = {};
 export const attachNFTOptHandlersToInstance =
 (
     NFTOpt : NFTOpt
-,   requestsUICallback : () => void
-,   optionsUICallback  : () => void
+,   UICallback : () => void
 ) =>
 {
-    _requestsUICallback = requestsUICallback;
-    _optionsUICallback  = optionsUICallback;
+    _UICallback = UICallback;
 
     for (let event of eventLabels) NFTOpt.on(event, _handleEvent);
 }
@@ -47,17 +45,13 @@ const _createBatchFlagsType = () =>
     } as BatchFlagsType;
 }
 
-const _createBatchHandler =
-(
-    handler  : (... any : any[]) => Promise<any>
-,   callback : (... any : any[]) => void
-) =>
+const _createBatchHandler = ( handler  : (... any : any[]) => Promise<any> ) =>
 {
     return {
         keys     : [] as number[]
     ,   flags    : _createBatchFlagsType()
     ,   handler  : handler
-    ,   callback : callback
+    ,   callback : _UpdateUI
     } as BatchHandlerType;
 }
 
@@ -98,19 +92,16 @@ const _queueHandler = (ID : any, obj : BatchHandlerType) =>
 const _deleteRequestChangingID = (ID : number) => delete requestChangingIDs[ID];
 const _deleteOptionChangingID  = (ID : number) => delete optionChangingIDs[ID];
 
-let _requestsUICallback : () => void;
-let _optionsUICallback  : () => void;
-
-const _requestsUpdater = () => _requestsUICallback();
-const _optionsUpdater  = () => _optionsUICallback();
+let _UICallback : () => void;
+const _UpdateUI = () => _UICallback();
 
 const _handlers =
 {
-    Published : _createBatchHandler( (ID) => loadOne(contracts.NFTOpt, ID), _requestsUpdater)
-,   Withdrawn : _createBatchHandler( (ID) => withdrawRequest(ID).then(_deleteRequestChangingID), _requestsUpdater )
-,   Opened    : _createBatchHandler( (ID) => createOptionFromRequest(ID).then(_deleteRequestChangingID), () => { _requestsUpdater(), _optionsUpdater(); } )
-,   Canceled  : _createBatchHandler( (ID) => cancelOption(ID).then(_deleteOptionChangingID), _optionsUpdater )
-,   Exercised : _createBatchHandler( (ID) => exerciseOption(ID).then(_deleteOptionChangingID), _optionsUpdater )
+    Published : _createBatchHandler( (ID) => loadOne(contracts.NFTOpt, ID) )
+,   Withdrawn : _createBatchHandler( (ID) => withdrawRequest(ID).then(_deleteRequestChangingID) )
+,   Opened    : _createBatchHandler( (ID) => createOptionFromRequest(ID).then(_deleteRequestChangingID) )
+,   Canceled  : _createBatchHandler( (ID) => cancelOption(ID).then(_deleteOptionChangingID) )
+,   Exercised : _createBatchHandler( (ID) => exerciseOption(ID).then(_deleteOptionChangingID) )
 };
 
 const _handleEvent = (ID : BigNumber, transaction : any) =>

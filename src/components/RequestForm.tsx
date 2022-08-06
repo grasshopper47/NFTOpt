@@ -17,11 +17,11 @@ import CustomAssetForm from "./CustomAssetForm";
 import { Button, SelectChangeEvent } from "@mui/material";
 import { imageOf, loadImage } from "../../datasources/ERC-721/images";
 import { AssetKey, isValid, stringOf } from "../../models/assetKey";
-import { NFTAsset } from "../../models/NFTAsset";
+import { NFTAsset } from "../../models/nftAsset";
 import { assetsOf, loadAssetsFor } from "../../datasources/assets";
 import { contracts } from "../../datasources/NFTOpt";
-import { setAssetsUICallback } from "../controllers/NFTOptCollections";
 import { network } from "../utils/metamask";
+import { setAssetsUICallback } from "../controllers/NFTOptCollections";
 
 let request  = {} as Request_DISPLAY;
 let assetKey = {} as AssetKey
@@ -111,7 +111,7 @@ const handlePublish = () => showToast
 
 const handleKey = (event: React.KeyboardEvent<HTMLInputElement>) =>
 {
-    if (isRequestValid() && event.key === "Enter") handlePublish();
+    if (event.key === "Enter") if (isRequestValid()) handlePublish();
 }
 
 function RequestForm()
@@ -126,11 +126,11 @@ function RequestForm()
 
     _setImageCallback       = setImage;
     _requestChangedCallback = requestChanged;
+
     setAssetsUICallback(assetsChanged);
 
     const account = useAccount();
-
-    const assets = assetsOf(account) ?? [];
+    const assets  = assetsOf(account) ?? [];
 
     useEffect
     (
@@ -145,12 +145,6 @@ function RequestForm()
     ,   [account]
     );
 
-    const handleCustomContract = () =>
-    {
-        setAsset(assets[assets.length - 1]);
-        setShowAddContract(false);
-    }
-
     return <>
         <p className="page-title">Request a PUT Option</p>
 
@@ -159,7 +153,14 @@ function RequestForm()
                 {
                     showAddContract
                     ?   <CustomAssetForm
-                            onSuccess={handleCustomContract}
+                            onSuccess=
+                            {
+                                () =>
+                                {
+                                    setAsset(assets[assets.length - 1]);
+                                    setShowAddContract(false);
+                                }
+                            }
                             onCancel={ () => setShowAddContract(false) }
                         />
                     :   <>
