@@ -143,6 +143,40 @@ function MintForm()
                     onClick={handleMint}
                     disabled={!asset.image}
                 >Mint</Button>
+                <Button
+                    className={classes.btnMint}
+                    variant="outlined"
+                    onClick={ () =>
+                    {
+                        fetch(
+                            "http://127.0.0.1:8000/subgraphs/name/example"
+                        ,   {
+                                method: "POST"
+                            ,   headers: { "Content-Type": "application/json" }
+                            ,   body : JSON.stringify(
+                            {
+                                query: `query {
+                                    erc721Transfers {
+                                      token {
+                                        contract {
+                                          name address:id
+                                        } identifier
+                                      } from {
+                                        address:id
+                                      } to {
+                                        address:id
+                                      }
+                                    }
+                                }`
+                            })
+                        })
+                        .then(res => res.json())
+                        .then( (data) =>
+                        {
+                            console.log(data);
+                        })
+                    }}
+                >Fetch</Button>
             </div>
 
             <div className={clsx(classes.imageContainer, !asset.key.nftContract && classes.dummyImageContainer)}>
