@@ -1,12 +1,13 @@
 import { deployNFTCollectionContract, NFTCollectionContracts } from "../../utils/deployment/NFTCollections";
+import { deployNFTOptContract, deployNFTOptLibraries, NFTOptContract } from "../../utils/deployment/NFTOpt";
 import fs from "fs";
 
 const addressesPath = "addresses.json";
 
-export async function publishNFTCollections()
+export async function publishAll()
 {
     // Read contents of addresses.json from disk
-    let addressesJSON = {};
+    let addressesJSON = { localhost : {} };
 
     if (fs.existsSync(addressesPath))
     {
@@ -15,6 +16,22 @@ export async function publishNFTCollections()
     }
 
     let promises : Promise<any>[] = [];
+
+    promises.push
+    (
+        deployNFTOptLibraries()
+        .then(deployNFTOptContract)
+        .then
+        (
+            () =>
+            {
+                // @ts-ignore
+                addressesJSON.localhost.NFTOpt = NFTOptContract.address;
+
+                console.log(`Deployed NFTOpt (main contract) @ ${NFTOptContract.address}`);
+            }
+        )
+    )
 
     for (const name of Object.keys(NFTCollectionContracts))
     {
@@ -37,11 +54,11 @@ export async function publishNFTCollections()
 
     await Promise.allSettled(promises);
 
-    // Update addresses.json file with published contracts addresses
-    fs.writeFileSync("addresses.json", JSON.stringify(addressesJSON));
+    // Update addresses.json file with published contract addresses
+    fs.writeFileSync(addressesPath, JSON.stringify(addressesJSON));
 }
 
-publishNFTCollections()
+publishAll()
     .then(() => process.exit(0))
     .catch((error) => {
         console.error(error);
