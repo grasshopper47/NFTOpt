@@ -155,17 +155,17 @@ function MintForm()
                             ,   headers: { "Content-Type": "application/json" }
                             ,   body : JSON.stringify(
                             {
-                                query: `query {
-                                    erc721Transfers {
-                                      token {
-                                        contract {
-                                          name address:id
-                                        } identifier
-                                      } from {
-                                        address:id
-                                      } to {
-                                        address:id
+                                query: `query
+                                {
+                                    erc721Transfers
+                                    {
+                                      token
+                                      {
+                                        contract { name address:id }
+                                        identifier
                                       }
+                                      from { address:id }
+                                      to   { address:id }
                                     }
                                 }`
                             })

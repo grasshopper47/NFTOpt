@@ -3,7 +3,7 @@ import classes from "./styles/Header.module.scss";
 import clsx from "clsx";
 
 import React, { useEffect } from "react";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 import Link from "next/link";
 import { useAccount } from "../pages/_app";
 import { connected, connectWallet, network, provider } from "../utils/metamask";

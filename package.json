@@ -39,11 +39,6 @@
         "clean": "npx hardhat clean",
         "compile": "npx hardhat compile",
 
-        "graph codegen": "graph codegen",
-        "graph build" : "graph build",
-        "graph create": "graph create NFTOpt --node http://127.0.0.1:8020",
-        "graph deploy": "graph deploy NFTOpt --ipfs http://127.0.0.1:5002 --node http://127.0.0.1:8020",
-
         "~~ TESTING ~~" : "",
         "test all": "npx hardhat test",
         "test coverage": "npx hardhat coverage",
@@ -53,17 +48,24 @@
         "publishRequest": "npx hardhat test test/unit/publishRequest.ts",
         "withdrawRequest": "npx hardhat test test/unit/withdrawRequest.ts",
 
-        "~~ LOCALHOST NODES ~~" : "",
+        "~~ NODES ~~" : "",
         "start blockchain": "npx hardhat node",
         "start webserver": "next dev -p 3003",
         "start ipfs": "jsipfs init; jsipfs daemon",
         "start graph": "cd ~/Projects/graph-node && cargo run -p graph-node --release -- --postgres-url postgresql://postgres:123@localhost:5432/graph-node --ethereum-rpc localhost:http://127.0.0.1:8545 --ipfs 127.0.0.1:5002",
 
-        "~~ PUBLISH Contracts ~~" : "",
-        "publish NFTOpt": "npx hardhat run scripts/publish/NFTOpt.ts --network localhost",
-        "publish NFT Collections": "npx hardhat run scripts/publish/NFTCollections.ts --network localhost",
+        "~~ CONTRACTS ~~" : "",
+        "deploy all" : "npx  hardhat run scripts/publish/all.ts --network localhost",
+        "deploy NFTOpt": "npx hardhat run scripts/publish/NFTOpt.ts --network localhost",
+        "deploy NFT Collections": "npx hardhat run scripts/publish/NFTCollections.ts --network localhost",
 
-        "~~ CREATE Data ~~" : "",
+        "~~ GRAPHS ~~" : "",
+        "graph codegen": "graph codegen",
+        "graph build" : "graph build",
+        "graph create": "graph create NFTOpt --node http://127.0.0.1:8020",
+        "graph deploy": "graph deploy NFTOpt --ipfs http://127.0.0.1:5002 --node http://127.0.0.1:8020",
+
+        "~~ DATA ~~" : "",
         "mint NFT": "npx hardhat run scripts/mintNFT.ts --network localhost",
         "publish 10 requests": "npx hardhat run scripts/publishRequests.ts --network localhost",
         "create 10 options": "npx hardhat run scripts/createOptions.ts --network localhost"
