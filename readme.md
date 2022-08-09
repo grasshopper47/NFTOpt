@@ -53,7 +53,7 @@ You can edit the React components and work on other front-end related code witho
 <br />
 After completing **all** of the operations described above, you should be able to access `http://localhost:3003` and connect Metamask<br>
 After connecting, notice a new tab on the screen labeled **Mint** and click it<br>
-Select an NFT collection from the dropdown of collections, then click mint to create an NFT for the connected account and confirm the transaction<br>
+Select an NFT collection from the dropdown of collections, then click the "Mint" button to create an NFT for the connected account and confirm the transaction<br>
 Once it completes you will be able to publish an option via the **Publish** link<br>
 <br>
 <br>
