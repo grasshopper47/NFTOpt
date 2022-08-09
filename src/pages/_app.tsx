@@ -39,7 +39,7 @@ export const useOptions  = () => useContext(OptionsContext);
 
 export default function App({ Component, pageProps }: AppProps)
 {
-    const [ account , setAccount ] = useState("");
+    const [ account , setAccount ] = useState(" ");
     const [ chainID , setChainID ] = useState(-1);
 
     useEffect
