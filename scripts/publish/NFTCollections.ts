@@ -17,7 +17,7 @@ export async function publishNFTCollections()
 
     // Create graphs/config.json
     let graphConfigJSON = {
-        output: "./graphs/generated/ERC721/",
+        output: "./graphs/ERC721/generated/",
         chain: "localhost",
         datasources: []
     };

@@ -1,7 +1,7 @@
 import fs from "fs";
 
 const pathConfig = "graphs/config.json";
-const pathERC721 = "graphs/generated/ERC721";
+const pathERC721 = "graphs/ERC721/generated";
 
 export async function cleanDuplicatedTypes()
 {
@@ -28,7 +28,7 @@ export async function cleanDuplicatedTypes()
     }
 
     // Get name of ABI from yaml spec
-    const yamlContents = fs.readFileSync("graphs/ERC721.yaml", { encoding : "utf8", flag : "r" });
+    const yamlContents = fs.readFileSync("graphs/ERC721/ERC721.yaml", { encoding : "utf8", flag : "r" });
     let name = yamlContents.match("abi: [a-zA-z0-9]*")?.at(0)?.replace("abi: ", "") ?? "";
 
     // Keep only one file in generated directory
@@ -42,11 +42,11 @@ export async function cleanDuplicatedTypes()
     {
         name = `${pathERC721}/${graphConfigJSON.datasources[i].id}`;
 
-        if (fs.existsSync(name)) fs.rmSync(name, { recursive: true, force: true });
+        fs.rmSync(name, { recursive: true, force: true });
     }
 
     // Cleanup build folder
-    name = "graphs/generated/ERC721/build";
+    name = "graphs/ERC721/generated/build";
     if (fs.existsSync(name)) fs.rmSync(name, { recursive: true, force: true });
 
     console.log("Done");
