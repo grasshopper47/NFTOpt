@@ -1,0 +1,18 @@
+  - kind: ethereum/contract
+    name: {id}
+    network: {chain}
+    source:
+      abi: ERC721Entity
+      startBlock: {startBlock}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - ERC721Contract
+      abis:
+        - name: ERC721Entity
+          file: {root}/node_modules/@openzeppelin/contracts/build/contracts/IERC721Metadata.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
