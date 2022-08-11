@@ -60,6 +60,7 @@
         "deploy NFT Collections": "npx hardhat run scripts/publish/NFTCollections.ts --network localhost",
 
         "~~ GRAPHS ~~" : "",
+        "graph create node" : "graph create --node http://127.0.0.1:8020 NFTOpt",
         "graph generate" : "npx graph-compiler --config graphs/config.json --include graphs/ERC721 --export-schema --export-subgraph && ( cd graphs/ERC721/generated; graph codegen --output-dir . && ( cd ../../../; ts-node scripts/cleanDuplicatedGraphTypes.ts ) )",
         "graph deploy"   : "cd graphs/ERC721/generated; graph deploy NFTOpt --version-label v1 --ipfs http://127.0.0.1:5002 --node http://127.0.0.1:8020",
 
