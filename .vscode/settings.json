@@ -5,8 +5,13 @@
     "editor.detectIndentation"       : false,
     "editor.insertSpaces"            : true,
     "editor.formatOnSave"            : false,
+    "editor.fontSize"                : 13,
 
-    "explorer.autoReveal": false,
+    "terminal.integrated.confirmOnKill" : "never",
+    "terminal.integrated.confirmOnExit" : "never",
+    "terminal.integrated.fontSize"      : 13,
+
+    "explorer.autoReveal"          : false,
 
     "files.autoSave"               : "onFocusChange",
     "files.trimFinalNewlines"      : true,

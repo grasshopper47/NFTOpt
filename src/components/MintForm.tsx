@@ -149,7 +149,7 @@ function MintForm()
                     onClick={ () =>
                     {
                         fetch(
-                            "http://127.0.0.1:8000/subgraphs/name/example"
+                            "http://127.0.0.1:8000/subgraphs/name/NFTOpt"
                         ,   {
                                 method: "POST"
                             ,   headers: { "Content-Type": "application/json" }
