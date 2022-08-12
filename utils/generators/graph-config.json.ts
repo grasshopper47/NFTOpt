@@ -4,7 +4,7 @@ export const getGraphConfigJSONTemplate = (name : string, network : string = "lo
 {
     return {
         name : name
-    ,   output: "./graphs/{name}/generated/"
+    ,   output: `./graphs/${name}/generated/`
     ,   chain: network
     ,   datasources: []
     }
