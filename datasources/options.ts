@@ -111,8 +111,8 @@ async function _getOptionWithAsset(NFTOpt : NFTOpt, id: number) : Promise<Option
 
     return {
         id          : id
-    ,   buyer       : option.buyer.toLowerCase()
-    ,   seller      : option.seller.toLowerCase()
+    ,   buyer       : option.buyer
+    ,   seller      : option.seller
     ,   state       : option.state
     ,   premium     : option.premium
     ,   strikePrice : option.strikePrice
