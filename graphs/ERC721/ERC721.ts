@@ -9,26 +9,25 @@ export function handleTransfer(event: TransferEvent): void
 {
     let contract = fetchERC721(event.address);
 
-    if (contract != null)
-    {
-        let token = fetchERC721Token(contract, event.params.tokenId);
-        let from  = fetchAccount(event.params.from);
-        let to    = fetchAccount(event.params.to);
+    if (contract == null) return;
 
-        token.owner    = to.id;
-        token.approval = fetchAccount(Address.zero()).id; // implicit approval reset on transfer
+    let token = fetchERC721Token(contract, event.params.tokenId);
+    let from  = fetchAccount(event.params.from);
+    let to    = fetchAccount(event.params.to);
 
-        contract.save();
-        token.save();
+    token.owner    = to.id;
+    token.approval = fetchAccount(Address.zero()).id; // implicit approval reset on transfer
 
-        let ev         = new ERC721Transfer(events.id(event));
-        ev.emitter     = contract.id;
-        ev.transaction = transactions.log(event).id;
-        ev.timestamp   = event.block.timestamp;
-        ev.contract    = contract.id;
-        ev.token       = token.id;
-        ev.from        = from.id;
-        ev.to          = to.id;
-        ev.save();
-    }
+    contract.save();
+    token.save();
+
+    let ev         = new ERC721Transfer(events.id(event));
+    ev.emitter     = contract.id;
+    ev.transaction = transactions.log(event).id;
+    ev.timestamp   = event.block.timestamp;
+    ev.contract    = contract.id;
+    ev.token       = token.id;
+    ev.from        = from.id;
+    ev.to          = to.id;
+    ev.save();
 }
