@@ -1,0 +1,29 @@
+[
+    {
+        "name": "Account"
+    ,   "immutable": false
+    ,   "fields":
+        [
+            { "name": "id"       , "type": "Bytes!" }
+        ,   { "name": "requests" , "type": "[Request!]!" }
+        ,   { "name": "options"  , "type": "[Option!]!" }
+        ]
+    }
+,   {
+        "name": "Request"
+    ,   "immutable": false
+    ,   "fields":
+        [
+            { "name": "id", "type": "String!" }
+        ]
+    }
+,   {
+        "name": "Option"
+    ,   "immutable": false
+    ,   "fields":
+        [
+            { "name": "id"          , "type": "String!" }
+        ,   { "name": "isExercised" , "type": "Boolean" }
+        ]
+    }
+]

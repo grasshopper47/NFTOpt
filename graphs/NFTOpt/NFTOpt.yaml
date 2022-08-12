@@ -1,0 +1,27 @@
+  - kind: ethereum/contract
+    name: {id}
+    network: {chain}
+    source:
+      abi: NFTOptEntity
+      address: "{address}"
+      startBlock: {startBlock}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - NOT-USED
+      abis:
+        - name: NFTOptEntity
+          file: {root}/artifacts/contracts/NFTOpt.sol/NFTOpt.json
+      eventHandlers:
+        - event: Published(indexed uint256)
+          handler: handlePublished
+        - event: Withdrawn(indexed uint256)
+          handler: handleWithdrawn
+        - event: Opened(indexed uint256)
+          handler: handleOpened
+        - event: Canceled(indexed uint256)
+          handler: handleCanceled
+        - event: Exercised(indexed uint256)
+          handler: handleExercised
