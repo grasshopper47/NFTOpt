@@ -1,58 +1,43 @@
 import fs from "fs";
 
-const pathConfig = "graphs/config.json";
-const pathERC721 = "graphs/ERC721/generated";
-
-export async function cleanDuplicatedTypes()
+async function cleanDuplicatedTypes(name : string)
 {
+    let pathRoot      = `graphs/${name}`;
+    let pathConfig    = `${pathRoot}/config.json`;
+    let pathGenerated = `${pathRoot}/generated`;
+    let pathBuild     = `${pathGenerated}/build`;
+    let codefileName  = `${name}Entity.ts`;
+
     console.log("Removing duplicated type files...");
 
     // Read contents of config.json from disk
-    let graphConfigJSON = { datasources: [] as { id: number }[] };
+    if (!fs.existsSync(pathConfig)) throw "Missing " + pathConfig;
 
-    if (!fs.existsSync(pathConfig))
-    {
-        console.error("Missing " + pathConfig);
+    let data = fs.readFileSync(pathConfig, { encoding : "utf8", flag : "r" });
+    let graphConfigJSON = JSON.parse(data.toString());
 
-        return;
-    }
+    if (!graphConfigJSON.datasources) throw "Missing graph datasources";
 
-    const data = fs.readFileSync(pathConfig, { encoding : "utf8", flag : "r" });
-    graphConfigJSON = JSON.parse(data.toString());
+    // Get first entity (ABI to ts) codefile
+    let pathFirstEntity = `${pathGenerated}/${graphConfigJSON.datasources[0].id}/${codefileName}`;
+    if (!fs.existsSync(pathFirstEntity)) throw `Missing entity file - ${pathFirstEntity}`;
 
-    if (!graphConfigJSON.datasources)
-    {
-        console.error("Missing graph datasources");
+    // Keep only one file in generated directory and move it up one level
+    fs.cpSync(pathFirstEntity, `${pathGenerated}/${codefileName}`);
 
-        return;
-    }
-
-    // Get name of ABI from yaml spec
-    const yamlContents = fs.readFileSync("graphs/ERC721/ERC721.yaml", { encoding : "utf8", flag : "r" });
-    let name = yamlContents.match("abi: [a-zA-z0-9]*")?.at(0)?.replace("abi: ", "") ?? "";
-
-    // Keep only one file in generated directory
-    if (fs.existsSync(`${pathERC721}/${graphConfigJSON.datasources[0].id}/${name}.ts`))
-    {
-        fs.cpSync(`${pathERC721}/${graphConfigJSON.datasources[0].id}/${name}.ts`, `${pathERC721}/${name}.ts`);
-    }
-
-    // Remove all duplicated type files
+    // Remove duplicated entity codefiles
     for (let i = 0; i !==  graphConfigJSON.datasources.length; ++i)
     {
-        name = `${pathERC721}/${graphConfigJSON.datasources[i].id}`;
-
-        fs.rmSync(name, { recursive: true, force: true });
+        fs.rmSync(`${pathGenerated}/${graphConfigJSON.datasources[i].id}`, { recursive: true, force: true });
     }
 
-    // Cleanup build folder
-    name = "graphs/ERC721/generated/build";
-    if (fs.existsSync(name)) fs.rmSync(name, { recursive: true, force: true });
+    // Remove build folder (generated WebAssembly files), re-compiled when calling deploy
+    if (fs.existsSync(pathBuild)) fs.rmSync(pathBuild, { recursive: true, force: true });
 
     console.log("Done");
 }
 
-cleanDuplicatedTypes()
+cleanDuplicatedTypes(process.argv[2] ?? "")
     .then(() => process.exit(0))
     .catch((error) => {
         console.error(error);
