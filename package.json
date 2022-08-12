@@ -55,9 +55,9 @@
         "start graph": "cd ~/Projects/graph-node && cargo run -p graph-node --release -- --postgres-url postgresql://postgres:123@localhost:5432/graph-node --ethereum-rpc localhost:http://127.0.0.1:8545 --ipfs 127.0.0.1:5002",
 
         "~~ CONTRACTS ~~" : "",
-        "deploy all" : "npx  hardhat run scripts/publish/all.ts --network localhost",
-        "deploy NFTOpt": "npx hardhat run scripts/publish/NFTOpt.ts --network localhost",
-        "deploy NFT Collections": "npx hardhat run scripts/publish/NFTCollections.ts --network localhost",
+        "publish all" : "npx  hardhat run scripts/publish/all.ts --network localhost",
+        "publish NFTOpt": "npx hardhat run scripts/publish/NFTOpt.ts --network localhost",
+        "publish NFT Collections": "npx hardhat run scripts/publish/NFTCollections.ts --network localhost",
 
         "~~ GRAPHS ~~" : "",
         "graph create node" : "graph create --node http://127.0.0.1:8020 NFTOpt",
