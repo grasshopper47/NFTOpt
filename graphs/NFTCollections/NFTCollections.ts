@@ -1,7 +1,7 @@
 import { events, transactions } from '@amxx/graphprotocol-utils'
 import { Address } from '@graphprotocol/graph-ts'
-import { ERC721Transfer } from '../ERC721/generated/schema'
-import { Transfer as TransferEvent } from '../ERC721/generated/ERC721Entity'
+import { ERC721Transfer } from './generated/schema'
+import { Transfer as TransferEvent } from './generated/ERC721Entity'
 import { fetchAccount } from '../../datasources/graph/account'
 import { fetchERC721, fetchERC721Token } from '../../datasources/graph/ERC721'
 

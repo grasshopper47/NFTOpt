@@ -1,4 +1,4 @@
-import { publishNFTCollections } from "../../utils/publish/NFTCollections";
+import { publishNFTCollections } from "../../../utils/publish/NFTCollections";
 
 publishNFTCollections()
     .then(() => process.exit(0))

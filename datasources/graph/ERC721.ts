@@ -1,6 +1,6 @@
 import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
-import { Account, ERC721Contract, ERC721Token, ERC721Operator } from '../../graphs/ERC721/generated/schema'
-import { ERC721Entity } from '../../graphs/ERC721/generated/ERC721Entity'
+import { Account, ERC721Contract, ERC721Token, ERC721Operator } from '../../graphs/NFTCollections/generated/schema'
+import { ERC721Entity } from '../../graphs/NFTCollections/generated/ERC721Entity'
 import { supportsInterface } from '../../graphs/utils/ERC165'
 
 export function fetchERC721(address: Address): ERC721Contract | null

@@ -3,12 +3,12 @@ import { deployNFTCollectionContract, NFTCollectionContracts } from "../deployme
 import { getAddressesJSON, storeAddressesJSON } from "../generators/addresses.json";
 import { getGraphConfigJSONTemplate, storeGraphConfigJSON } from "../generators/graph-config.json";
 
-const moduleName = "ERC721";
+const moduleName = "NFTCollections";
 
 export async function publishNFTCollections()
 {
     // Read contents of addresses.json from disk
-    let addressesJSON = getAddressesJSON();
+    let addressesJSON = { localhost : { NFTOpt : "" } };
 
     // Create graphs-compiler config
     let graphConfigJSON = getGraphConfigJSONTemplate(moduleName);
@@ -43,6 +43,9 @@ export async function publishNFTCollections()
     }
 
     await Promise.allSettled(promises);
+
+    // Read existing address for NFTOpt
+    addressesJSON.localhost.NFTOpt = getAddressesJSON().NFTOpt;
 
     // Save JSONs to disk
     storeAddressesJSON(addressesJSON);

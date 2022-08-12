@@ -1,5 +1,5 @@
 import { Address } from "@graphprotocol/graph-ts";
-import { Account } from "../../graphs/ERC721/generated/schema";
+import { Account } from "../../graphs/NFTCollections/generated/schema";
 
 export function fetchAccount(address: Address): Account
 {

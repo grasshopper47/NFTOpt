@@ -7,21 +7,23 @@ const moduleName = "NFTOpt";
 
 export async function publishNFTOpt()
 {
-    // Read contents of addresses.json from disk
-    let addressesJSON = getAddressesJSON();
-
-    // Create graphs-compiler config
-    let graphConfigJSON = getGraphConfigJSONTemplate(moduleName);
-
     await deployNFTOptLibraries();
     await deployNFTOptContract();
 
+    console.log(`Deployed NFTOpt (main contract) @ ${NFTOptContract.address}`);
+
     let blockNumber = await ethers.provider.getBlockNumber();
+
+    // Read contents of addresses.json from disk
+    let addressesJSON = getAddressesJSON();
 
     // @ts-ignore
     addressesJSON.localhost.NFTOpt = NFTOptContract.address;
 
-    console.log(`Deployed NFTOpt (main contract) @ ${NFTOptContract.address}`);
+    storeAddressesJSON(addressesJSON);
+
+    // Create graphs-compiler config
+    let graphConfigJSON = getGraphConfigJSONTemplate(moduleName);
 
     graphConfigJSON.datasources.push
     (
@@ -29,7 +31,5 @@ export async function publishNFTOpt()
         { id: moduleName, address: addressesJSON.localhost[moduleName], startBlock: blockNumber, module: moduleName }
     );
 
-    // Save JSONs to disk
-    storeAddressesJSON(addressesJSON);
     storeGraphConfigJSON(graphConfigJSON);
 }

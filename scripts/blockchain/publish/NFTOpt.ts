@@ -1,4 +1,4 @@
-import { publishNFTOpt } from "../../utils/publish/NFTOpt";
+import { publishNFTOpt } from "../../../utils/publish/NFTOpt";
 
 publishNFTOpt()
     .then(() => process.exit(0))
