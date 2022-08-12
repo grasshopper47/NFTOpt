@@ -1,19 +1,12 @@
 import { deployNFTCollectionContract, NFTCollectionContracts } from "../../utils/deployment/NFTCollections";
 import fs from "fs";
 import { ethers } from "hardhat";
-
-const addressesPath = "addresses.json";
+import { getAddressesJSON, storeAddressesJSON } from "./utils";
 
 export async function publishNFTCollections()
 {
     // Read contents of addresses.json from disk
-    let addressesJSON = {};
-
-    if (fs.existsSync(addressesPath))
-    {
-        const data = fs.readFileSync(addressesPath, { encoding : "utf8", flag : "r" });
-        addressesJSON = JSON.parse(data.toString());
-    }
+    let addressesJSON = getAddressesJSON();
 
     // Create graphs/config.json
     let graphConfigJSON = {
@@ -53,8 +46,8 @@ export async function publishNFTCollections()
 
     await Promise.allSettled(promises);
 
-    // Update addresses.json file with published contracts addresses
-    fs.writeFileSync("addresses.json", JSON.stringify(addressesJSON));
+    // Update addresses.json file with published contract addresses
+    storeAddressesJSON(addressesJSON);
 
     // Update graphs/config.json file
     fs.writeFileSync("graphs/config.json", JSON.stringify(graphConfigJSON));

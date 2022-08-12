@@ -1,18 +1,11 @@
 import { deployNFTOptContract, deployNFTOptLibraries, NFTOptContract } from "../../utils/deployment/NFTOpt";
 import fs from 'fs';
-
-const addressesPath = "addresses.json";
+import { getAddressesJSON, storeAddressesJSON } from "./utils";
 
 export async function publishNFTOpt()
 {
     // Read contents of addresses.json from disk
-    let addressesJSON = { localhost : {} };
-
-    if (fs.existsSync(addressesPath))
-    {
-        const data = fs.readFileSync(addressesPath, { encoding : "utf8", flag : "r" });
-        addressesJSON = JSON.parse(data.toString());
-    }
+    let addressesJSON = getAddressesJSON();
 
     await deployNFTOptLibraries();
     await deployNFTOptContract();
@@ -23,7 +16,7 @@ export async function publishNFTOpt()
     console.log(`Deployed NFTOpt (main contract) @ ${NFTOptContract.address}`);
 
     // Update addresses.json file with published contract addresses
-    fs.writeFileSync(addressesPath, JSON.stringify(addressesJSON));
+    storeAddressesJSON(addressesJSON);
 }
 
 publishNFTOpt()
