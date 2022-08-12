@@ -25,11 +25,13 @@ This will open a new console session with a live ETH node under HardHat manageme
 Closing the console will terminate the process<br />
 <br />
 
-**_Deploy smart contracts_** on local node
+**_Publish smart contracts_** on local node
 
-`npm run "delploy all"`
+`npm run "publish all"`
 
-When successful, the addresses of contracts deployed by `scripts/publish/all.ts` are outputted in `./addresses.json`<br />
+When successful this task generates the following files:<br />
+&emsp;Addresses of contracts deployed by `scripts/publish/all.ts` are outputted in `./addresses.json`<br />
+&emsp;Graph generator JSON files are outputted in `./graphs/{name}/config.JSON`<br />
 <br />
 
 **_Setup Metamask_** with the locally-deployed node and import accounts
