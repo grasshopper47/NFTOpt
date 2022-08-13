@@ -93,7 +93,7 @@ function Header() {
 
     return (
         <div className={classes.root}>
-            <AppBar position="static" sx={{backgroundColor: "transparent", border: "none", boxShadow: "none"}}>
+            <AppBar position="static" sx={{ backgroundColor: "transparent", border: "none", boxShadow: "none" }}>
                 <Container maxWidth="lg">
                     <Toolbar disableGutters>
                         <ButtonBase sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}>
@@ -102,7 +102,11 @@ function Header() {
                             </Link>
                         </ButtonBase>
 
-                        {!network() && <Typography>{hasProvider ? "Connect to localhost" : "Metamask required to access dapp"}</Typography>}
+                        {!network() && (
+                            <Typography variant="body1" color="red">
+                                {hasProvider ? "Connect to localhost" : "Metamask required to access dapp"}
+                            </Typography>
+                        )}
 
                         <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
                             <IconButton
@@ -163,12 +167,13 @@ function Header() {
                             </ButtonBase>
                             <Button
                                 className={clsx(classes.connectBtn, connected() && classes.connectBtnSmall)}
-                                variant="contained"
+                                variant="outlined"
+                                sx={{ my: 2, color: "white", display: "block" }}
                                 {...(!connected() && {
                                     onClick: hasProvider ? connectWallet : () => window.open("https://metamask.io/download"),
                                 })}
                             >
-                                <Typography variant="h5" component="span">
+                                <Typography variant="h5" component="span" color="black">
                                     {connected() ? getAccountDisplayValue(account) : hasProvider ? "Connect wallet" : "Install Metamask"}
                                 </Typography>
                             </Button>
@@ -180,24 +185,3 @@ function Header() {
     );
 }
 export default Header;
-
-{
-    /*
-            <div>
-                {routes.map((route) => (
-                    <Link key={`route-link-${route.href}`} href={route.href}>
-                        <a className={clsx(classes.link, router.pathname == route.href && classes.active)}>{route.name}</a>
-                    </Link>
-                ))}
-
-                <ThemeSwitch />
-
-                <Button
-                    className={clsx(classes.connectBtn, connected() && classes.connectBtnSmall)}
-                    variant="contained"
-                    {...(!connected() && { onClick: hasProvider ? connectWallet : () => window.open("https://metamask.io/download") })}
-                >
-                    <p>{connected() ? getAccountDisplayValue(account) : hasProvider ? "Connect wallet" : "Install Metamask"}</p>
-                </Button>
-            </div>   */
-}
