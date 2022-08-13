@@ -39,11 +39,11 @@ contract NFTOpt {
 
     /// @dev -- EVENTS --------------------------------
 
-    event Published (uint256);
-    event Exercised (uint256);
-    event Opened    (uint256);
-    event Canceled  (uint256);
-    event Withdrawn (uint256);
+    event Published (uint256 indexed);
+    event Exercised (uint256 indexed);
+    event Opened    (uint256 indexed);
+    event Canceled  (uint256 indexed);
+    event Withdrawn (uint256 indexed);
 
     /// @dev -- METHODS -------------------------------
 

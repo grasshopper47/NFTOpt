@@ -47,11 +47,6 @@ let checkAndSetApproved = (address : string, contract : any) =>
     );
 }
 
-let onWithdrawOption = (option : OptionWithAsset) => contracts.NFTOpt.withdrawRequest(option.id);
-let onCreateOption   = (option : OptionWithAsset) => contracts.NFTOpt.createOption(option.id, { value: option.strikePrice });
-let onCancelOption   = (option : OptionWithAsset) => contracts.NFTOpt.cancelOption(option.id);
-let onExerciseOption = (option : OptionWithAsset) => contracts.NFTOpt.exerciseOption(option.id);
-
 function DetailsView(props: Props)
 {
     const { option } = props;
@@ -80,6 +75,11 @@ function DetailsView(props: Props)
         }
     ,   []
     );
+
+    let onWithdrawOption = () => contracts.NFTOpt.withdrawRequest(option.id);
+    let onCreateOption   = () => contracts.NFTOpt.createOption(option.id, { value: option.strikePrice });
+    let onCancelOption   = () => contracts.NFTOpt.cancelOption(option.id);
+    let onExerciseOption = () => contracts.NFTOpt.exerciseOption(option.id);
 
     let onAction = promise => showToast
     (

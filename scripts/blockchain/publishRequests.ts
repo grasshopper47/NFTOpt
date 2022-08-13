@@ -1,9 +1,8 @@
-import NFTOptSolContract from "../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
-
-import addresses from "../addresses.json";
 import { ethers } from "hardhat";
-import { NFTOpt } from "../typechain-types";
-import { BIGNUMBER0 } from "../utils/constants";
+import addresses from "../../addresses.json";
+import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
+import { NFTOpt } from "../../typechain-types";
+import { BIGNUMBER0 } from "../../utils/constants";
 
 let contractAddresses =
 [

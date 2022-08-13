@@ -1,6 +1,6 @@
-import addresses from "../addresses.json";
 import { ethers } from "hardhat";
-import { ABIs } from "../utils/constants";
+import addresses from "../../addresses.json";
+import { ABIs } from "../../utils/constants";
 
 let contractAddresses =
 [

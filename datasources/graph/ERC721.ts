@@ -1,6 +1,6 @@
 import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
-import { Account, ERC721Contract, ERC721Token, ERC721Operator } from '../../graphs/ERC721/generated/schema'
-import { ERC721Entity } from '../../graphs/ERC721/generated/ERC721Entity'
+import { Account, ERC721Contract, ERC721Token, ERC721Operator } from '../../graphs/NFTCollections/generated/schema'
+import { ERC721Entity } from '../../graphs/NFTCollections/generated/ERC721Entity'
 import { supportsInterface } from '../../graphs/utils/ERC165'
 
 export function fetchERC721(address: Address): ERC721Contract | null
@@ -39,7 +39,7 @@ export function fetchERC721(address: Address): ERC721Contract | null
         contract.symbol           = try_symbol.reverted ? '' : try_symbol.value;
         contract.supportsMetadata = supportsInterface(erc721, '5b5e139f'); // ERC721Metadata
         contract.asAccount        = address;
-        contract.save()
+        contract.save();
 
         let account      = new Account(address);
         account.asERC721 = address;

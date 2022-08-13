@@ -52,21 +52,26 @@
         "start blockchain": "npx hardhat node",
         "start webserver": "next dev -p 3003",
         "start ipfs": "jsipfs init; jsipfs daemon",
-        "start graph": "cd ~/Projects/graph-node && cargo run -p graph-node --release -- --postgres-url postgresql://postgres:123@localhost:5432/graph-node --ethereum-rpc localhost:http://127.0.0.1:8545 --ipfs 127.0.0.1:5002",
+        "start graph": "cd ../graph-node && cargo run -p graph-node --release -- --postgres-url postgresql://postgres:123@localhost:5432/graph-node --ethereum-rpc localhost:http://127.0.0.1:8545 --ipfs 127.0.0.1:5002",
 
         "~~ CONTRACTS ~~" : "",
-        "deploy all" : "npx  hardhat run scripts/publish/all.ts --network localhost",
-        "deploy NFTOpt": "npx hardhat run scripts/publish/NFTOpt.ts --network localhost",
-        "deploy NFT Collections": "npx hardhat run scripts/publish/NFTCollections.ts --network localhost",
+        "blockchain publish all"            : "npx hardhat run scripts/blockchain/publish/allContracts.ts   --network localhost",
+        "blockchain publish NFTOpt"         : "npx hardhat run scripts/blockchain/publish/NFTOpt.ts         --network localhost",
+        "blockchain publish NFTCollections" : "npx hardhat run scripts/blockchain/publish/NFTCollections.ts --network localhost",
 
         "~~ GRAPHS ~~" : "",
-        "graph create node" : "graph create --node http://127.0.0.1:8020 NFTOpt",
-        "graph generate" : "npx graph-compiler --config graphs/config.json --include graphs/ERC721 --export-schema --export-subgraph && ( cd graphs/ERC721/generated; graph codegen --output-dir . && ( cd ../../../; ts-node scripts/cleanDuplicatedGraphTypes.ts ) )",
-        "graph deploy"   : "cd graphs/ERC721/generated; graph deploy NFTOpt --version-label v1 --ipfs http://127.0.0.1:5002 --node http://127.0.0.1:8020",
+        "graph create nodes" : "node scripts/graph/manage-nodes.mjs create",
+        "graph remove nodes" : "node scripts/graph/manage-nodes.mjs remove",
+        "graph generate all" : "node scripts/graph/generate/all-schemas.mjs",
+        "graph publish all"  : "node scripts/graph/publish/all-nodes.mjs",
+        "graph generate NFTOpt"         : "node scripts/graph/generate/schema.mjs NFTOpt",
+        "graph generate NFTCollections" : "node scripts/graph/generate/schema.mjs NFTCollections",
+        "graph publish NFTOpt"          : "node scripts/graph/publish/node.mjs NFTOpt",
+        "graph publish NFTCollections"  : "node scripts/graph/publish/node.mjs NFTCollections",
 
         "~~ DATA ~~" : "",
-        "mint NFT": "npx hardhat run scripts/mintNFT.ts --network localhost",
-        "publish 10 requests": "npx hardhat run scripts/publishRequests.ts --network localhost",
-        "create 10 options": "npx hardhat run scripts/createOptions.ts --network localhost"
+        "mint NFT"            : "npx hardhat run scripts/blockchain/mintNFT.ts         --network localhost",
+        "publish 10 requests" : "npx hardhat run scripts/blockchain/publishRequests.ts --network localhost",
+        "create 10 options"   : "npx hardhat run scripts/blockchain/createOptions.ts   --network localhost"
     }
 }

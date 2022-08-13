@@ -1,10 +1,10 @@
-import NFTOptSolContract from "../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
+import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
 
-import addresses from "../addresses.json";
+import addresses from "../../addresses.json";
 import { ethers } from "hardhat";
-import { NFTOpt } from "../typechain-types";
-import { ADDRESS0 } from "../utils/constants";
-import { OptionState } from "../models/enums";
+import { NFTOpt } from "../../typechain-types";
+import { ADDRESS0 } from "../../utils/constants";
+import { OptionState } from "../../models/enums";
 
 export async function createOptions()
 {
