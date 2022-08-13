@@ -11,10 +11,10 @@ import { AssetKey } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
 import { network, signer } from "../utils/metamask";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
-import { setChainIDChangedCallback, useAccount, useChainID } from "../pages/_app";
+import { setCollectionsUICallback, useAccount, useChainID } from "../pages/_app";
 import { assetsOf, loadAssetsFor } from "../../datasources/assets";
-import { loadNFTOptCollectionsItems } from "../../datasources/ERC-721/NFTOptCollections";
 import { setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
+import { contracts } from "../../datasources/NFTOpt";
 
 let asset = {} as NFTAsset;
 
@@ -71,7 +71,7 @@ function MintForm()
 
     _setImageCallback = setImage;
 
-    setChainIDChangedCallback( () => loadNFTOptCollectionsItems(network()).then(setCollections) );
+    setCollectionsUICallback(setCollections);
 
     useEffect
     (

@@ -9,14 +9,15 @@ import { clearContractsCache } from "../../datasources/ERC-721/contracts";
 import { clearImages } from "../../datasources/ERC-721/images";
 import { clearNFTOpt, contracts, createNFTOptInstance } from "../../datasources/NFTOpt";
 import { clearAssets } from "../../datasources/assets";
-import { clearNFTOptCollections, createNFTOptCollectionsInstances } from "../../datasources/ERC-721/NFTOptCollections";
-import { clearRequests, clearOptions } from "../../datasources/options";
+import { clearNFTOptCollections, createNFTOptCollectionsInstances, loadNFTOptCollectionsItems } from "../../datasources/ERC-721/NFTOptCollections";
+import { clearRequests, clearOptions, loadAll } from "../../datasources/options";
 import { attachNFTCollectionsHandlersToInstances } from "../controllers/NFTOptCollections";
 import { attachNFTOptHandlersToInstance, optionIDsTransactions, requestIDsTransactions } from "../controllers/NFTOpt";
 import { connected, connectWallet, hookMetamask, network, provider, signer } from "../utils/metamask";
 
 import Header from "../components/Header";
 import { Toaster } from "react-hot-toast";
+import { NFTAsset } from "../../models/NFTAsset";
 
 type ContextType =
 {
@@ -38,8 +39,11 @@ export const useChainID  = () => useContext(ChainIDContext);
 export const useRequests = () => useContext(RequestsContext);
 export const useOptions  = () => useContext(OptionsContext);
 
-let _UICallback : () => void;
-export const setChainIDChangedCallback = (cb : () => void) => _UICallback = cb;
+let _OptionsUICallback     : () => void;
+let _CollectionsUICallback : (arr : NFTAsset[]) => void;
+
+export const setOptionsUICallback     = (cb : () => void) => _OptionsUICallback     = cb;
+export const setCollectionsUICallback = (cb : (arr : NFTAsset[]) => void) => _CollectionsUICallback = cb;
 
 export default function App({ Component, pageProps }: AppProps)
 {
@@ -82,7 +86,9 @@ export default function App({ Component, pageProps }: AppProps)
             attachNFTOptHandlersToInstance(contracts.NFTOpt);
             attachNFTCollectionsHandlersToInstances(contracts.Collections);
 
-            _UICallback();
+            // Load data
+            loadAll(contracts.NFTOpt).then(_OptionsUICallback);
+            loadNFTOptCollectionsItems(network()).then(_CollectionsUICallback);
         }
     ,   [chainID]
     );

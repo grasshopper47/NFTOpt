@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 import React from "react";
 import { useEffect, useState } from "react";
-import { setChainIDChangedCallback, useChainID } from "../pages/_app";
+import { setOptionsUICallback, useChainID } from "../pages/_app";
 import { OptionWithAsset } from "../../models/option";
 import { network } from "../utils/metamask";
 import { filterParams } from "./FilterBox";
@@ -126,14 +126,14 @@ function ViewContainer()
     const [ viewedOptions  , setViewedOptions ]         = useState<OptionWithAsset[]>([]);
     const [                , setSelectedOptionChanged ] = useState(0);
 
-    const updateView = () => setSelectedOptionChanged(f => f ^ 1);
+    const updateView  = () => setSelectedOptionChanged(f => f ^ 1);
 
     const chainID = useChainID();
 
     _setViewedOptionsCallback = setViewedOptions;
     _updateViewCallback       = updateView;
 
-    setChainIDChangedCallback( () => loadAll(contracts.NFTOpt).then(handleFiltered) );
+    setOptionsUICallback(handleFiltered);
 
     const hasItems = viewedOptions ? viewedOptions.length !== 0 : false;
 
