@@ -55,6 +55,13 @@ const routesWithSigner: Route[] = [
     ...routesReadOnly,
 ];
 
+const Img = styled("img")({
+    margin: "auto",
+    display: "block",
+    maxWidth: "100%",
+    maxHeight: "100%",
+});
+
 function Header() {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
@@ -79,17 +86,6 @@ function Header() {
     const handleCloseNavMenu = () => {
         setAnchorElNav(null);
     };
-
-    const handleCloseUserMenu = () => {
-        setAnchorElUser(null);
-    };
-
-    const Img = styled("img")({
-        margin: "auto",
-        display: "block",
-        maxWidth: "100%",
-        maxHeight: "100%",
-    });
 
     return (
         <div className={classes.root}>
@@ -162,9 +158,7 @@ function Header() {
                                     </Link>
                                 </Button>
                             ))}
-                            <ButtonBase>
-                                <ThemeSwitch />
-                            </ButtonBase>
+                            <ThemeSwitch />
                             <Button
                                 className={clsx(classes.connectBtn, connected() && classes.connectBtnSmall)}
                                 variant="outlined"
