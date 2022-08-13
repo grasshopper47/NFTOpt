@@ -15,6 +15,19 @@
     animation: fadeIn 333ms;
 }
 
+.root2 {
+    max-width: 900px;
+    display: flex;
+    margin: auto;
+    margin-top: 60px;
+    -webkit-animation: MintForm_fadeIn__aN76x 333ms;
+    animation: MintForm_fadeIn__aN76x 333ms;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: space-evenly;
+}
+
 .form
 {
     display: flex;
@@ -172,6 +185,7 @@ button.btnPublishRequest
 button.btnAddContract
 {
     right: -64px;
+    z-index: 3;
 }
 
 button.btnPublishRequest
@@ -227,5 +241,13 @@ div.menuPaper:global(.MuiPaper-root)
             color: white;
             text-shadow: 2px 1px rgba(10, 10, 10, 0.8);
         }
+    }
+}
+
+@media only screen and (max-width: 966px) {
+
+    .form {
+        width: 100%;
+        max-width: 374px;
     }
 }

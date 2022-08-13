@@ -1,12 +1,15 @@
 @import "src/styles/variables.scss";
 
 @keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
-.root
-{
+.root {
     max-width: 900px;
     max-height: calc(100% - 200px);
     display: flex;
@@ -14,13 +17,11 @@
     margin: auto;
 }
 
-.withOptions
-{
+.withOptions {
     border-bottom: 1px solid $color-primary;
 }
 
-.viewSettingsWrapper
-{
+.viewSettingsWrapper {
     z-index: 99;
     position: absolute;
     right: calc((100% - 900px) / 2 - 10px);
@@ -28,10 +29,9 @@
     grid-auto-flow: column;
     margin-top: 12px;
 
-    button
-    {
+    button {
         margin-top: 14px;
-        padding:0;
+        padding: 0;
         max-width: 0;
         max-height: 0;
         cursor: pointer;
@@ -39,75 +39,62 @@
         font-family: $emoji-font;
         transition: filter 250ms ease-out;
 
-        &:hover
-        {
+        &:hover {
             filter: drop-shadow(0 0 0.25rem $color-secondary);
         }
     }
 }
 
-.dropDown
-{
+.dropDown {
     justify-content: center;
     animation: fadeIn 333ms;
-    height:27px;
+    height: 27px;
     width: fit-content;
     margin-right: 20px;
     margin-top: 12px;
     color: $text-primary;
 }
 
-.viewStateDropDown
-{
+.viewStateDropDown {
     margin-top: 2px;
 }
 
-div.dropDown:global(.MuiPaper-root)
-{
+div.dropDown:global(.MuiPaper-root) {
     height: fit-content;
     border-radius: 8px;
-    margin-top:-10px;
+    margin-top: -10px;
     background-color: azure;
-    li
-    {
+    li {
         color: #334155;
     }
 }
 
-[data-theme="dark"]
-{
-    div.dropDown:global(.MuiPaper-root)
-    {
+[data-theme="dark"] {
+    div.dropDown:global(.MuiPaper-root) {
         background-color: #334155;
-        li
-        {
+        li {
             color: #f1f5f9;
         }
     }
 
-    .button
-    {
+    .button {
         text-shadow: 2px 1px rgb(25, 25, 25, 0.8);
     }
 }
 
-.btnListView
-{
+.btnListView {
     margin-right: 0px;
 }
 
-.btnShow
-{
+.btnShow {
     margin-right: 0px;
 }
 
-.tabs
-{
+.tabs {
     border-bottom: 1px solid $color-primary;
     animation: fadeIn 333ms;
 
-    button
-    {
+    button {
         text-transform: none;
         letter-spacing: 1px;
         font-size: 18px;
@@ -116,21 +103,31 @@ div.dropDown:global(.MuiPaper-root)
         color: $color-primary;
     }
 
-    :global(.Mui-selected)
-    {
+    :global(.Mui-selected) {
         color: $color-secondary;
     }
 
-    :global(.MuiTabs-indicator)
-    {
+    :global(.MuiTabs-indicator) {
         background-color: $color-tertiary;
     }
 }
 
-.noOptions
-{
+.noOptions {
     animation: fadeIn 333ms;
     font-weight: bold;
     font-size: 16px;
     margin: 40px auto 0px auto;
+}
+
+@media only screen and (max-width: 966px) {
+    .viewSettingsWrapper {
+        right: 4vw;
+    }
+}
+
+@media only screen and (max-width: 405px) {
+    .viewSettingsWrapper {
+        right: 4vw;
+    }
+
 }

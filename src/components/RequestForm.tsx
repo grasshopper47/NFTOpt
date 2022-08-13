@@ -23,43 +23,35 @@ import { contracts } from "../../datasources/NFTOpt";
 import { network } from "../utils/metamask";
 import { setAssetsUICallback } from "../controllers/NFTOptCollections";
 
-let request  = {} as Request_DISPLAY;
-let assetKey = {} as AssetKey
+let request = {} as Request_DISPLAY;
+let assetKey = {} as AssetKey;
 
 let areAmountsInvalid = false;
 
-const isRequestValid = () =>
-{
-    return isValid(assetKey)
-        && request.premium     !== ""
-        && request.strikePrice !== ""
-        && request.interval    !== ""
-        && !areAmountsInvalid;
-}
+const isRequestValid = () => {
+    return isValid(assetKey) && request.premium !== "" && request.strikePrice !== "" && request.interval !== "" && !areAmountsInvalid;
+};
 
-const resetRequest = () =>
-{
-    assetKey = { nftId : "", nftContract: "" };
+const resetRequest = () => {
+    assetKey = { nftId: "", nftContract: "" };
 
-    request.interval    = "3";
-    request.premium     = "0.1";
+    request.interval = "3";
+    request.premium = "0.1";
     request.strikePrice = "1";
-    request.flavor      = OptionFlavor.AMERICAN;
+    request.flavor = OptionFlavor.AMERICAN;
 
     areAmountsInvalid = false;
-}
+};
 
 resetRequest();
 
-let _setImageCallback : (img : string) => void;
+let _setImageCallback: (img: string) => void;
 
-const setAsset = (asset : NFTAsset | undefined | null) =>
-{
+const setAsset = (asset: NFTAsset | undefined | null) => {
     console.log("setAsset");
 
-    if (asset == null)
-    {
-        assetKey = { nftId : "", nftContract: "" };
+    if (asset == null) {
+        assetKey = { nftId: "", nftContract: "" };
 
         _setImageCallback("");
 
@@ -71,155 +63,137 @@ const setAsset = (asset : NFTAsset | undefined | null) =>
     let image = imageOf(assetKey);
 
     if (image) _setImageCallback(image);
-    else       loadImage(assetKey).then( img => { asset.image = img; _setImageCallback(img); } );
+    else
+        loadImage(assetKey).then((img) => {
+            asset.image = img;
+            _setImageCallback(img);
+        });
 };
 
-let _requestChangedCallback : () => void;
+let _requestChangedCallback: () => void;
 
-const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
-{
+const setAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
     request[event.target.id] = getFloatString(event.target.value);
     areAmountsInvalid = parseFloat(request.premium) >= parseFloat(request.strikePrice);
     _requestChangedCallback();
 };
 
-const setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
-{
+const setInterval = (event: React.ChangeEvent<HTMLInputElement>) => {
     request.interval = getIntervalString(event.target.value);
     _requestChangedCallback();
 };
 
-const setFlavor = (event: SelectChangeEvent<OptionFlavor>) =>
-{
+const setFlavor = (event: SelectChangeEvent<OptionFlavor>) => {
     request.flavor = event.target.value as OptionFlavor;
     _requestChangedCallback();
-}
+};
 
-const handlePublish = () => showToast
-(
-    contracts.NFTOpt.publishRequest
-    (
-        assetKey.nftContract
-    ,   assetKey.nftId
-    ,   ethers.utils.parseEther(request.strikePrice)
-    ,   parseInt(request.interval) * SECONDS_IN_A_DAY
-    ,   request.flavor
-    ,   { value: ethers.utils.parseEther(request.premium) }
-    )
-    .then( () => { resetRequest(), _requestChangedCallback() } )
-);
+const handlePublish = () =>
+    showToast(
+        contracts.NFTOpt.publishRequest(
+            assetKey.nftContract,
+            assetKey.nftId,
+            ethers.utils.parseEther(request.strikePrice),
+            parseInt(request.interval) * SECONDS_IN_A_DAY,
+            request.flavor,
+            { value: ethers.utils.parseEther(request.premium) }
+        ).then(() => {
+            resetRequest(), _requestChangedCallback();
+        })
+    );
 
-const handleKey = (event: React.KeyboardEvent<HTMLInputElement>) =>
-{
+const handleKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") if (isRequestValid()) handlePublish();
-}
+};
 
-function RequestForm()
-{
-    const [                 , setAssetsChanged ]   = useState(0);
-    const [                 , setRequestChanged ]  = useState(0);
-    const [ image           , setImage ]           = useState(imageOf(assetKey));
-    const [ showAddContract , setShowAddContract ] = useState(false);
+function RequestForm() {
+    const [, setAssetsChanged] = useState(0);
+    const [, setRequestChanged] = useState(0);
+    const [image, setImage] = useState(imageOf(assetKey));
+    const [showAddContract, setShowAddContract] = useState(false);
 
-    const assetsChanged  = () => setAssetsChanged(f => f ^ 1);
-    const requestChanged = () => setRequestChanged(f => f ^ 1);
+    const assetsChanged = () => setAssetsChanged((f) => f ^ 1);
+    const requestChanged = () => setRequestChanged((f) => f ^ 1);
 
-    _setImageCallback       = setImage;
+    _setImageCallback = setImage;
     _requestChangedCallback = requestChanged;
 
     setAssetsUICallback(assetsChanged);
 
     const account = useAccount();
-    const assets  = assetsOf(account) ?? [];
+    const assets = assetsOf(account) ?? [];
 
-    useEffect
-    (
-        () =>
-        {
-            resetRequest();
+    useEffect(() => {
+        resetRequest();
 
-            if (!network()) return;
+        if (!network()) return;
 
-            loadAssetsFor(account).then(assetsChanged);
-        }
-    ,   [account]
-    );
+        loadAssetsFor(account).then(assetsChanged);
+    }, [account]);
 
-    return <>
-        <p className="page-title">Request a PUT Option</p>
+    return (
+        <>
+            <p className="page-title">Request a PUT Option</p>
 
-        <div className={classes.root}>
-            <div className={classes.form}>
-                {
-                    showAddContract
-                    ?   <CustomAssetForm
-                            onSuccess=
-                            {
-                                () =>
-                                {
-                                    setAsset(assets[assets.length - 1]);
-                                    setShowAddContract(false);
-                                }
-                            }
-                            onCancel={ () => setShowAddContract(false) }
+            <div className={classes.root2}>
+                <div className={classes.form}>
+                    {showAddContract ? (
+                        <CustomAssetForm
+                            onSuccess={() => {
+                                setAsset(assets[assets.length - 1]);
+                                setShowAddContract(false);
+                            }}
+                            onCancel={() => setShowAddContract(false)}
                         />
-                    :   <>
-                            <DropDown_RequestForm
-                                value={stringOf(assetKey)}
-                                list={assets}
-                                onChange={setAsset}
-                            />
+                    ) : (
+                        <>
+                            <DropDown_RequestForm value={stringOf(assetKey)} list={assets} onChange={setAsset} />
 
-                            <Button
-                                className={classes.btnAddContract}
-                                size="small"
-                                onClick={ () => setShowAddContract(true) }
-                            >🆕</Button>
+                            <Button className={classes.btnAddContract} size="small" onClick={() => setShowAddContract(true)}>
+                                🆕
+                            </Button>
                         </>
-                }
+                    )}
 
-                <div className={classes.twoFieldWrapper}>
-                    <TextBox_RequestForm fieldName="premium"
-                        value={request.premium}
-                        onChange={setAmount}
-                        onKeyUp={handleKey}
-                        { ... areAmountsInvalid && { errorText : "Must be less than Strike Price" } }/>
+                    <div className={classes.twoFieldWrapper}>
+                        <TextBox_RequestForm
+                            fieldName="premium"
+                            value={request.premium}
+                            onChange={setAmount}
+                            onKeyUp={handleKey}
+                            {...(areAmountsInvalid && { errorText: "Must be less than Strike Price" })}
+                        />
 
-                    <TextBox_RequestForm fieldName="strikePrice"
-                        value={request.strikePrice}
-                        onChange={setAmount}
-                        onKeyUp={handleKey}
-                        { ... areAmountsInvalid && { errorText : "Must be greater than Premium" } }/>
+                        <TextBox_RequestForm
+                            fieldName="strikePrice"
+                            value={request.strikePrice}
+                            onChange={setAmount}
+                            onKeyUp={handleKey}
+                            {...(areAmountsInvalid && { errorText: "Must be greater than Premium" })}
+                        />
+                    </div>
+
+                    <div className={classes.twoFieldWrapper}>
+                        <TextBox_RequestForm fieldName="interval" value={request.interval} onChange={setInterval} onKeyUp={handleKey} />
+
+                        <DropDown_Flavor_RequestForm value={request.flavor} onChange={setFlavor} />
+                    </div>
+
+                    <Button className={classes.btnPublishRequest} variant="contained" onClick={handlePublish} disabled={!isRequestValid()}>
+                        Publish Request
+                    </Button>
                 </div>
 
-                <div className={classes.twoFieldWrapper}>
-                    <TextBox_RequestForm fieldName="interval"
-                        value={request.interval}
-                        onChange={setInterval}
-                        onKeyUp={handleKey} />
-
-                    <DropDown_Flavor_RequestForm
-                        value={request.flavor}
-                        onChange={setFlavor} />
+                <div className={clsx(classes.imageContainer, !assetKey.nftContract && classes.dummyImageContainer)}>
+                    {assetKey.nftContract ? (
+                        <img src={image} alt="NFT image data" />
+                    ) : (
+                        [0, 0, 0].map((_, i) => <div key={`dot-${i}`} className={classes.dot} />)
+                    )}
                 </div>
-
-                <Button
-                    className={classes.btnPublishRequest}
-                    variant="contained"
-                    onClick={handlePublish}
-                    disabled={!isRequestValid()}
-                >Publish Request</Button>
             </div>
-
-            <div className={clsx(classes.imageContainer, !assetKey.nftContract && classes.dummyImageContainer)}>
-            {
-                assetKey.nftContract
-                ?   <img src={image} alt="NFT image data"/>
-                :   [0, 0, 0].map( (_, i) => <div key={`dot-${i}`} className={classes.dot} /> )
-            }
-            </div>
-        </div>
-    </>;
+        </>
+    );
 }
 
 export default RequestForm;
