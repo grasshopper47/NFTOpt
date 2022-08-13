@@ -18,42 +18,39 @@ import { contracts } from "../../datasources/NFTOpt";
 import { loadAll } from "../../datasources/options";
 import { attachNFTOptHandlersToInstance } from "../controllers/NFTOpt";
 
-const tabs =
-[
+const tabs = [
     {
-        name  : "Requests"
-    ,   value : OptionStateViewed.REQUEST
-    }
-,   {
-        name  : "Open"
-    ,   value : OptionStateViewed.OPEN
-    }
-,   {
-        name  : "Closed"
-    ,   value : OptionStateViewed.CLOSED
-    }
+        name: "Requests",
+        value: OptionStateViewed.REQUEST,
+    },
+    {
+        name: "Open",
+        value: OptionStateViewed.OPEN,
+    },
+    {
+        name: "Closed",
+        value: OptionStateViewed.CLOSED,
+    },
 ];
 
-const tabIndexStorageKey  = "ActiveTabIndex";
+const tabIndexStorageKey = "ActiveTabIndex";
 
-let selectedOption : OptionWithAsset | null = null;
+let selectedOption: OptionWithAsset | null = null;
 
 let optionViewState = OptionStateViewed.REQUEST;
 
-let _updateViewCallback : () => void;
+let _updateViewCallback: () => void;
 
-const setSelectedOption = (obj: OptionWithAsset | null) =>
-{
+const setSelectedOption = (obj: OptionWithAsset | null) => {
     selectedOption = obj;
 
-    if (selectedOption)
-    {
-        document.body.onkeydown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedOption(null); };
+    if (selectedOption) {
+        document.body.onkeydown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") setSelectedOption(null);
+        };
 
         if (view.type === ViewTypes.CARDLIST) view.type = ViewTypes.DETAIL;
-    }
-    else
-    {
+    } else {
         document.body.onkeydown = null;
 
         if (view.type === ViewTypes.DETAIL) view.type = ViewTypes.CARDLIST;
@@ -62,27 +59,22 @@ const setSelectedOption = (obj: OptionWithAsset | null) =>
     // Force-update the view even when the selectedOption is the same value; this is to cover the edge-case
     // when the user modifies 2 or more options, with transactions queued in Metamask and aproving 1 by 1
     _updateViewCallback();
-}
+};
 
-let _setViewedOptionsCallback : (list : OptionWithAsset[]) => void;
+let _setViewedOptionsCallback: (list: OptionWithAsset[]) => void;
 
-const handleFiltered = () =>
-{
+const handleFiltered = () => {
     console.log("filtered");
 
     doFilter(optionViewState, filterParams).then(_setViewedOptionsCallback);
-}
+};
 
-const renderStatusText = (hasItems : boolean, activeTabIndex : number) =>
-{
+const renderStatusText = (hasItems: boolean, activeTabIndex: number) => {
     if (hasItems) return <></>;
 
-    let getStatus = () =>
-    {
-        if (activeTabIndex === 0)
-        {
-            if (network())
-            {
+    let getStatus = () => {
+        if (activeTabIndex === 0) {
+            if (network()) {
                 if (optionsByStateFiltered[optionViewState]?.length === 0) return "Filter matched no requests";
 
                 return "Done";
@@ -91,126 +83,109 @@ const renderStatusText = (hasItems : boolean, activeTabIndex : number) =>
             return "No Requests";
         }
 
-        if (network())
-        {
+        if (network()) {
             if (optionsByStateFiltered[optionViewState]?.length === 0) return "Filter matched no options";
 
             return "Done";
         }
 
         return "No Options";
-    }
+    };
 
     return <p className={classes.noOptions}>{getStatus()}</p>;
-}
+};
 
-const renderList = (options : OptionWithAsset[]) =>
-{
+const renderList = (options: OptionWithAsset[]) => {
     let startIndex = page.index * page.count;
-    let props =
-    {
-        list      : options.slice(startIndex, startIndex + page.count)
-    ,   viewIndex : view.state
-    ,   onSelect  : setSelectedOption
-    ,   onSorted  : (list: OptionWithAsset[]) => _setViewedOptionsCallback(list)
+    let props = {
+        list: options.slice(startIndex, startIndex + page.count),
+        viewIndex: view.state,
+        onSelect: setSelectedOption,
+        onSorted: (list: OptionWithAsset[]) => _setViewedOptionsCallback(list),
     };
 
     if (selectedOption) props["selectedValue"] = selectedOption;
 
-    return view.type === ViewTypes.ROWLIST ? <TableView { ... props} /> : <ListView { ... props} />;
-}
+    return view.type === ViewTypes.ROWLIST ? <TableView {...props} /> : <ListView {...props} />;
+};
 
-function ViewContainer()
-{
-    const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
-    const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
+function ViewContainer() {
+    const [activeTabIndex, setActiveTabIndex] = useState(parseInt(localStorage[tabIndexStorageKey] ?? 0));
+    const [viewedOptions, setViewedOptions] = useState<OptionWithAsset[]>([]);
 
-    const [, setSelectedOptionChanged ] = useState(0);
+    const [, setSelectedOptionChanged] = useState(0);
 
-    const updateView = () => setSelectedOptionChanged(f => f ^ 1);
+    const updateView = () => setSelectedOptionChanged((f) => f ^ 1);
 
     _setViewedOptionsCallback = setViewedOptions;
-    _updateViewCallback       = updateView;
+    _updateViewCallback = updateView;
 
     const chainID = useChainID();
 
     const hasItems = viewedOptions ? viewedOptions.length !== 0 : false;
 
-    useEffect
-    (
-        () =>
-        {
-            setViewedOptions([]);
+    useEffect(() => {
+        setViewedOptions([]);
 
-            let network_ = network();
-            if (!network_) return;
+        let network_ = network();
+        if (!network_) return;
 
-            // Load data
-            loadAll(contracts.NFTOpt).then(handleFiltered);
+        // Load data
+        loadAll(contracts.NFTOpt).then(handleFiltered);
 
-            // Subscribe to events
-            attachNFTOptHandlersToInstance(contracts.NFTOpt, handleFiltered);
+        // Subscribe to events
+        attachNFTOptHandlersToInstance(contracts.NFTOpt, handleFiltered);
+    }, [chainID]);
+
+    useEffect(() => {
+        selectedOption = null;
+        page.index = 0;
+
+        localStorage[tabIndexStorageKey] = activeTabIndex;
+
+        optionViewState = tabs[activeTabIndex].value;
+        let optionsFiltered = optionsByStateFiltered[optionViewState];
+
+        if (!optionsFiltered || optionsFiltered.length === 0) {
+            handleFiltered();
+            return;
         }
-    ,   [chainID]
-    );
 
-    useEffect
-    (
-        () =>
-        {
-            selectedOption = null;
-            page.index = 0;
+        setViewedOptions(optionsFiltered);
+    }, [activeTabIndex]);
 
-            localStorage[tabIndexStorageKey] = activeTabIndex;
+    return (
+        <>
+            <p className="page-title">Explore NFT Options</p>
 
-            optionViewState = tabs[activeTabIndex].value;
-            let optionsFiltered = optionsByStateFiltered[optionViewState];
+            <div className={clsx(classes.root, hasItems && classes.withOptions)}>
+                {view.type !== ViewTypes.DETAIL && (
+                    <ViewSettings
+                        list={viewedOptions}
+                        selectedValue={selectedOption}
+                        onViewChanged={updateView}
+                        onFilter={handleFiltered}
+                    />
+                )}
 
-            if (!optionsFiltered || optionsFiltered.length === 0)
-            {
-                handleFiltered();
-                return;
-            }
+                <Tabs className={classes.tabs} value={activeTabIndex} onChange={(e, index: number) => setActiveTabIndex(index)}>
+                    {tabs.map((tab) => (
+                        <Tab key={`tab-filter-${tab.name}`} label={tab.name} />
+                    ))}
+                </Tabs>
 
-            setViewedOptions(optionsFiltered);
-        }
-    ,   [activeTabIndex]
-    );
-
-    return <>
-        <p className="page-title">Explore NFT Options</p>
-
-        <div className={clsx(classes.root, hasItems && classes.withOptions)}>
-            {
-                view.type !== ViewTypes.DETAIL &&
-                <ViewSettings
+                {renderStatusText(hasItems, activeTabIndex)}
+                {renderList(viewedOptions)}
+            </div>
+            {hasItems && view.type !== ViewTypes.DETAIL && (
+                <FooterNavigation
                     list={viewedOptions}
-                    selectedValue={selectedOption}
-                    onViewChanged={updateView}
-                    onFilter={handleFiltered}
+                    rowViewLimitList={view.type === ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits}
+                    onNavigate={updateView}
                 />
-            }
-
-            <Tabs
-                className={classes.tabs}
-                value={activeTabIndex}
-                onChange={ (e, index : number) => setActiveTabIndex(index) }
-            >
-                { tabs.map( tab => <Tab key={`tab-filter-${tab.name}`} label={tab.name} /> ) }
-            </Tabs>
-
-            { renderStatusText(hasItems, activeTabIndex) }
-            { renderList(viewedOptions) }
-        </div>
-        {
-            hasItems && view.type !== ViewTypes.DETAIL &&
-            <FooterNavigation
-                list={viewedOptions}
-                rowViewLimitList={view.type === ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits}
-                onNavigate={updateView}
-            />
-        }
-    </>;
+            )}
+        </>
+    );
 }
 
 export default ViewContainer;
