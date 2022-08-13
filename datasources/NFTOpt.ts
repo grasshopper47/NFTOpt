@@ -15,13 +15,13 @@ export const clearNFTOpt = () =>
     contracts.NFTOpt = {} as unknown as NFTOpt;
 }
 
-export const createNFTOptInstance = (provider: ethers.providers.Web3Provider, network : string) =>
+export const createNFTOptInstance = (network : string, signerOrProvider?: ethers.Signer | ethers.providers.Provider) =>
 {
     // Create completely new instance with the default provider (readonly)
     contracts.NFTOpt = new ethers.Contract
     (
         addresses[network].NFTOpt
     ,   NFTOptSolContract.abi
-    ,   provider
+    ,   signerOrProvider
     ) as NFTOpt;
 }

@@ -15,7 +15,7 @@ export const clearNFTOptCollections = () =>
     contracts.Collections = { };
 }
 
-export const createNFTOptCollectionsInstances = (provider: ethers.providers.Web3Provider, network : string) =>
+export const createNFTOptCollectionsInstances = (network : string, provider? : ethers.providers.Web3Provider) =>
 {
     let collections = { ... addresses[network] };
     delete collections.NFTOpt;
