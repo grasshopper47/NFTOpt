@@ -14,9 +14,9 @@ function generateSchema()
         result = execSync
         (`
             npx graph-compiler ${name === "NFTOpt" && "--common-types ''"} \
-            --config graphs/${name}/config.json \
-            --include graphs/${name} \
-            --export-schema \
+            --config graphs/${name}/config.json                            \
+            --include graphs/${name}                                       \
+            --export-schema                                                \
             --export-subgraph
         `);
     }
