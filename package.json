@@ -52,7 +52,7 @@
         "start blockchain": "npx hardhat node",
         "start webserver": "next dev -p 3003",
         "start ipfs": "jsipfs init; jsipfs daemon",
-        "start graph": "cd ~/Projects/graph-node && cargo run -p graph-node --release -- --postgres-url postgresql://postgres:123@localhost:5432/graph-node --ethereum-rpc localhost:http://127.0.0.1:8545 --ipfs 127.0.0.1:5002",
+        "start graph": "cd ../graph-node && cargo run -p graph-node --release -- --postgres-url postgresql://postgres:123@localhost:5432/graph-node --ethereum-rpc localhost:http://127.0.0.1:8545 --ipfs 127.0.0.1:5002",
 
         "~~ CONTRACTS ~~" : "",
         "blockchain publish all"            : "npx hardhat run scripts/blockchain/publish/allContracts.ts   --network localhost",
