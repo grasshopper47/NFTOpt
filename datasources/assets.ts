@@ -1,5 +1,5 @@
 
-import { NFTAsset } from "../models/nftAsset";
+import { NFTAsset } from "../models/NFTAsset";
 import { AssetKey, stringOf } from "../models/assetKey";
 import { images, loadImage } from "./ERC-721/images";
 import { getCachedContract } from "./ERC-721/contracts";
