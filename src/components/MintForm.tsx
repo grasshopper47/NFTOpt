@@ -8,13 +8,12 @@ import DropDown_MintForm from "../fragments/DropDown.Collections.MintForm";
 import { Avatar, Button, ListItem, ListItemAvatar, ListItemText, ListSubheader } from "@mui/material";
 import { List } from '@mui/material';
 import { AssetKey } from "../../models/assetKey";
-import { NFTAsset } from "../../models/nftAsset";
-import { network, provider, signer } from "../utils/metamask";
+import { NFTAsset } from "../../models/NFTAsset";
+import { network, signer } from "../utils/metamask";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
-import { useAccount, useChainID } from "../pages/_app";
+import { setCollectionsUICallback, useAccount, useChainID } from "../pages/_app";
 import { assetsOf, loadAssetsFor } from "../../datasources/assets";
-import { attachNFTOptCollectionHandlersToInstance, setAssetsUICallback } from "../controllers/NFTOptCollections";
-import { createNFTOptCollectionInstances, loadNFTOptCollectionsItems } from "../../datasources/ERC-721/NFTOptCollections";
+import { setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
 import { contracts } from "../../datasources/NFTOpt";
 
 let asset = {} as NFTAsset;
@@ -64,32 +63,32 @@ function MintForm()
     const [ collections , setCollections ]   = useState<NFTAsset[]>([]);
 
     const assetsChanged = () => setAssetsChanged(f => f ^ 1);
-    setAssetsUICallback(assetsChanged);
-
-    _setImageCallback = setImage;
 
     const account = useAccount();
     const chainID = useChainID();
-    const assets  = assetsOf(account) ?? [];
+
+    const assets = assetsOf(account) ?? [];
+
+    _setImageCallback = setImage;
+
+    setCollectionsUICallback(setCollections);
 
     useEffect
     (
         () =>
         {
-            let network_  = network();
-            if (!network_) return;
+            if (!network())
+            {
+                setNFTCollectionsUICallback(() => {});
 
-            // Initialize
-            createNFTOptCollectionInstances(provider(), network_);
+                return;
+            }
 
-            // Load data
-            loadNFTOptCollectionsItems(network_).then(setCollections);
-
-            // Subscribe to events
-            attachNFTOptCollectionHandlersToInstance(contracts.Collections);
+            setNFTCollectionsUICallback(assetsChanged);
         }
     ,   [chainID]
     );
+
 
     useEffect
     (

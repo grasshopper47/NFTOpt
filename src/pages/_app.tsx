@@ -5,23 +5,23 @@ import Head from "next/head";
 import { AppProps } from "next/app";
 import { createContext, useContext, useState, useEffect } from "react";
 
-import { clearContracts } from "../../datasources/ERC-721/contracts";
+import { clearContractsCache } from "../../datasources/ERC-721/contracts";
 import { clearImages } from "../../datasources/ERC-721/images";
 import { clearNFTOpt, contracts, createNFTOptInstance } from "../../datasources/NFTOpt";
-import { clearRequests, clearOptions  } from "../../datasources/options"
 import { clearAssets } from "../../datasources/assets";
-import { optionIDsTransactions, requestIDsTransactions } from "../controllers/NFTOpt";
-import { connected, createProvider, hookMetamask, network, provider, signer } from "../utils/metamask";
-import { clearNFTOptCollections } from "../../datasources/ERC-721/NFTOptCollections";
-import { setBlockNumber } from "../../datasources/blockNumber";
+import { clearNFTOptCollections, createNFTOptCollectionsInstances, loadNFTOptCollectionsItems } from "../../datasources/ERC-721/NFTOptCollections";
+import { clearRequests, clearOptions, loadAll } from "../../datasources/options";
+import { attachNFTCollectionsHandlersToInstances } from "../controllers/NFTOptCollections";
+import { attachNFTOptHandlersToInstance, optionIDsTransactions, requestIDsTransactions } from "../controllers/NFTOpt";
+import { connected, connectWallet, hookMetamask, network, provider, signer } from "../utils/metamask";
 
 import Header from "../components/Header";
 import { Toaster } from "react-hot-toast";
+import { NFTAsset } from "../../models/NFTAsset";
 
 type ContextType =
 {
-    changing     : {}       // IDs of requests which have state changes
-,   transactions : {}       // Transactions where requests have had state changes
+    transactions : {}       // Transactions where requests have had state changes
 };
 
 const ChainIDContext  = createContext(0);
@@ -32,10 +32,18 @@ const OptionsContext  = createContext<ContextType>({} as unknown as ContextType)
 export const requestChangingIDs = {};
 export const optionChangingIDs  = {};
 
+export let onLoadCallbacks = [] as (() => void)[];
+
 export const useAccount  = () => useContext(AccountContext);
 export const useChainID  = () => useContext(ChainIDContext);
 export const useRequests = () => useContext(RequestsContext);
 export const useOptions  = () => useContext(OptionsContext);
+
+let _OptionsUICallback     : () => void;
+let _CollectionsUICallback : (arr : NFTAsset[]) => void;
+
+export const setOptionsUICallback     = (cb : () => void) => _OptionsUICallback     = cb;
+export const setCollectionsUICallback = (cb : (arr : NFTAsset[]) => void) => _CollectionsUICallback = cb;
 
 export default function App({ Component, pageProps }: AppProps)
 {
@@ -44,7 +52,12 @@ export default function App({ Component, pageProps }: AppProps)
 
     useEffect
     (
-        () => hookMetamask(setAccount, setChainID)
+        () =>
+        {
+            hookMetamask(setAccount, setChainID);
+
+            connectWallet();
+        }
     ,   []
     );
 
@@ -57,20 +70,25 @@ export default function App({ Component, pageProps }: AppProps)
             // Cleanup
             clearRequests();
             clearOptions();
-            clearContracts();
+            clearContractsCache();
             clearImages();
             clearAssets();
             clearNFTOpt();
             clearNFTOptCollections();
 
-            // Initialization
-            let provider_ = createProvider();
-            provider_.getBlockNumber().then(setBlockNumber);
+            if (!network()) return;
 
-            let network_ = network();
-            if (!network_) return;
+            // Initialize contracts
+            createNFTOptInstance(network(), connected() ? signer() : provider());
+            createNFTOptCollectionsInstances(network(), provider());
 
-            contracts.NFTOpt = createNFTOptInstance(provider_, network_);
+            // Subscribe to events
+            attachNFTOptHandlersToInstance(contracts.NFTOpt);
+            attachNFTCollectionsHandlersToInstances(contracts.Collections);
+
+            // Load data
+            loadAll(contracts.NFTOpt).then(_OptionsUICallback);
+            loadNFTOptCollectionsItems(network()).then(_CollectionsUICallback);
         }
     ,   [chainID]
     );
@@ -102,17 +120,13 @@ export default function App({ Component, pageProps }: AppProps)
 
         <RequestsContext.Provider
             value=
-            {{
-                changing     : requestChangingIDs
-            ,   transactions : requestIDsTransactions
+            {{ transactions : requestIDsTransactions
             }}
         >
 
         <OptionsContext.Provider
             value=
-            {{
-                changing     : optionChangingIDs
-            ,   transactions : optionIDsTransactions
+            {{ transactions : optionIDsTransactions
             }}
         >
 

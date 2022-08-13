@@ -1,4 +1,4 @@
-import { Address } from "@graphprotocol/graph-ts";
+import { Address, Bytes } from "@graphprotocol/graph-ts";
 
 import {
     Published as PublishEvent,
@@ -21,46 +21,45 @@ import {
 export function fetchAccount(address: Address): Account
 {
     let account = Account.load(address);
-
     if (account) return account;
 
-    return new Account(address);
+    account = new Account(address);
+    account.save();
+
+    return account;
 }
 
 export function handlePublished(event: PublishEvent): void
 {
-    let request = new Request(event.params.param0.toString());
-    request.save();
+    let id = event.params.param0.toString();
 
-    let account = fetchAccount(event.transaction.from);
-    account.requests = [request.id];
-    account.options = [];
-    account.save();
+    let request = Request.load(id);
+    if (!request) request = new Request(id);
+
+    request.buyer = fetchAccount(event.transaction.from).id;
+    request.save();
 }
 
 export function handleWithdrawn(event: WithdrawEvent): void
 {
-    let request = Request.load(event.params.param0.toString());
-    if (request) store.remove("Request", request.id.toString());
+    let id = event.params.param0.toString();
 
-    let account = fetchAccount(event.transaction.from);
-
-    let index = account.requests.indexOf(event.params.param0.toString());
-    if (index > -1)
-    {
-        account.requests.splice(index, 1);
-        account.save();
-    }
+    let request = Request.load(id);
+    if (request) store.remove("Request", id);
 }
 
 export function handleOpened(event: OpenEvent): void
 {
-    let option = new Option(event.params.param0.toString());
-    option.save();
+    let id = event.params.param0.toString();
 
-    let account = fetchAccount(event.transaction.from);
-    account.options = [option.id];
-    account.save();
+    let request = Request.load(id);
+    if (request) store.remove("Request", id);
+
+    let option = Option.load(id);
+    if (!option) option = new Option(id);
+    option.buyer = request ? request.buyer : new Bytes(0);
+    option.seller =  fetchAccount(event.transaction.from).id;
+    option.save();
 }
 
 export function handleCanceled(event: CancelEvent): void

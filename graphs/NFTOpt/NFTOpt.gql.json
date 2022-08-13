@@ -1,28 +1,29 @@
 [
     {
         "name": "Account"
-    ,   "immutable": false
     ,   "fields":
         [
-            { "name": "id"       , "type": "Bytes!" }
-        ,   { "name": "requests" , "type": "[Request!]!" }
-        ,   { "name": "options"  , "type": "[Option!]!" }
+            { "name": "id"           , "type": "Bytes!" }
+        ,   { "name": "requests"     , "type": "Request!", "derived": "buyer" }
+        ,   { "name": "optionsOwned" , "type": "Option!" , "derived": "buyer" }
+        ,   { "name": "optionsSold"  , "type": "Option!" , "derived": "seller" }
         ]
     }
 ,   {
         "name": "Request"
-    ,   "immutable": false
     ,   "fields":
         [
-            { "name": "id", "type": "String!" }
+            { "name": "id"    , "type": "String!" }
+        ,   { "name": "buyer" , "type": "Account!" }
         ]
     }
 ,   {
         "name": "Option"
-    ,   "immutable": false
     ,   "fields":
         [
             { "name": "id"          , "type": "String!" }
+        ,   { "name": "buyer"       , "type": "Account!" }
+        ,   { "name": "seller"      , "type": "Account!" }
         ,   { "name": "isExercised" , "type": "Boolean" }
         ]
     }

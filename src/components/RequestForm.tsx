@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
-import { useAccount } from "../pages/_app";
+import { useAccount, useChainID } from "../pages/_app";
 import { Request_DISPLAY } from "../../models/request";
 import { OptionFlavor } from "../../models/enums";
 import { SECONDS_IN_A_DAY } from "../../utils/constants";
@@ -17,11 +17,11 @@ import CustomAssetForm from "./CustomAssetForm";
 import { Button, SelectChangeEvent } from "@mui/material";
 import { imageOf, loadImage } from "../../datasources/ERC-721/images";
 import { AssetKey, isValid, stringOf } from "../../models/assetKey";
-import { NFTAsset } from "../../models/nftAsset";
+import { NFTAsset } from "../../models/NFTAsset";
 import { assetsOf, loadAssetsFor } from "../../datasources/assets";
 import { contracts } from "../../datasources/NFTOpt";
 import { network } from "../utils/metamask";
-import { setAssetsUICallback } from "../controllers/NFTOptCollections";
+import { setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
 
 let request  = {} as Request_DISPLAY;
 let assetKey = {} as AssetKey
@@ -124,20 +124,30 @@ function RequestForm()
     const assetsChanged  = () => setAssetsChanged(f => f ^ 1);
     const requestChanged = () => setRequestChanged(f => f ^ 1);
 
+    const account = useAccount();
+    const chainID = useChainID();
+    const assets  = assetsOf(account) ?? [];
+
     _setImageCallback       = setImage;
     _requestChangedCallback = requestChanged;
-
-    setAssetsUICallback(assetsChanged);
-
-    const account = useAccount();
-    const assets  = assetsOf(account) ?? [];
 
     useEffect
     (
         () =>
         {
-            resetRequest();
+            setNFTCollectionsUICallback(() => {});
 
+            if (!network()) return;
+
+            setNFTCollectionsUICallback(assetsChanged);
+        }
+    ,   [chainID]
+    );
+
+    useEffect
+    (
+        () =>
+        {
             if (!network()) return;
 
             loadAssetsFor(account).then(assetsChanged);

@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { NFTAsset } from "./nftAsset";
+import { NFTAsset } from "./NFTAsset";
 import { OptionFlavor, OptionState } from "./enums";
 
 export type Option =
