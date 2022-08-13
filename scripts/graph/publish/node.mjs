@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 import { graphIndexerNode, ipfsNode } from "../node.mjs";
 
-function pubishNode()
+function publishNode()
 {
     let name = process.argv[2];
     if (!name) throw "Must provide a Graph node name as 1st argument";
@@ -59,4 +59,4 @@ function pubishNode()
     )
 }
 
-pubishNode();
+publishNode();
