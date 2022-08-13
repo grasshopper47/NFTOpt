@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 import React from "react";
 import { useEffect, useState } from "react";
-import { useChainID, useChainChangedTrigger } from "../pages/_app";
+import { setChainIDChangedCallback, useChainID } from "../pages/_app";
 import { OptionWithAsset } from "../../models/option";
 import { network } from "../utils/metamask";
 import { filterParams } from "./FilterBox";
@@ -122,18 +122,18 @@ const renderList = (options : OptionWithAsset[]) =>
 
 function ViewContainer()
 {
-    const [ activeTabIndex , setActiveTabIndex ] = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
-    const [ viewedOptions  , setViewedOptions ]  = useState<OptionWithAsset[]>([]);
-
-    const [, setSelectedOptionChanged ] = useState(0);
+    const [ activeTabIndex , setActiveTabIndex ]        = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
+    const [ viewedOptions  , setViewedOptions ]         = useState<OptionWithAsset[]>([]);
+    const [                , setSelectedOptionChanged ] = useState(0);
 
     const updateView = () => setSelectedOptionChanged(f => f ^ 1);
+
+    const chainID = useChainID();
 
     _setViewedOptionsCallback = setViewedOptions;
     _updateViewCallback       = updateView;
 
-    const chainID             = useChainID();
-    const chainChangedTrigger = useChainChangedTrigger();
+    setChainIDChangedCallback( () => loadAll(contracts.NFTOpt).then(handleFiltered) );
 
     const hasItems = viewedOptions ? viewedOptions.length !== 0 : false;
 
@@ -143,7 +143,6 @@ function ViewContainer()
         {
             if (!network())
             {
-                setViewedOptions([]);
                 setNFTOptUICallback(() => {});
 
                 return;
@@ -152,12 +151,6 @@ function ViewContainer()
             setNFTOptUICallback(handleFiltered);
         }
     ,   [chainID]
-    );
-
-    useEffect
-    (
-        () => { loadAll(contracts.NFTOpt).then(handleFiltered); }
-    ,   [chainChangedTrigger]
     );
 
     useEffect

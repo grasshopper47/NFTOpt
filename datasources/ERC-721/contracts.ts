@@ -3,7 +3,7 @@ import { ABIs } from "../../utils/constants";
 import { provider } from "../../src/utils/metamask";
 
 let NFTContractsCache = {};
-export const clearContracts = () => NFTContractsCache = {};
+export const clearContractsCache = () => NFTContractsCache = {};
 
 export const addContractToCache = (address : string, contract : any) => NFTContractsCache[address] = contract;
 

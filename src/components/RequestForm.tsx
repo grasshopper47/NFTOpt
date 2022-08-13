@@ -124,12 +124,12 @@ function RequestForm()
     const assetsChanged  = () => setAssetsChanged(f => f ^ 1);
     const requestChanged = () => setRequestChanged(f => f ^ 1);
 
-    _setImageCallback       = setImage;
-    _requestChangedCallback = requestChanged;
-
     const account = useAccount();
     const chainID = useChainID();
     const assets  = assetsOf(account) ?? [];
+
+    _setImageCallback       = setImage;
+    _requestChangedCallback = requestChanged;
 
     useEffect
     (

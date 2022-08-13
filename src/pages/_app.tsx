@@ -5,19 +5,18 @@ import Head from "next/head";
 import { AppProps } from "next/app";
 import { createContext, useContext, useState, useEffect } from "react";
 
-import { clearContracts } from "../../datasources/ERC-721/contracts";
+import { clearContractsCache } from "../../datasources/ERC-721/contracts";
 import { clearImages } from "../../datasources/ERC-721/images";
 import { clearNFTOpt, contracts, createNFTOptInstance } from "../../datasources/NFTOpt";
-import { clearRequests, clearOptions  } from "../../datasources/options"
 import { clearAssets } from "../../datasources/assets";
+import { clearNFTOptCollections, createNFTOptCollectionsInstances } from "../../datasources/ERC-721/NFTOptCollections";
+import { clearRequests, clearOptions } from "../../datasources/options";
+import { attachNFTCollectionsHandlersToInstances } from "../controllers/NFTOptCollections";
 import { attachNFTOptHandlersToInstance, optionIDsTransactions, requestIDsTransactions } from "../controllers/NFTOpt";
-import { connected, createProvider, hookMetamask, network, provider, signer } from "../utils/metamask";
-import { clearNFTOptCollections, createNFTOptCollectionsInstances, loadNFTOptCollectionsItems } from "../../datasources/ERC-721/NFTOptCollections";
-import { setBlockNumber } from "../../datasources/blockNumber";
+import { connected, connectWallet, hookMetamask, network, provider, signer } from "../utils/metamask";
 
 import Header from "../components/Header";
 import { Toaster } from "react-hot-toast";
-import { attachNFTCollectionsHandlersToInstances } from "../controllers/NFTOptCollections";
 
 type ContextType =
 {
@@ -25,7 +24,6 @@ type ContextType =
 };
 
 const ChainIDContext  = createContext(0);
-const ChainChangedTriggerContext  = createContext(0);
 const AccountContext  = createContext("");
 const RequestsContext = createContext<ContextType>({} as unknown as ContextType);
 const OptionsContext  = createContext<ContextType>({} as unknown as ContextType);
@@ -37,19 +35,25 @@ export let onLoadCallbacks = [] as (() => void)[];
 
 export const useAccount  = () => useContext(AccountContext);
 export const useChainID  = () => useContext(ChainIDContext);
-export const useChainChangedTrigger = () => useContext(ChainChangedTriggerContext);
 export const useRequests = () => useContext(RequestsContext);
 export const useOptions  = () => useContext(OptionsContext);
+
+let _UICallback : () => void;
+export const setChainIDChangedCallback = (cb : () => void) => _UICallback = cb;
 
 export default function App({ Component, pageProps }: AppProps)
 {
     const [ account , setAccount ] = useState(" ");
     const [ chainID , setChainID ] = useState(-1);
-    const [ trigger , onAfterChainIDChanged ] = useState(0);
 
     useEffect
     (
-        () => hookMetamask(setAccount, setChainID)
+        () =>
+        {
+            hookMetamask(setAccount, setChainID);
+
+            connectWallet();
+        }
     ,   []
     );
 
@@ -62,28 +66,23 @@ export default function App({ Component, pageProps }: AppProps)
             // Cleanup
             clearRequests();
             clearOptions();
-            clearContracts();
+            clearContractsCache();
             clearImages();
             clearAssets();
             clearNFTOpt();
             clearNFTOptCollections();
 
-            let network_ = network();
-            if (!network_) return;
-
-            // Initialization
-            let provider_ = createProvider();
-            provider_.getBlockNumber().then(setBlockNumber);
+            if (!network()) return;
 
             // Initialize contracts
-            createNFTOptInstance(provider_, network_);
-            createNFTOptCollectionsInstances(provider_, network_);
+            createNFTOptInstance(network(), connected() ? signer() : provider());
+            createNFTOptCollectionsInstances(network(), provider());
 
             // Subscribe to events
             attachNFTOptHandlersToInstance(contracts.NFTOpt);
             attachNFTCollectionsHandlersToInstances(contracts.Collections);
 
-            onAfterChainIDChanged(t => t ^ 1);
+            _UICallback();
         }
     ,   [chainID]
     );
@@ -111,22 +110,17 @@ export default function App({ Component, pageProps }: AppProps)
         <Toaster containerClassName={"toast-container"} />
 
         <ChainIDContext.Provider value={chainID}>
-        <ChainChangedTriggerContext.Provider value={trigger}>
         <AccountContext.Provider value={account}>
 
         <RequestsContext.Provider
             value=
-            {{
-                changing     : requestChangingIDs
-            ,   transactions : requestIDsTransactions
+            {{ transactions : requestIDsTransactions
             }}
         >
 
         <OptionsContext.Provider
             value=
-            {{
-                changing     : optionChangingIDs
-            ,   transactions : optionIDsTransactions
+            {{ transactions : optionIDsTransactions
             }}
         >
 
@@ -137,7 +131,6 @@ export default function App({ Component, pageProps }: AppProps)
         </RequestsContext.Provider>
 
         </AccountContext.Provider>
-        </ChainChangedTriggerContext.Provider>
         </ChainIDContext.Provider>
     </>;
 }

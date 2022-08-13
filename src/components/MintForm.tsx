@@ -9,12 +9,12 @@ import { Avatar, Button, ListItem, ListItemAvatar, ListItemText, ListSubheader }
 import { List } from '@mui/material';
 import { AssetKey } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
-import { network, provider, signer } from "../utils/metamask";
+import { network, signer } from "../utils/metamask";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
-import { useAccount, useChainChangedTrigger, useChainID } from "../pages/_app";
+import { setChainIDChangedCallback, useAccount, useChainID } from "../pages/_app";
 import { assetsOf, loadAssetsFor } from "../../datasources/assets";
-import { setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
 import { loadNFTOptCollectionsItems } from "../../datasources/ERC-721/NFTOptCollections";
+import { setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
 
 let asset = {} as NFTAsset;
 
@@ -64,13 +64,14 @@ function MintForm()
 
     const assetsChanged = () => setAssetsChanged(f => f ^ 1);
 
-    _setImageCallback = setImage;
-
-    const account             = useAccount();
-    const chainID             = useChainID();
-    const chainChangedTrigger = useChainChangedTrigger();
+    const account = useAccount();
+    const chainID = useChainID();
 
     const assets = assetsOf(account) ?? [];
+
+    _setImageCallback = setImage;
+
+    setChainIDChangedCallback( () => loadNFTOptCollectionsItems(network()).then(setCollections) );
 
     useEffect
     (
@@ -88,11 +89,6 @@ function MintForm()
     ,   [chainID]
     );
 
-    useEffect
-    (
-        () => { loadNFTOptCollectionsItems(network()).then(setCollections); }
-    ,   [chainChangedTrigger]
-    );
 
     useEffect
     (
