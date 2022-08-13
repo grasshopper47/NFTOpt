@@ -18,7 +18,7 @@ export const clearNFTOpt = () =>
 export const createNFTOptInstance = (provider: ethers.providers.Web3Provider, network : string) =>
 {
     // Create completely new instance with the default provider (readonly)
-    return new ethers.Contract
+    contracts.NFTOpt = new ethers.Contract
     (
         addresses[network].NFTOpt
     ,   NFTOptSolContract.abi

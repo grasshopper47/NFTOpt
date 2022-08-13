@@ -10,21 +10,22 @@ import { clearImages } from "../../datasources/ERC-721/images";
 import { clearNFTOpt, contracts, createNFTOptInstance } from "../../datasources/NFTOpt";
 import { clearRequests, clearOptions  } from "../../datasources/options"
 import { clearAssets } from "../../datasources/assets";
-import { optionIDsTransactions, requestIDsTransactions } from "../controllers/NFTOpt";
+import { attachNFTOptHandlersToInstance, optionIDsTransactions, requestIDsTransactions } from "../controllers/NFTOpt";
 import { connected, createProvider, hookMetamask, network, provider, signer } from "../utils/metamask";
-import { clearNFTOptCollections } from "../../datasources/ERC-721/NFTOptCollections";
+import { clearNFTOptCollections, createNFTOptCollectionsInstances, loadNFTOptCollectionsItems } from "../../datasources/ERC-721/NFTOptCollections";
 import { setBlockNumber } from "../../datasources/blockNumber";
 
 import Header from "../components/Header";
 import { Toaster } from "react-hot-toast";
+import { attachNFTCollectionsHandlersToInstances } from "../controllers/NFTOptCollections";
 
 type ContextType =
 {
-    changing     : {}       // IDs of requests which have state changes
-,   transactions : {}       // Transactions where requests have had state changes
+    transactions : {}       // Transactions where requests have had state changes
 };
 
 const ChainIDContext  = createContext(0);
+const ChainChangedTriggerContext  = createContext(0);
 const AccountContext  = createContext("");
 const RequestsContext = createContext<ContextType>({} as unknown as ContextType);
 const OptionsContext  = createContext<ContextType>({} as unknown as ContextType);
@@ -32,8 +33,11 @@ const OptionsContext  = createContext<ContextType>({} as unknown as ContextType)
 export const requestChangingIDs = {};
 export const optionChangingIDs  = {};
 
+export let onLoadCallbacks = [] as (() => void)[];
+
 export const useAccount  = () => useContext(AccountContext);
 export const useChainID  = () => useContext(ChainIDContext);
+export const useChainChangedTrigger = () => useContext(ChainChangedTriggerContext);
 export const useRequests = () => useContext(RequestsContext);
 export const useOptions  = () => useContext(OptionsContext);
 
@@ -41,6 +45,7 @@ export default function App({ Component, pageProps }: AppProps)
 {
     const [ account , setAccount ] = useState(" ");
     const [ chainID , setChainID ] = useState(-1);
+    const [ trigger , onAfterChainIDChanged ] = useState(0);
 
     useEffect
     (
@@ -63,14 +68,22 @@ export default function App({ Component, pageProps }: AppProps)
             clearNFTOpt();
             clearNFTOptCollections();
 
+            let network_ = network();
+            if (!network_) return;
+
             // Initialization
             let provider_ = createProvider();
             provider_.getBlockNumber().then(setBlockNumber);
 
-            let network_ = network();
-            if (!network_) return;
+            // Initialize contracts
+            createNFTOptInstance(provider_, network_);
+            createNFTOptCollectionsInstances(provider_, network_);
 
-            contracts.NFTOpt = createNFTOptInstance(provider_, network_);
+            // Subscribe to events
+            attachNFTOptHandlersToInstance(contracts.NFTOpt);
+            attachNFTCollectionsHandlersToInstances(contracts.Collections);
+
+            onAfterChainIDChanged(t => t ^ 1);
         }
     ,   [chainID]
     );
@@ -98,6 +111,7 @@ export default function App({ Component, pageProps }: AppProps)
         <Toaster containerClassName={"toast-container"} />
 
         <ChainIDContext.Provider value={chainID}>
+        <ChainChangedTriggerContext.Provider value={trigger}>
         <AccountContext.Provider value={account}>
 
         <RequestsContext.Provider
@@ -123,6 +137,7 @@ export default function App({ Component, pageProps }: AppProps)
         </RequestsContext.Provider>
 
         </AccountContext.Provider>
+        </ChainChangedTriggerContext.Provider>
         </ChainIDContext.Provider>
     </>;
 }

@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 import React from "react";
 import { useEffect, useState } from "react";
-import { useChainID } from "../pages/_app";
+import { useChainID, useChainChangedTrigger } from "../pages/_app";
 import { OptionWithAsset } from "../../models/option";
 import { network } from "../utils/metamask";
 import { filterParams } from "./FilterBox";
@@ -16,7 +16,7 @@ import ViewSettings, { view, ViewTypes } from "./ViewSettings";
 import { doFilter, optionsByStateFiltered, OptionStateViewed } from "../../datasources/filtering";
 import { contracts } from "../../datasources/NFTOpt";
 import { loadAll } from "../../datasources/options";
-import { attachNFTOptHandlersToInstance } from "../controllers/NFTOpt";
+import { setNFTOptUICallback } from "../controllers/NFTOpt";
 
 const tabs =
 [
@@ -132,7 +132,8 @@ function ViewContainer()
     _setViewedOptionsCallback = setViewedOptions;
     _updateViewCallback       = updateView;
 
-    const chainID = useChainID();
+    const chainID             = useChainID();
+    const chainChangedTrigger = useChainChangedTrigger();
 
     const hasItems = viewedOptions ? viewedOptions.length !== 0 : false;
 
@@ -140,18 +141,23 @@ function ViewContainer()
     (
         () =>
         {
-            setViewedOptions([]);
+            if (!network())
+            {
+                setViewedOptions([]);
+                setNFTOptUICallback(() => {});
 
-            let network_ = network();
-            if (!network_) return;
+                return;
+            }
 
-            // Load data
-            loadAll(contracts.NFTOpt).then(handleFiltered);
-
-            // Subscribe to events
-            attachNFTOptHandlersToInstance(contracts.NFTOpt, handleFiltered);
+            setNFTOptUICallback(handleFiltered);
         }
     ,   [chainID]
+    );
+
+    useEffect
+    (
+        () => { loadAll(contracts.NFTOpt).then(handleFiltered); }
+    ,   [chainChangedTrigger]
     );
 
     useEffect

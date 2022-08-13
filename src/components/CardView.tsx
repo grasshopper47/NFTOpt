@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 import React from "react";
 import { ethers } from "ethers";
-import { useRequests, useOptions } from "../pages/_app";
+import { optionChangingIDs, requestChangingIDs } from "../pages/_app";
 import { OptionWithAsset } from "../../models/option";
 import { AccessTime } from "@mui/icons-material";
 import { ListViewStates } from "./ListView";
@@ -20,9 +20,6 @@ function CardView(props: Props)
 {
     const { option, viewIndex } = props;
 
-    const requests = useRequests();
-    const options  = useOptions();
-
     const viewClass = classes[ListViewStates[viewIndex]];
 
     return <div
@@ -32,7 +29,7 @@ function CardView(props: Props)
             (
                 classes.card
             ,   viewClass
-            ,   (requests.changing[option.id] || options.changing[option.id]) && classes.changing
+            ,   (requestChangingIDs[option.id] || optionChangingIDs[option.id]) && classes.changing
             )
         }
         onClick={ () => props.onViewDetails(option) }

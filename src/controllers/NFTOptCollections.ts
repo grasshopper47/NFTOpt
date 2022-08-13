@@ -5,11 +5,11 @@ import { blockNumber, setBlockNumber } from "../../datasources/blockNumber";
 import { signer } from "../utils/metamask";
 import { dismissLastToast, TOAST_DURATION } from "../utils/toasting";
 
-let _assetsUICallback : () => void;
+let _UICallback : () => void;
 
-export const setAssetsUICallback = (cb : () => void) => _assetsUICallback = cb;
+export const setNFTCollectionsUICallback = (cb : () => void) => _UICallback = cb;
 
-export const attachNFTOptCollectionHandlersToInstance = (collections : {}) =>
+export const attachNFTCollectionsHandlersToInstances = (collections : {}) =>
 {
     let collectionKeys = Object.keys(collections);
     for (let k of collectionKeys)
@@ -36,7 +36,7 @@ export const attachNFTOptCollectionHandlersToInstance = (collections : {}) =>
 
                 console.log("Minted NFT");
 
-                if (address === to) _assetsUICallback();
+                if (address === to) _UICallback();
             }
         );
     }

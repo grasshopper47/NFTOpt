@@ -1,107 +1,87 @@
 import { BigNumber } from "ethers";
-import { cancelOption, exerciseOption } from "../../datasources/options";
-import { createOptionFromRequest, loadOne, withdrawRequest } from "../../datasources/options";
+import { NFTOpt } from "../../typechain-types/contracts/NFTOpt";
+import { contracts } from "../../datasources/NFTOpt";
+import { blockNumber, setBlockNumber } from "../../datasources/blockNumber";
+import { createOptionFromRequest, loadOne, withdrawRequest, cancelOption, exerciseOption } from "../../datasources/options";
+import { eventLabels } from "../utils/labels";
 import { dismissLastToast, TOAST_DURATION } from "../utils/toasting";
 import { optionChangingIDs, requestChangingIDs } from "../pages/_app";
 import toast from "react-hot-toast";
-import { NFTOpt } from "../../typechain-types/contracts/NFTOpt";
-import { eventLabels } from "../utils/labels";
-import { blockNumber, setBlockNumber } from "../../datasources/blockNumber";
-import { contracts } from "../../datasources/NFTOpt";
 
 export const requestIDsTransactions = {};
 export const optionIDsTransactions  = {};
 
-export const attachNFTOptHandlersToInstance =
-(
-    NFTOpt : NFTOpt
-,   UICallback : () => void
-) =>
-{
-    _UICallback = UICallback;
+export const setNFTOptUICallback = (cb : () => void) => _UICallback = cb;
 
+export const attachNFTOptHandlersToInstance = ( NFTOpt : NFTOpt ) =>
+{
     for (let event of eventLabels) NFTOpt.on(event, _handleEvent);
-}
-
-type BatchFlagsType =
-{
-    isLoading : boolean
-,   isWaiting : boolean
 }
 
 type BatchHandlerType =
 {
-    keys     : any[]
-,   flags    : BatchFlagsType
-,   handler  : (... any : any[]) => Promise<any>
-,   callback : (... any : any[]) => void
+    keys      : number[]
+,   isLoading : boolean
+,   handler   : (... any : any[]) => Promise<any>
 }
 
-const _createBatchFlagsType = () =>
-{
-    return {
-        isLoading : false
-    ,   isWaiting : false
-    } as BatchFlagsType;
-}
+let _UICallback : () => void;
 
-const _createBatchHandler = ( handler  : (... any : any[]) => Promise<any> ) =>
+const _createBatchHandler = ( handler : (... any : any[]) => Promise<any> ) =>
 {
     return {
-        keys     : [] as number[]
-    ,   flags    : _createBatchFlagsType()
-    ,   handler  : handler
-    ,   callback : _UpdateUI
+        keys      : [] as number[]
+    ,   isLoading : false
+    ,   handler   : handler
     } as BatchHandlerType;
 }
 
 const _batchHandlerCallback = async (obj : BatchHandlerType) =>
 {
     let i = obj.keys.length;
-    if (i === 0)
-    {
-        obj.flags.isWaiting = false;
-        return;
-    }
 
-    obj.flags.isLoading = true;
+    // Break when missing keys
+    if (i === 0) return;
 
+    obj.isLoading = true;
+
+    // Load objects for each key
     let promises : Promise<any>[] = [];
     while (--i !== -1) promises.push( obj.handler(obj.keys.pop()) );
-
     await Promise.allSettled(promises);
 
-    obj.callback();
+    obj.isLoading = false;
 
-    obj.flags.isLoading = false;
-    obj.flags.isWaiting = false;
+    // Check other handlers for activity
+    let isBusy = false;
+    for (let event of eventLabels) isBusy = isBusy || _handlers[event].isLoading;
+    if (isBusy) return;
+
+    console.log("batches loaded, refresh");
+
+    // Refresh UI
+    _UICallback();
 }
 
 const _queueHandler = (ID : any, obj : BatchHandlerType) =>
 {
-    while (obj.flags.isLoading) continue;
-
     obj.keys.push(ID);
 
-    if (obj.flags.isWaiting) return;
+    if (obj.isLoading) return;
 
-    obj.flags.isWaiting = true;
     setTimeout(() => _batchHandlerCallback(obj), 3000);
 }
 
-const _deleteRequestChangingID = (ID : number) => delete requestChangingIDs[ID];
-const _deleteOptionChangingID  = (ID : number) => delete optionChangingIDs[ID];
-
-let _UICallback : () => void;
-const _UpdateUI = () => _UICallback();
+const _deleteRequestsChanging = (ID : number) => delete requestChangingIDs[ID];
+const _deleteOptionsChanging  = (ID : number) => delete optionChangingIDs[ID];
 
 const _handlers =
 {
     Published : _createBatchHandler( (ID) => loadOne(contracts.NFTOpt, ID) )
-,   Withdrawn : _createBatchHandler( (ID) => withdrawRequest(ID).then(_deleteRequestChangingID) )
-,   Opened    : _createBatchHandler( (ID) => createOptionFromRequest(ID).then(_deleteRequestChangingID) )
-,   Canceled  : _createBatchHandler( (ID) => cancelOption(ID).then(_deleteOptionChangingID) )
-,   Exercised : _createBatchHandler( (ID) => exerciseOption(ID).then(_deleteOptionChangingID) )
+,   Withdrawn : _createBatchHandler( (ID) => withdrawRequest(ID).then(_deleteRequestsChanging) )
+,   Opened    : _createBatchHandler( (ID) => createOptionFromRequest(ID).then( () => { _deleteRequestsChanging(ID), _deleteOptionsChanging(ID); } ) )
+,   Canceled  : _createBatchHandler( (ID) => cancelOption(ID).then(_deleteOptionsChanging) )
+,   Exercised : _createBatchHandler( (ID) => exerciseOption(ID).then(_deleteOptionsChanging) )
 };
 
 const _handleEvent = (ID : BigNumber, transaction : any) =>
@@ -128,7 +108,7 @@ const _handleEvent = (ID : BigNumber, transaction : any) =>
         optionIDsTransactions[id] = transaction.transactionHash;
     }
 
-    // Show toast of success only when called by the user actionLabel (already a toast in progress)
+    // Show toast of success only when called by user's direct UI interaction (waiting toast is shown)
     if (dismissLastToast()) toast.success("Successfully " + actionLabel, { duration: TOAST_DURATION });
 
     console.log(actionLabel);

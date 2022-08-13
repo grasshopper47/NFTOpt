@@ -6,7 +6,7 @@ import React from "react";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useRequests, useOptions, useAccount } from "../pages/_app";
+import { useRequests, useOptions, useAccount, optionChangingIDs, requestChangingIDs } from "../pages/_app";
 import { isExpired } from "../../datasources/options";
 import { OptionState} from "../../models/enums";
 import { OptionWithAsset } from "../../models/option";
@@ -47,6 +47,15 @@ let checkAndSetApproved = (address : string, contract : any) =>
     );
 }
 
+let contract;
+
+let onWithdrawOption = (option : OptionWithAsset) => contracts.NFTOpt.withdrawRequest(option.id);
+let onCreateOption   = (option : OptionWithAsset) => contracts.NFTOpt.createOption(option.id, { value: option.strikePrice });
+let onCancelOption   = (option : OptionWithAsset) => contracts.NFTOpt.cancelOption(option.id);
+let onExerciseOption = (option : OptionWithAsset) => contracts.NFTOpt.exerciseOption(option.id);
+
+let onApproveNFT = (option : OptionWithAsset) => showToast( contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.key.nftId) );
+
 function DetailsView(props: Props)
 {
     const { option } = props;
@@ -61,8 +70,6 @@ function DetailsView(props: Props)
     const requests = useRequests();
     const options  = useOptions();
 
-    let contract;
-
     useEffect
     (
         () =>
@@ -76,30 +83,23 @@ function DetailsView(props: Props)
     ,   []
     );
 
-    let onWithdrawOption = () => contracts.NFTOpt.withdrawRequest(option.id);
-    let onCreateOption   = () => contracts.NFTOpt.createOption(option.id, { value: option.strikePrice });
-    let onCancelOption   = () => contracts.NFTOpt.cancelOption(option.id);
-    let onExerciseOption = () => contracts.NFTOpt.exerciseOption(option.id);
-
-    let onAction = promise => showToast
+    let onAction = (promise : (option : OptionWithAsset) => Promise<ethers.ContractTransaction>) => showToast
     (
-        promise().then
+        promise(option).then
         (
             () =>
             {
-                if (promise === onWithdrawOption) requests.changing[option.id] = 1;
-                else                              options.changing[option.id] = 1;
+                if (promise === onWithdrawOption) requestChangingIDs[option.id] = 1;
+                else                              optionChangingIDs[option.id] = 1;
 
                 if (props.onAction) props.onAction();
             }
         )
     );
 
-    let onApproveNFT = () => showToast( contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.key.nftId) );
-
-    function createButtonsFromOptionState()
+    let createButtonsFromOptionState = () =>
     {
-        if (requests.changing[option.id] || options.changing[option.id]) return <></>;
+        if (requestChangingIDs[option.id] || optionChangingIDs[option.id]) return <></>;
 
         let isBuyer = (option.buyer === account);
 

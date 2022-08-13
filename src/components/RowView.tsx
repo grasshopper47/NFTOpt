@@ -6,7 +6,7 @@ import React from "react";
 import { ethers } from "ethers";
 import { OptionWithAsset } from "../../models/option";
 import DetailsView from "./DetailsView";
-import { useRequests, useOptions } from "../pages/_app";
+import { optionChangingIDs, requestChangingIDs } from "../pages/_app";
 
 type RowView =
 {
@@ -17,9 +17,6 @@ type RowView =
 
 function RowView(props: RowView)
 {
-    const requests = useRequests();
-    const options  = useOptions();
-
     return <>
         <div className={classes.container} { ... props.onClick && { onClick : props.onClick } }>
             <p className={classes.field}>{ !props.showDetails && props.option.id + 1}</p>
@@ -29,7 +26,7 @@ function RowView(props: RowView)
                     clsx
                     (
                         classes.field
-                    ,   (requests.changing[props.option.id] || options.changing[props.option.id]) && classes.changing
+                    ,   (requestChangingIDs[props.option.id] || optionChangingIDs[props.option.id]) && classes.changing
                     ,   props.showDetails && classes.selected
                     )
                 }
