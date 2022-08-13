@@ -65,8 +65,8 @@
         "graph generate all" : "node scripts/graph/generate/all-schemas.mjs",
         "graph publish all"  : "node scripts/graph/publish/all-nodes.mjs",
         "graph generate NFTOpt"         : "node scripts/graph/generate/schema.mjs NFTOpt",
-        "graph generate NFTCollections" : "node scripts/graph/generate/schema.mjs NFTCollections",
         "graph publish NFTOpt"          : "node scripts/graph/publish/node.mjs NFTOpt",
+        "graph generate NFTCollections" : "node scripts/graph/generate/schema.mjs NFTCollections",
         "graph publish NFTCollections"  : "node scripts/graph/publish/node.mjs NFTCollections",
 
         "~~ DATA ~~" : "",
