@@ -1,5 +1,5 @@
 import React from "react";
-import { OptionFlavor } from "../../models/option";
+import { OptionFlavor } from "../../models/enums";
 import { flavorLabels } from "../utils/labels";
 import { FormControlLabel, Radio } from "@mui/material";
 
