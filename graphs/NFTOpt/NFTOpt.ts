@@ -1,4 +1,5 @@
 import { Address, Bytes } from "@graphprotocol/graph-ts";
+import { store } from "@graphprotocol/graph-ts";
 
 import {
     Published as PublishEvent,
@@ -14,11 +15,7 @@ import {
     Option
 } from "../NFTOpt/generated/schema";
 
-import {
-    store,
-} from "@graphprotocol/graph-ts";
-
-export function fetchAccount(address: Address): Account
+function fetchAccount(address: Address): Account
 {
     let account = Account.load(address);
     if (account) return account;
@@ -27,6 +24,14 @@ export function fetchAccount(address: Address): Account
     account.save();
 
     return account;
+}
+
+function removeRequest(id: string): Request | null
+{
+    let request = Request.load(id);
+    if (request) store.remove("Request", id);
+
+    return request;
 }
 
 export function handlePublished(event: PublishEvent): void
@@ -42,23 +47,19 @@ export function handlePublished(event: PublishEvent): void
 
 export function handleWithdrawn(event: WithdrawEvent): void
 {
-    let id = event.params.param0.toString();
-
-    let request = Request.load(id);
-    if (request) store.remove("Request", id);
+    removeRequest(event.params.param0.toString());
 }
 
 export function handleOpened(event: OpenEvent): void
 {
     let id = event.params.param0.toString();
 
-    let request = Request.load(id);
-    if (request) store.remove("Request", id);
+    let request = removeRequest(id);
 
     let option = Option.load(id);
     if (!option) option = new Option(id);
-    option.buyer = request ? request.buyer : new Bytes(0);
-    option.seller =  fetchAccount(event.transaction.from).id;
+    option.buyer  = request ? request.buyer : new Bytes(0);
+    option.seller = fetchAccount(event.transaction.from).id;
     option.save();
 }
 
