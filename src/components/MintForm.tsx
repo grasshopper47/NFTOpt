@@ -11,14 +11,33 @@ import { AssetKey } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
 import { network, signer } from "../utils/metamask";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
-import { setCollectionsUICallback, useAccount, useChainID } from "../pages/_app";
+import { clearOptionsUICallback, setCollectionsUICallback, useAccount, useChainID } from "../pages/_app";
 import { assetsOf, loadAssetsFor } from "../../datasources/assets";
-import { setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
-import { contracts } from "../../datasources/NFTOpt";
+import { clearNFTCollectionsUICallback, setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
 
-let asset = {} as NFTAsset;
+let _setImageCallback : (img : string) => void;
 
-const resetAsset = () =>
+let setAsset = (obj? : NFTAsset | null) =>
+{
+    if (obj) asset = obj; else resetAsset();
+
+    _setImageCallback(asset.image);
+};
+
+let handleMint = () => showToast
+(
+    getCachedContract(asset.key.nftContract)
+    .connect(signer())
+    .mint()
+    .then( () => setAsset(null) )
+);
+
+let handleKey = (event: React.KeyboardEvent<HTMLInputElement>) =>
+{
+    if (event.key === "Enter") if (asset.image) handleMint();
+}
+
+let resetAsset = () =>
 {
     asset =
     {
@@ -32,29 +51,14 @@ const resetAsset = () =>
     }
 }
 
+let doClean = () => { clearOptionsUICallback(), clearNFTCollectionsUICallback(); }
+
+let account : string;
+let chainID : number;
+let assets  : NFTAsset[];
+let asset   : NFTAsset;
+
 resetAsset();
-
-let _setImageCallback : (img : string) => void;
-
-const setAsset = (obj? : NFTAsset | null) =>
-{
-    if (obj) asset = obj; else resetAsset();
-
-    _setImageCallback(asset.image);
-};
-
-const handleMint = () => showToast
-(
-    getCachedContract(asset.key.nftContract)
-    .connect(signer())
-    .mint()
-    .then( () => setAsset(null) )
-);
-
-const handleKey = (event: React.KeyboardEvent<HTMLInputElement>) =>
-{
-    if (event.key === "Enter") if (asset.image) handleMint();
-}
 
 function MintForm()
 {
@@ -64,31 +68,27 @@ function MintForm()
 
     const assetsChanged = () => setAssetsChanged(f => f ^ 1);
 
-    const account = useAccount();
-    const chainID = useChainID();
+    account = useAccount();
+    chainID = useChainID();
 
-    const assets = assetsOf(account) ?? [];
+    assets = assetsOf(account) ?? [];
 
     _setImageCallback = setImage;
-
-    setCollectionsUICallback(setCollections);
 
     useEffect
     (
         () =>
         {
-            if (!network())
-            {
-                setNFTCollectionsUICallback(() => {});
+            if (!network()) { doClean(); return; }
 
-                return;
-            }
-
+            setCollectionsUICallback(setCollections);
             setNFTCollectionsUICallback(assetsChanged);
+
+            // Cleanup on unmount
+            return () => doClean();
         }
     ,   [chainID]
     );
-
 
     useEffect
     (

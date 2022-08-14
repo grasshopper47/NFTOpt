@@ -6,9 +6,9 @@ export const flavorLabels =
 
 export const eventLabels =
 [
-    "Withdrawn"
-,   "Published"
+    "Published"
 ,   "Opened"
 ,   "Canceled"
 ,   "Exercised"
+,   "Withdrawn"
 ];

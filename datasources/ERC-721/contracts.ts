@@ -24,6 +24,7 @@ export function getCachedContract(address : string)
         ,   ABIs.ERC721.getApproved
         ,   ABIs.ERC721.approve
         ,   ABIs.ERC721.Events.Approval
+        ,   ABIs.ERC721.Events.Transfer
         ]
     ,   provider()
     );

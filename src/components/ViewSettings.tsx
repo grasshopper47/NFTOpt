@@ -11,7 +11,7 @@ import { Button, MenuItem, Select } from "@mui/material";
 const viewTypeStorageKey  = "ViewType";
 const viewStateStorageKey = "ViewState";
 
-export enum ViewTypes { CARDLIST, DETAIL, ROWLIST };
+export enum ViewTypes { CARDLIST, ROWLIST, DETAIL };
 
 export type ViewConfig =
 {
@@ -19,65 +19,62 @@ export type ViewConfig =
 ,   state : number
 }
 
-export let view : ViewConfig =
+export const getViewSettingsFromStorage = () =>
 {
-    type  : ViewTypes.CARDLIST
-,   state : 0
-};
+    return {
+        type  : parseInt(localStorage[viewTypeStorageKey] ?? ViewTypes.CARDLIST)
+    ,   state : parseInt(localStorage[viewStateStorageKey] ?? 0)
+    };
+}
 
 type Props =
 {
-    list           : OptionWithAsset[]
+    view           : ViewConfig
+,   list           : OptionWithAsset[]
 ,   selectedValue ?: OptionWithAsset | null
 ,   onViewChanged  : () => void
 ,   onFilter       : () => void
 };
 
-let _viewChangedCallback : () => void;
+let _propsPtr : Props;
 
-const handleViewStateChanged = (event : any) =>
+let handleViewStateChanged = (event : any) =>
 {
     let index = event.target.value;
 
     localStorage[viewStateStorageKey] = index;
 
-    view.state = index;
+    _propsPtr.view.state = index;
 
-    _viewChangedCallback();
+    _propsPtr.onViewChanged();
 }
+
+let hasItems : boolean;
 
 function ViewSettings(props: Props)
 {
     const [ isFilterBoxVisible , setFilterBoxVisibile ] = useState(false);
 
-    _viewChangedCallback = props.onViewChanged;
+    _propsPtr = props;
 
     useEffect
     (
         () =>
         {
-            view =
-            {
-                type  : parseInt(localStorage[viewTypeStorageKey] ?? ViewTypes.CARDLIST)
-            ,   state : parseInt(localStorage[viewStateStorageKey] ?? 0)
-            }
-
-            props.onViewChanged();
-
             document.body.onclick = () => setFilterBoxVisibile(false);
         }
     ,   []
     );
 
-    const hasItems = props.list ? props.list.length !== 0 : false;
+    hasItems = props.list ? props.list.length !== 0 : false;
 
     return <div className={classes.viewSettingsWrapper}>
         {
-            hasItems && view.type === ViewTypes.CARDLIST &&
+            hasItems && props.view.type === ViewTypes.CARDLIST &&
             <Select
                 MenuProps={{ classes: { paper: classes.dropDown } }}
                 className={clsx(classes.dropDown, classes.viewStateDropDown)}
-                value={view.state}
+                value={props.view.state}
                 onChange={handleViewStateChanged}
             >
                 {
@@ -97,17 +94,20 @@ function ViewSettings(props: Props)
                 {
                     () =>
                     {
-                        let newView = ViewTypes.CARDLIST;
+                        if (props.selectedValue) props.view.type = ViewTypes.DETAIL;
 
-                        if (view.type === ViewTypes.CARDLIST) newView = ViewTypes.ROWLIST;
-                        else if (props.selectedValue)        newView = ViewTypes.DETAIL;
+                        // Switch between ROW and CARD views
+                        if (props.view.type < ViewTypes.DETAIL)
+                        {
+                            props.view.type ^= 1;
 
-                        localStorage[viewTypeStorageKey] = view.type = newView;
+                            localStorage[viewTypeStorageKey] = props.view.type;
+                        }
 
                         props.onViewChanged();
                     }
                 }
-            >{ view.type === ViewTypes.CARDLIST ? "🧾" : "🎴" }</Button>
+            >{ props.view.type === ViewTypes.CARDLIST ? "🧾" : "🎴" }</Button>
         }
 
         <Button

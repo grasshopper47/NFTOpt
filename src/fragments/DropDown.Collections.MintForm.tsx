@@ -1,7 +1,7 @@
 // @ts-ignore
 import classes from "../components/styles/RequestForm.module.scss";
 
-import React, { useEffect } from "react";
+import React from "react";
 
 import { NFTAsset } from "../../models/NFTAsset";
 import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";

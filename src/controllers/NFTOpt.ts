@@ -11,7 +11,8 @@ import toast from "react-hot-toast";
 export const requestIDsTransactions = {};
 export const optionIDsTransactions  = {};
 
-export const setNFTOptUICallback = (cb : () => void) => _UICallback = cb;
+export const setNFTOptUICallback   = (cb : () => void) => _UICallback = cb;
+export const clearNFTOptUICallback = () => _UICallback = () => {};
 
 export const attachNFTOptHandlersToInstance = ( NFTOpt : NFTOpt ) =>
 {
