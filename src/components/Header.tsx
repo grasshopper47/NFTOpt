@@ -29,7 +29,7 @@ const routesReadOnly: Route[] =
     }
 ];
 
-const routesWithSigner: Route[] =
+const routesWithSigner : Route[] =
 [
     {
         href: "/mint"
@@ -39,25 +39,32 @@ const routesWithSigner: Route[] =
         href: "/request"
     ,   name: "Publish"
     }
-,   ... routesReadOnly
 ];
+
+let hasProvider : boolean;
+let routes : Route[];
 
 function Header()
 {
-    const router = useRouter();
+    const router  = useRouter();
     const account = useAccount();
 
     useEffect
     (
         () =>
         {
+            if (!connected() && routesWithSigner.find(r => r.href == router.pathname) != null) router.replace("/mint", "/404");
             if (router.pathname !== "/explore") document.body.onclick = null;
         }
     ,   [router.pathname]
     );
 
-    const hasProvider = provider() != null;
-    const routes      = network() && connected() ? routesWithSigner : ( hasProvider ? routesReadOnly : [] );
+    hasProvider = provider() != null;
+
+    routes = [];
+
+    if ( network() && connected() ) routes.push(... routesWithSigner);
+    else if (hasProvider) routes.push(... routesReadOnly);
 
     return <div className={classes.root}>
         <Link key="route-link-main" href="/">
