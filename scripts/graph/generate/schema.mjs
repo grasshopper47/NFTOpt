@@ -13,10 +13,10 @@ function generateSchema()
     {
         result = execSync
         (`
-            npx graph-compiler ${name === "NFTOpt" && "--common-types ''"} \
-            --config graphs/${name}/config.json                            \
-            --include graphs/${name}                                       \
-            --export-schema                                                \
+            npx graph-compiler --common-types "" \
+            --config graphs/${name}/config.json  \
+            --include graphs/${name}             \
+            --export-schema                      \
             --export-subgraph
         `);
     }
