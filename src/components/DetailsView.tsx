@@ -5,7 +5,6 @@ import clsx from "clsx";
 import React from "react";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { useRequests, useOptions, useAccount, optionChangingIDs, requestChangingIDs } from "../pages/_app";
 import { isExpired } from "../../datasources/options";
 import { OptionState} from "../../models/enums";
@@ -19,6 +18,7 @@ import Field_DetailsView from "../fragments/Field.DetailsView";
 import FieldLink_DetailsView from "../fragments/FieldLink.DetailsView";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
 import { contracts } from "../../datasources/NFTOpt";
+import toast from "react-hot-toast";
 
 type Props =
 {
@@ -56,24 +56,36 @@ let onExerciseOption = (option : OptionWithAsset) => contracts.NFTOpt.exerciseOp
 
 let onApproveNFT = (option : OptionWithAsset) => showToast( contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.key.nftId) );
 
+let getTransactionLink = async (option : OptionWithAsset) =>
+{
+    let filter = contracts.NFTOpt.filters[eventLabels[option.state]](option.id);
+
+    let results = await contracts.NFTOpt.queryFilter(filter);
+
+    return `${scanner()}/tx/${results[0].transactionHash}`;
+}
+
+let account : string;
+
 function DetailsView(props: Props)
 {
     const { option } = props;
 
     const showTitle = props.showTitle === undefined ? true : props.showTitle;
 
-    const [ isApproved, setApproved ] = useState(false);
+    const [ isApproved      , setApproved        ] = useState(false);
+    const [ transactionLink , setTransactionLink ] = useState("");
 
     _setApprovedCallback = setApproved;
 
-    const account  = useAccount();
-    const requests = useRequests();
-    const options  = useOptions();
+    account = useAccount();
 
     useEffect
     (
         () =>
         {
+            getTransactionLink(option).then(setTransactionLink);
+
             if (option.state !== OptionState.OPEN) return;
 
             contract = getCachedContract(option.asset.key.nftContract);
@@ -136,7 +148,7 @@ function DetailsView(props: Props)
                     label={isApproved ? "Exercise Option" : "Approve NFT"}
                     variant="contained"
                     className="btnPrimary"
-                    handleClick={ isApproved ? () => onAction(onExerciseOption) : onApproveNFT } />
+                    handleClick={ isApproved ? () => onAction(onExerciseOption) : () => onApproveNFT(option) } />
             </>;
         }
 
@@ -154,9 +166,9 @@ function DetailsView(props: Props)
                 showTitle &&
                 <a
                     target="_blank"
-                    href={`${scanner()}/tx/${(option.state === OptionState.PUBLISHED ? requests : options).transactions[option.id]}`}
+                    href={transactionLink}
                     className={clsx(classes.link, classes.state)}
-                >{eventLabels[option.state + 2]}</a>
+                >{eventLabels[option.state]}</a>
             }
         </div>
 
