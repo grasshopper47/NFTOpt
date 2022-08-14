@@ -20,7 +20,7 @@ import { AssetKey, isValid, stringOf } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
 import { assetsOf, loadAssetsFor } from "../../datasources/assets";
 import { contracts } from "../../datasources/NFTOpt";
-import { network } from "../utils/metamask";
+import { network, provider } from "../utils/metamask";
 import { setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
 
 let request  = {} as Request_DISPLAY;
@@ -71,7 +71,7 @@ const setAsset = (asset : NFTAsset | undefined | null) =>
     let image = imageOf(assetKey);
 
     if (image) _setImageCallback(image);
-    else       loadImage(assetKey).then( img => { asset.image = img; _setImageCallback(img); } );
+    else       loadImage(assetKey, provider()).then( img => { asset.image = img; _setImageCallback(img); } );
 };
 
 let _requestChangedCallback : () => void;
@@ -150,7 +150,7 @@ function RequestForm()
         {
             if (!network()) return;
 
-            loadAssetsFor(account).then(assetsChanged);
+            loadAssetsFor(account, provider()).then(assetsChanged);
         }
     ,   [account]
     );
