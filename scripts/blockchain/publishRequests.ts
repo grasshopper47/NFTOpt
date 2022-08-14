@@ -49,7 +49,7 @@ const generateRequest = (assets : NFTAsset[]) =>
     };
 }
 
-export async function publishRequests()
+async function publishRequests()
 {
     const [ buyer ] = await ethers.getSigners();
 
