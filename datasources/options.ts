@@ -4,6 +4,9 @@ import { NFTOpt } from "../typechain-types/contracts/NFTOpt";
 import { ADDRESS0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { getNFTAsset } from "./assets";
 
+export let requestsChanged = { value : false };
+export let optionsChanged  = { value : false };
+
 export let requests : OptionWithAsset[] = [];
 export let options  : OptionWithAsset[] = [];
 
@@ -53,10 +56,8 @@ export async function loadAll(NFTOpt : NFTOpt) : Promise<void>
 
     promises =
     [
-        // @ts-ignore
-        () => requests.sort(_sorter)
-        // @ts-ignore
-    ,   () => options.sort(_sorter)
+        (async () => requests.sort(_sorter))()
+    ,   (async () => options.sort(_sorter))()
     ];
 
     await Promise.allSettled(promises);
@@ -71,6 +72,8 @@ export async function withdrawRequest(ID: number) : Promise<number>
         if (requests[i].id !== ID) continue;
 
         requests.splice(i, 1);
+
+        requestsChanged.value = true;
 
         return ID;
     }
@@ -93,6 +96,8 @@ export async function createOptionFromRequest(ID : number) : Promise<number>
         // Caterpillar >> Butterfly
         options.unshift(request);
         requests.splice(i, 1);
+
+        requestsChanged = optionsChanged = { value : true };
 
         return ID;
     }
@@ -135,10 +140,12 @@ const _storeOption = (option : OptionWithAsset) : void =>
     if (option.state === OptionState.PUBLISHED)
     {
         requests.push(option);
+        requestsChanged.value = true;
         return;
     }
 
     options.push(option);
+    optionsChanged.value = true;
 }
 
 const _setOptionState = (ID: number, state : OptionState) : void =>
@@ -148,7 +155,7 @@ const _setOptionState = (ID: number, state : OptionState) : void =>
         if (o.id !== ID) continue;
 
         o.state = state;
-
+        optionsChanged.value = true;
         break;
     }
 }
