@@ -3,7 +3,6 @@ import { NFTAsset } from "../models/NFTAsset";
 import { AssetKey, stringOf } from "../models/assetKey";
 import { images, loadImage } from "./ERC-721/images";
 import { getCachedContract } from "./ERC-721/contracts";
-import { MAX_MINTABLE_TOKENS } from "../utils/constants";
 import addresses from "../addresses.json";
 
 export const clearAssets   = () => assets = {};
@@ -38,17 +37,17 @@ export const getNFTAsset = async (key : AssetKey, contract? : any) =>
     } as NFTAsset;
 }
 
-export const loadAssetsFor = async (account: string) =>
+export const loadAssetsFor = async (account : string) =>
 {
     if (!account || account === " " || assets[account]) return;
 
     console.log("loadAssetsFor", account);
 
-    let arr      : NFTAsset[]     = [];
-    let promises : Promise<any>[] = [];
+    // Reset cache
+    arr      = [] as NFTAsset[];
+    promises = [] as Promise<any>[];
 
-    let isMissing = false;
-
+    // Fetch from Graph
     let reply = await fetch
     (
         "http://127.0.0.1:8000/subgraphs/name/NFTCollections"
@@ -65,54 +64,16 @@ export const loadAssetsFor = async (account: string) =>
     {
         for (let e of json.errors) console.error(e.message);
 
-        // Force loading from localhost on Graph query error
+        // Force loading from localhost on fetch or Graph query error
         json = "{}";
     }
 
-    if (json !== "{}")
-    {
-        // Load from Graph query result
-        for (let t of json.data.account.tokens)
-        {
-            promises.push
-            (
-                _loadAssetByKey
-                (
-                    {
-                        nftId       : t.identifier
-                    ,   nftContract : t.contract
-                    }
-                ,   account
-                ,   arr
-                )
-            );
-        }
-    }
-    else
-    {
-        // Load from known addresses -- produces errors for missing token IDs
-        for (let name of Object.keys(addresses.localhost))
-        {
-            if (name === "NFTOpt") continue;
+    // Prepare asset data loading promises
+    (json !== "{}" && json.data.account)
+    ?   _loadFromGraph(json.data.account.tokens, account)
+    :   await _loadFromLogs(account);
 
-            for (let i = 1; i != MAX_MINTABLE_TOKENS; ++i)
-            {
-                promises.push
-                (
-                    _loadAssetByKey
-                    (
-                        {
-                            nftId       : i.toString()
-                        ,   nftContract : addresses.localhost[name]
-                        }
-                    ,   account
-                    ,   arr
-                    )
-                );
-            }
-        }
-    }
-
+    // Wait for assets to load
     await Promise.allSettled(promises);
 
     assets[account] = arr;
@@ -120,7 +81,63 @@ export const loadAssetsFor = async (account: string) =>
     return arr;
 }
 
-async function _loadAssetByKey(key : AssetKey, account : string, arr : NFTAsset[])
+function _loadFromGraph(tokens : {identifier : string, contract : string}[], account : string)
+{
+    for (let t of tokens)
+    {
+        promises.push
+        (
+            _loadAssetData
+            (
+                {
+                    nftId       : t.identifier
+                ,   nftContract : t.contract
+                }
+            ,   account
+            )
+        );
+    }
+}
+
+async function _loadFromLogs(account : string)
+{
+    for (let name of Object.keys(addresses.localhost))
+    {
+        if (name === "NFTOpt") continue;
+
+        let contract = getCachedContract(addresses.localhost[name]);
+
+        let received = contract.queryFilter(contract.filters.Transfer(null,account));
+        let sent     = contract.queryFilter(contract.filters.Transfer(account));
+
+        await Promise.allSettled([received, sent]);
+
+        // Collapse promises
+        received = await received;
+        sent     = await sent;
+
+        for (let r of received)
+        {
+            let tokenID = r.args[2].toString();
+
+            if ( sent.find( s => s.args[2].toString() === tokenID ) ) continue;
+
+            promises.push
+            (
+                _loadAssetData
+                (
+                    {
+                        nftId       : tokenID
+                    ,   nftContract : contract.address
+                    }
+                ,   account
+                )
+            );
+        }
+    }
+}
+
+async function _loadAssetData(key : AssetKey, account : string)
 {
     let contract = getCachedContract(key.nftContract);
 
@@ -130,5 +147,8 @@ async function _loadAssetByKey(key : AssetKey, account : string, arr : NFTAsset[
     let asset = await getNFTAsset(key, contract);
     arr.push(asset);
 }
+
+let arr      : NFTAsset[]     = [];
+let promises : Promise<any>[] = [];
 
 let assets = {};
