@@ -15,6 +15,7 @@ import FooterNavigation, { getViewLimitIndexFromStorage, ViewPage } from "./Foot
 import ViewSettings, { getViewSettingsFromStorage, ViewConfig, ViewTypes } from "./ViewSettings";
 import { doFilter, optionsByStateFiltered, OptionStateViewed } from "../../datasources/filtering";
 import { clearNFTOptUICallback, setNFTOptUICallback } from "../controllers/NFTOpt";
+import { optionsChanged, requestsChanged } from "../../datasources/options";
 
 const tabs =
 [
@@ -104,6 +105,8 @@ let renderStatusText = (hasItems : boolean, activeTabIndex : number) =>
 
 let renderList = (options : OptionWithAsset[]) =>
 {
+    if (!hasItems) return <></>;
+
     let startIndex = page.index * page.count;
     let props =
     {
@@ -177,21 +180,35 @@ function ViewContainer()
     (
         () =>
         {
-            selectedOption = null;
-            page.index = 0;
-
             localStorage[tabIndexStorageKey] = activeTabIndex;
 
+            selectedOption = null;
+            page.index = 0;
             optionViewState = tabs[activeTabIndex].value;
-            let optionsFiltered = optionsByStateFiltered[optionViewState];
 
-            if (!optionsFiltered || optionsFiltered.length === 0)
+            if (requestsChanged.value)
             {
-                handleFiltered();
-                return;
+                if (activeTabIndex === 0)
+                {
+                    requestsChanged.value = false;
+                    handleFiltered();
+
+                    return;
+                }
             }
 
-            setViewedOptions(optionsFiltered);
+            if (optionsChanged.value)
+            {
+                if (activeTabIndex !== 0)
+                {
+                    optionsChanged.value = false;
+                    handleFiltered();
+
+                    return;
+                }
+            }
+
+            setViewedOptions(optionsByStateFiltered[optionViewState]);
         }
     ,   [activeTabIndex]
     );
