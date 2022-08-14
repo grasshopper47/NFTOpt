@@ -7,7 +7,8 @@ import { dismissLastToast, TOAST_DURATION } from "../utils/toasting";
 
 let _UICallback : () => void;
 
-export const setNFTCollectionsUICallback = (cb : () => void) => _UICallback = cb;
+export const setNFTCollectionsUICallback   = (cb : () => void) => _UICallback = cb;
+export const clearNFTCollectionsUICallback = () => _UICallback = () => {};
 
 export const attachNFTCollectionsHandlersToInstances = (collections : {}) =>
 {
