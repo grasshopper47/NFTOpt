@@ -1,7 +1,7 @@
 // @ts-ignore
 import classes from "./styles/FooterNavigation.module.scss";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { OptionWithAsset } from "../../models/option";
 import { Button, MenuItem, Select } from "@mui/material";
 
@@ -11,11 +11,10 @@ export type ViewPage =
 ,   count : number
 };
 
-export let page : ViewPage =
+export const getViewLimitIndexFromStorage = () =>
 {
-    index: 0
-,   count: 0
-};
+    return parseInt(localStorage[itemLimitStorageKey] ?? 0);
+}
 
 let itemLimitIndex = 0;
 
@@ -23,63 +22,51 @@ const itemLimitStorageKey = "ItemLimit";
 
 type Props =
 {
-    list             : OptionWithAsset[]
-,   rowViewLimitList : number[]
-,   onNavigate       : () => void
+    page         : ViewPage
+,   list         : OptionWithAsset[]
+,   recordLimits : number[]
+,   onNavigate   : () => void
 };
+
+let _propsPtr : Props;
+
+let setPageIndex = (a : number) =>
+{
+    _propsPtr.page.index = a;
+
+    _propsPtr.onNavigate();
+}
+
+let setPageCount = (event: any) =>
+{
+    let index = event.target.value;
+
+    localStorage[itemLimitStorageKey] = index;
+
+    itemLimitIndex = index;
+
+    _propsPtr.page.count = _propsPtr.recordLimits[index];
+
+    let maxPageCount = Math.floor(_propsPtr.list.length / _propsPtr.page.count);
+
+    if (_propsPtr.page.index > maxPageCount) _propsPtr.page.index = maxPageCount;
+
+    _propsPtr.onNavigate();
+}
 
 function FooterNavigation(props: Props)
 {
-    useEffect
-    (
-        () => { itemLimitIndex = parseInt(localStorage[itemLimitStorageKey] ?? 0); }
-    ,   []
-    );
-
-    useEffect
-    (
-        () =>
-        {
-            page.count = props.rowViewLimitList[itemLimitIndex];
-
-            props.onNavigate();
-        }
-    ,   [props.rowViewLimitList]
-    );
-
-    const setPageCount = (event: any) =>
-    {
-        let index = event.target.value;
-
-        localStorage[itemLimitStorageKey] = index;
-
-        itemLimitIndex = index;
-
-        page.count = props.rowViewLimitList[index];
-
-        let maxPageCount = Math.floor(props.list.length / page.count);
-
-        if (page.index > maxPageCount) page.index = maxPageCount;
-
-        props.onNavigate();
-    }
-
-    const setPageIndex = (a : number) =>
-    {
-        page.index = a;
-
-        props.onNavigate();
-    }
+    _propsPtr = props;
 
     return <div className={classes.records}>
         <Select
             MenuProps={{ classes: { paper: classes.dropDown } }}
             className={classes.dropDown}
-            value={itemLimitIndex}
+            value={props.recordLimits.length > 0 ? itemLimitIndex : ''}
             onChange={setPageCount}
         >
             {
-                props.rowViewLimitList.map
+                props.recordLimits.map
                 (
                     (limit, index) =>
                     <MenuItem key={`tab-view-limits-${limit}`} value={index}>{limit}</MenuItem>
@@ -88,25 +75,25 @@ function FooterNavigation(props: Props)
         </Select>
 
         <Button
-            disabled={page.index === 0}
+            disabled={props.page.index === 0}
             onClick={() => setPageIndex(0)}
         >⏪</Button>
 
         <Button
-            disabled={page.index === 0}
-            onClick={() => setPageIndex(--page.index)}
+            disabled={props.page.index === 0}
+            onClick={() => setPageIndex(--props.page.index)}
         >◀</Button>
 
-        <p>Page {page.index + 1} of {Math.ceil(props.list.length / page.count)}</p>
+        <p>Page {props.page.index + 1} of {Math.ceil(props.list.length / props.page.count)}</p>
 
         <Button
-            disabled={page.index === Math.floor(props.list.length / page.count)}
-            onClick={() => setPageIndex(++page.index)}
+            disabled={props.page.index === Math.floor(props.list.length / props.page.count)}
+            onClick={() => setPageIndex(++props.page.index)}
         >▶</Button>
 
         <Button
-            disabled={page.index === Math.floor(props.list.length / page.count)}
-            onClick={() => setPageIndex(Math.floor(props.list.length / page.count))}
+            disabled={props.page.index === Math.floor(props.list.length / props.page.count)}
+            onClick={() => setPageIndex(Math.floor(props.list.length / props.page.count))}
         >⏩</Button>
 
         <p>{props.list.length} records</p>

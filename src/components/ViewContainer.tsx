@@ -4,19 +4,17 @@ import clsx from "clsx";
 
 import React from "react";
 import { useEffect, useState } from "react";
-import { setOptionsUICallback, useChainID } from "../pages/_app";
+import { clearOptionsUICallback, setOptionsUICallback, useChainID } from "../pages/_app";
 import { OptionWithAsset } from "../../models/option";
 import { network } from "../utils/metamask";
 import { filterParams } from "./FilterBox";
 import TableView, { TableViewLimits } from "./TableView";
 import ListView, { ListViewLimits } from "./ListView";
 import { Tab, Tabs } from "@mui/material";
-import FooterNavigation, { page } from "./FooterNavigation";
-import ViewSettings, { view, ViewTypes } from "./ViewSettings";
+import FooterNavigation, { getViewLimitIndexFromStorage, ViewPage } from "./FooterNavigation";
+import ViewSettings, { getViewSettingsFromStorage, ViewConfig, ViewTypes } from "./ViewSettings";
 import { doFilter, optionsByStateFiltered, OptionStateViewed } from "../../datasources/filtering";
-import { contracts } from "../../datasources/NFTOpt";
-import { loadAll } from "../../datasources/options";
-import { setNFTOptUICallback } from "../controllers/NFTOpt";
+import { clearNFTOptUICallback, setNFTOptUICallback } from "../controllers/NFTOpt";
 
 const tabs =
 [
@@ -42,7 +40,7 @@ let optionViewState = OptionStateViewed.REQUEST;
 
 let _updateViewCallback : () => void;
 
-const setSelectedOption = (obj: OptionWithAsset | null) =>
+let setSelectedOption = (obj: OptionWithAsset | null) =>
 {
     selectedOption = obj;
 
@@ -66,14 +64,14 @@ const setSelectedOption = (obj: OptionWithAsset | null) =>
 
 let _setViewedOptionsCallback : (list : OptionWithAsset[]) => void;
 
-const handleFiltered = () =>
+let handleFiltered = () =>
 {
     console.log("filtered");
 
     doFilter(optionViewState, filterParams).then(_setViewedOptionsCallback);
 }
 
-const renderStatusText = (hasItems : boolean, activeTabIndex : number) =>
+let renderStatusText = (hasItems : boolean, activeTabIndex : number) =>
 {
     if (hasItems) return <></>;
 
@@ -104,7 +102,7 @@ const renderStatusText = (hasItems : boolean, activeTabIndex : number) =>
     return <p className={classes.noOptions}>{getStatus()}</p>;
 }
 
-const renderList = (options : OptionWithAsset[]) =>
+let renderList = (options : OptionWithAsset[]) =>
 {
     let startIndex = page.index * page.count;
     let props =
@@ -120,35 +118,57 @@ const renderList = (options : OptionWithAsset[]) =>
     return view.type === ViewTypes.ROWLIST ? <TableView { ... props} /> : <ListView { ... props} />;
 }
 
+let doClean = () => { clearOptionsUICallback(), clearNFTOptUICallback(); }
+
+let hasItems : boolean;
+let chainID  : number;
+
+let view : ViewConfig =
+{
+    type  : ViewTypes.CARDLIST
+,   state : 0
+};
+
+let page : ViewPage =
+{
+    index: 0
+,   count: 0
+};
+
 function ViewContainer()
 {
+    const [                , setSelectedOptionChanged ] = useState(0);
     const [ activeTabIndex , setActiveTabIndex ]        = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
     const [ viewedOptions  , setViewedOptions ]         = useState<OptionWithAsset[]>([]);
-    const [                , setSelectedOptionChanged ] = useState(0);
 
-    const updateView  = () => setSelectedOptionChanged(f => f ^ 1);
-
-    const chainID = useChainID();
-
+    _updateViewCallback       = () => setSelectedOptionChanged(f => f ^ 1);
     _setViewedOptionsCallback = setViewedOptions;
-    _updateViewCallback       = updateView;
 
-    setOptionsUICallback(handleFiltered);
-
-    const hasItems = viewedOptions ? viewedOptions.length !== 0 : false;
+    chainID  = useChainID();
+    hasItems = viewedOptions ? viewedOptions.length !== 0 : false;
 
     useEffect
     (
         () =>
         {
-            if (!network())
-            {
-                setNFTOptUICallback(() => {});
+            view = getViewSettingsFromStorage();
 
-                return;
-            }
+            page.count = (ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits)[getViewLimitIndexFromStorage()];
+        }
+    ,   []
+    );
 
+    useEffect
+    (
+        () =>
+        {
+            if (!network()) { doClean(); return; }
+
+            setOptionsUICallback(handleFiltered);
             setNFTOptUICallback(handleFiltered);
+
+            // Cleanup on unmount
+            return () => doClean();
         }
     ,   [chainID]
     );
@@ -183,9 +203,10 @@ function ViewContainer()
             {
                 view.type !== ViewTypes.DETAIL &&
                 <ViewSettings
+                    view={view}
                     list={viewedOptions}
                     selectedValue={selectedOption}
-                    onViewChanged={updateView}
+                    onViewChanged={_updateViewCallback}
                     onFilter={handleFiltered}
                 />
             }
@@ -204,9 +225,10 @@ function ViewContainer()
         {
             hasItems && view.type !== ViewTypes.DETAIL &&
             <FooterNavigation
+                page={page}
                 list={viewedOptions}
-                rowViewLimitList={view.type === ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits}
-                onNavigate={updateView}
+                recordLimits={view.type === ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits}
+                onNavigate={_updateViewCallback}
             />
         }
     </>;
