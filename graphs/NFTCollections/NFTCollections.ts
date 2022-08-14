@@ -1,33 +1,36 @@
-import { events, transactions } from '@amxx/graphprotocol-utils'
 import { Address } from '@graphprotocol/graph-ts'
-import { ERC721Transfer } from './generated/schema'
 import { Transfer as TransferEvent } from './generated/ERC721Entity'
-import { fetchAccount } from '../../datasources/graph/account'
-import { fetchERC721, fetchERC721Token } from '../../datasources/graph/ERC721'
+
+import {
+    Account,
+    ERC721Token
+ } from './generated/schema'
+
+function fetchAccount(address: Address): Account
+{
+    let account = Account.load(address);
+    if (account) return account;
+
+    account = new Account(address);
+    account.save();
+
+    return account;
+}
 
 export function handleTransfer(event: TransferEvent): void
 {
-    let contract = fetchERC721(event.address);
+    let account = fetchAccount(event.params.to).id;
 
-    if (contract == null) return;
+    let address = event.address;
+    let tokenID = event.params.tokenId;
+    let id      = address.toHex().concat('/').concat(tokenID.toHex());
 
-    let token = fetchERC721Token(contract, event.params.tokenId);
-    let from  = fetchAccount(event.params.from);
-    let to    = fetchAccount(event.params.to);
+    let token = ERC721Token.load(id);
+    if (!token) token = new ERC721Token(id);
 
-    token.owner    = to.id;
-    token.approval = fetchAccount(Address.zero()).id; // implicit approval reset on transfer
+    token.identifier = tokenID;
+    token.contract   = address;
+    token.owner      = account;
 
-    contract.save();
     token.save();
-
-    let ev         = new ERC721Transfer(events.id(event));
-    ev.emitter     = contract.id;
-    ev.transaction = transactions.log(event).id;
-    ev.timestamp   = event.block.timestamp;
-    ev.contract    = contract.id;
-    ev.token       = token.id;
-    ev.from        = from.id;
-    ev.to          = to.id;
-    ev.save();
 }
