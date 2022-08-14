@@ -19,6 +19,20 @@ import Header from "../components/Header";
 import { Toaster } from "react-hot-toast";
 import { NFTAsset } from "../../models/NFTAsset";
 
+export const requestChangingIDs = {};
+export const optionChangingIDs  = {};
+
+export const useAccount  = () => useContext(AccountContext);
+export const useChainID  = () => useContext(ChainIDContext);
+export const useRequests = () => useContext(RequestsContext);
+export const useOptions  = () => useContext(OptionsContext);
+
+export const setOptionsUICallback   = (cb : () => void) => _OptionsUICallback = cb;
+export const clearOptionsUICallback = () => _OptionsUICallback = () => {};
+
+export const setCollectionsUICallback   = (cb : (arr : NFTAsset[]) => void) => _CollectionsUICallback = cb;
+export const clearCollectionsUICallback = () => _CollectionsUICallback = () => {};
+
 type ContextType =
 {
     transactions : {}       // Transactions where requests have had state changes
@@ -29,21 +43,8 @@ const AccountContext  = createContext("");
 const RequestsContext = createContext<ContextType>({} as unknown as ContextType);
 const OptionsContext  = createContext<ContextType>({} as unknown as ContextType);
 
-export const requestChangingIDs = {};
-export const optionChangingIDs  = {};
-
-export let onLoadCallbacks = [] as (() => void)[];
-
-export const useAccount  = () => useContext(AccountContext);
-export const useChainID  = () => useContext(ChainIDContext);
-export const useRequests = () => useContext(RequestsContext);
-export const useOptions  = () => useContext(OptionsContext);
-
 let _OptionsUICallback     : () => void;
 let _CollectionsUICallback : (arr : NFTAsset[]) => void;
-
-export const setOptionsUICallback     = (cb : () => void) => _OptionsUICallback     = cb;
-export const setCollectionsUICallback = (cb : (arr : NFTAsset[]) => void) => _CollectionsUICallback = cb;
 
 export default function App({ Component, pageProps }: AppProps)
 {
