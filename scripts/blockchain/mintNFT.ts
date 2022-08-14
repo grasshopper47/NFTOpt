@@ -15,7 +15,7 @@ let contractAddresses =
 
 let maxIndex = contractAddresses.length;
 
-export async function mintNFT()
+async function mintNFT()
 {
     const [ buyer ] = await ethers.getSigners();
 

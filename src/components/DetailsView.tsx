@@ -10,7 +10,7 @@ import { isExpired } from "../../datasources/options";
 import { OptionState} from "../../models/enums";
 import { OptionWithAsset } from "../../models/option";
 import { ADDRESS0 } from "../../utils/constants";
-import { connected, scanner, signer } from "../utils/metamask";
+import { connected, provider, scanner, signer } from "../utils/metamask";
 import { flavorLabels, eventLabels } from "../utils/labels";
 import { dismissLastToast, showToast } from "../utils/toasting";
 import Button_DetailsView from "../fragments/Button.DetailsView";
@@ -88,7 +88,7 @@ function DetailsView(props: Props)
 
             if (option.state !== OptionState.OPEN) return;
 
-            contract = getCachedContract(option.asset.key.nftContract);
+            contract = getCachedContract(option.asset.key.nftContract, provider());
 
             contract.getApproved(option.asset.key.nftId).then( address => checkAndSetApproved(address, contract) );
         }

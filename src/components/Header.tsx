@@ -64,7 +64,7 @@ function Header()
     routes = [];
 
     if ( network() && connected() ) routes.push(... routesWithSigner);
-    else if (hasProvider) routes.push(... routesReadOnly);
+    if (hasProvider) routes.push(... routesReadOnly);
 
     return <div className={classes.root}>
         <Link key="route-link-main" href="/">

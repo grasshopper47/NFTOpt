@@ -3,6 +3,8 @@ import addresses from "../../addresses.json";
 import NFTOptSolContract from "../../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
 import { NFTOpt } from "../../typechain-types";
 import { BIGNUMBER0 } from "../../utils/constants";
+import { assetsOf, loadAssetsFor } from "../../datasources/assets";
+import { NFTAsset } from "../../models/NFTAsset";
 
 let contractAddresses =
 [
@@ -17,7 +19,7 @@ let contractAddresses =
 
 let maxIndex = contractAddresses.length;
 
-const generateRequest = () =>
+const generateRequest = (assets : NFTAsset[]) =>
 {
     let nftContract = contractAddresses[Math.floor(Math.random() * maxIndex)];
     let nftId       = Math.floor(Math.random() * 4) + 1;
@@ -34,9 +36,12 @@ const generateRequest = () =>
 
     let flavor = Math.floor(Math.random() * 2);
 
+    let i = Math.floor(Math.random() * assets.length);
+    console.log(i, assets.length);
+
     return {
-        nftContract : nftContract
-    ,   nftId       : nftId
+        nftContract : assets[i].key.nftContract
+    ,   nftId       : assets[i].key.nftId
     ,   strikePrice : strikePrice
     ,   interval    : interval * 86400
     ,   flavor      : flavor
@@ -44,9 +49,12 @@ const generateRequest = () =>
     };
 }
 
-export async function publishRequests()
+async function publishRequests()
 {
     const [ buyer ] = await ethers.getSigners();
+
+    await loadAssetsFor(buyer.address, ethers.provider);
+    let assets = assetsOf(buyer.address);
 
     // Create completely new instance with the default provider (readonly)
     const NFTOpt =
@@ -62,42 +70,30 @@ export async function publishRequests()
 
     console.log(`Publishing ${max} requests ...`);
 
-    // while (++i !== max)
-    // {
-    //     const request = generateRequest();
+    while (++i !== max)
+    {
+        const request = generateRequest(assets);
 
-    //     NFTOpt.connect(buyer).publishRequest
-    //     (
-    //         request.nftContract
-    //     ,   request.nftId
-    //     ,   request.strikePrice
-    //     ,   request.interval
-    //     ,   request.flavor
-    //     ,   {
-    //             value: request.premium
-    //         ,   gasLimit: 500_000
-    //         }
-    //     );
-    // }
+        NFTOpt.connect(buyer).publishRequest
+        (
+            request.nftContract
+        ,   request.nftId
+        ,   request.strikePrice
+        ,   request.interval
+        ,   request.flavor
+        ,   {
+                value: request.premium
+            ,   gasLimit: 500_000
+            }
+        );
+    }
 
-    const request = generateRequest();
+    const request = generateRequest(assets);
 
-    // await NFTOpt.connect(buyer).publishRequest
-    // (
-    //     request.nftContract
-    // ,   request.nftId
-    // ,   request.strikePrice
-    // ,   request.interval
-    // ,   request.flavor
-    // ,   {
-    //         value: request.premium
-    //     ,   gasLimit: 500_000
-    //     }
-    // );
     await NFTOpt.connect(buyer).publishRequest
     (
-        addresses.localhost.AN_NFT
-    ,   1
+        request.nftContract
+    ,   request.nftId
     ,   request.strikePrice
     ,   request.interval
     ,   request.flavor

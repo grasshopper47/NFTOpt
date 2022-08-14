@@ -9,7 +9,7 @@ import { Avatar, Button, ListItem, ListItemAvatar, ListItemText, ListSubheader }
 import { List } from '@mui/material';
 import { AssetKey } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
-import { network, signer } from "../utils/metamask";
+import { network, provider, signer } from "../utils/metamask";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
 import { clearOptionsUICallback, setCollectionsUICallback, useAccount, useChainID } from "../pages/_app";
 import { assetsOf, loadAssetsFor } from "../../datasources/assets";
@@ -26,7 +26,7 @@ let setAsset = (obj? : NFTAsset | null) =>
 
 let handleMint = () => showToast
 (
-    getCachedContract(asset.key.nftContract)
+    getCachedContract(asset.key.nftContract, provider())
     .connect(signer())
     .mint()
     .then( () => setAsset(null) )
@@ -96,7 +96,7 @@ function MintForm()
         {
             if (!network()) return;
 
-            loadAssetsFor(account).then(assetsChanged);
+            loadAssetsFor(account, provider()).then(assetsChanged);
         }
     ,   [account]
     );
