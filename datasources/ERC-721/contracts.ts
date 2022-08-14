@@ -1,13 +1,12 @@
 import { ethers } from "ethers";
 import { ABIs } from "../../utils/constants";
-import { provider } from "../../src/utils/metamask";
 
-let NFTContractsCache = {};
+let NFTContractsCache : any = {};
 export const clearContractsCache = () => NFTContractsCache = {};
 
 export const addContractToCache = (address : string, contract : any) => NFTContractsCache[address] = contract;
 
-export function getCachedContract(address : string)
+export function getCachedContract(address : string, provider : any)
 {
     let contract = NFTContractsCache[address];
 
@@ -26,7 +25,7 @@ export function getCachedContract(address : string)
         ,   ABIs.ERC721.Events.Approval
         ,   ABIs.ERC721.Events.Transfer
         ]
-    ,   provider()
+    ,   provider
     );
 
     NFTContractsCache[address] = contract;
