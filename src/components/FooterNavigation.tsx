@@ -16,8 +16,6 @@ export const getViewLimitIndexFromStorage = () =>
     return parseInt(localStorage[itemLimitStorageKey] ?? 0);
 }
 
-let itemLimitIndex = 0;
-
 const itemLimitStorageKey = "ItemLimit";
 
 type Props =
@@ -43,8 +41,6 @@ let setPageCount = (event: any) =>
 
     localStorage[itemLimitStorageKey] = index;
 
-    itemLimitIndex = index;
-
     _propsPtr.page.count = _propsPtr.recordLimits[index];
 
     let maxPageCount = Math.floor(_propsPtr.list.length / _propsPtr.page.count);
@@ -62,7 +58,7 @@ function FooterNavigation(props: Props)
         <Select
             MenuProps={{ classes: { paper: classes.dropDown } }}
             className={classes.dropDown}
-            value={props.recordLimits.length > 0 ? itemLimitIndex : ''}
+            value={localStorage[itemLimitStorageKey]}
             onChange={setPageCount}
         >
             {
