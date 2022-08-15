@@ -16,8 +16,6 @@ type Props =
 ,   onSorted       : (list: OptionWithAsset[]) => void
 };
 
-export const TableViewLimits = [ 10, 20, 50 ];
-
 let sortList : (sorter : (a1: OptionWithAsset, a2: OptionWithAsset) => number) => void;
 
 let header =
@@ -29,10 +27,10 @@ let header =
         <p onClick={ () => sortList( (a, b) => b.asset.name.localeCompare(a.asset.name) ) }
         >Name</p>
 
-        <p onClick={ () => sortList( (a, b) => b.premium.toString().localeCompare(a.premium.toString()) ) }
+        <p onClick={ () => sortList( (a, b) => parseFloat(b.premium.sub(a.premium).toString()) ) }
         >Premium</p>
 
-        <p onClick={ () => sortList( (a, b) => b.strikePrice.toString().localeCompare(a.strikePrice.toString()) ) }
+        <p onClick={ () => sortList( (a, b) => parseFloat(b.strikePrice.sub(a.strikePrice).toString()) ) }
         >Strike Price</p>
 
         <p onClick={ () => sortList( (a, b) => b.interval - a.interval ) }

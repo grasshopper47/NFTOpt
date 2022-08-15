@@ -1,8 +1,7 @@
 // @ts-ignore
 import classes from "../components/styles/FilterBox.module.scss";
 
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { TextField } from "@mui/material";
 
 type Props =

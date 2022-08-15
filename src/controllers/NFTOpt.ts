@@ -5,8 +5,8 @@ import { blockNumber, setBlockNumber } from "../../datasources/blockNumber";
 import { createOptionFromRequest, loadOne, withdrawRequest, cancelOption, exerciseOption } from "../../datasources/options";
 import { eventLabels } from "../utils/labels";
 import { dismissLastToast, TOAST_DURATION } from "../utils/toasting";
-import { optionChangingIDs, requestChangingIDs } from "../pages/_app";
 import toast from "react-hot-toast";
+import { requestChangingIDs, optionChangingIDs } from "../utils/contexts";
 
 export const requestIDsTransactions = {};
 export const optionIDsTransactions  = {};

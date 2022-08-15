@@ -11,9 +11,9 @@ import { AssetKey } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
 import { network, provider, signer } from "../utils/metamask";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
-import { clearOptionsUICallback, setCollectionsUICallback, useAccount, useChainID } from "../pages/_app";
 import { assetsOf, loadAssetsFor } from "../../datasources/assets";
 import { clearNFTCollectionsUICallback, setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
+import { clearOptionsUICallback, useAccount, useChainID, setCollectionsUICallback } from "../utils/contexts";
 
 let _setImageCallback : (img : string) => void;
 

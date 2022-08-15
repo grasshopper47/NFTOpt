@@ -3,22 +3,12 @@ import classes from "./styles/FilterBox.module.scss";
 import clsx from "clsx";
 
 import React, { useState } from "react";
+import { filterParams, resetFilterParams } from "../../datasources/filtering";
 import { connected } from "../utils/metamask";
 import { getFloatString, getIntervalString } from "../utils/helpers";
+import { useAccount } from "../utils/contexts";
 import Row_FilterBox from "../fragments/Row.FilterBox";
 import { Button, FormControlLabel, Switch } from "@mui/material";
-import { FilterParams } from "../../datasources/filtering";
-import { useAccount } from "../pages/_app";
-
-export let filterParams = { } as FilterParams;
-
-const resetFilterParams = () =>
-{
-    filterParams.account     = "";
-    filterParams.premium     = { min: "", max: "" };
-    filterParams.strikePrice = { min: "", max: "" };
-    filterParams.interval    = { min: "", max: "" };
-}
 
 resetFilterParams();
 

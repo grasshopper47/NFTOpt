@@ -5,9 +5,9 @@ import clsx from "clsx";
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useAccount } from "../pages/_app";
 import { connected, connectWallet, network, provider } from "../utils/metamask";
 import { getAccountDisplayValue } from "../utils/helpers";
+import { useAccount } from "../utils/contexts";
 import ThemeSwitch from "../fragments/ThemeSwitch.Header";
 import Button from "@mui/material/Button";
 
@@ -53,7 +53,7 @@ function Header()
     (
         () =>
         {
-            if (!connected() && routesWithSigner.find(r => r.href == router.pathname) != null) router.replace("/mint", "/404");
+            if (hasProvider && !connected() && routesWithSigner.find(r => r.href == router.pathname) != null) router.replace("/mint", "/404");
             if (router.pathname !== "/explore") document.body.onclick = null;
         }
     ,   [router.pathname]

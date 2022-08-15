@@ -4,28 +4,9 @@ import clsx from "clsx";
 
 import React, { useEffect, useState } from "react";
 import { OptionWithAsset } from "../../models/option";
+import { ListViewStates, storeViewState, storeViewType, ViewConfig, ViewTypes } from "../utils/view";
 import FilterBox from "./FilterBox";
-import { ListViewStates } from "./ListView";
 import { Button, MenuItem, Select } from "@mui/material";
-
-const viewTypeStorageKey  = "ViewType";
-const viewStateStorageKey = "ViewState";
-
-export enum ViewTypes { CARDLIST, ROWLIST, DETAIL };
-
-export type ViewConfig =
-{
-    type  : ViewTypes
-,   state : number
-}
-
-export const getViewSettingsFromStorage = () =>
-{
-    return {
-        type  : parseInt(localStorage[viewTypeStorageKey] ?? ViewTypes.CARDLIST)
-    ,   state : parseInt(localStorage[viewStateStorageKey] ?? 0)
-    };
-}
 
 type Props =
 {
@@ -36,19 +17,18 @@ type Props =
 ,   onFilter       : () => void
 };
 
-let _propsPtr : Props;
-
 let handleViewStateChanged = (event : any) =>
 {
     let index = event.target.value;
 
-    localStorage[viewStateStorageKey] = index;
+    storeViewState(index);
 
     _propsPtr.view.state = index;
 
     _propsPtr.onViewChanged();
 }
 
+let _propsPtr : Props;
 let hasItems : boolean;
 
 function ViewSettings(props: Props)
@@ -101,7 +81,7 @@ function ViewSettings(props: Props)
                         {
                             props.view.type ^= 1;
 
-                            localStorage[viewTypeStorageKey] = props.view.type;
+                            storeViewType(props.view.type);
                         }
 
                         props.onViewChanged();

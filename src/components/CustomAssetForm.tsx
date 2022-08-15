@@ -3,12 +3,12 @@ import classes from "./styles/RequestForm.module.scss";
 import clsx from "clsx";
 
 import React, { useState } from "react";
-import { useAccount } from "../pages/_app";
 import { TextField, Button } from "@mui/material";
 import { assetsOf, getNFTAsset } from "../../datasources/assets";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
 import { AssetKey, isValid, stringOf } from "../../models/assetKey";
 import { provider } from "../utils/metamask";
+import { useAccount } from "../utils/contexts";
 
 let newAssetKey = {} as AssetKey;
 

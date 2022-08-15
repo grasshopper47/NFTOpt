@@ -4,19 +4,7 @@ import classes from "./styles/FooterNavigation.module.scss";
 import React from "react";
 import { OptionWithAsset } from "../../models/option";
 import { Button, MenuItem, Select } from "@mui/material";
-
-export type ViewPage =
-{
-    index : number
-,   count : number
-};
-
-export const getViewLimitIndexFromStorage = () =>
-{
-    return parseInt(localStorage[itemLimitStorageKey] ?? 0);
-}
-
-const itemLimitStorageKey = "ItemLimit";
+import { getViewLimitIndexFromStorage, storeViewRecordsLimitIndex, ViewPage } from "../utils/view";
 
 type Props =
 {
@@ -39,7 +27,7 @@ let setPageCount = (event: any) =>
 {
     let index = event.target.value;
 
-    localStorage[itemLimitStorageKey] = index;
+    storeViewRecordsLimitIndex(index);
 
     _propsPtr.page.count = _propsPtr.recordLimits[index];
 
@@ -58,7 +46,7 @@ function FooterNavigation(props: Props)
         <Select
             MenuProps={{ classes: { paper: classes.dropDown } }}
             className={classes.dropDown}
-            value={localStorage[itemLimitStorageKey]}
+            value={getViewLimitIndexFromStorage()}
             onChange={setPageCount}
         >
             {

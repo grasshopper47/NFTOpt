@@ -4,7 +4,6 @@ import clsx from "clsx";
 
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
-import { useAccount, useChainID } from "../pages/_app";
 import { Request_DISPLAY } from "../../models/request";
 import { OptionFlavor } from "../../models/enums";
 import { SECONDS_IN_A_DAY } from "../../utils/constants";
@@ -22,6 +21,7 @@ import { assetsOf, loadAssetsFor } from "../../datasources/assets";
 import { contracts } from "../../datasources/NFTOpt";
 import { network, provider } from "../utils/metamask";
 import { setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
+import { useAccount, useChainID } from "../utils/contexts";
 
 let request  = {} as Request_DISPLAY;
 let assetKey = {} as AssetKey

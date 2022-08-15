@@ -2,20 +2,19 @@
 import classes from "./styles/ViewContainer.module.scss";
 import clsx from "clsx";
 
-import React from "react";
-import { useEffect, useState } from "react";
-import { clearOptionsUICallback, setOptionsUICallback, useChainID } from "../pages/_app";
-import { OptionWithAsset } from "../../models/option";
-import { network } from "../utils/metamask";
-import { filterParams } from "./FilterBox";
-import TableView, { TableViewLimits } from "./TableView";
-import ListView, { ListViewLimits } from "./ListView";
-import { Tab, Tabs } from "@mui/material";
-import FooterNavigation, { getViewLimitIndexFromStorage, ViewPage } from "./FooterNavigation";
-import ViewSettings, { getViewSettingsFromStorage, ViewConfig, ViewTypes } from "./ViewSettings";
-import { doFilter, optionsByStateFiltered, OptionStateViewed } from "../../datasources/filtering";
-import { clearNFTOptUICallback, setNFTOptUICallback } from "../controllers/NFTOpt";
+import React, { useEffect, useState } from "react";
 import { optionsChanged, requestsChanged } from "../../datasources/options";
+import { doFilter, filterParams, optionsByStateFiltered, OptionStateViewed } from "../../datasources/filtering";
+import { OptionWithAsset } from "../../models/option";
+import { clearNFTOptUICallback, setNFTOptUICallback } from "../controllers/NFTOpt";
+import { clearOptionsUICallback, setOptionsUICallback, useChainID } from "../utils/contexts";
+import { ViewTypes, ViewPage, ViewConfig, getViewSettingsFromStorage, getViewLimitIndexFromStorage, ListViewLimits, TableViewLimits } from "../utils/view";
+import { network } from "../utils/metamask";
+import TableView from "./TableView";
+import ListView from "./ListView";
+import FooterNavigation from "./FooterNavigation";
+import ViewSettings from "./ViewSettings";
+import { Tab, Tabs } from "@mui/material";
 
 const tabs =
 [

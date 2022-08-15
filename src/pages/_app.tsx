@@ -3,7 +3,7 @@ import "./styles/_app.scss";
 import React from 'react';
 import Head from "next/head";
 import { AppProps } from "next/app";
-import { createContext, useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import { clearContractsCache } from "../../datasources/ERC-721/contracts";
 import { clearImages } from "../../datasources/ERC-721/images";
@@ -12,39 +12,12 @@ import { clearAssets } from "../../datasources/assets";
 import { clearNFTOptCollections, createNFTOptCollectionsInstances, loadNFTOptCollectionsItems } from "../../datasources/ERC-721/NFTOptCollections";
 import { clearRequests, clearOptions, loadAll } from "../../datasources/options";
 import { attachNFTCollectionsHandlersToInstances } from "../controllers/NFTOptCollections";
-import { attachNFTOptHandlersToInstance, optionIDsTransactions, requestIDsTransactions } from "../controllers/NFTOpt";
+import { attachNFTOptHandlersToInstance } from "../controllers/NFTOpt";
 import { connected, connectWallet, hookMetamask, network, provider, signer } from "../utils/metamask";
 
 import Header from "../components/Header";
 import { Toaster } from "react-hot-toast";
-import { NFTAsset } from "../../models/NFTAsset";
-
-export const requestChangingIDs = {};
-export const optionChangingIDs  = {};
-
-export const useAccount  = () => useContext(AccountContext);
-export const useChainID  = () => useContext(ChainIDContext);
-export const useRequests = () => useContext(RequestsContext);
-export const useOptions  = () => useContext(OptionsContext);
-
-export const setOptionsUICallback   = (cb : () => void) => _OptionsUICallback = cb;
-export const clearOptionsUICallback = () => _OptionsUICallback = () => {};
-
-export const setCollectionsUICallback   = (cb : (arr : NFTAsset[]) => void) => _CollectionsUICallback = cb;
-export const clearCollectionsUICallback = () => _CollectionsUICallback = () => {};
-
-type ContextType =
-{
-    transactions : {}       // Transactions where requests have had state changes
-};
-
-const ChainIDContext  = createContext(0);
-const AccountContext  = createContext("");
-const RequestsContext = createContext<ContextType>({} as unknown as ContextType);
-const OptionsContext  = createContext<ContextType>({} as unknown as ContextType);
-
-let _OptionsUICallback     : () => void;
-let _CollectionsUICallback : (arr : NFTAsset[]) => void;
+import { AccountContext, ChainIDContext, CollectionsUICallback, OptionsUICallback } from "../utils/contexts";
 
 export default function App({ Component, pageProps }: AppProps)
 {
@@ -88,8 +61,8 @@ export default function App({ Component, pageProps }: AppProps)
             attachNFTCollectionsHandlersToInstances(contracts.Collections);
 
             // Load data
-            loadAll(contracts.NFTOpt).then(_OptionsUICallback);
-            loadNFTOptCollectionsItems(network()).then(_CollectionsUICallback);
+            loadAll(contracts.NFTOpt).then(OptionsUICallback);
+            loadNFTOptCollectionsItems(network()).then(CollectionsUICallback);
         }
     ,   [chainID]
     );
@@ -119,23 +92,8 @@ export default function App({ Component, pageProps }: AppProps)
         <ChainIDContext.Provider value={chainID}>
         <AccountContext.Provider value={account}>
 
-        <RequestsContext.Provider
-            value=
-            {{ transactions : requestIDsTransactions
-            }}
-        >
-
-        <OptionsContext.Provider
-            value=
-            {{ transactions : optionIDsTransactions
-            }}
-        >
-
             <Header/>
             { provider() && <Component {...pageProps} /> }
-
-        </OptionsContext.Provider>
-        </RequestsContext.Provider>
 
         </AccountContext.Provider>
         </ChainIDContext.Provider>
