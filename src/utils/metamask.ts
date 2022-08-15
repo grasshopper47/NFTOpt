@@ -71,6 +71,7 @@ function _handleNetworkChanged(id : string)
 
     if (id_ === NaN)
     {
+        setNetwork(-1);
         setProvider(null as any);
         console.log("MetaMasK: connect a blockchain node");
         return;
