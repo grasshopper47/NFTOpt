@@ -73,7 +73,9 @@ function _handleNetworkChanged(id : string)
     {
         setNetwork(-1);
         setProvider(null as any);
+
         console.log("MetaMasK: connect a blockchain node");
+
         return;
     }
 
