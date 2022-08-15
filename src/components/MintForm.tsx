@@ -5,6 +5,7 @@ import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import { network } from "../../datasources/provider";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
+import { NFTOptCollections } from "../../datasources/ERC-721/NFTOptCollections";
 import { assetsOf, loadAssetsFor } from "../../datasources/assets";
 import { AssetKey } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
@@ -65,7 +66,7 @@ function MintForm()
 {
     const [             , setAssetsChanged ] = useState(0);
     const [ image       , setImage ]         = useState(asset.image);
-    const [ collections , setCollections ]   = useState<NFTAsset[]>([]);
+    const [ collections , setCollections ]   = useState<NFTAsset[]>(NFTOptCollections);
 
     const assetsChanged = () => setAssetsChanged(f => f ^ 1);
 
