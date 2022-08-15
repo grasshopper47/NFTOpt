@@ -7,7 +7,6 @@ import { TextField, Button } from "@mui/material";
 import { assetsOf, getNFTAsset } from "../../datasources/assets";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
 import { AssetKey, isValid, stringOf } from "../../models/assetKey";
-import { provider } from "../utils/metamask";
 import { useAccount } from "../utils/contexts";
 
 let newAssetKey = {} as AssetKey;
@@ -58,7 +57,7 @@ function CustomAssetForm(props : Props)
             return;
         }
 
-        let contract = getCachedContract(newAssetKey.nftContract, provider());
+        let contract = getCachedContract(newAssetKey.nftContract);
         contract.ownerOf(newAssetKey.nftId).then
         (
             owner =>

@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { provider, setProvider } from "../../datasources/provider";
 import { setBlockNumber } from "../../datasources/blockNumber";
 import toast from "react-hot-toast";
 
@@ -8,7 +9,6 @@ declare var window : Window & { ethereum?: any; };
 export const network   = () => _network;
 export const scanner   = () => _scanner;
 export const connected = () => _connected;
-export const provider  = () => _provider;
 export const signer    = () => _signer;
 
 export function hookMetamask
@@ -50,6 +50,7 @@ function _accountChanged(account : string)
     _connected = account != null && account.length !== 0;
     if (!_connected) console.log("MetaMasK: connect an account");
 
+    // Trigger UI update
     _setAccount(account);
     console.log("setAccount", account);
 }
@@ -72,13 +73,13 @@ function _handleNetworkChanged(id : string)
         return;
     }
 
-    _network  = _networks[id_];
-    _scanner  = _scanners[id_];
-    _provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-    _signer   = _provider.getSigner();
+    setProvider(new ethers.providers.Web3Provider(window.ethereum, "any"));
+    provider.getBlockNumber().then(setBlockNumber);
+    _network = _networks[id_];
+    _scanner = _scanners[id_];
+    _signer  = _provider.getSigner();
 
-    _provider.getBlockNumber().then(setBlockNumber);
-
+    // Trigger UI update
     _setChainID(id_);
 
     if (_network) console.log("setChain", _network);

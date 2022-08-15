@@ -4,22 +4,22 @@ import clsx from "clsx";
 
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
+import { contracts } from "../../datasources/NFTOpt";
+import { assetsOf, loadAssetsFor } from "../../datasources/assets";
+import { imageOf, loadImage } from "../../datasources/ERC-721/images";
+import { AssetKey, isValid, stringOf } from "../../models/assetKey";
+import { NFTAsset } from "../../models/NFTAsset";
 import { Request_DISPLAY } from "../../models/request";
 import { OptionFlavor } from "../../models/enums";
 import { SECONDS_IN_A_DAY } from "../../utils/constants";
 import { getFloatString, getIntervalString } from "../utils/helpers";
 import { showToast } from "../utils/toasting";
+import { network } from "../utils/metamask";
 import TextBox_RequestForm from "../fragments/TextBox.Request";
 import DropDown_RequestForm from "../fragments/DropDown.Assets.RequestForm";
 import DropDown_Flavor_RequestForm from "../fragments/DropDown.Flavor.RequestForm";
 import CustomAssetForm from "./CustomAssetForm";
 import { Button, SelectChangeEvent } from "@mui/material";
-import { imageOf, loadImage } from "../../datasources/ERC-721/images";
-import { AssetKey, isValid, stringOf } from "../../models/assetKey";
-import { NFTAsset } from "../../models/NFTAsset";
-import { assetsOf, loadAssetsFor } from "../../datasources/assets";
-import { contracts } from "../../datasources/NFTOpt";
-import { network, provider } from "../utils/metamask";
 import { setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
 import { useAccount, useChainID } from "../utils/contexts";
 
@@ -71,7 +71,7 @@ const setAsset = (asset : NFTAsset | undefined | null) =>
     let image = imageOf(assetKey);
 
     if (image) _setImageCallback(image);
-    else       loadImage(assetKey, provider()).then( img => { asset.image = img; _setImageCallback(img); } );
+    else       loadImage(assetKey).then( img => { asset.image = img; _setImageCallback(img); } );
 };
 
 let _requestChangedCallback : () => void;
@@ -150,7 +150,7 @@ function RequestForm()
         {
             if (!network()) return;
 
-            loadAssetsFor(account, provider()).then(assetsChanged);
+            loadAssetsFor(account).then(assetsChanged);
         }
     ,   [account]
     );

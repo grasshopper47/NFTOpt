@@ -5,7 +5,8 @@ import clsx from "clsx";
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { connected, connectWallet, network, provider } from "../utils/metamask";
+import { provider } from "../../datasources/provider";
+import { connected, connectWallet, network } from "../utils/metamask";
 import { getAccountDisplayValue } from "../utils/helpers";
 import { useAccount } from "../utils/contexts";
 import ThemeSwitch from "../fragments/ThemeSwitch.Header";
@@ -59,7 +60,7 @@ function Header()
     ,   [router.pathname]
     );
 
-    hasProvider = provider() != null;
+    hasProvider = provider != null;
 
     routes = [];
 
