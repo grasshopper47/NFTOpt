@@ -35,36 +35,34 @@ export async function connectWallet()
 {
     connecting = true;
 
-    window.ethereum
-    .request({ method: "eth_requestAccounts" })
+    window.ethereum.request({ method: "eth_requestAccounts" })
     .then(_handleSignerChanged)
     .catch
     (
         (err: { code: number; }) =>
         {
-            if (err.code === 4001)   { toast.error("User rejected connection"); }
-            if (err.code === -32002) { toast.error("Connection request in progress"); }
-
-            connecting = false;
+            if (err.code === 4001)   { toast.error("User rejected connection");       return; }
+            if (err.code === -32002) { toast.error("Connection request in progress"); return; }
         }
-    );
+    )
+    .then( () => connecting = false );
 }
 
 function _accountChanged(account : string)
 {
-    connected  = account != null && account.length !== 0;
-    connecting = false;
+    connected = account != null && account.length !== 0;
 
-    if (!connected) console.log("MetaMasK: connect an account");
+    if (connected) console.log("setAccount", account);
+    else           console.log("MetaMasK: connect an account");
 
     // Trigger UI update
     _setAccount(account);
-    console.log("setAccount", account);
 }
 
 function _handleSignerChanged()
 {
-    signer?.getAddress().then(_accountChanged)
+    if (window.ethereum.selectedAddress) signer.getAddress().then(_accountChanged);
+    else                                 _accountChanged("");
 }
 
 function _handleNetworkChanged(id : string)
@@ -82,13 +80,13 @@ function _handleNetworkChanged(id : string)
     setNetwork(id_);
 
     provider.getBlockNumber().then(setBlockNumber);
-    signer  = provider.getSigner();
+    signer = provider.getSigner();
+
+    if (network) console.log("setChain", network);
+    else         console.log("MetaMasK: select a supported network");
 
     // Trigger UI update
     _setChainID(id_);
-
-    if (network) console.log("setChain", network);
-    else console.log("MetaMasK: select a supported network");
 
     // window.location.reload();
 }
