@@ -6,7 +6,7 @@ import { contracts } from "../NFTOpt";
 import { provider, network } from "../provider";
 import { addContractToCache } from "./contracts";
 
-let NFTOptCollections = [] as NFTAsset[];
+export let NFTOptCollections = [] as NFTAsset[];
 
 export const clearNFTOptCollections = () =>
 {
