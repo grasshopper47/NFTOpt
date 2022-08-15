@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { provider } from "../provider";
 import { ABIs } from "../../utils/constants";
 
 let NFTContractsCache : any = {};
@@ -6,7 +7,7 @@ export const clearContractsCache = () => NFTContractsCache = {};
 
 export const addContractToCache = (address : string, contract : any) => NFTContractsCache[address] = contract;
 
-export function getCachedContract(address : string, provider : any)
+export function getCachedContract(address : string)
 {
     let contract = NFTContractsCache[address];
 

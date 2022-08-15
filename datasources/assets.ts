@@ -1,9 +1,10 @@
 
-import { NFTAsset } from "../models/NFTAsset";
+import addresses from "../addresses.json";
+import { provider } from "./provider";
 import { AssetKey, stringOf } from "../models/assetKey";
 import { images, loadImage } from "./ERC-721/images";
 import { getCachedContract } from "./ERC-721/contracts";
-import addresses from "../addresses.json";
+import { NFTAsset } from "../models/NFTAsset";
 
 export const clearAssets   = () => assets = {};
 export const clearAssetsOf = (account : string) => assets[account] as NFTAsset[];
@@ -17,7 +18,7 @@ export const addAssetByKeyTo = async (account: string, key : AssetKey) =>
 
 export const getNFTAsset = async (key : AssetKey, contract? : any) =>
 {
-    let NFTContract = contract ?? getCachedContract(key.nftContract, provider);
+    let NFTContract = contract ?? getCachedContract(key.nftContract);
 
     // Re-use the image from cache, when available
     let cache = images[stringOf(key)];
@@ -25,7 +26,7 @@ export const getNFTAsset = async (key : AssetKey, contract? : any) =>
     let promises =
     [
         NFTContract.name().then( (r : string) => `${r} - ${key.nftId}` )
-    ,   cache ?? loadImage(key, provider)
+    ,   cache ?? loadImage(key)
     ];
 
     await Promise.allSettled(promises);
@@ -37,7 +38,7 @@ export const getNFTAsset = async (key : AssetKey, contract? : any) =>
     } as NFTAsset;
 }
 
-export const loadAssetsFor = async (account : string, _provider : any) =>
+export const loadAssetsFor = async (account : string ) =>
 {
     if (!account || account === " " || assets[account]) return;
 
@@ -46,7 +47,6 @@ export const loadAssetsFor = async (account : string, _provider : any) =>
     // Reset cache
     arr      = [] as NFTAsset[];
     promises = [] as Promise<any>[];
-    provider = _provider;
 
     // Fetch from Graph
     let reply = await fetch
@@ -106,7 +106,7 @@ async function _loadFromLogs(account : string)
     {
         if (name === "NFTOpt") continue;
 
-        let contract = getCachedContract((addresses.localhost as any)[name], provider);
+        let contract = getCachedContract((addresses.localhost as any)[name]);
 
         let received = contract.queryFilter(contract.filters.Transfer(null,account));
         let sent     = contract.queryFilter(contract.filters.Transfer(account));
@@ -140,7 +140,7 @@ async function _loadFromLogs(account : string)
 
 async function _loadAssetData(key : AssetKey, account : string)
 {
-    let contract = getCachedContract(key.nftContract, provider);
+    let contract = getCachedContract(key.nftContract);
 
     let owner = await contract.ownerOf(key.nftId);
     if (owner !== account) return;
@@ -151,6 +151,5 @@ async function _loadAssetData(key : AssetKey, account : string)
 
 let arr      : NFTAsset[]     = [];
 let promises : Promise<any>[] = [];
-let provider : any = {};
 
 let assets : any = {};
