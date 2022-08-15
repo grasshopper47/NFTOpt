@@ -20,37 +20,8 @@ import DropDown_RequestForm from "../fragments/DropDown.Assets.RequestForm";
 import DropDown_Flavor_RequestForm from "../fragments/DropDown.Flavor.RequestForm";
 import CustomAssetForm from "./CustomAssetForm";
 import { Button, SelectChangeEvent } from "@mui/material";
-import { setNFTCollectionsEventCallback } from "../controllers/NFTOptCollections";
+import { clearNFTCollectionsEventCallback, setNFTCollectionsEventCallback } from "../controllers/NFTOptCollections";
 import { useAccount, useChainID } from "../utils/contexts";
-let request  = {} as Request_DISPLAY;
-let assetKey = {} as AssetKey
-
-let areAmountsInvalid = false;
-
-const isRequestValid = () =>
-{
-    return isValid(assetKey)
-        && request.premium     !== ""
-        && request.strikePrice !== ""
-        && request.interval    !== ""
-        && !areAmountsInvalid;
-}
-
-const resetRequest = () =>
-{
-    assetKey = { nftId : "", nftContract: "" };
-
-    request.interval    = "3";
-    request.premium     = "0.1";
-    request.strikePrice = "1";
-    request.flavor      = OptionFlavor.AMERICAN;
-
-    areAmountsInvalid = false;
-}
-
-resetRequest();
-
-let _setImageCallback : (img : string) => void;
 
 const setAsset = (asset : NFTAsset | undefined | null) =>
 {
@@ -72,8 +43,6 @@ const setAsset = (asset : NFTAsset | undefined | null) =>
     if (image) _setImageCallback(image);
     else       loadImage(assetKey).then( img => { asset.image = img; _setImageCallback(img); } );
 };
-
-let _requestChangedCallback : () => void;
 
 const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
 {
@@ -113,9 +82,40 @@ const handleKey = (event: React.KeyboardEvent<HTMLInputElement>) =>
     if (event.key === "Enter") if (isRequestValid()) handlePublish();
 }
 
+let request  = {} as Request_DISPLAY;
+let assetKey = {} as AssetKey
+
+let areAmountsInvalid = false;
+
 let account : string;
 let chainID : number;
 let assets  : NFTAsset[];
+
+let isRequestValid = () =>
+{
+    return isValid(assetKey)
+        && request.premium     !== ""
+        && request.strikePrice !== ""
+        && request.interval    !== ""
+        && !areAmountsInvalid;
+}
+
+let resetRequest = () =>
+{
+    assetKey = { nftId : "", nftContract: "" };
+
+    request.interval    = "3";
+    request.premium     = "0.1";
+    request.strikePrice = "1";
+    request.flavor      = OptionFlavor.AMERICAN;
+
+    areAmountsInvalid = false;
+}
+
+let _setImageCallback       : (img : string) => void;
+let _requestChangedCallback : () => void;
+
+resetRequest();
 
 function RequestForm()
 {
@@ -137,11 +137,14 @@ function RequestForm()
     (
         () =>
         {
-            setNFTCollectionsEventCallback(() => {});
+            clearNFTCollectionsEventCallback();
 
             if (!network) return;
 
             setNFTCollectionsEventCallback(assetsChanged);
+
+            // Cleanup on unmount
+            return () => { clearNFTCollectionsEventCallback(); }
         }
     ,   [chainID]
     );
