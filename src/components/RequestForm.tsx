@@ -113,6 +113,10 @@ const handleKey = (event: React.KeyboardEvent<HTMLInputElement>) =>
     if (event.key === "Enter") if (isRequestValid()) handlePublish();
 }
 
+let account : string;
+let chainID : number;
+let assets  : NFTAsset[];
+
 function RequestForm()
 {
     const [                 , setAssetsChanged ]   = useState(0);
@@ -120,15 +124,14 @@ function RequestForm()
     const [ image           , setImage ]           = useState(imageOf(assetKey));
     const [ showAddContract , setShowAddContract ] = useState(false);
 
-    const assetsChanged  = () => setAssetsChanged(f => f ^ 1);
-    const requestChanged = () => setRequestChanged(f => f ^ 1);
+    account = useAccount();
+    chainID = useChainID();
 
-    const account = useAccount();
-    const chainID = useChainID();
-    const assets  = assetsOf(account) ?? [];
+    assets = assetsOf(account) ?? [];
 
     _setImageCallback       = setImage;
-    _requestChangedCallback = requestChanged;
+    _requestChangedCallback = () => setRequestChanged(f => f ^ 1);
+    let assetsChanged       = () => setAssetsChanged(f => f ^ 1);
 
     useEffect
     (
