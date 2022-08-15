@@ -10,11 +10,11 @@ export const useChainID  = () => useContext(ChainIDContext);
 export const setOptionsUICallback   = (cb : () => void) => OptionsUICallback = cb;
 export const clearOptionsUICallback = () => OptionsUICallback = () => {};
 
-export const setCollectionsUICallback   = (cb : (arr : NFTAsset[]) => void) => CollectionsUICallback = cb;
-export const clearCollectionsUICallback = () => CollectionsUICallback = () => {};
+export const setNFTCollectionsLoadCallback   = (cb : (arr : NFTAsset[]) => void) => NFTCollectionsLoadCallback = cb;
+export const clearNFTCollectionsLoadCallback = () => NFTCollectionsLoadCallback = () => {};
 
 export const ChainIDContext  = createContext(0);
 export const AccountContext  = createContext("");
 
 export let OptionsUICallback     : () => void = () => {};
-export let CollectionsUICallback : (arr : NFTAsset[]) => void = () => {};
+export let NFTCollectionsLoadCallback : (arr : NFTAsset[]) => void = () => {};

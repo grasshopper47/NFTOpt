@@ -20,7 +20,7 @@ import DropDown_RequestForm from "../fragments/DropDown.Assets.RequestForm";
 import DropDown_Flavor_RequestForm from "../fragments/DropDown.Flavor.RequestForm";
 import CustomAssetForm from "./CustomAssetForm";
 import { Button, SelectChangeEvent } from "@mui/material";
-import { setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
+import { setNFTCollectionsEventCallback } from "../controllers/NFTOptCollections";
 import { useAccount, useChainID } from "../utils/contexts";
 let request  = {} as Request_DISPLAY;
 let assetKey = {} as AssetKey
@@ -137,11 +137,11 @@ function RequestForm()
     (
         () =>
         {
-            setNFTCollectionsUICallback(() => {});
+            setNFTCollectionsEventCallback(() => {});
 
             if (!network) return;
 
-            setNFTCollectionsUICallback(assetsChanged);
+            setNFTCollectionsEventCallback(assetsChanged);
         }
     ,   [chainID]
     );

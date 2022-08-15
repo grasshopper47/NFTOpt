@@ -8,8 +8,8 @@ import { getCachedContract } from "../../datasources/ERC-721/contracts";
 import { assetsOf, loadAssetsFor } from "../../datasources/assets";
 import { AssetKey } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
-import { clearNFTCollectionsUICallback, setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
-import { clearOptionsUICallback, useAccount, useChainID, setCollectionsUICallback } from "../utils/contexts";
+import { clearNFTCollectionsEventCallback, setNFTCollectionsEventCallback } from "../controllers/NFTOptCollections";
+import { clearOptionsUICallback, useAccount, useChainID, setNFTCollectionsLoadCallback } from "../utils/contexts";
 import { showToast } from "../utils/toasting";
 import { signer } from "../utils/metamask";
 import DropDown_MintForm from "../fragments/DropDown.Collections.MintForm";
@@ -52,7 +52,7 @@ let resetAsset = () =>
     }
 }
 
-let doClean = () => { clearOptionsUICallback(), clearNFTCollectionsUICallback(); }
+let doClean = () => { clearOptionsUICallback(), clearNFTCollectionsEventCallback(); }
 
 let account : string;
 let chainID : number;
@@ -82,8 +82,8 @@ function MintForm()
         {
             if (!network) { doClean(); return; }
 
-            setCollectionsUICallback(setCollections);
-            setNFTCollectionsUICallback(assetsChanged);
+            setNFTCollectionsLoadCallback(setCollections);
+            setNFTCollectionsEventCallback(assetsChanged);
 
             // Cleanup on unmount
             return () => doClean();

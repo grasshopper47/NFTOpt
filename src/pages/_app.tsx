@@ -18,7 +18,7 @@ import { connected, connectWallet, hookMetamask, signer } from "../utils/metamas
 
 import Header from "../components/Header";
 import { Toaster } from "react-hot-toast";
-import { AccountContext, ChainIDContext, CollectionsUICallback, OptionsUICallback } from "../utils/contexts";
+import { AccountContext, ChainIDContext, NFTCollectionsLoadCallback, OptionsUICallback } from "../utils/contexts";
 
 export default function App({ Component, pageProps }: AppProps)
 {
@@ -58,7 +58,7 @@ export default function App({ Component, pageProps }: AppProps)
 
             // Load data
             loadAll(contracts.NFTOpt).then(OptionsUICallback);
-            loadNFTOptCollectionsItems().then(CollectionsUICallback);
+            loadNFTOptCollectionsItems().then(NFTCollectionsLoadCallback);
         }
     ,   [chainID]
     );
