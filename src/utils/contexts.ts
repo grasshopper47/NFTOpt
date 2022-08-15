@@ -16,5 +16,5 @@ export const clearCollectionsUICallback = () => CollectionsUICallback = () => {}
 export const ChainIDContext  = createContext(0);
 export const AccountContext  = createContext("");
 
-export let OptionsUICallback     : () => void;
-export let CollectionsUICallback : (arr : NFTAsset[]) => void;
+export let OptionsUICallback     : () => void = () => {};
+export let CollectionsUICallback : (arr : NFTAsset[]) => void = () => {};
