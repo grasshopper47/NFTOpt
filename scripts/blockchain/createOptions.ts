@@ -4,9 +4,13 @@ import { ethers } from "hardhat";
 import { NFTOpt } from "../../typechain-types";
 import { ADDRESS0 } from "../../utils/constants";
 import { OptionState } from "../../models/enums";
+import { setProvider, setNetwork } from "../../datasources/provider";
 
 async function createOptions()
 {
+    setProvider(ethers.provider);
+    setNetwork(31337);
+
     const Signers = await ethers.getSigners();
 
     // remove 1st account, it's the one that created all the options
@@ -21,7 +25,7 @@ async function createOptions()
     ,   Signers[0].provider
     ) as NFTOpt;
 
-    let i = 0;
+    let i   = 0;
     let max = 9;
 
     console.log(`Fulfilling ${max + 1} options ...`);

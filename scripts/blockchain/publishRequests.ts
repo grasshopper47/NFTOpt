@@ -5,25 +5,10 @@ import { NFTOpt } from "../../typechain-types";
 import { BIGNUMBER0 } from "../../utils/constants";
 import { assetsOf, loadAssetsFor } from "../../datasources/assets";
 import { NFTAsset } from "../../models/NFTAsset";
-
-let contractAddresses =
-[
-    addresses.localhost.AI_NFT
-,   addresses.localhost.AN_NFT
-,   addresses.localhost.EH_NFT
-,   addresses.localhost.NK_NFT
-,   addresses.localhost.SP_NFT
-,   addresses.localhost.THP_NFT
-,   addresses.localhost.TH_NFT
-];
-
-let maxIndex = contractAddresses.length;
+import { setProvider, setNetwork } from "../../datasources/provider";
 
 const generateRequest = (assets : NFTAsset[]) =>
 {
-    let nftContract = contractAddresses[Math.floor(Math.random() * maxIndex)];
-    let nftId       = Math.floor(Math.random() * 4) + 1;
-
     let strikePrice = ethers.utils.parseEther((Math.random() * 25 + 1).toString().slice(0, Math.floor(Math.random() * 18) + 1));
 
     let premium = BIGNUMBER0;
@@ -37,7 +22,6 @@ const generateRequest = (assets : NFTAsset[]) =>
     let flavor = Math.floor(Math.random() * 2);
 
     let i = Math.floor(Math.random() * assets.length);
-    console.log(i, assets.length);
 
     return {
         nftContract : assets[i].key.nftContract
@@ -51,9 +35,12 @@ const generateRequest = (assets : NFTAsset[]) =>
 
 async function publishRequests()
 {
+    setProvider(ethers.provider);
+    setNetwork(31337);
+
     const [ buyer ] = await ethers.getSigners();
 
-    await loadAssetsFor(buyer.address, ethers.provider);
+    await loadAssetsFor(buyer.address);
     let assets = assetsOf(buyer.address);
 
     // Create completely new instance with the default provider (readonly)
@@ -65,7 +52,7 @@ async function publishRequests()
     ,   buyer.provider
     ) as NFTOpt;
 
-    let i = 0;
+    let i   = 0;
     let max = 10;
 
     console.log(`Publishing ${max} requests ...`);
@@ -105,6 +92,17 @@ async function publishRequests()
 
     console.log("Done");
 }
+
+let contractAddresses =
+[
+    addresses.localhost.AI_NFT
+,   addresses.localhost.AN_NFT
+,   addresses.localhost.EH_NFT
+,   addresses.localhost.NK_NFT
+,   addresses.localhost.SP_NFT
+,   addresses.localhost.THP_NFT
+,   addresses.localhost.TH_NFT
+];
 
 publishRequests()
     .then(() => process.exit(0))
