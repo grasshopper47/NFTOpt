@@ -166,7 +166,13 @@ function ViewContainer()
     (
         () =>
         {
-            if (!network) { doClean(); return; }
+            if (!network)
+            {
+                doClean();
+                setViewedOptions([]);
+
+                return;
+            }
 
             setOptionsUICallback(handleFiltered);
             setNFTOptUICallback(handleFiltered);
@@ -219,7 +225,7 @@ function ViewContainer()
 
         <div className={clsx(classes.root, hasItems && classes.withOptions)}>
             {
-                view.type !== ViewTypes.DETAIL &&
+                hasItems && view.type !== ViewTypes.DETAIL &&
                 <ViewSettings
                     view={view}
                     list={viewedOptions}
