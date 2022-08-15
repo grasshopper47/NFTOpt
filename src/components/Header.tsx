@@ -5,8 +5,8 @@ import clsx from "clsx";
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { provider } from "../../datasources/provider";
-import { connected, connectWallet, network } from "../utils/metamask";
+import { network, provider } from "../../datasources/provider";
+import { connected, connecting, connectWallet } from "../utils/metamask";
 import { getAccountDisplayValue } from "../utils/helpers";
 import { useAccount } from "../utils/contexts";
 import ThemeSwitch from "../fragments/ThemeSwitch.Header";
@@ -54,7 +54,19 @@ function Header()
     (
         () =>
         {
-            if (hasProvider && !connected() && routesWithSigner.find(r => r.href == router.pathname) != null) router.replace("/mint", "/404");
+            setTimeout
+            (
+                () =>
+                {
+                    if
+                    (
+                        hasProvider
+                    &&  !connected && !connecting
+                    &&  routesWithSigner.find(r => r.href == router.pathname) != null
+                    ) { router.replace("/mint", "/404") }
+                }, 1000
+            );
+
             if (router.pathname !== "/explore") document.body.onclick = null;
         }
     ,   [router.pathname]
@@ -64,8 +76,12 @@ function Header()
 
     routes = [];
 
-    if ( network() && connected() ) routes.push(... routesWithSigner);
-    if (hasProvider) routes.push(... routesReadOnly);
+    if (hasProvider)
+    {
+        if (connected) routes.push(... routesWithSigner);
+
+        routes.push(... routesReadOnly);
+    }
 
     return <div className={classes.root}>
         <Link key="route-link-main" href="/">
@@ -74,7 +90,7 @@ function Header()
             </a>
         </Link>
 
-        { !network() && <p>{ hasProvider ? "Connect to localhost" : "Metamask required to access dapp" }</p> }
+        { !network && <p>{ hasProvider ? "Connect to localhost" : "Metamask required to access dapp" }</p> }
 
         <div>
             {
@@ -94,11 +110,11 @@ function Header()
             <ThemeSwitch />
 
             <Button
-                className={clsx(classes.connectBtn, connected() && classes.connectBtnSmall)}
+                className={clsx(classes.connectBtn, connected && classes.connectBtnSmall)}
                 variant="contained"
-                { ... !connected() && { onClick : ( hasProvider ? connectWallet : () => window.open("https://metamask.io/download") ) } }
+                { ... !connected && { onClick : ( hasProvider ? connectWallet : () => window.open("https://metamask.io/download") ) } }
             >
-                <p>{ connected() ? getAccountDisplayValue(account) : (hasProvider ? "Connect wallet" : "Install Metamask") }</p>
+                <p>{ connected ? getAccountDisplayValue(account) : (hasProvider ? "Connect wallet" : "Install Metamask") }</p>
             </Button>
         </div>
     </div>;

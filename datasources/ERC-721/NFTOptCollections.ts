@@ -3,7 +3,7 @@ import addresses from "../../addresses.json";
 import { NFTAsset } from "../../models/NFTAsset";
 import { ABIs } from "../../utils/constants";
 import { contracts } from "../NFTOpt";
-import { provider } from "../provider";
+import { provider, network } from "../provider";
 import { addContractToCache } from "./contracts";
 
 let NFTOptCollections = [] as NFTAsset[];
@@ -18,7 +18,7 @@ export const clearNFTOptCollections = () =>
 
 export const createNFTOptCollectionsInstances = () =>
 {
-    let collections = { ... addresses[provider.network.name] };
+    let collections = { ... addresses[network ?? -1] };
     delete collections.NFTOpt;
 
     let collectionKeys = Object.keys(collections);
@@ -53,7 +53,7 @@ export const loadNFTOptCollectionsItems = async () =>
 {
     NFTOptCollections = [] as NFTAsset[];
 
-    let collections = { ... addresses[provider.network.name] };
+    let collections = { ... addresses[network ?? -1] };
     delete collections.NFTOpt;
 
     let collectionKeys = Object.keys(collections);

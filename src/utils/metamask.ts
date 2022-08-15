@@ -1,15 +1,14 @@
 import { ethers } from "ethers";
-import { provider, setProvider } from "../../datasources/provider";
+import { network, provider, setNetwork, setProvider } from "../../datasources/provider";
 import { setBlockNumber } from "../../datasources/blockNumber";
 import toast from "react-hot-toast";
 
 // MetaMasK is present if this variable exists
 declare var window : Window & { ethereum?: any; };
 
-export const network   = () => _network;
-export const scanner   = () => _scanner;
-export const connected = () => _connected;
-export const signer    = () => _signer;
+export let connected : boolean;
+export let connecting : boolean;
+export let signer : ethers.Signer;
 
 export function hookMetamask
 (
@@ -32,6 +31,8 @@ export function hookMetamask
 
 export async function connectWallet()
 {
+    connecting = true;
+
     window.ethereum
     .request({ method: "eth_requestAccounts" })
     .then(_handleSignerChanged)
@@ -41,14 +42,18 @@ export async function connectWallet()
         {
             if (err.code === 4001)   { toast.error("User rejected connection"); }
             if (err.code === -32002) { toast.error("Connection request in progress"); }
+
+            connecting = false;
         }
     );
 }
 
 function _accountChanged(account : string)
 {
-    _connected = account != null && account.length !== 0;
-    if (!_connected) console.log("MetaMasK: connect an account");
+    connected = account != null && account.length !== 0;
+    connecting = false;
+
+    if (!connected) console.log("MetaMasK: connect an account");
 
     // Trigger UI update
     _setAccount(account);
@@ -57,9 +62,9 @@ function _accountChanged(account : string)
 
 async function _handleSignerChanged()
 {
-    if (!_signer) return;
+    if (!signer) return;
 
-    let address = await _signer.getAddress();
+    let address = await signer.getAddress();
     _accountChanged(address);
 }
 
@@ -69,45 +74,25 @@ function _handleNetworkChanged(id : string)
 
     if (id_ === NaN)
     {
+        setProvider({} as any);
         console.log("MetaMasK: connect a blockchain node");
         return;
     }
 
     setProvider(new ethers.providers.Web3Provider(window.ethereum, "any"));
+    setNetwork(id_);
+
     provider.getBlockNumber().then(setBlockNumber);
-    _network = _networks[id_];
-    _scanner = _scanners[id_];
-    _signer  = _provider.getSigner();
+    signer  = provider.getSigner();
 
     // Trigger UI update
     _setChainID(id_);
 
-    if (_network) console.log("setChain", _network);
+    if (network) console.log("setChain", network);
     else console.log("MetaMasK: select a supported network");
 
     // window.location.reload();
 }
-
-let _connected = false;
-
-const _networks : any =
-{
-    "31337" : "localhost"
-// ,   "1"     : "mainnet"
-// ,   "4"     : "rinkeby"
-};
-let _network : string;
-
-const _scanners : any =
-{
-    "31337" : "https://etherscan.io"
-// ,   "1"     : "https://etherscan.io"
-// ,   "4"     : "rinkeby"
-};
-let _scanner : string;
-
-let _provider : ethers.providers.Web3Provider;
-let _signer   : ethers.Signer;
 
 let _setAccount : (a : string) => void;
 let _setChainID : (a : number) => void;

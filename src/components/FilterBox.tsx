@@ -30,7 +30,7 @@ function FilterBox(props : Props)
         <div className={classes.root}>
             <div className={classes.buttons}>
                 {
-                    connected() &&
+                    connected &&
                     <FormControlLabel
                         className={clsx(classes.checkbox, showAll ? classes.checked : classes.unchecked)}
                         control=

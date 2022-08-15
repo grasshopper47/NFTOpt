@@ -24,7 +24,7 @@ export const attachNFTCollectionsHandlersToInstances = (collections : {}) =>
                 if (blockNumber >= transaction.blockNumber || tokenID.toString() === "9999" ) return;
                 setBlockNumber(transaction.blockNumber);
 
-                let address = await signer().getAddress();
+                let address = await signer.getAddress();
 
                 await addAssetByKeyTo
                 (

@@ -53,7 +53,7 @@ let onCreateOption   = (option : OptionWithAsset) => contracts.NFTOpt.createOpti
 let onCancelOption   = (option : OptionWithAsset) => contracts.NFTOpt.cancelOption(option.id);
 let onExerciseOption = (option : OptionWithAsset) => contracts.NFTOpt.exerciseOption(option.id);
 
-let onApproveNFT = (option : OptionWithAsset) => showToast( contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.key.nftId) );
+let onApproveNFT = (option : OptionWithAsset) => showToast( contract.connect(signer).approve(contracts.NFTOpt.address, option.asset.key.nftId) );
 
 let getTransactionLink = async (option : OptionWithAsset) =>
 {
@@ -194,7 +194,7 @@ function DetailsView(props: Props)
                 </div>
             </div>
 
-            { connected() && <div className={classes.buttonsContainer}>{ createButtonsFromOptionState() }</div> }
+            { connected && <div className={classes.buttonsContainer}>{ createButtonsFromOptionState() }</div> }
         </div>
     </div>;
 }

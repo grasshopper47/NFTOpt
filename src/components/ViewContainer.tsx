@@ -3,13 +3,13 @@ import classes from "./styles/ViewContainer.module.scss";
 import clsx from "clsx";
 
 import React, { useEffect, useState } from "react";
+import { network } from "../../datasources/provider";
 import { optionsChanged, requestsChanged } from "../../datasources/options";
 import { doFilter, filterParams, optionsByStateFiltered, OptionStateViewed } from "../../datasources/filtering";
 import { OptionWithAsset } from "../../models/option";
 import { clearNFTOptUICallback, setNFTOptUICallback } from "../controllers/NFTOpt";
 import { clearOptionsUICallback, setOptionsUICallback, useChainID } from "../utils/contexts";
 import { ViewTypes, ViewPage, ViewConfig, getViewSettingsFromStorage, getViewLimitIndexFromStorage, ListViewLimits, TableViewLimits } from "../utils/view";
-import { network } from "../utils/metamask";
 import TableView from "./TableView";
 import ListView from "./ListView";
 import FooterNavigation from "./FooterNavigation";
@@ -79,7 +79,7 @@ let renderStatusText = (hasItems : boolean, activeTabIndex : number) =>
     {
         if (activeTabIndex === 0)
         {
-            if (network())
+            if (network)
             {
                 if (optionsByStateFiltered[optionViewState]?.length === 0) return "Filter matched no requests";
 
@@ -89,7 +89,7 @@ let renderStatusText = (hasItems : boolean, activeTabIndex : number) =>
             return "No Requests";
         }
 
-        if (network())
+        if (network)
         {
             if (optionsByStateFiltered[optionViewState]?.length === 0) return "Filter matched no options";
 
@@ -140,7 +140,7 @@ let page : ViewPage =
 function ViewContainer()
 {
     const [                , setSelectedOptionChanged ] = useState(0);
-    const [ activeTabIndex , setActiveTabIndex ]        = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
+    const [ activeTabIndex , setActiveTabIndex ]        = useState(0);
     const [ viewedOptions  , setViewedOptions ]         = useState<OptionWithAsset[]>([]);
 
     _updateViewCallback       = () => setSelectedOptionChanged(f => f ^ 1);
@@ -156,6 +156,8 @@ function ViewContainer()
             view = getViewSettingsFromStorage();
 
             page.count = (ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits)[getViewLimitIndexFromStorage()];
+
+            setActiveTabIndex(parseInt(localStorage[tabIndexStorageKey] ?? 0));
         }
     ,   []
     );
@@ -164,7 +166,7 @@ function ViewContainer()
     (
         () =>
         {
-            if (!network()) { doClean(); return; }
+            if (!network) { doClean(); return; }
 
             setOptionsUICallback(handleFiltered);
             setNFTOptUICallback(handleFiltered);

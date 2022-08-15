@@ -5,7 +5,7 @@ import Head from "next/head";
 import { AppProps } from "next/app";
 import { useState, useEffect } from "react";
 
-import { provider } from "../../datasources/provider";
+import { network, provider } from "../../datasources/provider";
 import { clearContractsCache } from "../../datasources/ERC-721/contracts";
 import { clearImages } from "../../datasources/ERC-721/images";
 import { clearNFTOpt, contracts, createNFTOptInstance } from "../../datasources/NFTOpt";
@@ -14,7 +14,7 @@ import { clearNFTOptCollections, createNFTOptCollectionsInstances, loadNFTOptCol
 import { clearRequests, clearOptions, loadAll } from "../../datasources/options";
 import { attachNFTCollectionsHandlersToInstances } from "../controllers/NFTOptCollections";
 import { attachNFTOptHandlersToInstance } from "../controllers/NFTOpt";
-import { connected, connectWallet, hookMetamask, network, signer } from "../utils/metamask";
+import { connected, connectWallet, hookMetamask, signer } from "../utils/metamask";
 
 import Header from "../components/Header";
 import { Toaster } from "react-hot-toast";
@@ -51,10 +51,10 @@ export default function App({ Component, pageProps }: AppProps)
             clearNFTOpt();
             clearNFTOptCollections();
 
-            if (!network()) return;
+            if (!network) return;
 
             // Initialize contracts
-            createNFTOptInstance(connected() ? signer() : provider);
+            createNFTOptInstance(connected ? signer : provider);
             createNFTOptCollectionsInstances();
 
             // Subscribe to events
@@ -72,12 +72,12 @@ export default function App({ Component, pageProps }: AppProps)
     (
         () =>
         {
-            if (!network()) return;
+            if (!network) return;
 
             // Create an upgraded/downgraded instance with connected address as signer
             // OR with the default provider (readonly)
             // NOTE: event subscription is maintained
-            if (contracts.NFTOpt.connect) contracts.NFTOpt = contracts.NFTOpt.connect(connected() ? signer() : provider);
+            if (contracts.NFTOpt.connect) contracts.NFTOpt = contracts.NFTOpt.connect(connected ? signer : provider);
         }
     ,   [account]
     );

@@ -4,6 +4,7 @@ import clsx from "clsx";
 
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
+import { network } from "../../datasources/provider";
 import { contracts } from "../../datasources/NFTOpt";
 import { assetsOf, loadAssetsFor } from "../../datasources/assets";
 import { imageOf, loadImage } from "../../datasources/ERC-721/images";
@@ -14,7 +15,6 @@ import { OptionFlavor } from "../../models/enums";
 import { SECONDS_IN_A_DAY } from "../../utils/constants";
 import { getFloatString, getIntervalString } from "../utils/helpers";
 import { showToast } from "../utils/toasting";
-import { network } from "../utils/metamask";
 import TextBox_RequestForm from "../fragments/TextBox.Request";
 import DropDown_RequestForm from "../fragments/DropDown.Assets.RequestForm";
 import DropDown_Flavor_RequestForm from "../fragments/DropDown.Flavor.RequestForm";
@@ -22,7 +22,6 @@ import CustomAssetForm from "./CustomAssetForm";
 import { Button, SelectChangeEvent } from "@mui/material";
 import { setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
 import { useAccount, useChainID } from "../utils/contexts";
-
 let request  = {} as Request_DISPLAY;
 let assetKey = {} as AssetKey
 
@@ -137,7 +136,7 @@ function RequestForm()
         {
             setNFTCollectionsUICallback(() => {});
 
-            if (!network()) return;
+            if (!network) return;
 
             setNFTCollectionsUICallback(assetsChanged);
         }
@@ -148,7 +147,7 @@ function RequestForm()
     (
         () =>
         {
-            if (!network()) return;
+            if (!network) return;
 
             loadAssetsFor(account).then(assetsChanged);
         }

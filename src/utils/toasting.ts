@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { network } from "./metamask";
+import { network } from "../../datasources/provider";
 
 const TOAST_DELAY = 333;
 
@@ -25,7 +25,7 @@ export function showToast(aPromise:Promise<any>)
                     {
                         if (!showLoadingToast) return;
 
-                        setWaitingToastId(toast.loading(`Waiting for ${network()} to confirm...`));
+                        setWaitingToastId(toast.loading(`Waiting for ${network} to confirm...`));
                     }
                 ,   TOAST_DURATION + TOAST_DELAY
                 );
