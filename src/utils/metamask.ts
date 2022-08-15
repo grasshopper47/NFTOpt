@@ -27,6 +27,8 @@ export function hookMetamask
     window.ethereum.on('accountsChanged', _handleSignerChanged);
 
     _handleNetworkChanged(window.ethereum.networkVersion);
+
+    connectWallet();
 }
 
 export async function connectWallet()
@@ -50,7 +52,7 @@ export async function connectWallet()
 
 function _accountChanged(account : string)
 {
-    connected = account != null && account.length !== 0;
+    connected  = account != null && account.length !== 0;
     connecting = false;
 
     if (!connected) console.log("MetaMasK: connect an account");
@@ -60,12 +62,9 @@ function _accountChanged(account : string)
     console.log("setAccount", account);
 }
 
-async function _handleSignerChanged()
+function _handleSignerChanged()
 {
-    if (!signer) return;
-
-    let address = await signer.getAddress();
-    _accountChanged(address);
+    signer?.getAddress().then(_accountChanged)
 }
 
 function _handleNetworkChanged(id : string)
@@ -74,7 +73,7 @@ function _handleNetworkChanged(id : string)
 
     if (id_ === NaN)
     {
-        setProvider({} as any);
+        setProvider(null as any);
         console.log("MetaMasK: connect a blockchain node");
         return;
     }

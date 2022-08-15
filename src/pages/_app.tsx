@@ -27,12 +27,7 @@ export default function App({ Component, pageProps }: AppProps)
 
     useEffect
     (
-        () =>
-        {
-            hookMetamask(setAccount, setChainID);
-
-            connectWallet();
-        }
+        () => hookMetamask(setAccount, setChainID)
     ,   []
     );
 
