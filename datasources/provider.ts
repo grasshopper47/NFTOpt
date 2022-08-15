@@ -1,10 +1,10 @@
 import { ethers } from "ethers";
 
-export let provider : ethers.providers.Web3Provider = {} as any;
+export let provider : ethers.providers.JsonRpcProvider = {} as any;
 export let network : string | null;
 export let scanner : string | null;
 
-export const setProvider = (provider_ : ethers.providers.Web3Provider) => provider = provider_;
+export const setProvider = (provider_ : ethers.providers.JsonRpcProvider) => provider = provider_;
 export const setNetwork = (id_ : number) =>
 {
     network = _networks[id_];
