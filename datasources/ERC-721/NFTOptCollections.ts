@@ -3,6 +3,7 @@ import addresses from "../../addresses.json";
 import { NFTAsset } from "../../models/NFTAsset";
 import { ABIs } from "../../utils/constants";
 import { contracts } from "../NFTOpt";
+import { provider, network } from "../provider";
 import { addContractToCache } from "./contracts";
 
 let NFTOptCollections = [] as NFTAsset[];
@@ -15,9 +16,9 @@ export const clearNFTOptCollections = () =>
     contracts.Collections = { };
 }
 
-export const createNFTOptCollectionsInstances = (network : string, provider? : ethers.providers.Web3Provider) =>
+export const createNFTOptCollectionsInstances = () =>
 {
-    let collections = { ... addresses[network] };
+    let collections = { ... addresses[network ?? -1] };
     delete collections.NFTOpt;
 
     let collectionKeys = Object.keys(collections);
@@ -48,23 +49,23 @@ export const createNFTOptCollectionsInstances = (network : string, provider? : e
     }
 }
 
-export const loadNFTOptCollectionsItems = async (network : string) =>
+export const loadNFTOptCollectionsItems = async () =>
 {
     NFTOptCollections = [] as NFTAsset[];
 
-    let collections = { ... addresses[network] };
+    let collections = { ... addresses[network ?? -1] };
     delete collections.NFTOpt;
 
     let collectionKeys = Object.keys(collections);
 
     let promises : Promise<any>[] = [];
-    for (let k of collectionKeys) promises.push( _loadCollectionItem(k, collections[k]) );
+    for (let k of collectionKeys) promises.push( _loadCollectionItem(k) );
     await Promise.allSettled(promises);
 
     return NFTOptCollections;
 }
 
-const _loadCollectionItem = async (name : string, address : string) =>
+const _loadCollectionItem = async (name : string ) =>
 {
     let NFTContract = contracts.Collections[name];
 
@@ -78,7 +79,7 @@ const _loadCollectionItem = async (name : string, address : string) =>
 
     NFTOptCollections.push
     ({
-        key   : { nftContract: address, nftId: "9999" }
+        key   : { nftContract: NFTContract.address, nftId: "9999" }
     ,   name  : await promises[0]
     ,   image : await promises[1]
     });

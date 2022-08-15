@@ -3,17 +3,18 @@ import classes from "./styles/MintForm.module.scss";
 import clsx from "clsx";
 
 import React, { useEffect, useState } from "react";
+import { network } from "../../datasources/provider";
+import { getCachedContract } from "../../datasources/ERC-721/contracts";
+import { assetsOf, loadAssetsFor } from "../../datasources/assets";
+import { AssetKey } from "../../models/assetKey";
+import { NFTAsset } from "../../models/NFTAsset";
+import { clearNFTCollectionsUICallback, setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
+import { clearOptionsUICallback, useAccount, useChainID, setCollectionsUICallback } from "../utils/contexts";
 import { showToast } from "../utils/toasting";
+import { signer } from "../utils/metamask";
 import DropDown_MintForm from "../fragments/DropDown.Collections.MintForm";
 import { Avatar, Button, ListItem, ListItemAvatar, ListItemText, ListSubheader } from "@mui/material";
 import { List } from '@mui/material';
-import { AssetKey } from "../../models/assetKey";
-import { NFTAsset } from "../../models/NFTAsset";
-import { network, provider, signer } from "../utils/metamask";
-import { getCachedContract } from "../../datasources/ERC-721/contracts";
-import { clearOptionsUICallback, setCollectionsUICallback, useAccount, useChainID } from "../pages/_app";
-import { assetsOf, loadAssetsFor } from "../../datasources/assets";
-import { clearNFTCollectionsUICallback, setNFTCollectionsUICallback } from "../controllers/NFTOptCollections";
 
 let _setImageCallback : (img : string) => void;
 
@@ -26,8 +27,8 @@ let setAsset = (obj? : NFTAsset | null) =>
 
 let handleMint = () => showToast
 (
-    getCachedContract(asset.key.nftContract, provider())
-    .connect(signer())
+    getCachedContract(asset.key.nftContract)
+    .connect(signer)
     .mint()
     .then( () => setAsset(null) )
 );
@@ -79,7 +80,7 @@ function MintForm()
     (
         () =>
         {
-            if (!network()) { doClean(); return; }
+            if (!network) { doClean(); return; }
 
             setCollectionsUICallback(setCollections);
             setNFTCollectionsUICallback(assetsChanged);
@@ -94,9 +95,9 @@ function MintForm()
     (
         () =>
         {
-            if (!network()) return;
+            if (!network) return;
 
-            loadAssetsFor(account, provider()).then(assetsChanged);
+            loadAssetsFor(account).then(assetsChanged);
         }
     ,   [account]
     );

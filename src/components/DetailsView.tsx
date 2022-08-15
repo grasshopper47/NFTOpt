@@ -2,22 +2,21 @@
 import classes from "./styles/DetailsView.module.scss";
 import clsx from "clsx";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { useEffect, useState } from "react";
-import { useRequests, useOptions, useAccount, optionChangingIDs, requestChangingIDs } from "../pages/_app";
+import { getCachedContract } from "../../datasources/ERC-721/contracts";
+import { contracts } from "../../datasources/NFTOpt";
 import { isExpired } from "../../datasources/options";
 import { OptionState} from "../../models/enums";
 import { OptionWithAsset } from "../../models/option";
 import { ADDRESS0 } from "../../utils/constants";
-import { connected, provider, scanner, signer } from "../utils/metamask";
+import { connected, scanner, signer } from "../utils/metamask";
 import { flavorLabels, eventLabels } from "../utils/labels";
 import { dismissLastToast, showToast } from "../utils/toasting";
+import { optionChangingIDs, requestChangingIDs, useAccount } from "../utils/contexts";
 import Button_DetailsView from "../fragments/Button.DetailsView";
 import Field_DetailsView from "../fragments/Field.DetailsView";
 import FieldLink_DetailsView from "../fragments/FieldLink.DetailsView";
-import { getCachedContract } from "../../datasources/ERC-721/contracts";
-import { contracts } from "../../datasources/NFTOpt";
 import toast from "react-hot-toast";
 
 type Props =
@@ -54,7 +53,7 @@ let onCreateOption   = (option : OptionWithAsset) => contracts.NFTOpt.createOpti
 let onCancelOption   = (option : OptionWithAsset) => contracts.NFTOpt.cancelOption(option.id);
 let onExerciseOption = (option : OptionWithAsset) => contracts.NFTOpt.exerciseOption(option.id);
 
-let onApproveNFT = (option : OptionWithAsset) => showToast( contract.connect(signer()).approve(contracts.NFTOpt.address, option.asset.key.nftId) );
+let onApproveNFT = (option : OptionWithAsset) => showToast( contract.connect(signer).approve(contracts.NFTOpt.address, option.asset.key.nftId) );
 
 let getTransactionLink = async (option : OptionWithAsset) =>
 {
@@ -88,7 +87,7 @@ function DetailsView(props: Props)
 
             if (option.state !== OptionState.OPEN) return;
 
-            contract = getCachedContract(option.asset.key.nftContract, provider());
+            contract = getCachedContract(option.asset.key.nftContract);
 
             contract.getApproved(option.asset.key.nftId).then( address => checkAndSetApproved(address, contract) );
         }
@@ -195,7 +194,7 @@ function DetailsView(props: Props)
                 </div>
             </div>
 
-            { connected() && <div className={classes.buttonsContainer}>{ createButtonsFromOptionState() }</div> }
+            { connected && <div className={classes.buttonsContainer}>{ createButtonsFromOptionState() }</div> }
         </div>
     </div>;
 }

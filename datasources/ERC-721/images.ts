@@ -1,14 +1,14 @@
-import { AssetKey, stringOf } from "../../models/assetKey";
 import { getCachedContract } from "./contracts";
+import { AssetKey, stringOf } from "../../models/assetKey";
 
 export let images : any = {};
 export const clearImages = () => images = {};
 export const imageOf = (obj : AssetKey) => images[stringOf(obj)] as string;
 
-export async function loadImage(key : AssetKey, provider : any)
+export async function loadImage(key : AssetKey)
 {
     console.log("loadImage");
-    let contract = getCachedContract(key.nftContract, provider);
+    let contract = getCachedContract(key.nftContract);
 
     let data = await contract.tokenURI(key.nftId);
     let image = JSON.parse(data).image;

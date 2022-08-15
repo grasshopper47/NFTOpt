@@ -2,20 +2,19 @@
 import classes from "./styles/ViewContainer.module.scss";
 import clsx from "clsx";
 
-import React from "react";
-import { useEffect, useState } from "react";
-import { clearOptionsUICallback, setOptionsUICallback, useChainID } from "../pages/_app";
-import { OptionWithAsset } from "../../models/option";
-import { network } from "../utils/metamask";
-import { filterParams } from "./FilterBox";
-import TableView, { TableViewLimits } from "./TableView";
-import ListView, { ListViewLimits } from "./ListView";
-import { Tab, Tabs } from "@mui/material";
-import FooterNavigation, { getViewLimitIndexFromStorage, ViewPage } from "./FooterNavigation";
-import ViewSettings, { getViewSettingsFromStorage, ViewConfig, ViewTypes } from "./ViewSettings";
-import { doFilter, optionsByStateFiltered, OptionStateViewed } from "../../datasources/filtering";
-import { clearNFTOptUICallback, setNFTOptUICallback } from "../controllers/NFTOpt";
+import React, { useEffect, useState } from "react";
+import { network } from "../../datasources/provider";
 import { optionsChanged, requestsChanged } from "../../datasources/options";
+import { doFilter, filterParams, optionsByStateFiltered, OptionStateViewed } from "../../datasources/filtering";
+import { OptionWithAsset } from "../../models/option";
+import { clearNFTOptUICallback, setNFTOptUICallback } from "../controllers/NFTOpt";
+import { clearOptionsUICallback, setOptionsUICallback, useChainID } from "../utils/contexts";
+import { ViewTypes, ViewPage, ViewConfig, getViewSettingsFromStorage, getViewLimitIndexFromStorage, ListViewLimits, TableViewLimits } from "../utils/view";
+import TableView from "./TableView";
+import ListView from "./ListView";
+import FooterNavigation from "./FooterNavigation";
+import ViewSettings from "./ViewSettings";
+import { Tab, Tabs } from "@mui/material";
 
 const tabs =
 [
@@ -80,7 +79,7 @@ let renderStatusText = (hasItems : boolean, activeTabIndex : number) =>
     {
         if (activeTabIndex === 0)
         {
-            if (network())
+            if (network)
             {
                 if (optionsByStateFiltered[optionViewState]?.length === 0) return "Filter matched no requests";
 
@@ -90,7 +89,7 @@ let renderStatusText = (hasItems : boolean, activeTabIndex : number) =>
             return "No Requests";
         }
 
-        if (network())
+        if (network)
         {
             if (optionsByStateFiltered[optionViewState]?.length === 0) return "Filter matched no options";
 
@@ -141,7 +140,7 @@ let page : ViewPage =
 function ViewContainer()
 {
     const [                , setSelectedOptionChanged ] = useState(0);
-    const [ activeTabIndex , setActiveTabIndex ]        = useState( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
+    const [ activeTabIndex , setActiveTabIndex ]        = useState(0);
     const [ viewedOptions  , setViewedOptions ]         = useState<OptionWithAsset[]>([]);
 
     _updateViewCallback       = () => setSelectedOptionChanged(f => f ^ 1);
@@ -157,6 +156,8 @@ function ViewContainer()
             view = getViewSettingsFromStorage();
 
             page.count = (ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits)[getViewLimitIndexFromStorage()];
+
+            setActiveTabIndex(parseInt(localStorage[tabIndexStorageKey] ?? 0));
         }
     ,   []
     );
@@ -165,7 +166,13 @@ function ViewContainer()
     (
         () =>
         {
-            if (!network()) { doClean(); return; }
+            if (!network)
+            {
+                doClean();
+                setViewedOptions([]);
+
+                return;
+            }
 
             setOptionsUICallback(handleFiltered);
             setNFTOptUICallback(handleFiltered);
@@ -218,7 +225,7 @@ function ViewContainer()
 
         <div className={clsx(classes.root, hasItems && classes.withOptions)}>
             {
-                view.type !== ViewTypes.DETAIL &&
+                hasItems && view.type !== ViewTypes.DETAIL &&
                 <ViewSettings
                     view={view}
                     list={viewedOptions}

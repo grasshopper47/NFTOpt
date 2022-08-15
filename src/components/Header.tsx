@@ -5,9 +5,10 @@ import clsx from "clsx";
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useAccount } from "../pages/_app";
-import { connected, connectWallet, network, provider } from "../utils/metamask";
+import { network, provider } from "../../datasources/provider";
+import { connected, connecting, connectWallet } from "../utils/metamask";
 import { getAccountDisplayValue } from "../utils/helpers";
+import { useAccount, useChainID } from "../utils/contexts";
 import ThemeSwitch from "../fragments/ThemeSwitch.Header";
 import Button from "@mui/material/Button";
 
@@ -17,7 +18,7 @@ type Route =
 ,   name: string
 };
 
-const routesReadOnly: Route[] =
+let routesReadOnly: Route[] =
 [
     {
         href: "/explore"
@@ -29,7 +30,7 @@ const routesReadOnly: Route[] =
     }
 ];
 
-const routesWithSigner : Route[] =
+let routesWithSigner : Route[] =
 [
     {
         href: "/mint"
@@ -42,29 +43,79 @@ const routesWithSigner : Route[] =
 ];
 
 let hasProvider : boolean;
-let routes : Route[];
+
+let chainID : number;
+let account : string;
+
+let routes    : Route[];
+let routePrev : string = "";
+
+let isRestrictable = (pathname: string) =>
+{
+    return !network
+        ||  (!connected && !connecting)
+        &&  routesWithSigner.find(r => r.href == pathname) != null;
+}
 
 function Header()
 {
+    chainID = useChainID();
+    account = useAccount();
+
     const router  = useRouter();
-    const account = useAccount();
 
     useEffect
     (
         () =>
         {
-            if (!connected() && routesWithSigner.find(r => r.href == router.pathname) != null) router.replace("/mint", "/404");
+            if (connected === undefined) return; // First run ignored
+
+            if (isRestrictable(router.pathname))
+            {
+                router.replace(router.pathname, "/404").then( () => router.push("/404") );
+                routePrev = router.pathname.toString();
+
+                return;
+            }
+
+            // Navigate back to where the user was before
+            if (routePrev.length !== 0)
+            {
+                router.replace("/404", routePrev)
+                .then( () => { router.push(routePrev); routePrev = ""; } );
+            }
+        }
+    ,   [chainID]
+    );
+
+    useEffect
+    (
+        () =>
+        {
+            if (connected === undefined) return; // First run ignored
+
+            if (isRestrictable(router.pathname))
+            {
+                router.replace(router.pathname, "/404").then( () => router.push("/404") );
+
+                return;
+            }
+
             if (router.pathname !== "/explore") document.body.onclick = null;
         }
     ,   [router.pathname]
     );
 
-    hasProvider = provider() != null;
+    hasProvider = provider != null;
 
     routes = [];
 
-    if ( network() && connected() ) routes.push(... routesWithSigner);
-    if (hasProvider) routes.push(... routesReadOnly);
+    if (network && hasProvider)
+    {
+        if (connected) routes.push(... routesWithSigner);
+
+        routes.push(... routesReadOnly);
+    }
 
     return <div className={classes.root}>
         <Link key="route-link-main" href="/">
@@ -73,7 +124,7 @@ function Header()
             </a>
         </Link>
 
-        { !network() && <p>{ hasProvider ? "Connect to localhost" : "Metamask required to access dapp" }</p> }
+        { !network && <p>{ hasProvider ? "Connect to localhost" : "Metamask required to access dapp" }</p> }
 
         <div>
             {
@@ -93,11 +144,15 @@ function Header()
             <ThemeSwitch />
 
             <Button
-                className={clsx(classes.connectBtn, connected() && classes.connectBtnSmall)}
+                className={clsx(classes.connectBtn, connected && classes.connectBtnSmall)}
                 variant="contained"
-                { ... !connected() && { onClick : ( hasProvider ? connectWallet : () => window.open("https://metamask.io/download") ) } }
+                { ... !connected && !connecting &&
+                    {
+                        onClick : hasProvider ? connectWallet : () => window.open("https://metamask.io/download")
+                    }
+                }
             >
-                <p>{ connected() ? getAccountDisplayValue(account) : (hasProvider ? "Connect wallet" : "Install Metamask") }</p>
+                <p>{ connected ? getAccountDisplayValue(account) : (hasProvider ? "Connect wallet" : "Install Metamask") }</p>
             </Button>
         </div>
     </div>;

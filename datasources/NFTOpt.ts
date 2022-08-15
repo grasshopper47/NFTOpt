@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import addresses from "../addresses.json";
 import { NFTOpt } from "../typechain-types/contracts/NFTOpt";
 import NFTOptSolContract from "../artifacts/contracts/NFTOpt.sol/NFTOpt.json";
+import { network } from "./provider";
 
 export let contracts =
 {
@@ -15,13 +16,13 @@ export const clearNFTOpt = () =>
     contracts.NFTOpt = {} as unknown as NFTOpt;
 }
 
-export const createNFTOptInstance = (network : string, signerOrProvider?: ethers.Signer | ethers.providers.Provider) =>
+export const createNFTOptInstance = (SignerOrProvider?: ethers.Signer | ethers.providers.Provider) =>
 {
     // Create completely new instance with the default provider (readonly)
     contracts.NFTOpt = new ethers.Contract
     (
-        addresses[network].NFTOpt
+        addresses[network ?? -1].NFTOpt
     ,   NFTOptSolContract.abi
-    ,   signerOrProvider
+    ,   SignerOrProvider
     ) as NFTOpt;
 }

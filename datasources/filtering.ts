@@ -2,8 +2,6 @@ import { ethers } from "ethers";
 import { OptionState } from "../models/enums";
 import { requests, options } from "./options";
 
-export enum OptionStateViewed { REQUEST, OPEN, CLOSED };
-
 export type FilterParams =
 {
     account     : string
@@ -12,16 +10,19 @@ export type FilterParams =
 ,   interval    : { min : string, max: string }
 }
 
-export let optionsByStateFiltered = {};
+export let filterParams = { } as FilterParams;
 
-const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
-
-const stateFilter =
+export const resetFilterParams = () =>
 {
-    [OptionStateViewed.REQUEST] : (s : OptionState) => true
-,   [OptionStateViewed.OPEN]    : (s : OptionState) => s === OptionState.OPEN
-,   [OptionStateViewed.CLOSED]  : (s : OptionState) => s === OptionState.CANCELED || s === OptionState.EXERCISED
+    filterParams.account     = "";
+    filterParams.premium     = { min: "", max: "" };
+    filterParams.strikePrice = { min: "", max: "" };
+    filterParams.interval    = { min: "", max: "" };
 }
+
+export enum OptionStateViewed { REQUEST, OPEN, CLOSED };
+
+export let optionsByStateFiltered = {};
 
 export async function doFilter(state : OptionStateViewed, filterParams : FilterParams)
 {
@@ -43,4 +44,13 @@ export async function doFilter(state : OptionStateViewed, filterParams : FilterP
     optionsByStateFiltered[state] = map;
 
     return map;
+}
+
+const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
+
+const stateFilter =
+{
+    [OptionStateViewed.REQUEST] : (s : OptionState) => true
+,   [OptionStateViewed.OPEN]    : (s : OptionState) => s === OptionState.OPEN
+,   [OptionStateViewed.CLOSED]  : (s : OptionState) => s === OptionState.CANCELED || s === OptionState.EXERCISED
 }

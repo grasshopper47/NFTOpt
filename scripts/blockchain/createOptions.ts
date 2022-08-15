@@ -7,10 +7,10 @@ import { OptionState } from "../../models/enums";
 
 async function createOptions()
 {
-    const signers = await ethers.getSigners();
+    const Signers = await ethers.getSigners();
 
     // remove 1st account, it's the one that created all the options
-    signers.shift();
+    Signers.shift();
 
     // Create completely new instance with the default provider (readonly)
     const NFTOpt =
@@ -18,7 +18,7 @@ async function createOptions()
     (
         addresses.localhost.NFTOpt
     ,   NFTOptSolContract.abi
-    ,   signers[0].provider
+    ,   Signers[0].provider
     ) as NFTOpt;
 
     let i = 0;
@@ -47,7 +47,7 @@ async function createOptions()
             continue;
         }
 
-        NFTOpt.connect(signers[Math.floor(Math.random() * signers.length)]).createOption
+        NFTOpt.connect(Signers[Math.floor(Math.random() * Signers.length)]).createOption
         (
             optionID
         ,   {
@@ -75,7 +75,7 @@ async function createOptions()
 
     if (optionID.gt(-1))
     {
-        await NFTOpt.connect(signers[Math.floor(Math.random() * signers.length)]).createOption
+        await NFTOpt.connect(Signers[Math.floor(Math.random() * Signers.length)]).createOption
         (
             optionID
         ,   {

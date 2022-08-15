@@ -4,10 +4,10 @@ import clsx from "clsx";
 
 import React from 'react';
 import { OptionWithAsset } from "../../models/option";
-import CardView from "./CardView";
+import { ListViewStates } from "../utils/view";
+import CardView, { setViewClass } from "./CardView";
 import DetailsView from './DetailsView';
-import { IconButton } from "@mui/material";
-import { ArrowBackIosRounded } from "@mui/icons-material";
+import { Button } from "@mui/material";
 
 type Props =
 {
@@ -17,38 +17,39 @@ type Props =
 ,   viewIndex     ?: number
 }
 
-export const ListViewStates = [ "S", "M", "L" ];
-export const ListViewLimits = [ 12, 24, 48 ];
-
 function ListView(props: Props)
 {
-    if (!props.selectedValue)
-        return <div className={clsx(classes.containerGrid, classes[ListViewStates[props.viewIndex ?? 0]])}>
-            {
-                props.list.map
-                (
-                    option =>
-                    <CardView
-                        key={`option-card-${option.id}`}
-                        option={option}
-                        viewIndex={props.viewIndex ?? 0}
-                        { ... props.onSelect && {onViewDetails: props.onSelect}}
-                    />
-                )
-            }
+    if (props.selectedValue)
+    {
+        // Render details view
+        return <div className={classes.detailsWrapper}>
+            <Button
+                className={classes.goBackBtn}
+                onClick={ () => props.onSelect(null) }
+            >&lt;</Button>
+
+            <DetailsView
+                option={props.selectedValue}
+                onAction={() => props.onSelect(null)} />
         </div>;
+    }
 
-    return <div className={classes.detailsWrapper}>
-        <IconButton
-            className={classes.goBackBtn}
-            onClick={() => props.onSelect(null)}
-        >
-            <ArrowBackIosRounded />
-        </IconButton>
+    let viewIndex = props.viewIndex ?? 0;
+    setViewClass(viewIndex);
 
-        <DetailsView
-            option={props.selectedValue}
-            onAction={() => props.onSelect(null)} />
+    // Render list of items
+    return <div className={clsx(classes.containerGrid, classes[ListViewStates[viewIndex]])}>
+        {
+            props.list.map
+            (
+                option =>
+                <CardView
+                    key={`option-card-${option.id}`}
+                    option={option}
+                    { ... props.onSelect && {onViewDetails: props.onSelect}}
+                />
+            )
+        }
     </div>;
 }
 

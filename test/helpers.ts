@@ -3,7 +3,7 @@ import { Collection_BASE, Collection_BASE } from "../typechain-types";
 
 import { ethers } from "hardhat";
 import { expect } from "chai";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/Signers";
 import { Option } from "../models/option";
 import { OptionFlavor } from "../models/enums";
 import { BIGNUMBER0, SECONDS_IN_A_DAY } from "../utils/constants";
