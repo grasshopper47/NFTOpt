@@ -10,7 +10,7 @@ import { isExpired } from "../../datasources/options";
 import { OptionState} from "../../models/enums";
 import { OptionWithAsset } from "../../models/option";
 import { ADDRESS0 } from "../../utils/constants";
-import { connected, scanner, signer } from "../utils/metamask";
+import { connected, signer } from "../utils/metamask";
 import { flavorLabels, eventLabels } from "../utils/labels";
 import { dismissLastToast, showToast } from "../utils/toasting";
 import { optionChangingIDs, requestChangingIDs, useAccount } from "../utils/contexts";
@@ -18,6 +18,7 @@ import Button_DetailsView from "../fragments/Button.DetailsView";
 import Field_DetailsView from "../fragments/Field.DetailsView";
 import FieldLink_DetailsView from "../fragments/FieldLink.DetailsView";
 import toast from "react-hot-toast";
+import { scanner } from "../../datasources/provider";
 
 type Props =
 {
@@ -61,7 +62,7 @@ let getTransactionLink = async (option : OptionWithAsset) =>
 
     let results = await contracts.NFTOpt.queryFilter(filter);
 
-    return `${scanner()}/tx/${results[0].transactionHash}`;
+    return `${scanner}/tx/${results[0].transactionHash}`;
 }
 
 let account : string;
