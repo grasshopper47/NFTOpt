@@ -6,3 +6,21 @@
     margin-top: 60px;
     animation: fadeIn 333ms;
 }
+
+@mixin form($margin-top) {
+    display: flex;
+    flex-direction: column;
+    width: 45%;
+    margin-top: $margin-top;
+    position: relative;
+
+    :global(.MuiInputBase-root)
+    {
+        color: $text-primary;
+
+        svg
+        {
+            color: $text-primary;
+        }
+    }
+}
