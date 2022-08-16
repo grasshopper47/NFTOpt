@@ -7,31 +7,12 @@
 
 .root
 {
-    max-width: 900px;
-    display: flex;
-    justify-content: space-between;
-    margin: auto;
-    margin-top: 60px;
-    animation: fadeIn 333ms;
+    @include root;
 }
 
 .form
 {
-    display: flex;
-    flex-direction: column;
-    width: 45%;
-    margin-top: 14px;
-    position: relative;
-
-    :global(.MuiInputBase-root)
-    {
-        color: $text-primary;
-
-        svg
-        {
-            color: $text-primary;
-        }
-    }
+    @include form($margin-top: 14px);
 }
 
 .fieldWrapper
