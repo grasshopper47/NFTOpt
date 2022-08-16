@@ -14,21 +14,7 @@
 
 .form
 {
-    display: flex;
-    flex-direction: column;
-    width: 45%;
-    margin-top: 16px;
-    position: relative;
-
-    :global(.MuiInputBase-root)
-    {
-        color: $text-primary;
-
-        svg
-        {
-            color: $text-primary;
-        }
-    }
+    @include form($margin-top: 16px)
 }
 
 .list
