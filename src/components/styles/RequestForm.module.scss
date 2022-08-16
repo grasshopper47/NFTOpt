@@ -1,4 +1,7 @@
-@import "src/styles/variables.scss";
+@import
+"src/styles/variables.scss",
+"src/styles/mixins.scss";
+
 
 @keyframes fadeIn {
     0% { opacity: 0; }
