@@ -30,5 +30,6 @@
     ,   "**/.DS_Store"         : true
     ,   "**/Thumbs.db"         : true
     ,   "**/package-lock.json" : true
-    }
+    },
+    "scss.lint.duplicateProperties": "warning"
 }

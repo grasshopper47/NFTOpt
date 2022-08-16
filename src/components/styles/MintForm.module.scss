@@ -1,4 +1,6 @@
-@import "src/styles/variables.scss";
+@import
+"src/styles/variables.scss",
+"src/styles/mixins.scss";
 
 @keyframes fadeIn {
     0% { opacity: 0; }
@@ -7,12 +9,7 @@
 
 .root
 {
-    max-width: 900px;
-    display: flex;
-    justify-content: space-between;
-    margin: auto;
-    margin-top: 60px;
-    animation: fadeIn 333ms;
+    @include root;
 }
 
 .form
@@ -50,7 +47,6 @@
 .dummyImageContainer
 {
     background: $color-primary;
-    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: space-around;
