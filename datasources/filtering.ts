@@ -27,11 +27,12 @@ export let optionsByStateFiltered = {};
 export async function doFilter(state : OptionStateViewed)
 {
     let map = state === OptionStateViewed.REQUEST ? requests : options;
+    let filterState = stateFilter[state];
 
     map = map.filter
     (
         o =>
-        stateFilter[state](o.state)
+        filterState(o.state)
         && (filterParams.account === "" || (o.buyer === filterParams.account || o.seller === filterParams.account))
         && o.premium.gte(ethers.utils.parseEther(filterParams.premium.min === "" ? "0" : filterParams.premium.min))
         && o.premium.lte(ethers.utils.parseEther(filterParams.premium.max === "" ? MAX_INT_STRING : filterParams.premium.max))
