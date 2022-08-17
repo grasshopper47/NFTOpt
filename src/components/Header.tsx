@@ -196,14 +196,20 @@ function Header()
                                 ))}
                             </Menu>
                         </Box>
-                <div>
+                        <ButtonBase sx={{ display: { xs: "flex", md: "none" }, mr: 1 }}>
+                            <Link key="route-link-main" href="/">
+                                <a className={clsx(classes.link, classes.logo)}>NFT-OթͲ</a>
+                            </Link>
+                        </ButtonBase>
+                        <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, alignItems: "center", justifyContent: "center" }}>
                         {
                             routes.map
                             (
                                 route =>
                                 <Link
                                     key={`route-link-${route.href}`}
-                                    href={route.href}>
+                                    href={route.href}
+                                    onClick={handleCloseNavMenu}>
                                     <a className={clsx(classes.link, router.pathname == route.href && classes.active)}>
                                         {route.name}
                                     </a>
@@ -224,7 +230,7 @@ function Header()
                         >
                             <p>{ connected ? getAccountDisplayValue(account) : (hasProvider ? "Connect wallet" : "Install Metamask") }</p>
                         </Button>
-                    </div>
+                    </Box>
                 </Toolbar>
             </Container>
         </AppBar>
