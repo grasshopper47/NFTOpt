@@ -136,56 +136,66 @@ function Header()
         routes.push(... routesReadOnly);
     }
 
-    const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+    const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) =>
+    {
         setAnchorElNav(event.currentTarget);
     };
-    const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+
+
+    const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) =>
+    {
         setAnchorElUser(event.currentTarget);
     };
 
-    const handleCloseNavMenu = () => {
+
+    const handleCloseNavMenu = () =>
+    {
         setAnchorElNav(null);
     };
 
     return <div className={classes.root}>
         <AppBar position="static" className={classes.appBar}>
-            <Link key="route-link-main" href="/">
-                <a className={clsx(classes.link, classes.logo)}>
-                    NFT-OթͲ
-                </a>
-            </Link>
-
-            { !network && <p>{ hasProvider ? "Connect to localhost" : "Metamask required to access dapp" }</p> }
-
-            <div>
-                {
-                    routes.map
-                    (
-                        route =>
-                        <Link
-                            key={`route-link-${route.href}`}
-                            href={route.href}>
-                            <a className={clsx(classes.link, router.pathname == route.href && classes.active)}>
-                                {route.name}
-                            </a>
-                        </Link>
-                    )
-                }
-
-                <ThemeSwitch />
-
-                <Button
-                    className={clsx(classes.connectBtn, connected && classes.connectBtnSmall)}
-                    variant="contained"
-                    { ... !connected && !connecting &&
+            <Container maxWidth="lg">
+                <Toolbar disableGutters>
+                <ButtonBase sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}>
+                    <Link key="route-link-main" href="/">
+                        <a className={clsx(classes.link, classes.logo)}>
+                            NFT-OթͲ
+                        </a>
+                    </Link>
+                </ButtonBase>
+                { !network && <p>{ hasProvider ? "Connect to localhost" : "Metamask required to access dapp" }</p> }
+                <div>
                         {
-                            onClick : hasProvider ? connectWallet : () => window.open("https://metamask.io/download")
+                            routes.map
+                            (
+                                route =>
+                                <Link
+                                    key={`route-link-${route.href}`}
+                                    href={route.href}>
+                                    <a className={clsx(classes.link, router.pathname == route.href && classes.active)}>
+                                        {route.name}
+                                    </a>
+                                </Link>
+                            )
                         }
-                    }
-                >
-                    <p>{ connected ? getAccountDisplayValue(account) : (hasProvider ? "Connect wallet" : "Install Metamask") }</p>
-                </Button>
-            </div>
+
+                        <ThemeSwitch />
+
+                        <Button
+                            className={clsx(classes.connectBtn, connected && classes.connectBtnSmall)}
+                            variant="contained"
+                            { ... !connected && !connecting &&
+                                {
+                                    onClick : hasProvider ? connectWallet : () => window.open("https://metamask.io/download")
+                                }
+                            }
+                        >
+                            <p>{ connected ? getAccountDisplayValue(account) : (hasProvider ? "Connect wallet" : "Install Metamask") }</p>
+                        </Button>
+                    </div>
+                </Toolbar>
+            </Container>
         </AppBar>
     </div>;
 }
