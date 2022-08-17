@@ -53,9 +53,9 @@ const _batchHandlerCallback = async (obj : BatchHandlerType) =>
     // Check other handlers for activity
     let isBusy = false;
     for (let event of eventLabels) isBusy = isBusy || _handlers[event].isLoading;
-    if (isBusy) {console.log("busy"); return; }
+    if (isBusy) { console.log("busy"); return; }
 
-    console.log("batches loaded, refresh");
+    console.log("batches loaded >> refresh");
 
     // Refresh UI
     _UICallback();
