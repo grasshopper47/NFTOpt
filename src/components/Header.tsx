@@ -157,14 +157,45 @@ function Header()
         <AppBar position="static" className={classes.appBar}>
             <Container maxWidth="lg">
                 <Toolbar disableGutters>
-                <ButtonBase sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}>
+
+                    <ButtonBase sx={{
+                        display: { xs: "none", md: "flex" }, mr: 1
+                        }}>
                     <Link key="route-link-main" href="/">
                         <a className={clsx(classes.link, classes.logo)}>
                             NFT-OթͲ
                         </a>
                     </Link>
                 </ButtonBase>
+
                 { !network && <p>{ hasProvider ? "Connect to localhost" : "Metamask required to access dapp" }</p> }
+
+                <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+                            <IconButton size="large" aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" onClick={handleOpenNavMenu}color="success">
+                                <MenuIcon />
+                            </IconButton>
+                            <Menu id="menu-appbar"
+                            anchorEl={anchorElNav}
+                            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: "top",
+                                horizontal: "left",
+                                }}
+                            open={Boolean(anchorElNav)}
+                            onClose={handleCloseNavMenu}
+                            sx={{ display: { xs: "block", md: "none" }}}>
+                                {routes.map((route) => (
+                                    <MenuItem key={route.href} onClick={handleCloseNavMenu}>
+                                        <Link href={route.href}>
+                                            <a className={clsx(classes.link, router.pathname == route.href && classes.active)}>
+                                                {route.name}
+                                            </a>
+                                        </Link>
+                                    </MenuItem>
+                                ))}
+                            </Menu>
+                        </Box>
                 <div>
                         {
                             routes.map
