@@ -10,18 +10,20 @@ import { useAccount } from "../utils/contexts";
 import Row_FilterBox from "../fragments/Row.FilterBox";
 import { Button, FormControlLabel, Switch } from "@mui/material";
 
-resetFilterParams();
-
 type Props =
 {
     onFilter : () => void
 };
 
+let account : string;
+
+resetFilterParams();
+
 function FilterBox(props : Props)
 {
     const [ showAll , setShowAll ] = useState(filterParams.account === "");
 
-    const account = useAccount();
+    account = useAccount();
 
     return <div
         className={classes.containerRoot}
@@ -45,7 +47,8 @@ function FilterBox(props : Props)
                                         else filterParams.account = account;
 
                                         setShowAll(v => !v);
-                                        props.onFilter(); }
+                                        props.onFilter();
+                                    }
                                 }
                             />
                         }

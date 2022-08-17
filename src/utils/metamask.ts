@@ -24,7 +24,7 @@ export function hookMetamask
     _setChainID = setChainID;
 
     window.ethereum.on("chainChanged"   , _handleNetworkChanged);
-    window.ethereum.on('accountsChanged', _handleSignerChanged);
+    window.ethereum.on("accountsChanged", _handleSignerChanged);
 
     _handleNetworkChanged(window.ethereum.networkVersion);
 

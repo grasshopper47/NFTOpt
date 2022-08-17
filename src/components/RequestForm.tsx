@@ -23,7 +23,7 @@ import { Button, SelectChangeEvent } from "@mui/material";
 import { clearNFTCollectionsEventCallback, setNFTCollectionsEventCallback } from "../controllers/NFTOptCollections";
 import { useAccount, useChainID } from "../utils/contexts";
 
-const setAsset = (asset : NFTAsset | undefined | null) =>
+let setAsset = (asset : NFTAsset | undefined | null) =>
 {
     console.log("setAsset");
 
@@ -31,7 +31,7 @@ const setAsset = (asset : NFTAsset | undefined | null) =>
     {
         assetKey = { nftId : "", nftContract: "" };
 
-        _setImageCallback("");
+        setImage("");
 
         return;
     }
@@ -40,30 +40,30 @@ const setAsset = (asset : NFTAsset | undefined | null) =>
 
     let image = imageOf(assetKey);
 
-    if (image) _setImageCallback(image);
-    else       loadImage(assetKey).then( img => { asset.image = img; _setImageCallback(img); } );
+    if (image) setImage(image);
+    else       loadImage(assetKey).then( img => { asset.image = img; setImage(img); } );
 };
 
-const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
+let setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
 {
     request[event.target.id] = getFloatString(event.target.value);
     areAmountsInvalid = parseFloat(request.premium) >= parseFloat(request.strikePrice);
-    _requestChangedCallback();
+    requestChanged();
 };
 
-const setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
+let setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
 {
     request.interval = getIntervalString(event.target.value);
-    _requestChangedCallback();
+    requestChanged();
 };
 
-const setFlavor = (event: SelectChangeEvent<OptionFlavor>) =>
+let setFlavor = (event: SelectChangeEvent<OptionFlavor>) =>
 {
     request.flavor = event.target.value as OptionFlavor;
-    _requestChangedCallback();
+    requestChanged();
 }
 
-const handlePublish = () => showToast
+let handlePublish = () => showToast
 (
     contracts.NFTOpt.publishRequest
     (
@@ -74,22 +74,13 @@ const handlePublish = () => showToast
     ,   request.flavor
     ,   { value: ethers.utils.parseEther(request.premium) }
     )
-    .then( () => { resetRequest(), _requestChangedCallback() } )
+    .then( () => { resetRequest(), requestChanged() } )
 );
 
-const handleKey = (event: React.KeyboardEvent<HTMLInputElement>) =>
+let handleKey = (event: React.KeyboardEvent<HTMLInputElement>) =>
 {
     if (event.key === "Enter") if (isRequestValid()) handlePublish();
 }
-
-let request  = {} as Request_DISPLAY;
-let assetKey = {} as AssetKey
-
-let areAmountsInvalid = false;
-
-let account : string;
-let chainID : number;
-let assets  : NFTAsset[];
 
 let isRequestValid = () =>
 {
@@ -112,26 +103,37 @@ let resetRequest = () =>
     areAmountsInvalid = false;
 }
 
-let _setImageCallback       : (img : string) => void;
-let _requestChangedCallback : () => void;
+let areAmountsInvalid = false;
+let showAddContract   = false;
+
+let chainID : number;
+let account : string;
+let image   : string;
+let assets  : NFTAsset[];
+
+let setShowAddContract : (a : boolean) => void;
+let setImage           : (a : string)  => void;
+let requestChanged     : () => void;
+
+let request  = {} as Request_DISPLAY;
+let assetKey = {} as AssetKey
 
 resetRequest();
 
 function RequestForm()
 {
-    const [                 , setAssetsChanged ]   = useState(0);
-    const [                 , setRequestChanged ]  = useState(0);
-    const [ image           , setImage ]           = useState(imageOf(assetKey));
-    const [ showAddContract , setShowAddContract ] = useState(false);
+    let [             , setAssetsChanged ]   = useState(0);
+    let [             , setRequestChanged ]  = useState(0);
+    [ image           , setImage ]           = useState(imageOf(assetKey));
+    [ showAddContract , setShowAddContract ] = useState(false);
 
     account = useAccount();
     chainID = useChainID();
 
     assets = assetsOf(account) ?? [];
 
-    _setImageCallback       = setImage;
-    _requestChangedCallback = () => setRequestChanged(f => f ^ 1);
-    let assetsChanged       = () => setAssetsChanged(f => f ^ 1);
+    requestChanged    = () => setRequestChanged(f => f ^ 1);
+    let assetsChanged = () => setAssetsChanged(f => f ^ 1);
 
     useEffect
     (

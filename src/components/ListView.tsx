@@ -12,12 +12,12 @@ import { Button } from "@mui/material";
 type Props =
 {
     list           : OptionWithAsset[]
-,   onSelect       : (obj: OptionWithAsset | null) => void
 ,   selectedValue ?: OptionWithAsset
 ,   viewIndex     ?: number
+,   onSelect       : (obj: OptionWithAsset | null) => void
 }
 
-function ListView(props: Props)
+function ListView(props : Props)
 {
     if (props.selectedValue)
     {
@@ -30,7 +30,7 @@ function ListView(props: Props)
 
             <DetailsView
                 option={props.selectedValue}
-                onAction={() => props.onSelect(null)} />
+                onAction={ () => props.onSelect(null) } />
         </div>;
     }
 

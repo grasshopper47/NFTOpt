@@ -6,6 +6,8 @@ import { stringOf } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
 import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
 
+let selectedAsset : NFTAsset | undefined | null = null;
+
 type Props =
 {
     value    : string
@@ -13,9 +15,7 @@ type Props =
 ,   onChange : (asset: NFTAsset | undefined) => void
 };
 
-let selectedAsset : NFTAsset | undefined | null = null;
-
-export default function(props: Props)
+export default function(props : Props)
 {
     return <FormControl className={classes.fieldWrapper}>
         <InputLabel id="select-label">NFT Item</InputLabel>

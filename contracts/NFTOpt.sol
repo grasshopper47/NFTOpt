@@ -56,10 +56,10 @@ contract NFTOpt {
     /// @param _flavor: EUROPEAN or AMERICAN
     function publishRequest
     (
-        address      _nftContract
-    ,   uint256      _nftTokenID
-    ,   uint256      _strikePrice
-    ,   uint32       _interval
+        address _nftContract
+    ,   uint256 _nftTokenID
+    ,   uint256 _strikePrice
+    ,   uint32  _interval
     ,   FLAVORS _flavor
     )
     external
@@ -105,7 +105,7 @@ contract NFTOpt {
 
         emit Published(optionID_);
 
-        /// @dev Update counter when needed; WRT overflow: only happens for the very last item, so acceptable
+        /// @dev Update counter when needed; WRT overflow: only happens after the very last item in the mapping
         if (length_ == 0) { unchecked { optionID = ++optionID_; } }
     }
 
@@ -212,7 +212,7 @@ contract NFTOpt {
         /// @dev Check for NFT access and ownership
         uint256 nftId_ = options[_optionID].nftId;
         IERC721 nftContract = IERC721(options[_optionID].nftContract);
-        if (nftContract.ownerOf(nftId_) != msg.sender)        revert NFT_NOT_OWNER(msg.sender);
+        if (nftContract.ownerOf(nftId_)     != msg.sender)    revert NFT_NOT_OWNER(msg.sender);
         if (nftContract.getApproved(nftId_) != address(this)) revert NOT_APPROVED_TO_TRANSFER_NFT(address(nftContract), nftId_);
 
         /// @dev Check that option can be exercised

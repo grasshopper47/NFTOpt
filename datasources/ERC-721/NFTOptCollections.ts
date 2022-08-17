@@ -65,7 +65,7 @@ export const loadNFTOptCollectionsItems = async () =>
     return NFTOptCollections;
 }
 
-const _loadCollectionItem = async (name : string ) =>
+const _loadCollectionItem = async (name : string) =>
 {
     let NFTContract = contracts.Collections[name];
 

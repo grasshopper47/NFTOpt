@@ -5,7 +5,7 @@ import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import { network } from "../../datasources/provider";
 import { optionsChanged, requestsChanged } from "../../datasources/options";
-import { doFilter, filterParams, optionsByStateFiltered, OptionStateViewed } from "../../datasources/filtering";
+import { doFilter, optionsByStateFiltered, OptionStateViewed } from "../../datasources/filtering";
 import { OptionWithAsset } from "../../models/option";
 import { clearNFTOptUICallback, setNFTOptUICallback } from "../controllers/NFTOpt";
 import { clearOptionsUICallback, setOptionsUICallback, useChainID } from "../utils/contexts";
@@ -16,31 +16,7 @@ import FooterNavigation from "./FooterNavigation";
 import ViewSettings from "./ViewSettings";
 import { Tab, Tabs } from "@mui/material";
 
-const tabs =
-[
-    {
-        name  : "Requests"
-    ,   value : OptionStateViewed.REQUEST
-    }
-,   {
-        name  : "Open"
-    ,   value : OptionStateViewed.OPEN
-    }
-,   {
-        name  : "Closed"
-    ,   value : OptionStateViewed.CLOSED
-    }
-];
-
-const tabIndexStorageKey  = "ActiveTabIndex";
-
-let selectedOption : OptionWithAsset | null = null;
-
-let optionViewState = OptionStateViewed.REQUEST;
-
-let _updateViewCallback : () => void;
-
-let setSelectedOption = (obj: OptionWithAsset | null) =>
+let setSelectedOption = (obj : OptionWithAsset | null) =>
 {
     selectedOption = obj;
 
@@ -59,71 +35,69 @@ let setSelectedOption = (obj: OptionWithAsset | null) =>
 
     // Force-update the view even when the selectedOption is the same value; this is to cover the edge-case
     // when the user modifies 2 or more options, with transactions queued in Metamask and aproving 1 by 1
-    _updateViewCallback();
+    viewChanged();
 }
-
-let _setViewedOptionsCallback : (list : OptionWithAsset[]) => void;
 
 let handleFiltered = () =>
 {
     console.log("filtered");
 
-    doFilter(optionViewState, filterParams).then(_setViewedOptionsCallback);
+    doFilter(optionViewState).then(setViewedOptions);
 }
 
-let renderStatusText = (hasItems : boolean, activeTabIndex : number) =>
+let getStatusText = (activeTabIndex : number) =>
 {
-    if (hasItems) return <></>;
-
-    let getStatus = () =>
+    if (activeTabIndex === 0)
     {
-        if (activeTabIndex === 0)
-        {
-            if (network)
-            {
-                if (optionsByStateFiltered[optionViewState]?.length === 0) return "Filter matched no requests";
-
-                return "Done";
-            }
-
-            return "No Requests";
-        }
-
         if (network)
         {
-            if (optionsByStateFiltered[optionViewState]?.length === 0) return "Filter matched no options";
+            if (optionsByStateFiltered[optionViewState]?.length === 0) return "Filter matched no requests";
 
-            return "Done";
+            return "Loading...";
         }
 
-        return "No Options";
+        return "No Requests";
     }
 
-    return <p className={classes.noOptions}>{getStatus()}</p>;
+    if (network)
+    {
+        if (optionsByStateFiltered[optionViewState]?.length === 0) return "Filter matched no options";
+
+        return "Loading...";
+    }
+
+    return "No Options";
 }
 
-let renderList = (options : OptionWithAsset[]) =>
+let renderList = () =>
 {
-    if (!hasItems) return <></>;
+    if (!hasItems) return <p className={classes.noOptions}>{ getStatusText(activeTabIndex) }</p>;
 
     let startIndex = page.index * page.count;
     let props =
     {
-        list      : options.slice(startIndex, startIndex + page.count)
+        list      : viewedOptions.slice(startIndex, startIndex + page.count)
     ,   viewIndex : view.state
     ,   onSelect  : setSelectedOption
-    ,   onSorted  : (list: OptionWithAsset[]) => _setViewedOptionsCallback(list)
     };
 
     if (selectedOption) props["selectedValue"] = selectedOption;
 
-    return view.type === ViewTypes.ROWLIST ? <TableView { ... props} /> : <ListView { ... props} />;
+    return view.type === ViewTypes.ROWLIST
+        ?   <TableView { ... props } onSort={ (list : OptionWithAsset[]) => setViewedOptions(list) } />
+        :   <ListView  { ... props } />;
 }
 
 let doClean = () => { clearOptionsUICallback(), clearNFTOptUICallback(); }
 
-let hasItems : boolean;
-let chainID  : number;
+let hasItems        : boolean;
+let chainID         : number;
+let activeTabIndex  : number;
+let optionViewState = OptionStateViewed.REQUEST;
+let selectedOption  : OptionWithAsset | null = null;
+
+let tabIndexStorageKey = "ActiveTabIndex";
+let viewedOptions      : OptionWithAsset[];
 
 let view : ViewConfig =
 {
@@ -137,14 +111,33 @@ let page : ViewPage =
 ,   count: 0
 };
 
+let tabs =
+[
+    {
+        name  : "Requests"
+    ,   value : OptionStateViewed.REQUEST
+    }
+,   {
+        name  : "Open"
+    ,   value : OptionStateViewed.OPEN
+    }
+,   {
+        name  : "Closed"
+    ,   value : OptionStateViewed.CLOSED
+    }
+];
+
+let viewChanged       : () => void;
+let setActiveTabIndex : (a : number) => void;
+let setViewedOptions  : (a : OptionWithAsset[]) => void;
+
 function ViewContainer()
 {
-    const [                , setSelectedOptionChanged ] = useState(0);
-    const [ activeTabIndex , setActiveTabIndex ]        = useState(0);
-    const [ viewedOptions  , setViewedOptions ]         = useState<OptionWithAsset[]>([]);
+    let [            , setSelectedOptionChanged ] = useState(0);
+    [ activeTabIndex , setActiveTabIndex ]        = useState(0);
+    [ viewedOptions  , setViewedOptions ]         = useState<OptionWithAsset[]>([]);
 
-    _updateViewCallback       = () => setSelectedOptionChanged(f => f ^ 1);
-    _setViewedOptionsCallback = setViewedOptions;
+    viewChanged = () => setSelectedOptionChanged(f => f ^ 1);
 
     chainID  = useChainID();
     hasItems = viewedOptions ? viewedOptions.length !== 0 : false;
@@ -230,7 +223,7 @@ function ViewContainer()
                     view={view}
                     list={viewedOptions}
                     selectedValue={selectedOption}
-                    onViewChanged={_updateViewCallback}
+                    onViewChanged={viewChanged}
                     onFilter={handleFiltered}
                 />
             }
@@ -243,8 +236,7 @@ function ViewContainer()
                 { tabs.map( tab => <Tab key={`tab-filter-${tab.name}`} label={tab.name} /> ) }
             </Tabs>
 
-            { renderStatusText(hasItems, activeTabIndex) }
-            { renderList(viewedOptions) }
+            { renderList() }
         </div>
         {
             hasItems && view.type !== ViewTypes.DETAIL &&
@@ -252,7 +244,7 @@ function ViewContainer()
                 page={page}
                 list={viewedOptions}
                 recordLimits={view.type === ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits}
-                onNavigate={_updateViewCallback}
+                onNavigate={viewChanged}
             />
         }
     </>;

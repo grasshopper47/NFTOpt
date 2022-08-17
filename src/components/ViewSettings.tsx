@@ -8,15 +8,6 @@ import { ListViewStates, storeViewState, storeViewType, ViewConfig, ViewTypes } 
 import FilterBox from "./FilterBox";
 import { Button, MenuItem, Select } from "@mui/material";
 
-type Props =
-{
-    view           : ViewConfig
-,   list           : OptionWithAsset[]
-,   selectedValue ?: OptionWithAsset | null
-,   onViewChanged  : () => void
-,   onFilter       : () => void
-};
-
 let handleViewStateChanged = (event : any) =>
 {
     let index = event.target.value;
@@ -28,14 +19,29 @@ let handleViewStateChanged = (event : any) =>
     _propsPtr.onViewChanged();
 }
 
-let _propsPtr : Props;
-let hasItems : boolean;
+let hasItems           : boolean;
+let isFilterBoxVisible : boolean;
 
-function ViewSettings(props: Props)
+let setFilterBoxVisibile : (a : boolean) => void;
+
+type Props =
 {
-    const [ isFilterBoxVisible , setFilterBoxVisibile ] = useState(false);
+    view           : ViewConfig
+,   list           : OptionWithAsset[]
+,   selectedValue ?: OptionWithAsset | null
+,   onViewChanged  : () => void
+,   onFilter       : () => void
+};
 
+let _propsPtr : Props;
+
+function ViewSettings(props : Props)
+{
     _propsPtr = props;
+
+    [ isFilterBoxVisible , setFilterBoxVisibile ] = useState(false);
+
+    hasItems = props.list ? props.list.length !== 0 : false;
 
     useEffect
     (
@@ -45,8 +51,6 @@ function ViewSettings(props: Props)
         }
     ,   []
     );
-
-    hasItems = props.list ? props.list.length !== 0 : false;
 
     return <div className={classes.viewSettingsWrapper}>
         {

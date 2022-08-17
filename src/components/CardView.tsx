@@ -7,7 +7,10 @@ import { ethers } from "ethers";
 import { OptionWithAsset } from "../../models/option";
 import { requestChangingIDs, optionChangingIDs } from "../utils/contexts";
 import { ListViewStates } from "../utils/view";
-import { AccessTime } from "@mui/icons-material";
+
+export let setViewClass = (index : number) => viewClass = classes[ListViewStates[index]];
+
+let viewClass : string;
 
 type Props =
 {
@@ -15,48 +18,42 @@ type Props =
 ,   onViewDetails : (o: OptionWithAsset | null) => void
 };
 
-let _viewClass : string;
-
-export const setViewClass = (index : number) => _viewClass = classes[ListViewStates[index]];
-
-function CardView(props: Props)
+function CardView(props : Props)
 {
-    const { option } = props;
-
     return <div
         className=
         {
             clsx
             (
                 classes.card
-            ,   _viewClass
-            ,   (requestChangingIDs[option.id] || optionChangingIDs[option.id]) && classes.changing
+            ,   viewClass
+            ,   (requestChangingIDs[props.option.id] || optionChangingIDs[props.option.id]) && classes.changing
             )
         }
-        onClick={ () => props.onViewDetails(option) }
+        onClick={ () => props.onViewDetails(props.option) }
     >
         <img
-            style={{ backgroundImage: `url(${option.asset.image})`}}
-            className={_viewClass}
+            style={{ backgroundImage: `url(${props.option.asset.image})`}}
+            className={viewClass}
             alt=""
         />
 
-         <div className={clsx(classes.content, _viewClass)}>
-            <p className={clsx(classes.title, _viewClass)}>
-                #{option.id + 1}
+         <div className={clsx(classes.content, viewClass)}>
+            <p className={clsx(classes.title, viewClass)}>
+                #{props.option.id + 1}
             </p>
 
-            <p className={clsx(classes.title, _viewClass)}>
-                {option.asset.name}
+            <p className={clsx(classes.title, viewClass)}>
+                {props.option.asset.name}
             </p>
 
-            <div className={clsx(classes.moreInfoContainer, _viewClass)}>
-                <p className={_viewClass}>
-                    {ethers.utils.formatEther(option.strikePrice)}&nbsp;<b>ETH</b>
+            <div className={clsx(classes.moreInfoContainer, viewClass)}>
+                <p className={viewClass}>
+                    {ethers.utils.formatEther(props.option.strikePrice)}&nbsp;<b>ETH</b>
                 </p>
 
-                <p className={_viewClass}>
-                    🗓&nbsp;{option.interval} day{option.interval > 1 && "s"}
+                <p className={viewClass}>
+                    🗓&nbsp;{props.option.interval} day{props.option.interval > 1 && "s"}
                 </p>
             </div>
         </div>

@@ -8,10 +8,10 @@ type Props =
     flavor    : OptionFlavor
 ,   value     : number
 ,   onChange ?: any
-,   onKeyUp    ?: any
+,   onKeyUp  ?: any
 };
 
-export default function(props: Props)
+export default function(props : Props)
 {
     let name = flavorLabels[props.flavor];
 

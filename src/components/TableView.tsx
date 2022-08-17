@@ -5,22 +5,17 @@ import React from 'react';
 import { OptionWithAsset } from "../../models/option";
 import RowView from "./RowView";
 
-enum SortMode { ASCENDING, DESCENDING };
-let sortMode = SortMode.ASCENDING;
-
-type Props =
+let sortList = (sorter : (a1: OptionWithAsset, a2: OptionWithAsset) => number) =>
 {
-    list           : OptionWithAsset[]
-,   selectedValue ?: OptionWithAsset | null | undefined
-,   onSelect       : (obj: OptionWithAsset | null) => void
-,   onSorted       : (list: OptionWithAsset[]) => void
-};
+    if (sortMode === SortMode.ASCENDING) { _propsPtr.list.sort(sorter); sortMode = SortMode.DESCENDING; }
+    else                                 { _propsPtr.list.sort((a, b) => sorter(b, a)); sortMode = SortMode.ASCENDING; }
 
-let sortList : (sorter : (a1: OptionWithAsset, a2: OptionWithAsset) => number) => void;
+    _propsPtr.onSort(_propsPtr.list);
+}
 
-let header =
-(
-    <div className={classes.listRowsHeader}>
+let createHeader = () =>
+{
+    return <div className={classes.listRowsHeader}>
         <p onClick={ () => sortList( (a, b) => b.id - a.id ) }
         >#</p>
 
@@ -36,26 +31,33 @@ let header =
         <p onClick={ () => sortList( (a, b) => b.interval - a.interval ) }
         >Interval</p>
     </div>
-);
+}
 
-function TableView(props: Props)
+enum SortMode { ASCENDING, DESCENDING };
+let sortMode = SortMode.ASCENDING;
+
+type Props =
 {
-    const selectedID = props.selectedValue ? props.selectedValue.id : -1;
-    const length = props.list ? props.list.length : 0;
+    list           : OptionWithAsset[]
+,   selectedValue ?: OptionWithAsset | null | undefined
+,   onSelect       : (obj: OptionWithAsset | null) => void
+,   onSort         : (list: OptionWithAsset[]) => void
+};
 
-    sortList = (sorter : (a1: OptionWithAsset, a2: OptionWithAsset) => number) =>
-    {
-        if (sortMode === SortMode.ASCENDING) { props.list.sort(sorter); sortMode = SortMode.DESCENDING; }
-        else                                 { props.list.sort((a, b) => sorter(b, a)); sortMode = SortMode.ASCENDING; }
+let _propsPtr : Props;
 
-        props.onSorted(props.list);
-    }
+function TableView(props : Props)
+{
+    let length = props.list ? props.list.length : 0;
+    if (length === 0) return <></>;
 
-    return <div className={classes.containerGrid}>
-        { length !== 0 && header }
+    _propsPtr = props;
 
+    let selectedID = props.selectedValue ? props.selectedValue.id : -1;
+
+    return  <div className={classes.containerGrid}>
+        { createHeader() }
         {
-            length !== 0 &&
             props.list.map
             (
                 (option, index) =>

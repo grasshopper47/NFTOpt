@@ -12,7 +12,7 @@ export type FilterParams =
 
 export let filterParams = { } as FilterParams;
 
-export const resetFilterParams = () =>
+export let resetFilterParams = () =>
 {
     filterParams.account     = "";
     filterParams.premium     = { min: "", max: "" };
@@ -24,14 +24,15 @@ export enum OptionStateViewed { REQUEST, OPEN, CLOSED };
 
 export let optionsByStateFiltered = {};
 
-export async function doFilter(state : OptionStateViewed, filterParams : FilterParams)
+export async function doFilter(state : OptionStateViewed)
 {
     let map = state === OptionStateViewed.REQUEST ? requests : options;
+    let filterState = stateFilter[state];
 
     map = map.filter
     (
         o =>
-        stateFilter[state](o.state)
+        filterState(o.state)
         && (filterParams.account === "" || (o.buyer === filterParams.account || o.seller === filterParams.account))
         && o.premium.gte(ethers.utils.parseEther(filterParams.premium.min === "" ? "0" : filterParams.premium.min))
         && o.premium.lte(ethers.utils.parseEther(filterParams.premium.max === "" ? MAX_INT_STRING : filterParams.premium.max))
@@ -46,9 +47,9 @@ export async function doFilter(state : OptionStateViewed, filterParams : FilterP
     return map;
 }
 
-const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
+let MAX_INT_STRING = Number.MAX_SAFE_INTEGER.toString();
 
-const stateFilter =
+let stateFilter =
 {
     [OptionStateViewed.REQUEST] : (s : OptionState) => true
 ,   [OptionStateViewed.OPEN]    : (s : OptionState) => s === OptionState.OPEN

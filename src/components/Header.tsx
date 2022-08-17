@@ -18,6 +18,14 @@ type Route =
 ,   name: string
 };
 
+let hasProvider : boolean;
+
+let chainID : number;
+let account : string;
+
+let routes    : Route[];
+let routePrev : string = "";
+
 let routesReadOnly: Route[] =
 [
     {
@@ -42,14 +50,6 @@ let routesWithSigner : Route[] =
     }
 ];
 
-let hasProvider : boolean;
-
-let chainID : number;
-let account : string;
-
-let routes    : Route[];
-let routePrev : string = "";
-
 let isRestrictable = (pathname: string) =>
 {
     return !network
@@ -62,7 +62,7 @@ function Header()
     chainID = useChainID();
     account = useAccount();
 
-    const router  = useRouter();
+    const router = useRouter();
 
     useEffect
     (

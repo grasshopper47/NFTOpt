@@ -9,15 +9,89 @@ import { getCachedContract } from "../../datasources/ERC-721/contracts";
 import { AssetKey, isValid, stringOf } from "../../models/assetKey";
 import { useAccount } from "../utils/contexts";
 
-let newAssetKey = {} as AssetKey;
+let setContract = (event: React.ChangeEvent<HTMLInputElement>) =>
+{
+    newAssetKey.nftContract = event.target.value;
 
-const resetKey = () =>
+    setErrorText("");
+    assetKeyChanged();
+};
+
+let setID = (event: React.ChangeEvent<HTMLInputElement>) =>
+{
+    newAssetKey.nftId = event.target.value;
+
+    setErrorText("");
+    assetKeyChanged();
+};
+
+let handleValidate = () =>
+{
+    if(!isValid(newAssetKey))
+    {
+        setErrorText("Invalid address");
+
+        return;
+    }
+
+    let contract = getCachedContract(newAssetKey.nftContract);
+    contract.ownerOf(newAssetKey.nftId).then
+    (
+        owner =>
+        {
+            if (owner !== account)
+            {
+                setErrorText("Must own token");
+
+                return;
+            }
+
+            let arr = assetsOf(account) ?? [];
+
+            getNFTAsset(newAssetKey).then
+            (
+                asset =>
+                {
+                    let assetKey = stringOf(asset.key);
+
+                    for (let a of arr)
+                    {
+                        if (assetKey === stringOf(a.key))
+                        {
+                            setErrorText("NFT already known");
+                            return;
+                        }
+                    }
+
+                    arr.push(asset);
+
+                    _propsPtr.onSuccess();
+
+                    resetKey();
+                    setErrorText("");
+                }
+            )
+        }
+    )
+    .catch
+    (
+        error => { if (error.toString().search("query for nonexistent token")) setErrorText("Non-existing token ID"); }
+    );
+}
+
+let resetKey = () =>
 {
     newAssetKey.nftId =
     newAssetKey.nftContract = "";
 }
 
-resetKey();
+let account   : string;
+let errorText : string;
+
+let newAssetKey = {} as AssetKey;
+
+let assetKeyChanged : () => void;
+let setErrorText    : (a : string) => void;
 
 type Props =
 {
@@ -25,82 +99,20 @@ type Props =
     onCancel  : () => void
 }
 
+let _propsPtr : Props;
+
+resetKey();
+
 function CustomAssetForm(props : Props)
 {
-    const [ , setAssetKeyChanged ]    = useState(0);
-    const [ errorText, setErrorText ] = useState("");
+    _propsPtr = props;
 
-    const assetKeyChanged = () => setAssetKeyChanged(f => f ^ 1);
+    let [       , setAssetKeyChanged ] = useState(0);
+    [ errorText , setErrorText       ] = useState("");
 
-    const account = useAccount();
+    assetKeyChanged = () => setAssetKeyChanged(f => f ^ 1);
 
-    const setContract = (event: React.ChangeEvent<HTMLInputElement>) =>
-    {
-        setErrorText("");
-        newAssetKey.nftContract = event.target.value;
-        assetKeyChanged();
-    };
-
-    const setID = (event: React.ChangeEvent<HTMLInputElement>) =>
-    {
-        setErrorText("");
-        newAssetKey.nftId = event.target.value;
-        assetKeyChanged();
-    };
-
-    const handleValidate = () =>
-    {
-        if(!isValid(newAssetKey))
-        {
-            setErrorText("Invalid address");
-
-            return;
-        }
-
-        let contract = getCachedContract(newAssetKey.nftContract);
-        contract.ownerOf(newAssetKey.nftId).then
-        (
-            owner =>
-            {
-                if (owner !== account)
-                {
-                    setErrorText("Must own token");
-
-                    return;
-                }
-
-                let arr = assetsOf(account) ?? [];
-
-                getNFTAsset(newAssetKey).then
-                (
-                    asset =>
-                    {
-                        let assetKey = stringOf(asset.key);
-
-                        for (let a of arr)
-                        {
-                            if (assetKey === stringOf(a.key))
-                            {
-                                setErrorText("NFT already known");
-                                return;
-                            }
-                        }
-
-                        arr.push(asset);
-
-                        props.onSuccess();
-
-                        resetKey();
-                        setErrorText("");
-                    }
-                )
-            }
-        )
-        .catch
-        (
-            error => { if (error.toString().search("query for nonexistent token")) setErrorText("Non-existing token ID"); }
-        );
-    }
+    account = useAccount();
 
     return <>
         <div className={classes.twoFieldWrapperAddContract}>
@@ -108,7 +120,7 @@ function CustomAssetForm(props : Props)
                 className={clsx(classes.fieldWrapper, classes.field)}
                 { ... errorText && { error: true, helperText: errorText } }
                 label="NFT Contract Address"
-                placeholder={`Enter an address`}
+                placeholder={"Enter an address"}
                 value={newAssetKey.nftContract}
                 onChange={setContract}
             />
@@ -116,7 +128,7 @@ function CustomAssetForm(props : Props)
             <TextField
                 className={clsx(classes.fieldWrapper, classes.field)}
                 label="Token ID"
-                placeholder={`Enter token ID`}
+                placeholder={"Enter token ID"}
                 value={newAssetKey.nftId}
                 onChange={setID}
             />

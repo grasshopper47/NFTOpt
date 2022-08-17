@@ -6,16 +6,6 @@ import { OptionWithAsset } from "../../models/option";
 import { Button, MenuItem, Select } from "@mui/material";
 import { getViewLimitIndexFromStorage, storeViewRecordsLimitIndex, ViewPage } from "../utils/view";
 
-type Props =
-{
-    page         : ViewPage
-,   list         : OptionWithAsset[]
-,   recordLimits : number[]
-,   onNavigate   : () => void
-};
-
-let _propsPtr : Props;
-
 let setPageIndex = (a : number) =>
 {
     _propsPtr.page.index = a;
@@ -38,7 +28,17 @@ let setPageCount = (event: any) =>
     _propsPtr.onNavigate();
 }
 
-function FooterNavigation(props: Props)
+type Props =
+{
+    page         : ViewPage
+,   list         : OptionWithAsset[]
+,   recordLimits : number[]
+,   onNavigate   : () => void
+};
+
+let _propsPtr : Props;
+
+function FooterNavigation(props : Props)
 {
     _propsPtr = props;
 
