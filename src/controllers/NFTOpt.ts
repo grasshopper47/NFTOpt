@@ -8,9 +8,6 @@ import { dismissLastToast, TOAST_DURATION } from "../utils/toasting";
 import toast from "react-hot-toast";
 import { requestChangingIDs, optionChangingIDs } from "../utils/contexts";
 
-export const requestIDsTransactions = {};
-export const optionIDsTransactions  = {};
-
 export const setNFTOptUICallback   = (cb : () => void) => _UICallback = cb;
 export const clearNFTOptUICallback = () => _UICallback = () => {};
 
@@ -49,14 +46,14 @@ const _batchHandlerCallback = async (obj : BatchHandlerType) =>
     // Load objects for each key
     let promises : Promise<any>[] = [];
     while (--i !== -1) promises.push( obj.handler(obj.keys.pop()) );
-    await Promise.allSettled(promises);
+    await Promise.all(promises);
 
     obj.isLoading = false;
 
     // Check other handlers for activity
     let isBusy = false;
     for (let event of eventLabels) isBusy = isBusy || _handlers[event].isLoading;
-    if (isBusy) return;
+    if (isBusy) {console.log("busy"); return; }
 
     console.log("batches loaded, refresh");
 
@@ -95,19 +92,8 @@ const _handleEvent = (ID : BigNumber, transaction : any) =>
     let actionLabel = transaction.event.toLowerCase();
     let id = ID.toNumber();
 
-    if (action === 'P' || action === 'W')
-    {
-        actionLabel += " request";
-
-        if (action === 'W') delete requestIDsTransactions[id];
-        else                requestIDsTransactions[id] = transaction.transactionHash;
-    }
-    else
-    {
-        actionLabel += " option";
-
-        optionIDsTransactions[id] = transaction.transactionHash;
-    }
+    if (action === 'P' || action === 'W') actionLabel += " request";
+    else                                  actionLabel += " option";
 
     // Show toast of success only when called by user's direct UI interaction (waiting toast is shown)
     if (dismissLastToast()) toast.success("Successfully " + actionLabel, { duration: TOAST_DURATION });
