@@ -13,7 +13,7 @@ type Props =
 ,   onKeyUp    ?: any    | undefined
 };
 
-export default function(props: Props)
+export default function(props : Props)
 {
     let label = "";
     let description = "";

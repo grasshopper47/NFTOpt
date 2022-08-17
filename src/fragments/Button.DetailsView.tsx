@@ -6,17 +6,17 @@ import { Button } from "@mui/material";
 
 type Props =
 {
-    label       : string
-,   variant     : "outlined" | "contained" | "text" | undefined
-,   className   : string
-,   handleClick : any
+    label     : string
+,   variant   : "outlined" | "contained" | "text" | undefined
+,   className : string
+,   onClick   : any
 };
 
-export default function(props: Props)
+export default function(props : Props)
 {
     return <Button
         variant={props.variant}
         className={classes[props.className]}
-        onClick={props.handleClick}
+        onClick={props.onClick}
     >{props.label}</Button>;
 }

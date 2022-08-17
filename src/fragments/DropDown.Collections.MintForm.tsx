@@ -13,7 +13,7 @@ type Props =
 ,   onChange : (asset: NFTAsset | undefined | null) => void
 };
 
-export default function(props: Props)
+export default function(props : Props)
 {
     return <FormControl className={classes.fieldWrapper}>
         <InputLabel id="select-label">NFT Collection</InputLabel>

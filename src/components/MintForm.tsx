@@ -14,16 +14,15 @@ import { clearOptionsUICallback, useAccount, useChainID, setNFTCollectionsLoadCa
 import { showToast } from "../utils/toasting";
 import { signer } from "../utils/metamask";
 import DropDown_MintForm from "../fragments/DropDown.Collections.MintForm";
-import { Avatar, Button, ListItem, ListItemAvatar, ListItemText, ListSubheader } from "@mui/material";
+import { Avatar, Button, ListItem, ListItemAvatar, ListItemText, ListSubheader, SelectChangeEvent } from "@mui/material";
 import { List } from '@mui/material';
 
-let _setImageCallback : (img : string) => void;
-
-let setAsset = (obj? : NFTAsset | null) =>
+let setAsset = (obj?: NFTAsset | null) =>
 {
-    if (obj) asset = obj; else resetAsset();
+    if (obj) asset = obj as NFTAsset;
+    else resetAsset();
 
-    _setImageCallback(asset.image);
+    setImage(asset.image);
 };
 
 let handleMint = () => showToast
@@ -55,27 +54,31 @@ let resetAsset = () =>
 
 let doClean = () => { clearOptionsUICallback(), clearNFTCollectionsEventCallback(); }
 
-let account : string;
-let chainID : number;
-let assets  : NFTAsset[];
-let asset   : NFTAsset;
+let chainID     : number;
+let account     : string;
+let image       : string;
+let asset       : NFTAsset;
+let assets      : NFTAsset[];
+let collections : NFTAsset[];
+
+let setImage       : (a : string)     => void;
+let setCollections : (a : NFTAsset[]) => void;
+let assetsChanged  : () => void;
 
 resetAsset();
 
 function MintForm()
 {
-    const [             , setAssetsChanged ] = useState(0);
-    const [ image       , setImage ]         = useState(asset.image);
-    const [ collections , setCollections ]   = useState<NFTAsset[]>(NFTOptCollections);
+    let [         , setAssetsChanged ] = useState(0);
+    [ image       , setImage ]         = useState(asset.image);
+    [ collections , setCollections ]   = useState<NFTAsset[]>(NFTOptCollections);
 
-    const assetsChanged = () => setAssetsChanged(f => f ^ 1);
+    assetsChanged = () => setAssetsChanged(f => f ^ 1);
 
     account = useAccount();
     chainID = useChainID();
 
     assets = assetsOf(account) ?? [];
-
-    _setImageCallback = setImage;
 
     useEffect
     (

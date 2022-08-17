@@ -10,7 +10,7 @@ type Props =
 ,   className? : string
 };
 
-export default function(props: Props)
+export default function(props : Props)
 {
     return <div className={classes.field}>
         <span>{props.label}</span>

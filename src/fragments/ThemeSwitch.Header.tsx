@@ -4,39 +4,43 @@ import classes from "../components/styles/ThemeSwitch.module.scss";
 import React, { useEffect, useState } from "react";
 import { IconButton } from "@mui/material";
 
-type ThemeState = "white" | "dark";
+type ThemeType = "white" | "dark";
+
+let updateTheme = (theme : ThemeType) =>
+{
+    document.documentElement.setAttribute("data-theme", theme);
+
+    setTheme(theme);
+}
+
+let handleThemeChanged = () =>
+{
+    let themeNew = (theme === "white" ? "dark" : "white") as ThemeType;
+
+    localStorage.theme = themeNew;
+
+    updateTheme(themeNew);
+};
+
+let theme    : ThemeType;
+let setTheme : (a : ThemeType) => void;
 
 function ThemeSwitch()
 {
-    const [themeState, setThemeState] = useState<ThemeState>("white");
+    [ theme, setTheme ] = useState<ThemeType>("white");
 
     useEffect
     (
-        () =>
-        {
-            const theme: ThemeState = (localStorage.theme as ThemeState) ?? "white";
-
-            setThemeState(theme);
-
-            document.documentElement.setAttribute("data-theme", theme);
-        }
+        () => updateTheme(localStorage["theme"] ?? "white")
     ,   []
     );
 
-    const handleThemeChanged = () =>
-    {
-        let theme: ThemeState = themeState === "white" ? "dark" : "white";
-
-        setThemeState(theme);
-
-        localStorage.theme = theme;
-
-        document.documentElement.setAttribute("data-theme", theme);
-    };
-
-    return <IconButton onClick={handleThemeChanged} className={classes.button}>
-        { themeState === "white" ? "☀" : "🌒" }
-    </IconButton>;
+    return <IconButton
+        onClick={handleThemeChanged}
+        className={classes.button}
+        >
+            { theme[0] === "w" ? "☀" : "🌒" }
+        </IconButton>;
 }
 
 export default ThemeSwitch;
