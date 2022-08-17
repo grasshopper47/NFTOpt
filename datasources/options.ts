@@ -112,7 +112,7 @@ async function _getOptionWithAsset(NFTOpt : NFTOpt, id: number) : Promise<Option
 {
     let option = await NFTOpt.options(id) as unknown as Option;
 
-    if (option.buyer === ADDRESS0) { console.error(`Invalid Option with ID ${id}`); return; }
+    if (option.buyer === ADDRESS0) return; // withdrawn/deleted option
 
     return {
         id          : id
