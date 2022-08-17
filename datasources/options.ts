@@ -60,7 +60,7 @@ export async function loadAll(NFTOpt : NFTOpt) : Promise<void>
     ,   (async () => options.sort(_sorter))()
     ];
 
-    await Promise.allSettled(promises);
+    await Promise.all(promises);
 }
 
 export async function withdrawRequest(ID: number) : Promise<number>
@@ -108,11 +108,11 @@ export async function createOptionFromRequest(ID : number) : Promise<number>
 export async function exerciseOption(ID: number) : Promise<number> { _setOptionState(ID, OptionState.EXERCISED); return ID; }
 export async function cancelOption  (ID: number) : Promise<number> { _setOptionState(ID, OptionState.CANCELED); return ID; }
 
-async function _getOptionWithAsset(NFTOpt : NFTOpt, id: number) : Promise<OptionWithAsset>
+async function _getOptionWithAsset(NFTOpt : NFTOpt, id: number) : Promise<OptionWithAsset | undefined>
 {
     let option = await NFTOpt.options(id) as unknown as Option;
 
-    if (option.buyer === ADDRESS0) throw "Option data is invalid.";
+    if (option.buyer === ADDRESS0) { console.error(`Invalid Option with ID ${id}`); return; }
 
     return {
         id          : id
@@ -133,14 +133,17 @@ async function _getOptionWithAsset(NFTOpt : NFTOpt, id: number) : Promise<Option
     } as OptionWithAsset;
 }
 
-const _sorter = (a : OptionWithAsset, b : OptionWithAsset) => b.id - a.id;
+let _sorter = (a : OptionWithAsset, b : OptionWithAsset) => b.id - a.id;
 
-const _storeOption = (option : OptionWithAsset) : void =>
+let _storeOption = (option? : OptionWithAsset) : void =>
 {
+    if (!option) return;
+
     if (option.state === OptionState.PUBLISHED)
     {
         requests.push(option);
         requestsChanged.value = true;
+
         return;
     }
 
@@ -148,7 +151,7 @@ const _storeOption = (option : OptionWithAsset) : void =>
     optionsChanged.value = true;
 }
 
-const _setOptionState = (ID: number, state : OptionState) : void =>
+let _setOptionState = (ID: number, state : OptionState) : void =>
 {
     for (let o of options)
     {
