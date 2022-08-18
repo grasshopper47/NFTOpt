@@ -5,6 +5,11 @@ import React from "react";
 import Image from "next/image";
 import Layout from "../fragments/Layout";
 
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import Grid from "@mui/material/Grid";
+import ButtonBase from "@mui/material/ButtonBase";
+
 type PresentationCard =
 {
     title       : string
@@ -36,19 +41,19 @@ const presentationCards : PresentationCard[] =
 function LandingPage() {
     return (
         <Layout>
-            <div className={classes.root}>
-            {
-                presentationCards.map
-                (
-                    card =>
-                    <div key={`presentation-card-${card.title}`} className={classes.card}>
-                        <Image src={card.image} alt="" width="200" height="380" />
-                        <p className={classes.title}>{card.title}</p>
-                        <p className={classes.description}>{card.description}</p>
-                    </div>
-                )
-            }
-            </div>
+            <Box sx={{ flexGrow: 3}}>
+                <Grid container columns={{ xs: 4, sm: 4, md:12 }} >
+                    {presentationCards.map((card) => (
+                        <Grid item key={`presentation-card-${card.title}`} xs={4} sm={4} md={4} className={classes.card}>
+                                <ButtonBase sx={{ width: 200, height: 340 }}>
+                                    <img src={card.image} alt="" className={classes.cardImage}/>
+                                </ButtonBase>
+                                <p className={classes.title}>{card.title}</p>
+                                <p className={classes.description}>{card.description}</p>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Box>
         </Layout>
     );
 }
