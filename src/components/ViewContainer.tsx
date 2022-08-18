@@ -16,7 +16,7 @@ import FooterNavigation from "./FooterNavigation";
 import ViewSettings from "./ViewSettings";
 import { Tab, Tabs } from "@mui/material";
 
-let setSelectedOption = (obj : OptionWithAsset | null) =>
+const setSelectedOption = (obj : OptionWithAsset | null) =>
 {
     selectedOption = obj;
 
@@ -38,14 +38,9 @@ let setSelectedOption = (obj : OptionWithAsset | null) =>
     viewChanged();
 }
 
-let handleFiltered = () =>
-{
-    console.log("filtered");
+const handleFiltered = () => doFilter(optionViewState).then(setViewedOptions);
 
-    doFilter(optionViewState).then(setViewedOptions);
-}
-
-let getStatusText = (activeTabIndex : number) =>
+const getStatusText = (activeTabIndex : number) =>
 {
     if (activeTabIndex === 0)
     {
@@ -69,12 +64,12 @@ let getStatusText = (activeTabIndex : number) =>
     return "No Options";
 }
 
-let renderList = () =>
+const renderList = () =>
 {
     if (!hasItems) return <p className={classes.noOptions}>{ getStatusText(activeTabIndex) }</p>;
 
-    let startIndex = page.index * page.count;
-    let props =
+    const startIndex = page.index * page.count;
+    const props =
     {
         list      : viewedOptions.slice(startIndex, startIndex + page.count)
     ,   viewIndex : view.state
@@ -88,30 +83,29 @@ let renderList = () =>
         :   <ListView  { ... props } />;
 }
 
-let doClean = () => { clearOptionsUICallback(), clearNFTOptUICallback(); }
+const doClean = () => { clearOptionsUICallback(), clearNFTOptUICallback(); }
 
-let hasItems        : boolean;
-let chainID         : number;
-let activeTabIndex  : number;
+let hasItems       : boolean;
+let chainID        : number;
+let activeTabIndex : number;
 let optionViewState = OptionStateViewed.REQUEST;
-let selectedOption  : OptionWithAsset | null = null;
-
-let tabIndexStorageKey = "ActiveTabIndex";
-let viewedOptions      = [] as OptionWithAsset[];
-
-let view : ViewConfig =
+let selectedOption  = null as OptionWithAsset | null;
+let viewedOptions   = [] as OptionWithAsset[];
+let view =
 {
     type  : ViewTypes.CARDLIST
 ,   state : 0
-};
+} as ViewConfig;
 
-let page : ViewPage =
+const tabIndexStorageKey = "ActiveTabIndex";
+
+const page =
 {
     index: 0
 ,   count: 0
-};
+} as ViewPage;
 
-let tabs =
+const tabs =
 [
     {
         name  : "Requests"
@@ -133,7 +127,7 @@ let setViewedOptions  : (a : OptionWithAsset[]) => void;
 
 function ViewContainer()
 {
-    let [            , setSelectedOptionChanged ] = useState(0);
+    const [          , setSelectedOptionChanged ] = useState(0);
     [ activeTabIndex , setActiveTabIndex ]        = useState(0);
     [ viewedOptions  , setViewedOptions ]         = useState<OptionWithAsset[]>([]);
 
@@ -204,7 +198,7 @@ function ViewContainer()
                 }
             }
 
-            let options = optionsByStateFiltered[optionViewState];
+            const options = optionsByStateFiltered[optionViewState];
             if (options)
             {
                 // Handle server-triggered refresh

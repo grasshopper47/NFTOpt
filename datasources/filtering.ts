@@ -10,9 +10,9 @@ export type FilterParams =
 ,   interval    : { min : string, max: string }
 }
 
-export let filterParams = { } as FilterParams;
+export const filterParams = { } as FilterParams;
 
-export let resetFilterParams = () =>
+export const resetFilterParams = () =>
 {
     filterParams.account     = "";
     filterParams.premium     = { min: "", max: "" };
@@ -22,12 +22,14 @@ export let resetFilterParams = () =>
 
 export enum OptionStateViewed { REQUEST, OPEN, CLOSED };
 
-export let optionsByStateFiltered = {};
+export const optionsByStateFiltered = {} as any;
 
-export async function doFilter(state : OptionStateViewed)
+export const doFilter = async(state : OptionStateViewed) =>
 {
+    console.log("filtered");
+
     let map = state === OptionStateViewed.REQUEST ? requests : options;
-    let filterState = stateFilter[state];
+    const filterState = stateFilter[state];
 
     map = map.filter
     (
@@ -47,9 +49,9 @@ export async function doFilter(state : OptionStateViewed)
     return map;
 }
 
-let MAX_INT_STRING = Number.MAX_SAFE_INTEGER.toString();
+const MAX_INT_STRING = Number.MAX_SAFE_INTEGER.toString();
 
-let stateFilter =
+const stateFilter =
 {
     [OptionStateViewed.REQUEST] : (s : OptionState) => true
 ,   [OptionStateViewed.OPEN]    : (s : OptionState) => s === OptionState.OPEN
