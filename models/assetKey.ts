@@ -11,4 +11,4 @@ export const isValid = (key : AssetKey) =>
         && key.nftId !== ""
 };
 
-export const stringOf = (key : AssetKey )  => key.nftId + "_" + key.nftContract;
+export const stringOf = (key : AssetKey)  => key.nftId + "_" + key.nftContract;

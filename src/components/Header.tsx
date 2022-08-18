@@ -26,7 +26,7 @@ let account : string;
 let routes    : Route[];
 let routePrev : string = "";
 
-let routesReadOnly: Route[] =
+const routesReadOnly: Route[] =
 [
     {
         href: "/explore"
@@ -38,7 +38,7 @@ let routesReadOnly: Route[] =
     }
 ];
 
-let routesWithSigner : Route[] =
+const routesWithSigner : Route[] =
 [
     {
         href: "/mint"
@@ -50,7 +50,7 @@ let routesWithSigner : Route[] =
     }
 ];
 
-let isRestrictable = (pathname: string) =>
+const isRestrictable = (pathname: string) =>
 {
     return !network
         ||  (!connected && !connecting)
@@ -100,8 +100,6 @@ function Header()
 
                 return;
             }
-
-            if (router.pathname !== "/explore") document.body.onclick = null;
         }
     ,   [router.pathname]
     );

@@ -135,18 +135,23 @@ function RequestForm()
     requestChanged    = () => setRequestChanged(f => f ^ 1);
     let assetsChanged = () => setAssetsChanged(f => f ^ 1);
 
+    setNFTCollectionsEventCallback(assetsChanged);
+
     useEffect
     (
         () =>
         {
-            clearNFTCollectionsEventCallback();
-
-            if (!network) return;
-
-            setNFTCollectionsEventCallback(assetsChanged);
-
             // Cleanup on unmount
             return () => { clearNFTCollectionsEventCallback(); }
+        }
+    ,   []
+    );
+
+    useEffect
+    (
+        () =>
+        {
+            if (!network) clearNFTCollectionsEventCallback();
         }
     ,   [chainID]
     );

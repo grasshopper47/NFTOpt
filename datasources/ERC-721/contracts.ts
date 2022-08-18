@@ -1,13 +1,14 @@
 import { ethers } from "ethers";
 import { provider } from "../provider";
 import { ABIs } from "../../utils/constants";
+import { Collection_BASE } from "../../typechain-types";
 
 let NFTContractsCache : any = {};
 export const clearContractsCache = () => NFTContractsCache = {};
 
 export const addContractToCache = (address : string, contract : any) => NFTContractsCache[address] = contract;
 
-export function getCachedContract(address : string)
+export const getCachedContract = (address : string) : Collection_BASE =>
 {
     let contract = NFTContractsCache[address];
 

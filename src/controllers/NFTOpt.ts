@@ -2,7 +2,7 @@ import { BigNumber } from "ethers";
 import { NFTOpt } from "../../typechain-types/contracts/NFTOpt";
 import { contracts } from "../../datasources/NFTOpt";
 import { blockNumber, setBlockNumber } from "../../datasources/blockNumber";
-import { createOptionFromRequest, loadOne, withdrawRequest, cancelOption, exerciseOption } from "../../datasources/options";
+import { createOptionFromRequest, loadOptionWithAsset, withdrawRequest, cancelOption, exerciseOption } from "../../datasources/options";
 import { eventLabels } from "../utils/labels";
 import { dismissLastToast, TOAST_DURATION } from "../utils/toasting";
 import toast from "react-hot-toast";
@@ -11,9 +11,9 @@ import { requestChangingIDs, optionChangingIDs } from "../utils/contexts";
 export const setNFTOptUICallback   = (cb : () => void) => _UICallback = cb;
 export const clearNFTOptUICallback = () => _UICallback = () => {};
 
-export const attachNFTOptHandlersToInstance = ( NFTOpt : NFTOpt ) =>
+export const attachNFTOptHandlersToInstance = (NFTOpt : NFTOpt) =>
 {
-    for (let event of eventLabels) NFTOpt.on(event, _handleEvent);
+    for (const event of eventLabels) NFTOpt.on(event, _handleEvent);
 }
 
 type BatchHandlerType =
@@ -44,7 +44,7 @@ const _batchHandlerCallback = async (obj : BatchHandlerType) =>
     obj.isLoading = true;
 
     // Load objects for each key
-    let promises : Promise<any>[] = [];
+    const promises : Promise<any>[] = [];
     while (--i !== -1) promises.push( obj.handler(obj.keys.pop()) );
     await Promise.all(promises);
 
@@ -52,7 +52,7 @@ const _batchHandlerCallback = async (obj : BatchHandlerType) =>
 
     // Check other handlers for activity
     let isBusy = false;
-    for (let event of eventLabels) isBusy = isBusy || _handlers[event].isLoading;
+    for (const event of eventLabels) isBusy = isBusy || _handlers[event].isLoading;
     if (isBusy) { console.log("busy"); return; }
 
     console.log("batches loaded >> refresh");
@@ -75,7 +75,7 @@ const _deleteOptionsChanging  = (ID : number) => delete optionChangingIDs[ID];
 
 const _handlers =
 {
-    Published : _createBatchHandler( (ID) => loadOne(contracts.NFTOpt, ID) )
+    Published : _createBatchHandler( (ID) => loadOptionWithAsset(contracts.NFTOpt, ID) )
 ,   Withdrawn : _createBatchHandler( (ID) => withdrawRequest(ID).then(_deleteRequestsChanging) )
 ,   Opened    : _createBatchHandler( (ID) => createOptionFromRequest(ID).then( () => { _deleteRequestsChanging(ID), _deleteOptionsChanging(ID); } ) )
 ,   Canceled  : _createBatchHandler( (ID) => cancelOption(ID).then(_deleteOptionsChanging) )
@@ -88,9 +88,9 @@ const _handleEvent = (ID : BigNumber, transaction : any) =>
     if (blockNumber >= transaction.blockNumber) return;
     setBlockNumber(transaction.blockNumber);
 
-    let action = transaction.event[0];
+    const action = transaction.event[0];
+    const id     = ID.toNumber();
     let actionLabel = transaction.event.toLowerCase();
-    let id = ID.toNumber();
 
     if (action === 'P' || action === 'W') actionLabel += " request";
     else                                  actionLabel += " option";

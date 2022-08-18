@@ -16,13 +16,13 @@ import FooterNavigation from "./FooterNavigation";
 import ViewSettings from "./ViewSettings";
 import { Tab, Tabs } from "@mui/material";
 
-let setSelectedOption = (obj : OptionWithAsset | null) =>
+const setSelectedOption = (obj : OptionWithAsset | null) =>
 {
     selectedOption = obj;
 
     if (selectedOption)
     {
-        document.body.onkeydown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedOption(null); };
+        document.body.onkeydown = handleKey;
 
         if (view.type === ViewTypes.CARDLIST) view.type = ViewTypes.DETAIL;
     }
@@ -38,14 +38,30 @@ let setSelectedOption = (obj : OptionWithAsset | null) =>
     viewChanged();
 }
 
-let handleFiltered = () =>
-{
-    console.log("filtered");
+const handleKey = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedOption(null); }
 
-    doFilter(optionViewState).then(setViewedOptions);
+const handleFiltered = () => doFilter(optionViewState).then(setViewedOptions);
+
+const renderList = () =>
+{
+    if (!hasItems) return <p className={classes.noOptions}>{ getStatusText(activeTabIndex) }</p>;
+
+    const startIndex = page.index * page.count;
+    const props =
+    {
+        list      : viewedOptions.slice(startIndex, startIndex + page.count)
+    ,   viewIndex : view.state
+    ,   onSelect  : setSelectedOption
+    };
+
+    if (selectedOption) props["selectedValue"] = selectedOption;
+
+    return view.type === ViewTypes.ROWLIST
+        ?   <TableView { ... props } onSort={ (list : OptionWithAsset[]) => setViewedOptions(list) } />
+        :   <ListView  { ... props } />;
 }
 
-let getStatusText = (activeTabIndex : number) =>
+const getStatusText = (activeTabIndex : number) =>
 {
     if (activeTabIndex === 0)
     {
@@ -69,49 +85,29 @@ let getStatusText = (activeTabIndex : number) =>
     return "No Options";
 }
 
-let renderList = () =>
-{
-    if (!hasItems) return <p className={classes.noOptions}>{ getStatusText(activeTabIndex) }</p>;
+const doClean = () => { clearOptionsUICallback(), clearNFTOptUICallback(); }
 
-    let startIndex = page.index * page.count;
-    let props =
-    {
-        list      : viewedOptions.slice(startIndex, startIndex + page.count)
-    ,   viewIndex : view.state
-    ,   onSelect  : setSelectedOption
-    };
-
-    if (selectedOption) props["selectedValue"] = selectedOption;
-
-    return view.type === ViewTypes.ROWLIST
-        ?   <TableView { ... props } onSort={ (list : OptionWithAsset[]) => setViewedOptions(list) } />
-        :   <ListView  { ... props } />;
-}
-
-let doClean = () => { clearOptionsUICallback(), clearNFTOptUICallback(); }
-
-let hasItems        : boolean;
-let chainID         : number;
-let activeTabIndex  : number;
+let hasItems       : boolean;
+let chainID        : number;
+let activeTabIndex : number;
 let optionViewState = OptionStateViewed.REQUEST;
-let selectedOption  : OptionWithAsset | null = null;
-
-let tabIndexStorageKey = "ActiveTabIndex";
-let viewedOptions      : OptionWithAsset[];
-
-let view : ViewConfig =
+let selectedOption  = null as OptionWithAsset | null;
+let viewedOptions   = [] as OptionWithAsset[];
+let view =
 {
     type  : ViewTypes.CARDLIST
 ,   state : 0
-};
+} as ViewConfig;
 
-let page : ViewPage =
+const tabIndexStorageKey = "ActiveTabIndex";
+
+const page =
 {
     index: 0
 ,   count: 0
-};
+} as ViewPage;
 
-let tabs =
+const tabs =
 [
     {
         name  : "Requests"
@@ -133,7 +129,7 @@ let setViewedOptions  : (a : OptionWithAsset[]) => void;
 
 function ViewContainer()
 {
-    let [            , setSelectedOptionChanged ] = useState(0);
+    const [          , setSelectedOptionChanged ] = useState(0);
     [ activeTabIndex , setActiveTabIndex ]        = useState(0);
     [ viewedOptions  , setViewedOptions ]         = useState<OptionWithAsset[]>([]);
 
@@ -141,6 +137,9 @@ function ViewContainer()
 
     chainID  = useChainID();
     hasItems = viewedOptions ? viewedOptions.length !== 0 : false;
+
+    setOptionsUICallback(handleFiltered);
+    setNFTOptUICallback(handleFiltered);
 
     useEffect
     (
@@ -150,7 +149,10 @@ function ViewContainer()
 
             page.count = (ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits)[getViewLimitIndexFromStorage()];
 
-            setActiveTabIndex(parseInt(localStorage[tabIndexStorageKey] ?? 0));
+            setActiveTabIndex( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
+
+            // Cleanup on unmount
+            return () => { doClean(), document.body.onkeydown = null; }
         }
     ,   []
     );
@@ -162,16 +164,9 @@ function ViewContainer()
             if (!network)
             {
                 doClean();
+
                 setViewedOptions([]);
-
-                return;
             }
-
-            setOptionsUICallback(handleFiltered);
-            setNFTOptUICallback(handleFiltered);
-
-            // Cleanup on unmount
-            return () => doClean();
         }
     ,   [chainID]
     );
@@ -180,6 +175,8 @@ function ViewContainer()
     (
         () =>
         {
+            if (!network) return;
+
             localStorage[tabIndexStorageKey] = activeTabIndex;
 
             selectedOption = null;
@@ -190,10 +187,8 @@ function ViewContainer()
             {
                 if (activeTabIndex === 0)
                 {
+                    delete optionsByStateFiltered[OptionStateViewed.REQUEST];
                     requestsChanged.value = false;
-                    handleFiltered();
-
-                    return;
                 }
             }
 
@@ -201,14 +196,21 @@ function ViewContainer()
             {
                 if (activeTabIndex !== 0)
                 {
+                    delete optionsByStateFiltered[OptionStateViewed.OPEN];
+                    delete optionsByStateFiltered[OptionStateViewed.CLOSED];
                     optionsChanged.value = false;
-                    handleFiltered();
-
-                    return;
                 }
             }
 
-            setViewedOptions(optionsByStateFiltered[optionViewState]);
+            const options = optionsByStateFiltered[optionViewState];
+            if (options)
+            {
+                // Handle server-triggered refresh
+                if (options === viewedOptions) viewedOptions = [];
+
+                setViewedOptions(options);
+            }
+            else handleFiltered();
         }
     ,   [activeTabIndex]
     );
@@ -218,7 +220,7 @@ function ViewContainer()
 
         <div className={clsx(classes.root, hasItems && classes.withOptions)}>
             {
-                hasItems && view.type !== ViewTypes.DETAIL &&
+                view.type !== ViewTypes.DETAIL &&
                 <ViewSettings
                     view={view}
                     list={viewedOptions}

@@ -48,6 +48,9 @@ function ViewSettings(props : Props)
         () =>
         {
             document.body.onclick = () => setFilterBoxVisibile(false);
+
+            // Cleanup on unmount
+            return () => { document.body.onclick = null; }
         }
     ,   []
     );
