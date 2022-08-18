@@ -22,7 +22,7 @@ const setSelectedOption = (obj : OptionWithAsset | null) =>
 
     if (selectedOption)
     {
-        document.body.onkeydown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedOption(null); };
+        document.body.onkeydown = handleKey;
 
         if (view.type === ViewTypes.CARDLIST) view.type = ViewTypes.DETAIL;
     }
@@ -38,7 +38,28 @@ const setSelectedOption = (obj : OptionWithAsset | null) =>
     viewChanged();
 }
 
+const handleKey = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedOption(null); }
+
 const handleFiltered = () => doFilter(optionViewState).then(setViewedOptions);
+
+const renderList = () =>
+{
+    if (!hasItems) return <p className={classes.noOptions}>{ getStatusText(activeTabIndex) }</p>;
+
+    const startIndex = page.index * page.count;
+    const props =
+    {
+        list      : viewedOptions.slice(startIndex, startIndex + page.count)
+    ,   viewIndex : view.state
+    ,   onSelect  : setSelectedOption
+    };
+
+    if (selectedOption) props["selectedValue"] = selectedOption;
+
+    return view.type === ViewTypes.ROWLIST
+        ?   <TableView { ... props } onSort={ (list : OptionWithAsset[]) => setViewedOptions(list) } />
+        :   <ListView  { ... props } />;
+}
 
 const getStatusText = (activeTabIndex : number) =>
 {
@@ -62,25 +83,6 @@ const getStatusText = (activeTabIndex : number) =>
     }
 
     return "No Options";
-}
-
-const renderList = () =>
-{
-    if (!hasItems) return <p className={classes.noOptions}>{ getStatusText(activeTabIndex) }</p>;
-
-    const startIndex = page.index * page.count;
-    const props =
-    {
-        list      : viewedOptions.slice(startIndex, startIndex + page.count)
-    ,   viewIndex : view.state
-    ,   onSelect  : setSelectedOption
-    };
-
-    if (selectedOption) props["selectedValue"] = selectedOption;
-
-    return view.type === ViewTypes.ROWLIST
-        ?   <TableView { ... props } onSort={ (list : OptionWithAsset[]) => setViewedOptions(list) } />
-        :   <ListView  { ... props } />;
 }
 
 const doClean = () => { clearOptionsUICallback(), clearNFTOptUICallback(); }
@@ -150,7 +152,7 @@ function ViewContainer()
             setActiveTabIndex( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
 
             // Cleanup on unmount
-            return () => doClean();
+            return () => { doClean(), document.body.onkeydown = null; }
         }
     ,   []
     );
@@ -173,6 +175,8 @@ function ViewContainer()
     (
         () =>
         {
+            if (!network) return;
+
             localStorage[tabIndexStorageKey] = activeTabIndex;
 
             selectedOption = null;
@@ -216,7 +220,7 @@ function ViewContainer()
 
         <div className={clsx(classes.root, hasItems && classes.withOptions)}>
             {
-                hasItems && view.type !== ViewTypes.DETAIL &&
+                view.type !== ViewTypes.DETAIL &&
                 <ViewSettings
                     view={view}
                     list={viewedOptions}
