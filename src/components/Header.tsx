@@ -16,14 +16,10 @@ import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
-import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
 import ButtonBase from "@mui/material/ButtonBase";
 
 
@@ -158,43 +154,49 @@ function Header()
             <Container maxWidth="lg">
                 <Toolbar disableGutters>
 
-                    <ButtonBase sx={{
-                        display: { xs: "none", md: "flex" }, mr: 1
-                        }}>
-                    <Link key="route-link-main" href="/">
-                        <a className={clsx(classes.link, classes.logo)}>
-                            NFT-OթͲ
-                        </a>
-                    </Link>
-                </ButtonBase>
+                    <ButtonBase sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}>
+                            <Link key="route-link-main" href="/"><a className={clsx(classes.link, classes.logo)}> NFT-OթͲ</a></Link>
+                    </ButtonBase>
 
                 { !network && <p>{ hasProvider ? "Connect to localhost" : "Metamask required to access dapp" }</p> }
 
                 <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-                            <IconButton size="large" aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" onClick={handleOpenNavMenu}color="success">
-                                <MenuIcon />
-                            </IconButton>
-                            <Menu id="menu-appbar"
-                            anchorEl={anchorElNav}
-                            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: "top",
-                                horizontal: "left",
-                                }}
-                            open={Boolean(anchorElNav)}
-                            onClose={handleCloseNavMenu}
-                            sx={{ display: { xs: "block", md: "none" }}}>
-                                {routes.map((route) => (
-                                    <MenuItem key={route.href} onClick={handleCloseNavMenu}>
-                                        <Link href={route.href}>
-                                            <a className={clsx(classes.link, router.pathname == route.href && classes.active)}>
-                                                {route.name}
-                                            </a>
-                                        </Link>
+                    <IconButton size="large" aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" onClick={handleOpenNavMenu}color="success">
+                        <MenuIcon />
+                    </IconButton>
+
+                    <Menu
+                    id="menu-appbar"
+                    anchorEl={anchorElNav}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                    keepMounted
+                    transformOrigin={{vertical: "top",horizontal: "left"}}
+                    open={Boolean(anchorElNav)}
+                    onClose={handleCloseNavMenu}
+                    sx={{ display: { xs: "block", md: "none" }}}>
+                    {routes.map((route) => (
+                        <MenuItem key={route.href} onClick={handleCloseNavMenu}>
+                            <Link href={route.href}>
+                                <a className={clsx(classes.link, router.pathname == route.href && classes.active)}>
+                                    {route.name}
+                                    </a>
+                                    </Link>
                                     </MenuItem>
                                 ))}
-                            </Menu>
+                        <MenuItem key="wallet" onClick={handleCloseNavMenu}>
+                        <Button
+                            className={clsx(classes.connectBtn, connected && classes.connectBtnSmall)}
+                            variant="contained"
+                            { ... !connected && !connecting &&
+                                {
+                                    onClick : hasProvider ? connectWallet : () => window.open("https://metamask.io/download")
+                                }
+                            }
+                        >
+                            <p>{ connected ? getAccountDisplayValue(account) : (hasProvider ? "Connect wallet" : "Install Metamask") }</p>
+                        </Button>
+                        </MenuItem>
+                    </Menu>
                         </Box>
                         <ButtonBase sx={{ display: { xs: "flex", md: "none" }, mr: 1 }}>
                             <Link key="route-link-main" href="/">
