@@ -128,3 +128,10 @@ div.menuPaper:global(.MuiPaper-root)
         }
     }
 }
+
+@media only screen and (max-width: 806px) {
+    .form {
+        width: 100%;
+        max-width: 374px;
+    }
+}
