@@ -97,7 +97,7 @@ let optionViewState = OptionStateViewed.REQUEST;
 let selectedOption  : OptionWithAsset | null = null;
 
 let tabIndexStorageKey = "ActiveTabIndex";
-let viewedOptions      : OptionWithAsset[];
+let viewedOptions      = [] as OptionWithAsset[];
 
 let view : ViewConfig =
 {
@@ -142,6 +142,9 @@ function ViewContainer()
     chainID  = useChainID();
     hasItems = viewedOptions ? viewedOptions.length !== 0 : false;
 
+    setOptionsUICallback(handleFiltered);
+    setNFTOptUICallback(handleFiltered);
+
     useEffect
     (
         () =>
@@ -150,7 +153,10 @@ function ViewContainer()
 
             page.count = (ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits)[getViewLimitIndexFromStorage()];
 
-            setActiveTabIndex(parseInt(localStorage[tabIndexStorageKey] ?? 0));
+            setActiveTabIndex( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
+
+            // Cleanup on unmount
+            return () => doClean();
         }
     ,   []
     );
@@ -162,16 +168,9 @@ function ViewContainer()
             if (!network)
             {
                 doClean();
+
                 setViewedOptions([]);
-
-                return;
             }
-
-            setOptionsUICallback(handleFiltered);
-            setNFTOptUICallback(handleFiltered);
-
-            // Cleanup on unmount
-            return () => doClean();
         }
     ,   [chainID]
     );
@@ -190,10 +189,8 @@ function ViewContainer()
             {
                 if (activeTabIndex === 0)
                 {
+                    delete optionsByStateFiltered[OptionStateViewed.REQUEST];
                     requestsChanged.value = false;
-                    handleFiltered();
-
-                    return;
                 }
             }
 
@@ -201,14 +198,21 @@ function ViewContainer()
             {
                 if (activeTabIndex !== 0)
                 {
+                    delete optionsByStateFiltered[OptionStateViewed.OPEN];
+                    delete optionsByStateFiltered[OptionStateViewed.CLOSED];
                     optionsChanged.value = false;
-                    handleFiltered();
-
-                    return;
                 }
             }
 
-            setViewedOptions(optionsByStateFiltered[optionViewState]);
+            let options = optionsByStateFiltered[optionViewState];
+            if (options)
+            {
+                // Handle server-triggered refresh
+                if (options === viewedOptions) viewedOptions = [];
+
+                setViewedOptions(options);
+            }
+            else handleFiltered();
         }
     ,   [activeTabIndex]
     );

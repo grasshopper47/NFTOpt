@@ -80,17 +80,24 @@ function MintForm()
 
     assets = assetsOf(account) ?? [];
 
+    setNFTCollectionsLoadCallback(setCollections);
+    setNFTCollectionsEventCallback(assetsChanged);
+
     useEffect
     (
         () =>
         {
-            if (!network) { doClean(); return; }
-
-            setNFTCollectionsLoadCallback(setCollections);
-            setNFTCollectionsEventCallback(assetsChanged);
-
             // Cleanup on unmount
             return () => doClean();
+        }
+    ,   []
+    );
+
+    useEffect
+    (
+        () =>
+        {
+            if (!network) doClean();
         }
     ,   [chainID]
     );
