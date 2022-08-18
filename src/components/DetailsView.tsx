@@ -2,7 +2,7 @@
 import classes from "./styles/DetailsView.module.scss";
 import clsx from "clsx";
 
-import { IERC721 } from "../../typechain-types/@openzeppelin/contracts/token/ERC721/IERC721";
+import { Collection_BASE } from "../../typechain-types";
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
@@ -124,7 +124,7 @@ let showTitle  = false;
 
 let transactionLink : string;
 let account  : string;
-let contract : IERC721;
+let contract : Collection_BASE;
 
 let setApproved        : (a : boolean) => void;
 let setTransactionLink : (a : string)  => void;
