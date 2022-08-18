@@ -11,10 +11,10 @@ import { clearImages } from "../../datasources/ERC-721/images";
 import { clearNFTOpt, contracts, createNFTOptInstance } from "../../datasources/NFTOpt";
 import { clearAssets } from "../../datasources/assets";
 import { clearNFTOptCollections, createNFTOptCollectionsInstances, loadNFTOptCollectionsItems } from "../../datasources/ERC-721/NFTOptCollections";
-import { clearRequests, clearOptions, loadAll } from "../../datasources/options";
+import { clearRequests, clearOptions, loadUsingGlobalID, loadFromLogs } from "../../datasources/options";
 import { attachNFTCollectionsHandlersToInstances } from "../controllers/NFTOptCollections";
 import { attachNFTOptHandlersToInstance } from "../controllers/NFTOpt";
-import { connected, connectWallet, hookMetamask, signer } from "../utils/metamask";
+import { connected, hookMetamask, signer } from "../utils/metamask";
 
 import Header from "../components/Header";
 import { Toaster } from "react-hot-toast";
@@ -56,8 +56,8 @@ export default function App({ Component, pageProps }: AppProps)
             attachNFTOptHandlersToInstance(contracts.NFTOpt);
             attachNFTCollectionsHandlersToInstances(contracts.Collections);
 
-            // Load data
-            loadAll(contracts.NFTOpt).then(OptionsUICallback);
+            // Load data loadFromLogs loadUsingGlobalID
+            loadFromLogs(contracts.NFTOpt).then(OptionsUICallback);
             loadNFTOptCollectionsItems().then(NFTCollectionsLoadCallback);
         }
     ,   [chainID]
