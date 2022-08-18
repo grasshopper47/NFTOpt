@@ -13,7 +13,7 @@ export let options  : OptionWithAsset[] = [];
 export const clearRequests = () => requests = [];
 export const clearOptions  = () => options  = [];
 
-export function isExpired(option : OptionWithAsset) : boolean
+export const isExpired = (option : OptionWithAsset) : boolean =>
 {
     const timeNow = new Date().getTime() / 1000;
     const timeOption = option.startDate.toNumber() + option.interval * SECONDS_IN_A_DAY;
