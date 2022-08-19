@@ -9,11 +9,11 @@ export const loadImage = async(key : AssetKey, contract = getCachedContract(key.
 {
     console.log("loadImage");
 
-    let key_str = stringOf(key);
+    const key_str = stringOf(key);
     images[key_str] = "";
 
-    let data = await contract.tokenURI(key.nftId);
-    let image = JSON.parse(data).image;
+    const data = await contract.tokenURI(key.nftId);
+    const image = JSON.parse(data).image;
 
     images[key_str] = image;
 
