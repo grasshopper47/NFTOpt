@@ -13,7 +13,7 @@ import {
     Account,
     Request,
     Option
-} from "../NFTOpt/generated/schema";
+} from "./generated/schema";
 
 function fetchAccount(address: Address): Account
 {
