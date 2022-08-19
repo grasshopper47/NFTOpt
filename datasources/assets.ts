@@ -30,7 +30,7 @@ export const getNFTAsset = async (key : AssetKey, contract? : any) =>
     return {
         key   : key
     ,   name  : await promises[0]
-    ,   image : imageOf(key)
+    ,   image : await promises[1]
     } as NFTAsset;
 }
 
