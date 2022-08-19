@@ -49,7 +49,7 @@ function CardView(props : Props)
 
             <div className={clsx(classes.moreInfoContainer, viewClass)}>
                 <p className={viewClass}>
-                    {ethers.utils.formatEther(props.option.strikePrice)}&nbsp;<b>ETH</b>
+                    {ethers.utils.formatEther(props.option.strikePrice).slice(0,10)}&nbsp;<b>ETH</b>
                 </p>
 
                 <p className={viewClass}>

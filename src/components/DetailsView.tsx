@@ -197,8 +197,8 @@ function DetailsView(props : Props)
                 </div>
 
                 <div>
-                    <Field_DetailsView label="Premium"      value={ethers.utils.formatEther(props.option.premium)} />
-                    <Field_DetailsView label="Strike Price" value={ethers.utils.formatEther(props.option.strikePrice)} />
+                    <Field_DetailsView label="Premium"      value={ethers.utils.formatEther(props.option.premium).slice(0,10)} />
+                    <Field_DetailsView label="Strike Price" value={ethers.utils.formatEther(props.option.strikePrice).slice(0,10)} />
                     <Field_DetailsView label="Expiration"   value={`${props.option.interval} day${props.option.interval > 1 && "s"}`} />
                     <Field_DetailsView label="Style"        value={flavorLabels[props.option.flavor]} className="flavor"/>
                 </div>
