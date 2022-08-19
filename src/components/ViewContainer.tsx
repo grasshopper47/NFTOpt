@@ -138,9 +138,6 @@ function ViewContainer()
     chainID  = useChainID();
     hasItems = viewedOptions ? viewedOptions.length !== 0 : false;
 
-    setOptionsUICallback(handleFiltered);
-    setNFTOptUICallback(handleFiltered);
-
     useEffect
     (
         () =>
@@ -150,6 +147,9 @@ function ViewContainer()
             page.count = (ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits)[getViewLimitIndexFromStorage()];
 
             setActiveTabIndex( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
+
+            setOptionsUICallback(handleFiltered);
+            setNFTOptUICallback(handleFiltered);
 
             // Cleanup on unmount
             return () => { doClean(), document.body.onkeydown = null; }

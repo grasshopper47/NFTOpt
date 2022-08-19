@@ -80,13 +80,13 @@ function MintForm()
 
     assets = assetsOf(account) ?? [];
 
-    setNFTCollectionsLoadCallback(setCollections);
-    setNFTCollectionsEventCallback(assetsChanged);
-
     useEffect
     (
         () =>
         {
+            setNFTCollectionsLoadCallback(setCollections);
+            setNFTCollectionsEventCallback(assetsChanged);
+
             // Cleanup on unmount
             return () => doClean();
         }

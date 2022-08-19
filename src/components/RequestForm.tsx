@@ -23,7 +23,7 @@ import { Button, SelectChangeEvent } from "@mui/material";
 import { clearNFTCollectionsEventCallback, setNFTCollectionsEventCallback } from "../controllers/NFTOptCollections";
 import { useAccount, useChainID } from "../utils/contexts";
 
-let setAsset = (asset : NFTAsset | undefined | null) =>
+const setAsset = (asset : NFTAsset | undefined | null) =>
 {
     console.log("setAsset");
 
@@ -38,32 +38,32 @@ let setAsset = (asset : NFTAsset | undefined | null) =>
 
     assetKey = asset.key;
 
-    let image = imageOf(assetKey);
+    const image = imageOf(assetKey);
 
     if (image) setImage(image);
     else       loadImage(assetKey).then( img => { asset.image = img; setImage(img); } );
 };
 
-let setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
+const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
 {
     request[event.target.id] = getFloatString(event.target.value);
     areAmountsInvalid = parseFloat(request.premium) >= parseFloat(request.strikePrice);
     requestChanged();
 };
 
-let setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
+const setInterval = (event: React.ChangeEvent<HTMLInputElement>) =>
 {
     request.interval = getIntervalString(event.target.value);
     requestChanged();
 };
 
-let setFlavor = (event: SelectChangeEvent<OptionFlavor>) =>
+const setFlavor = (event: SelectChangeEvent<OptionFlavor>) =>
 {
     request.flavor = event.target.value as OptionFlavor;
     requestChanged();
 }
 
-let handlePublish = () => showToast
+const handlePublish = () => showToast
 (
     contracts.NFTOpt.publishRequest
     (
@@ -77,12 +77,12 @@ let handlePublish = () => showToast
     .then( () => { resetRequest(), requestChanged() } )
 );
 
-let handleKey = (event: React.KeyboardEvent<HTMLInputElement>) =>
+const handleKey = (event: React.KeyboardEvent<HTMLInputElement>) =>
 {
     if (event.key === "Enter") if (isRequestValid()) handlePublish();
 }
 
-let isRequestValid = () =>
+const isRequestValid = () =>
 {
     return isValid(assetKey)
         && request.premium     !== ""
@@ -91,7 +91,7 @@ let isRequestValid = () =>
         && !areAmountsInvalid;
 }
 
-let resetRequest = () =>
+const resetRequest = () =>
 {
     assetKey = { nftId : "", nftContract: "" };
 
@@ -114,6 +114,7 @@ let assets  : NFTAsset[];
 let setShowAddContract : (a : boolean) => void;
 let setImage           : (a : string)  => void;
 let requestChanged     : () => void;
+let assetsChanged      : () => void;
 
 let request  = {} as Request_DISPLAY;
 let assetKey = {} as AssetKey
@@ -132,15 +133,16 @@ function RequestForm()
 
     assets = assetsOf(account) ?? [];
 
-    requestChanged    = () => setRequestChanged(f => f ^ 1);
-    let assetsChanged = () => setAssetsChanged(f => f ^ 1);
-
-    setNFTCollectionsEventCallback(assetsChanged);
-
     useEffect
     (
         () =>
         {
+
+            requestChanged = () => setRequestChanged(f => f ^ 1);
+            assetsChanged  = () => setAssetsChanged(f => f ^ 1);
+
+            setNFTCollectionsEventCallback(assetsChanged);
+
             // Cleanup on unmount
             return () => { clearNFTCollectionsEventCallback(); }
         }
