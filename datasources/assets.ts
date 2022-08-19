@@ -5,9 +5,9 @@ import { imageOf, loadImage } from "./ERC-721/images";
 import { getCachedContract } from "./ERC-721/contracts";
 import { NFTAsset } from "../models/NFTAsset";
 
-export const clearAssets   = () => assets = {} as any;
-export const assetsOf      = (account : string) => assets[account] as NFTAsset[];
-export const addAssetTo    = (account: string, obj : NFTAsset) => assets[account].push(obj);
+export const clearAssets = () => assets = {} as any;
+export const assetsOf    = (account : string) => assets[account] as NFTAsset[];
+export const addAssetTo  = (account: string, obj : NFTAsset) => assets[account].push(obj);
 
 export const addAssetByKeyTo = async (account: string, key : AssetKey) =>
 {
@@ -39,10 +39,6 @@ export const loadAssetsFor = async (account : string) =>
 
     console.log("loadAssetsFor", account);
 
-    // Reset cache
-    arr      = [] as NFTAsset[];
-    promises = [] as Promise<any>[];
-
     // Fetch from Graph
     const reply = await fetch
     (
@@ -63,6 +59,10 @@ export const loadAssetsFor = async (account : string) =>
         // Force loading from localhost on error (due to missing host on fetch or in the Graph query itself)
         json = "{}";
     }
+
+    // Reset cache
+    arr      = [] as NFTAsset[];
+    promises = [] as Promise<any>[];
 
     // Prepare asset data loading promises
     if (json !== "{}" && json.data.account) _loadFromGraph(json.data.account.tokens, account)
