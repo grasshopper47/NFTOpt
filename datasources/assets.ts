@@ -1,9 +1,10 @@
 
 import addresses from "../addresses.json";
 import { AssetKey } from "../models/assetKey";
+import { NFTAsset } from "../models/NFTAsset";
 import { imageOf, loadImage } from "./ERC-721/images";
 import { getCachedContract } from "./ERC-721/contracts";
-import { NFTAsset } from "../models/NFTAsset";
+import { fetchFromGraphNode } from "./graph";
 
 export const clearAssets = () => assets = {} as any;
 export const assetsOf    = (account : string) => assets[account] as NFTAsset[];
@@ -21,7 +22,7 @@ export const getNFTAsset = async (key : AssetKey, contract? : any) =>
     const promises =
     [
         NFTContract.name().then( (r : string) => `${r} - ${key.nftId}` )
-    ,   imageOf(key) ?? loadImage(key)  // load image async when not in cache
+    ,   imageOf(key) ?? loadImage(key)  // load image async when missing from cache
     ];
 
     await Promise.all(promises);
@@ -37,28 +38,13 @@ export const loadAssetsFor = async (account : string) =>
 {
     if (!account || account === " " || assets[account]) return;
 
-    // Fetch from Graph
-    const reply = await fetch
+    const json = await fetchFromGraphNode
     (
-        "http://127.0.0.1:8000/subgraphs/name/NFTCollections"
-    ,   {
-            method : "POST"
-        ,   body   : JSON.stringify({ query: `{ account (id:"${account}") { tokens { identifier contract } } }` })
-        }
-    )
-    .catch( () => { return { json: () => "{}" } } );
+        "NFTCollections"
+    ,   `{ account (id:"${account}") { tokens { identifier contract } } }`
+    );
 
-    let json = await reply.json();
-
-    if (json.errors)
-    {
-        for (const e of json.errors) console.error(e.message);
-
-        // Force loading from localhost on error (due to missing host on fetch or in the Graph query itself)
-        json = "{}";
-    }
-
-    let isOK = json !== "{}" && json.data.account;
+    const isOK = json !== "" && json.data.account;
 
     console.log("loadAssetsFor", account, isOK ? "graph" : "logs");
 
