@@ -10,7 +10,7 @@ import { assetsOf, loadAssetsFor } from "../../datasources/assets";
 import { AssetKey } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
 import { clearNFTCollectionsEventCallback, setNFTCollectionsEventCallback } from "../controllers/NFTOptCollections";
-import { clearOptionsUICallback, useAccount, useChainID, setNFTCollectionsLoadCallback } from "../utils/contexts";
+import { clearOptionsLoadCallback, useAccount, useChainID, setNFTCollectionsLoadCallback } from "../utils/contexts";
 import { showToast } from "../utils/toasting";
 import { signer } from "../utils/metamask";
 import DropDown_MintForm from "../fragments/DropDown.Collections.MintForm";
@@ -52,7 +52,7 @@ let resetAsset = () =>
     }
 }
 
-let doClean = () => { clearOptionsUICallback(), clearNFTCollectionsEventCallback(); }
+let doClean = () => { clearOptionsLoadCallback(), clearNFTCollectionsEventCallback(); }
 
 let chainID     : number;
 let account     : string;

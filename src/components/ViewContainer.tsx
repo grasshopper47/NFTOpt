@@ -8,7 +8,7 @@ import { optionsChanged, requestsChanged } from "../../datasources/options";
 import { doFilter, optionsByStateFiltered, OptionStateViewed } from "../../datasources/filtering";
 import { OptionWithAsset } from "../../models/option";
 import { clearNFTOptUICallback, setNFTOptUICallback } from "../controllers/NFTOpt";
-import { clearOptionsUICallback, setOptionsUICallback, useChainID } from "../utils/contexts";
+import { clearOptionsLoadCallback, setOptionsLoadCallback, useChainID } from "../utils/contexts";
 import { ViewTypes, ViewPage, ViewConfig, getViewSettingsFromStorage, getViewLimitIndexFromStorage, ListViewLimits, TableViewLimits } from "../utils/view";
 import TableView from "./TableView";
 import ListView from "./ListView";
@@ -85,7 +85,7 @@ const getStatusText = (activeTabIndex : number) =>
     return "No Options";
 }
 
-const doClean = () => { clearOptionsUICallback(), clearNFTOptUICallback(); }
+const doClean = () => { clearOptionsLoadCallback(), clearNFTOptUICallback(); }
 
 let hasItems       : boolean;
 let chainID        : number;
@@ -148,7 +148,7 @@ function ViewContainer()
 
             setActiveTabIndex( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
 
-            setOptionsUICallback(handleFiltered);
+            setOptionsLoadCallback(handleFiltered);
             setNFTOptUICallback(handleFiltered);
 
             // Cleanup on unmount

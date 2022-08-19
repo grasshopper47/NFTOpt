@@ -18,7 +18,7 @@ import { connected, hookMetamask, signer } from "../utils/metamask";
 
 import Header from "../components/Header";
 import { Toaster } from "react-hot-toast";
-import { AccountContext, ChainIDContext, NFTCollectionsLoadCallback, OptionsUICallback } from "../utils/contexts";
+import { AccountContext, ChainIDContext, NFTCollectionsLoadCallback, OptionsLoadCallback } from "../utils/contexts";
 
 export default function App({ Component, pageProps }: AppProps)
 {
@@ -57,7 +57,7 @@ export default function App({ Component, pageProps }: AppProps)
             attachNFTCollectionsHandlersToInstances(contracts.Collections);
 
             // Load data
-            loadOptions(contracts.NFTOpt).then(OptionsUICallback);
+            loadOptions(contracts.NFTOpt).then(OptionsLoadCallback);
             loadNFTOptCollectionsItems().then(NFTCollectionsLoadCallback);
         }
     ,   [chainID]

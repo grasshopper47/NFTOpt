@@ -7,8 +7,8 @@ export const optionChangingIDs  = {};
 export const useAccount = () => useContext(AccountContext);
 export const useChainID = () => useContext(ChainIDContext);
 
-export const setOptionsUICallback   = (cb : () => void) => OptionsUICallback = cb;
-export const clearOptionsUICallback = () => OptionsUICallback = () => {};
+export const setOptionsLoadCallback   = (cb : () => void) => OptionsLoadCallback = cb;
+export const clearOptionsLoadCallback = () => OptionsLoadCallback = () => {};
 
 export const setNFTCollectionsLoadCallback   = (cb : (arr : NFTAsset[]) => void) => NFTCollectionsLoadCallback = cb;
 export const clearNFTCollectionsLoadCallback = () => NFTCollectionsLoadCallback = () => {};
@@ -16,5 +16,5 @@ export const clearNFTCollectionsLoadCallback = () => NFTCollectionsLoadCallback 
 export const ChainIDContext = createContext(0);
 export const AccountContext = createContext("");
 
-export let OptionsUICallback          : () => void = () => {};
+export let OptionsLoadCallback          : () => void = () => {};
 export let NFTCollectionsLoadCallback : (arr : NFTAsset[]) => void = () => {};
