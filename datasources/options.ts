@@ -46,24 +46,6 @@ export const loadAll = async (NFTOpt : NFTOpt) : Promise<void> =>
     await Promise.all(promises);
 }
 
-export const loadAllFromGlobalID = async (NFTOpt : NFTOpt) : Promise<void> =>
-{
-    clearRequests();
-    clearOptions();
-
-    let IDPromise = await NFTOpt.optionID();
-    if (!IDPromise) return;
-
-    // Reset cache
-    promises = [] as Promise<any>[];
-
-    // TODO: handle optionsLength > 2^53
-    let id = IDPromise.toNumber();
-    while (--id !== -1) promises.push( loadOptionWithAsset(NFTOpt, id) );
-
-    await Promise.all(promises);
-}
-
 export const loadOptionWithAsset = async (NFTOpt : NFTOpt, ID : number) : Promise<void> =>
 {
     let option = await NFTOpt.options(ID) as any as Option;
