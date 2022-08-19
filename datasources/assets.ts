@@ -1,8 +1,8 @@
 
 import addresses from "../addresses.json";
-import { AssetKey } from "../models/assetKey";
+import { AssetKey, stringOf } from "../models/assetKey";
 import { NFTAsset } from "../models/NFTAsset";
-import { imageOf, loadImage } from "./ERC-721/images";
+import { images, loadImage } from "./ERC-721/images";
 import { getCachedContract } from "./ERC-721/contracts";
 import { fetchFromGraphNode } from "./graph";
 
@@ -19,10 +19,12 @@ export const getNFTAsset = async (key : AssetKey, contract? : any) =>
 {
     const NFTContract = contract ?? getCachedContract(key.nftContract);
 
+    const key_str = stringOf(key);
+
     const promises =
     [
         NFTContract.name().then( (r : string) => `${r} - ${key.nftId}` )
-    ,   imageOf(key) ?? loadImage(key)  // load image async when missing from cache
+    ,   images[key_str] ?? loadImage(key)  // load image async when missing from cache
     ];
 
     await Promise.all(promises);
@@ -30,7 +32,7 @@ export const getNFTAsset = async (key : AssetKey, contract? : any) =>
     return {
         key   : key
     ,   name  : await promises[0]
-    ,   image : await promises[1]
+    ,   image : images[key_str]
     } as NFTAsset;
 }
 
