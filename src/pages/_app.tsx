@@ -11,7 +11,7 @@ import { clearImages } from "../../datasources/ERC-721/images";
 import { clearNFTOpt, contracts, createNFTOptInstance } from "../../datasources/NFTOpt";
 import { clearAssets } from "../../datasources/assets";
 import { clearNFTOptCollections, createNFTOptCollectionsInstances, loadNFTOptCollectionsItems } from "../../datasources/ERC-721/NFTOptCollections";
-import { clearRequests, clearOptions, loadAll } from "../../datasources/options";
+import { clearRequests, clearOptions, loadOptions } from "../../datasources/options";
 import { attachNFTCollectionsHandlersToInstances } from "../controllers/NFTOptCollections";
 import { attachNFTOptHandlersToInstance } from "../controllers/NFTOpt";
 import { connected, hookMetamask, signer } from "../utils/metamask";
@@ -57,7 +57,7 @@ export default function App({ Component, pageProps }: AppProps)
             attachNFTCollectionsHandlersToInstances(contracts.Collections);
 
             // Load data
-            loadAll(contracts.NFTOpt).then(OptionsUICallback);
+            loadOptions(contracts.NFTOpt).then(OptionsUICallback);
             loadNFTOptCollectionsItems().then(NFTCollectionsLoadCallback);
         }
     ,   [chainID]
