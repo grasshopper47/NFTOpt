@@ -15,6 +15,13 @@
     flex-direction: column;
     user-select: none;
     text-align: center;
+    margin-right: 4px;
+    margin-bottom: 5px;
+}
+
+.gridContainer {
+    display: flex;
+    justify-content: center;
 }
 
 .cardImage {
