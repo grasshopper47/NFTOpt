@@ -5,6 +5,7 @@ import { NFTAsset } from "../models/NFTAsset";
 import { images, loadImage } from "./ERC-721/images";
 import { getCachedContract } from "./ERC-721/contracts";
 import { fetchFromGraphNode } from "./graph";
+import { TransferEvent } from "../typechain-types/@openzeppelin/contracts/token/ERC721/IERC721";
 
 export const clearAssets = () => assets = {} as any;
 export const assetsOf    = (account : string) => assets[account] as NFTAsset[];
@@ -84,26 +85,29 @@ const _loadFromGraph = (tokens : { identifier : string, contract : string }[], a
 
 const _loadFromLogs = async(account : string) =>
 {
-    for (const name of Object.keys(addresses.localhost))
-    {
-        if (name === "NFTOpt") continue;
+    const contractNames = Object.keys(addresses.localhost);
+    const length = contractNames.length;
 
+    let name : string;
+    let i = -1;
+    while ( (name = contractNames[++i]) !== "NFTOpt" && i !== length )
+    {
         const contract = getCachedContract((addresses.localhost as any)[name]);
 
-        const received_promise = contract.queryFilter(contract.filters.Transfer(null, account));
-        const sent_promise     = contract.queryFilter(contract.filters.Transfer(account));
+        let received = [] as TransferEvent[];
+        let sent     = [] as TransferEvent[];
 
-        await Promise.all([received_promise, sent_promise]);
-
-        // Collapse promises
-        const received = await received_promise;
-        const sent     = await sent_promise;
+        await Promise.all
+        ([
+            contract.queryFilter(contract.filters.Transfer(null, account)).then( r => received = r )
+        ,   contract.queryFilter(contract.filters.Transfer(account)).then( s => sent = s )
+        ]);
 
         for (const r of received)
         {
             const tokenID = r.args[2].toString();
 
-            if ( sent.find( (s : any) => s.args[2].toString() === tokenID ) ) continue;
+            if ( sent.find( s => s.args[2].toString() === tokenID ) ) continue;
 
             promises.push
             (

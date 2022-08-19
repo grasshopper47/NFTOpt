@@ -1,6 +1,6 @@
 import { OptionFlavor, OptionState } from "../models/enums";
 import { Option, OptionWithAsset } from "../models/option";
-import { NFTOpt } from "../typechain-types/contracts/NFTOpt";
+import { NFTOpt, PublishedEvent, WithdrawnEvent } from "../typechain-types/contracts/NFTOpt";
 import { ADDRESS0, SECONDS_IN_A_DAY } from "../utils/constants";
 import { getNFTAsset } from "./assets";
 import { fetchFromGraphNode } from "./graph";
@@ -147,14 +147,14 @@ const _loadFromLogs = async (NFTOpt : NFTOpt) : Promise<void> =>
     // Even though there is valid data, this fails for some reason, to retrive it -- suspect duplication in ID (42)
     // await NFTOpt.queryFilter(NFTOpt.filters["Withdrawn(uint256)"](42)));
 
-    const published_promise = NFTOpt.queryFilter(NFTOpt.filters.Published());
-    const withdrawn_promise = NFTOpt.queryFilter(NFTOpt.filters.Withdrawn());
+    let published = [] as PublishedEvent[];
+    let withdrawn = [] as WithdrawnEvent[];
 
-    await Promise.all([published_promise, withdrawn_promise]);
-
-    const published = await published_promise;
-    let withdrawn   = await withdrawn_promise;
-    if (withdrawn) withdrawn = withdrawn.reverse();
+    await Promise.all
+([
+        NFTOpt.queryFilter(NFTOpt.filters.Published()).then( p => published = p )
+    ,   NFTOpt.queryFilter(NFTOpt.filters.Withdrawn()).then( w => withdrawn = w.reverse() )
+    ]);
 
     // Reset cache
     promises = [] as Promise<any>[];
