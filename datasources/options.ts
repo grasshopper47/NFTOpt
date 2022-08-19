@@ -13,7 +13,7 @@ export let options  : OptionWithAsset[] = [];
 export const clearRequests = () => requests = [];
 export const clearOptions  = () => options  = [];
 
-export const loadAll = async (NFTOpt : NFTOpt) : Promise<void> =>
+export const loadOptions = async (NFTOpt : NFTOpt) : Promise<void> =>
 {
     // Fetch from Graph
     const reply = await fetch
@@ -36,12 +36,17 @@ export const loadAll = async (NFTOpt : NFTOpt) : Promise<void> =>
         json = "{}";
     }
 
+    let isOK = json !== "{}" && json.data.account;
+
+    console.log("loadOptions", json.data.account ? "graph" : "logs");
+
+    // Reset cache
     clearRequests();
     clearOptions();
+    promises = [] as Promise<any>[];
 
-    // Prepare asset data loading promises
-    if (json !== "{}" && json.data.account) _loadFromGraph(NFTOpt, json.data.account)
-    else                                    await _loadFromLogs(NFTOpt);
+    if (isOK) _loadFromGraph(NFTOpt, json.data.account);
+    else      await _loadFromLogs(NFTOpt);
 
     await Promise.all(promises);
 }

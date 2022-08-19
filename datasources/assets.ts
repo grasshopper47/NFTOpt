@@ -37,8 +37,6 @@ export const loadAssetsFor = async (account : string) =>
 {
     if (!account || account === " " || assets[account]) return;
 
-    console.log("loadAssetsFor", account);
-
     // Fetch from Graph
     const reply = await fetch
     (
@@ -60,15 +58,17 @@ export const loadAssetsFor = async (account : string) =>
         json = "{}";
     }
 
+    let isOK = json !== "{}" && json.data.account;
+
+    console.log("loadAssetsFor", account, isOK ? "graph" : "logs");
+
     // Reset cache
     arr      = [] as NFTAsset[];
     promises = [] as Promise<any>[];
 
-    // Prepare asset data loading promises
-    if (json !== "{}" && json.data.account) _loadFromGraph(json.data.account.tokens, account)
-    else                                    await _loadFromLogs(account);
+    if (isOK) _loadFromGraph(json.data.account.tokens, account)
+    else      await _loadFromLogs(account);
 
-    // Wait for assets to load
     await Promise.all(promises);
 
     assets[account] = arr;
