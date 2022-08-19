@@ -133,16 +133,15 @@ function RequestForm()
 
     assets = assetsOf(account) ?? [];
 
+    requestChanged = () => setRequestChanged(f => f ^ 1);
+    assetsChanged  = () => setAssetsChanged(f => f ^ 1);
+
+    setNFTCollectionsEventCallback(assetsChanged);
+
     useEffect
     (
         () =>
         {
-
-            requestChanged = () => setRequestChanged(f => f ^ 1);
-            assetsChanged  = () => setAssetsChanged(f => f ^ 1);
-
-            setNFTCollectionsEventCallback(assetsChanged);
-
             // Cleanup on unmount
             return () => { clearNFTCollectionsEventCallback(); }
         }
