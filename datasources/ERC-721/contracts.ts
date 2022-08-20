@@ -24,6 +24,7 @@ export const getCachedContract = (address : string) : Collection_BASE =>
         ,   ABIs.ERC721.tokenURI
         ,   ABIs.ERC721.getApproved
         ,   ABIs.ERC721.approve
+        // ,   ABIs.ERC721.transferFrom
         ,   ABIs.ERC721.Events.Approval
         ,   ABIs.ERC721.Events.Transfer
         ]
