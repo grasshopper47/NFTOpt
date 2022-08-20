@@ -87,8 +87,11 @@ function MintForm()
     (
         () =>
         {
-            // Cleanup on unmount
-            return () => doClean();
+            // TODO: bugfix see ViewContainer.tsx in load useEffect
+            setNFTCollectionsLoadCallback(setCollections);
+            setNFTCollectionsEventCallback(assetsChanged);
+
+            return () => { doClean(); }
         }
     ,   []
     );

@@ -22,6 +22,8 @@ import CustomAssetForm from "./CustomAssetForm";
 import { Button, SelectChangeEvent } from "@mui/material";
 import { clearNFTCollectionsEventCallback, setNFTCollectionsEventCallback } from "../controllers/NFTOptCollections";
 import { useAccount, useChainID } from "../utils/contexts";
+import { getCachedContract } from "../../datasources/ERC-721/contracts";
+import { signer } from "../utils/metamask";
 
 const setAsset = (asset : NFTAsset | undefined | null) =>
 {
@@ -123,8 +125,8 @@ resetRequest();
 
 function RequestForm()
 {
-    let [             , setAssetsChanged ]   = useState(0);
-    let [             , setRequestChanged ]  = useState(0);
+    const [           , setAssetsChanged ]   = useState(0);
+    const [           , setRequestChanged ]  = useState(0);
     [ image           , setImage ]           = useState(imageOf(assetKey));
     [ showAddContract , setShowAddContract ] = useState(false);
 
@@ -142,7 +144,9 @@ function RequestForm()
     (
         () =>
         {
-            // Cleanup on unmount
+            // TODO: bugfix see ViewContainer.tsx in load useEffect
+            setNFTCollectionsEventCallback(assetsChanged);
+
             return () => { clearNFTCollectionsEventCallback(); }
         }
     ,   []
@@ -169,7 +173,7 @@ function RequestForm()
     );
 
     return <>
-        <p className="page-title">Request a PUT Option</p>
+        <p className="page-title">Publish a Request for PUT Option</p>
 
         <div className={classes.root}>
             <div className={classes.form}>
@@ -196,7 +200,14 @@ function RequestForm()
                             <Button
                                 className={classes.btnAddContract}
                                 size="small"
-                                onClick={ () => setShowAddContract(true) }
+                                onClick={ () =>
+                                    {
+                                        setShowAddContract(true);
+                                        // let contract = getCachedContract(assetKey.nftContract);
+                                        // console.log(contract, contract.connect(signer));
+                                        // contract.connect(signer).transferFrom(account, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", assetKey.nftId)
+                                        // .then(console.log);
+                                    }}
                             >🆕</Button>
                         </>
                 }

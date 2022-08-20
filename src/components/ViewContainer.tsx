@@ -57,8 +57,8 @@ const renderList = () =>
     if (selectedOption) props["selectedValue"] = selectedOption;
 
     return view.type === ViewTypes.ROWLIST
-        ?   <TableView { ... props } onSort={ (list : OptionWithAsset[]) => setViewedOptions(list) } />
-        :   <ListView  { ... props } />;
+    ?   <TableView { ... props } onSort={ (list : OptionWithAsset[]) => setViewedOptions(list) } />
+    :   <ListView  { ... props } />;
 }
 
 const getStatusText = (activeTabIndex : number) =>
@@ -145,6 +145,12 @@ function ViewContainer()
     (
         () =>
         {
+            // TODO: find the bug when changing one line (remove a comment, save) in datasources/options.ts
+            // and the page refreshes, because it runs doClean on unmount, for some reason the handlers
+            // are removed, even though they should be set again, per the lines above
+            setOptionsLoadCallback(handleFiltered);
+            setNFTOptUICallback(handleFiltered);
+
             view = getViewSettingsFromStorage();
 
             page.count = (ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits)[getViewLimitIndexFromStorage()];
