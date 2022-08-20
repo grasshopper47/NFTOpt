@@ -41,8 +41,8 @@ const presentationCards : PresentationCard[] =
 function LandingPage() {
     return (
         <Layout>
-            <Box sx={{ flexGrow: 3}}>
-                <Grid container columns={{ xs: 4, sm: 8, md:16 }} className={classes.gridContainer} >
+            <Box sx={{ flexGrow: 1}}>
+                <Grid container columns={{ xs: 4, sm: 8, md:16 }} className={classes.root} >
                     {presentationCards.map((card) => (
                         <Grid item key={`presentation-card-${card.title}`} xs={4} sm={4} md={4} className={classes.card}>
                                 <ButtonBase sx={{ width: 200, height: 340 }}>

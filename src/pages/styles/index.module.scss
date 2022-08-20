@@ -1,62 +1,61 @@
-@import "src/styles/variables.scss";
+@import "src/styles/variables.scss", "./mixins";
 
 .root {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: auto;
+  @include root(flex, "", center, auto, row);
 }
 
 .card {
-    border-radius: 10px;
-    box-shadow: 1px 0px 3px rgb(15 23 42 / 14%), 4px 6px 6px rgb(15 23 42 / 10%);
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    user-select: none;
-    text-align: center;
-    margin-right: 4px;
-    margin-bottom: 5px;
-}
-
-.gridContainer {
-    display: flex;
-    justify-content: center;
+  @include card(
+    $border-radius: 10px,
+    $border: "",
+    $box-shadow: (
+      1px 0px 3px rgb(15 23 42 / 14%),
+      4px 6px 6px rgb(15 23 42 / 10%),
+    ),
+    $display: flex,
+    $align-items: center,
+    $flex-direction: column,
+    $user-select: none,
+    $text-align: center,
+    $margin-right: 4px,
+    $margin-bottom: 5px,
+    $position: ""
+  );
 }
 
 .cardImage {
-    margin: auto;
-    display: block;
-    max-width: 100%;
-    max-height: 100%;
+  margin: auto;
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .title {
-    margin-top: 30px;
-    font-size: 24px;
-    font-weight: 800;
-    color: $text-primary;
+  margin-top: 30px;
+  font-size: 24px;
+  font-weight: 800;
+  color: $text-primary;
 }
 
 .description {
-    margin-top: 20px;
-    font-size: 16px;
-    font-weight: 600;
-    color: $text-primary;
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
 }
 
 [data-theme="dark"] {
-    .card {
-        &:nth-of-type(1) {
-            background: rgba(183, 183, 164, 0.4);
-        }
-
-        &:nth-of-type(2) {
-            background: rgba(213, 199, 188, 0.5);
-        }
-
-        &:nth-of-type(3) {
-            background: rgba(249, 220, 196, 0.3);
-        }
+  .card {
+    &:nth-of-type(1) {
+      background: rgba(183, 183, 164, 0.4);
     }
+
+    &:nth-of-type(2) {
+      background: rgba(213, 199, 188, 0.5);
+    }
+
+    &:nth-of-type(3) {
+      background: rgba(249, 220, 196, 0.3);
+    }
+  }
 }
