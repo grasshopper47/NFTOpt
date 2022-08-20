@@ -198,7 +198,7 @@ function DetailsView(props : Props)
         onClick={ (e) => e.stopPropagation() }
     >
         <div>
-            <img src={props.option.asset.key} alt="NFT Image" />
+            <img src={props.option.asset.image} alt="NFT Image" />
 
             {
                 showTitle &&
