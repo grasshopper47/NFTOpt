@@ -21,39 +21,54 @@ import FieldLink_DetailsView from "../fragments/FieldLink.DetailsView";
 import toast from "react-hot-toast";
 import { scanner } from "../../datasources/provider";
 
-let getTransactionLink = async (option : OptionWithAsset) =>
+const getTransactionLink = async (option : OptionWithAsset) =>
 {
-    let filter = contracts.NFTOpt.filters[eventLabels[option.state]](option.id);
+    const filter = contracts.NFTOpt.filters[eventLabels[option.state]](option.id);
 
-    let results = await contracts.NFTOpt.queryFilter(filter);
+    const results = await contracts.NFTOpt.queryFilter(filter);
 
     return `${scanner}/tx/${results[0].transactionHash}`;
 }
 
-let checkAndSetApproved = (address : string, contract : any) =>
+const checkAndSetIsOwner = (from, to, tokenID) =>
 {
-    if (address === contracts.NFTOpt.address) { setApproved(true); return; }
+    if (tokenID !== _propsPtr.option.asset.key.nftId ) return;
 
-    contract.once
-    (
-        "Approval"
-    ,   () =>
-        {
-            setApproved(true);
+    isOwner = to === account;
+    setIsOwner(isOwner);
+    if (isOwner) return;
 
-            dismissLastToast();
-            toast.success("Approved to transfer NFT");
-            console.log("approved transfer");
-        }
-    );
+    contract.getApproved(_propsPtr.option.asset.key.nftId)
+    .then( address => checkAndSetIsApproved("", address, _propsPtr.option.asset.key.nftId) );
 }
 
-let withdrawOption = () => contracts.NFTOpt.withdrawRequest(_propsPtr.option.id);
-let createOption   = () => contracts.NFTOpt.createOption(_propsPtr.option.id, { value: _propsPtr.option.strikePrice });
-let cancelOption   = () => contracts.NFTOpt.cancelOption(_propsPtr.option.id);
-let exerciseOption = () => contracts.NFTOpt.exerciseOption(_propsPtr.option.id);
+const checkAndSetIsApproved = (from, to, tokenID) =>
+{
+    if (tokenID !== _propsPtr.option.asset.key.nftId ) return;
 
-let onAction = (promise : () => Promise<ethers.ContractTransaction>) => showToast
+    isApproved = to === contracts.NFTOpt.address;
+    setIsApproved(isApproved);
+
+    if (!isApproved)
+    {
+        contract.on("Approval", checkAndSetIsApproved);
+
+        return;
+    }
+
+    dismissLastToast();
+    toast.success("Approved to transfer NFT");
+    console.log("approved transfer");
+
+    contract.removeListener("Approval", checkAndSetIsApproved);
+}
+
+const withdrawOption = () => contracts.NFTOpt.withdrawRequest(_propsPtr.option.id);
+const createOption   = () => contracts.NFTOpt.createOption(_propsPtr.option.id, { value: _propsPtr.option.strikePrice });
+const cancelOption   = () => contracts.NFTOpt.cancelOption(_propsPtr.option.id);
+const exerciseOption = () => contracts.NFTOpt.exerciseOption(_propsPtr.option.id);
+
+const onAction = (promise : () => Promise<ethers.ContractTransaction>) => showToast
 (
     promise().then
     (
@@ -67,17 +82,17 @@ let onAction = (promise : () => Promise<ethers.ContractTransaction>) => showToas
     )
 );
 
-let handleWithdraw   = () => onAction(withdrawOption);
-let handleCreate     = () => onAction(createOption);
-let handleCancel     = () => onAction(cancelOption);
-let handleExercise   = () => onAction(exerciseOption);
-let handleApproveNFT = () => showToast( contract.connect(signer).approve(contracts.NFTOpt.address, _propsPtr.option.asset.key.nftId) );
+const handleWithdraw   = () => onAction(withdrawOption);
+const handleCreate     = () => onAction(createOption);
+const handleCancel     = () => onAction(cancelOption);
+const handleExercise   = () => onAction(exerciseOption);
+const handleApproveNFT = () => showToast( contract.connect(signer).approve(contracts.NFTOpt.address, _propsPtr.option.asset.key.nftId) );
 
-let createButtonsFromOptionState = () =>
+const createButtonsFromOptionState = () =>
 {
     if (requestChangingIDs[_propsPtr.option.id] || optionChangingIDs[_propsPtr.option.id]) return <></>;
 
-    let isBuyer = (_propsPtr.option.buyer === account);
+    const isBuyer = (_propsPtr.option.buyer === account);
 
     if (_propsPtr.option.state === OptionState.PUBLISHED)
         return isBuyer
@@ -94,7 +109,7 @@ let createButtonsFromOptionState = () =>
 
     if (_propsPtr.option.state === OptionState.OPEN)
     {
-        let btnCancel =
+        const btnCancel =
         (
             <Button_DetailsView
                 label="Cancel Option"
@@ -107,18 +122,22 @@ let createButtonsFromOptionState = () =>
 
         return isBuyer &&
         <>
-            {btnCancel}
-            <Button_DetailsView
-                label={isApproved ? "Exercise Option" : "Approve NFT"}
-                variant="contained"
-                className="btnPrimary"
-                onClick={ isApproved ? handleExercise : handleApproveNFT } />
+            { btnCancel }
+            {
+                isOwner &&
+                <Button_DetailsView
+                    label={isApproved ? "Exercise Option" : "Approve NFT"}
+                    variant="contained"
+                    className="btnPrimary"
+                    onClick={ isApproved ? handleExercise : handleApproveNFT } />
+            }
         </>;
     }
 
     return <></>;
 }
 
+let isOwner    = false;
 let isApproved = false;
 let showTitle  = false;
 
@@ -126,7 +145,8 @@ let transactionLink : string;
 let account  : string;
 let contract : Collection_BASE;
 
-let setApproved        : (a : boolean) => void;
+let setIsOwner         : (a : boolean) => void;
+let setIsApproved      : (a : boolean) => void;
 let setTransactionLink : (a : string)  => void;
 
 type Props =
@@ -142,7 +162,8 @@ function DetailsView(props : Props)
 {
     _propsPtr = props;
 
-    [ isApproved      , setApproved ]        = useState(false);
+    [ isOwner         , setIsOwner ]         = useState(false);
+    [ isApproved      , setIsApproved ]      = useState(false);
     [ transactionLink , setTransactionLink ] = useState("");
 
     account = useAccount();
@@ -158,8 +179,16 @@ function DetailsView(props : Props)
             if (props.option.state !== OptionState.OPEN) return;
 
             contract = getCachedContract(props.option.asset.key.nftContract);
+            contract.on("Transfer", checkAndSetIsOwner);
 
-            contract.getApproved(props.option.asset.key.nftId).then( address => checkAndSetApproved(address, contract) );
+            contract.ownerOf(props.option.asset.key.nftId)
+            .then( address => checkAndSetIsOwner("", address, props.option.asset.key.nftId) );
+
+            return () =>
+            {
+                contract.removeListener("Transfer", checkAndSetIsOwner);
+                contract.removeListener("Approval", checkAndSetIsApproved);
+            }
         }
     ,   []
     );
@@ -169,7 +198,7 @@ function DetailsView(props : Props)
         onClick={ (e) => e.stopPropagation() }
     >
         <div>
-            <img src={props.option.asset.image} alt="NFT Image" />
+            <img src={props.option.asset.key} alt="NFT Image" />
 
             {
                 showTitle &&
