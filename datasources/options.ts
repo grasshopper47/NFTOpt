@@ -37,7 +37,7 @@ export const loadOptions = async (NFTOpt : NFTOpt) : Promise<void> =>
     await Promise.all(promises);
 }
 
-export const loadOptionWithAsset = async (NFTOpt : NFTOpt, ID : number | string) : Promise<void> =>
+export const loadOptionWithAsset = async (NFTOpt : NFTOpt, ID : number) : Promise<void> =>
 {
     let option = await NFTOpt.options(ID) as any as Option;
 
@@ -151,7 +151,7 @@ const _loadFromLogs = async (NFTOpt : NFTOpt) : Promise<void> =>
     let withdrawn = [] as WithdrawnEvent[];
 
     await Promise.all
-([
+    ([
         NFTOpt.queryFilter(NFTOpt.filters.Published()).then( p => published = p )
     ,   NFTOpt.queryFilter(NFTOpt.filters.Withdrawn()).then( w => withdrawn = w.reverse() )
     ]);
@@ -170,7 +170,7 @@ const _loadFromLogs = async (NFTOpt : NFTOpt) : Promise<void> =>
 
         if (wev && wev.blockNumber >= pev.blockNumber) continue;
 
-        promises.push( loadOptionWithAsset(NFTOpt, ID) );
+        promises.push( loadOptionWithAsset(NFTOpt, parseInt(ID)) );
     }
 }
 

@@ -23,7 +23,7 @@ type BatchHandlerType =
 ,   handler   : (... any : any[]) => Promise<any>
 }
 
-let _UICallback : () => void;
+let _UICallback = () => { };
 
 const _createBatchHandler = ( handler : (... any : any[]) => Promise<any> ) =>
 {

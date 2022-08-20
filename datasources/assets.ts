@@ -103,18 +103,29 @@ const _loadFromLogs = async(account : string) =>
         ,   contract.queryFilter(contract.filters.Transfer(account)).then( s => sent = s )
         ]);
 
+        let length = sent.length;
+
+    loop1:
         for (const r of received)
         {
-            const tokenID = r.args[2].toString();
+            // Skip transfered tokens
+            let i = -1;
+            while (++i !== length)
+            {
+                if (sent[i].args[2].eq(r.args[2]))
+                {
+                    sent.splice(i, 1), --length;
 
-            if ( sent.find( s => s.args[2].toString() === tokenID ) ) continue;
+                    continue loop1;
+                }
+            }
 
             promises.push
             (
                 _loadAssetData
                 (
                     {
-                        nftId       : tokenID
+                        nftId       : r.args[2].toString()
                     ,   nftContract : contract.address
                     }
                 ,   account
