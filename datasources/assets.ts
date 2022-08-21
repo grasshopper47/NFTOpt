@@ -105,7 +105,7 @@ const _loadFromLogs = async(account : string) =>
 
         let length = sent.length;
 
-    loop1:
+    loop_root:
         for (const r of received)
         {
             // Skip transfered tokens
@@ -116,7 +116,7 @@ const _loadFromLogs = async(account : string) =>
                 {
                     sent.splice(i, 1), --length;
 
-                    continue loop1;
+                    continue loop_root;
                 }
             }
 
