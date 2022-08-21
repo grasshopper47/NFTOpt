@@ -1,5 +1,7 @@
 // @ts-ignore
 import classes from "./styles/RequestForm.module.scss";
+import mintButtonClass from "./styles/MintForm.module.scss";
+
 import clsx from "clsx";
 
 import { ethers } from "ethers";
@@ -219,7 +221,7 @@ function RequestForm()
                 </div>
 
                 <Button
-                    className={classes.btnPublishRequest}
+                    className={mintButtonClass.btnMint}
                     variant="contained"
                     onClick={handlePublish}
                     disabled={!isRequestValid()}
