@@ -12,7 +12,7 @@ import { AssetKey, isValid, stringOf } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
 import { Request_DISPLAY } from "../../models/request";
 import { OptionFlavor } from "../../models/enums";
-import { SECONDS_IN_A_DAY } from "../../utils/constants";
+import { ADDRESS0, SECONDS_IN_A_DAY } from "../../utils/constants";
 import { getFloatString, getIntervalString } from "../utils/helpers";
 import { showToast } from "../utils/toasting";
 import TextBox_RequestForm from "../fragments/TextBox.Request";
@@ -40,10 +40,7 @@ const setAsset = (asset : NFTAsset | undefined | null) =>
 
     assetKey = asset.key;
 
-    const image = imageOf(assetKey);
-
-    if (image) setImage(image);
-    else       loadImage(assetKey).then( img => { asset.image = img; setImage(img); } );
+    setImage(imageOf(assetKey));
 };
 
 const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
@@ -143,15 +140,10 @@ function RequestForm()
     requestChanged = () => setRequestChanged(f => f ^ 1);
     assetsChanged  = () => setAssetsChanged(f => f ^ 1);
 
-    setNFTCollectionsEventCallback(assetsChanged);
-
     useEffect
     (
         () =>
         {
-            // TODO: bugfix see ViewContainer.tsx in load useEffect
-            setNFTCollectionsEventCallback(assetsChanged);
-
             return () => cleanup();
         }
     ,   []
@@ -167,6 +159,8 @@ function RequestForm()
 
                 return;
             }
+
+            setNFTCollectionsEventCallback(assetsChanged);
         }
     ,   [chainID]
     );
@@ -214,7 +208,11 @@ function RequestForm()
                                     {
                                         setShowAddContract(true);
                                         // let contract = getCachedContract(assetKey.nftContract);
-                                        // console.log(contract, contract.connect(signer));
+
+                                        // Revoke approval
+                                        // contract.connect(signer).approve(ADDRESS0, assetKey.nftId);
+
+                                        // Transfer NFT from connected to another account
                                         // contract.connect(signer).transferFrom(account, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", assetKey.nftId)
                                         // .then(console.log);
                                     }}
