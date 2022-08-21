@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { OptionState } from "../models/enums";
+import { OptionFlavor, OptionState } from "../models/enums";
 import { requests, options } from "./options";
 
 export type FilterParams =
@@ -8,6 +8,7 @@ export type FilterParams =
 ,   premium     : { min : string, max: string }
 ,   strikePrice : { min : string, max: string }
 ,   interval    : { min : string, max: string }
+,   flavor      : OptionFlavor | -1
 }
 
 export const filterParams = { } as FilterParams;
@@ -18,6 +19,7 @@ export const resetFilterParams = () =>
     filterParams.premium     = { min: "", max: "" };
     filterParams.strikePrice = { min: "", max: "" };
     filterParams.interval    = { min: "", max: "" };
+    filterParams.flavor      = -1;
 }
 
 export enum OptionStateViewed { REQUEST, OPEN, CLOSED };
@@ -26,7 +28,7 @@ export const optionsByStateFiltered = {} as any;
 
 export const doFilter = async(state : OptionStateViewed) =>
 {
-    console.log("filtered");
+    console.log("filtered", filterParams);
 
     let map = state === OptionStateViewed.REQUEST ? requests : options;
     const filterState = stateFilter[state];
@@ -42,6 +44,7 @@ export const doFilter = async(state : OptionStateViewed) =>
         && o.strikePrice.lte(ethers.utils.parseEther(filterParams.strikePrice.max === "" ? MAX_INT_STRING : filterParams.strikePrice.max))
         && o.interval >= (filterParams.interval.min === "" ? 0  : parseInt(filterParams.interval.min))
         && o.interval <= (filterParams.interval.max === "" ? 30 : parseInt(filterParams.interval.max))
+        && (filterParams.flavor === -1 ? true : o.flavor === filterParams.flavor)
     );
 
     optionsByStateFiltered[state] = map;
