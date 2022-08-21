@@ -46,7 +46,6 @@ const renderList = () =>
 {
     if (!hasItems) return <p className={classes.noOptions}>{ getStatusText(activeTabIndex) }</p>;
 
-    console.log(page.index, page.count);
     const startIndex = page.index * page.count;
     const props =
     {
