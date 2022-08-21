@@ -20,21 +20,25 @@ export const getNFTAsset = async (key : AssetKey, contract? : any) =>
 {
     const NFTContract = contract ?? getCachedContract(key.nftContract);
 
+    const NFTAsset =
+    {
+        key   : key
+    ,   name  : ""
+    ,   image : ""
+    } as NFTAsset;
+
+    const promises = [ NFTContract.name().then( (r : string) => NFTAsset.name = `${r} - ${key.nftId}` ) ];
+
     const key_str = stringOf(key);
 
-    const promises =
-    [
-        NFTContract.name().then( (r : string) => `${r} - ${key.nftId}` )
-    ,   images[key_str] ?? loadImage(key)  // load image async when missing from cache
-    ];
+    // Trigger cache to load once per image
+    if (images[key_str] === undefined) promises.push( loadImage(key) );
 
     await Promise.all(promises);
 
-    return {
-        key   : key
-    ,   name  : await promises[0]
-    ,   image : images[key_str]
-    } as NFTAsset;
+    NFTAsset.image = images[key_str];
+
+    return NFTAsset;
 }
 
 export const loadAssetsFor = async (account : string) =>
@@ -103,18 +107,29 @@ const _loadFromLogs = async(account : string) =>
         ,   contract.queryFilter(contract.filters.Transfer(account)).then( s => sent = s )
         ]);
 
+        let length = sent.length;
+
+    loop_root:
         for (const r of received)
         {
-            const tokenID = r.args[2].toString();
+            // Skip transfered tokens
+            let i = -1;
+            while (++i !== length)
+            {
+                if (sent[i].args[2].eq(r.args[2]))
+                {
+                    sent.splice(i, 1), --length;
 
-            if ( sent.find( s => s.args[2].toString() === tokenID ) ) continue;
+                    continue loop_root;
+                }
+            }
 
             promises.push
             (
                 _loadAssetData
                 (
                     {
-                        nftId       : tokenID
+                        nftId       : r.args[2].toString()
                     ,   nftContract : contract.address
                     }
                 ,   account

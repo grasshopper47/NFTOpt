@@ -12,7 +12,7 @@ import { AssetKey, isValid, stringOf } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
 import { Request_DISPLAY } from "../../models/request";
 import { OptionFlavor } from "../../models/enums";
-import { SECONDS_IN_A_DAY } from "../../utils/constants";
+import { ADDRESS0, SECONDS_IN_A_DAY } from "../../utils/constants";
 import { getFloatString, getIntervalString } from "../utils/helpers";
 import { showToast } from "../utils/toasting";
 import TextBox_RequestForm from "../fragments/TextBox.Request";
@@ -22,6 +22,8 @@ import CustomAssetForm from "./CustomAssetForm";
 import { Button, SelectChangeEvent } from "@mui/material";
 import { clearNFTCollectionsEventCallback, setNFTCollectionsEventCallback } from "../controllers/NFTOptCollections";
 import { useAccount, useChainID } from "../utils/contexts";
+import { getCachedContract } from "../../datasources/ERC-721/contracts";
+import { signer } from "../utils/metamask";
 
 const setAsset = (asset : NFTAsset | undefined | null) =>
 {
@@ -38,10 +40,7 @@ const setAsset = (asset : NFTAsset | undefined | null) =>
 
     assetKey = asset.key;
 
-    const image = imageOf(assetKey);
-
-    if (image) setImage(image);
-    else       loadImage(assetKey).then( img => { asset.image = img; setImage(img); } );
+    setImage(imageOf(assetKey));
 };
 
 const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
@@ -95,6 +94,8 @@ const resetRequest = () =>
 {
     assetKey = { nftId : "", nftContract: "" };
 
+    request = {} as Request_DISPLAY;
+
     request.interval    = "3";
     request.premium     = "0.1";
     request.strikePrice = "1";
@@ -103,28 +104,31 @@ const resetRequest = () =>
     areAmountsInvalid = false;
 }
 
-let areAmountsInvalid = false;
-let showAddContract   = false;
+const cleanup = () =>
+{
+    clearNFTCollectionsEventCallback();
+}
 
-let chainID : number;
-let account : string;
-let image   : string;
-let assets  : NFTAsset[];
+let areAmountsInvalid : boolean;
+let showAddContract   : boolean;
+let chainID           : number;
+let account           : string;
+let image             : string;
+let assets            : NFTAsset[];
+let assetKey          : AssetKey
+let request           : Request_DISPLAY;
 
 let setShowAddContract : (a : boolean) => void;
 let setImage           : (a : string)  => void;
 let requestChanged     : () => void;
 let assetsChanged      : () => void;
 
-let request  = {} as Request_DISPLAY;
-let assetKey = {} as AssetKey
-
 resetRequest();
 
 function RequestForm()
 {
-    let [             , setAssetsChanged ]   = useState(0);
-    let [             , setRequestChanged ]  = useState(0);
+    const [           , setAssetsChanged ]   = useState(0);
+    const [           , setRequestChanged ]  = useState(0);
     [ image           , setImage ]           = useState(imageOf(assetKey));
     [ showAddContract , setShowAddContract ] = useState(false);
 
@@ -136,14 +140,11 @@ function RequestForm()
     requestChanged = () => setRequestChanged(f => f ^ 1);
     assetsChanged  = () => setAssetsChanged(f => f ^ 1);
 
-    setNFTCollectionsEventCallback(assetsChanged);
-
     useEffect
     (
         () =>
         {
-            // Cleanup on unmount
-            return () => { clearNFTCollectionsEventCallback(); }
+            return () => cleanup();
         }
     ,   []
     );
@@ -152,7 +153,14 @@ function RequestForm()
     (
         () =>
         {
-            if (!network) clearNFTCollectionsEventCallback();
+            if (!network)
+            {
+                cleanup();
+
+                return;
+            }
+
+            setNFTCollectionsEventCallback(assetsChanged);
         }
     ,   [chainID]
     );
@@ -169,7 +177,7 @@ function RequestForm()
     );
 
     return <>
-        <p className="page-title">Request a PUT Option</p>
+        <p className="page-title">Publish a Request for PUT Option</p>
 
         <div className={classes.root}>
             <div className={classes.form}>
@@ -196,7 +204,18 @@ function RequestForm()
                             <Button
                                 className={classes.btnAddContract}
                                 size="small"
-                                onClick={ () => setShowAddContract(true) }
+                                onClick={ () =>
+                                    {
+                                        setShowAddContract(true);
+                                        // let contract = getCachedContract(assetKey.nftContract);
+
+                                        // Revoke approval
+                                        // contract.connect(signer).approve(ADDRESS0, assetKey.nftId);
+
+                                        // Transfer NFT from connected to another account
+                                        // contract.connect(signer).transferFrom(account, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", assetKey.nftId)
+                                        // .then(console.log);
+                                    }}
                             >🆕</Button>
                         </>
                 }

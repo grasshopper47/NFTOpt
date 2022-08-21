@@ -45,7 +45,7 @@ const routesWithSigner : Route[] =
     ,   name: "Mint"
     }
 ,   {
-        href: "/request"
+        href: "/publish"
     ,   name: "Publish"
     }
 ];

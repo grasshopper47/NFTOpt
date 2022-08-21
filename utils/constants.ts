@@ -115,13 +115,39 @@ export const ABIs =
             ],
         }
 
-    ,   mint :
+    ,   mint:
         {
             name: "mint",
             type: "function",
             stateMutability: "",
             inputs: [],
             outputs: []
+        }
+
+    ,   transferFrom:
+        {
+            name: "transferFrom",
+            stateMutability: "nonpayable",
+            type: "function",
+            inputs:
+            [
+                {
+                    internalType: "address",
+                    name: "from",
+                    type: "address"
+                }
+            ,   {
+                    internalType: "address",
+                    name: "to",
+                    type: "address"
+                }
+            ,   {
+                    internalType: "uint256",
+                    name: "tokenId",
+                    type: "uint256"
+                }
+            ],
+            outputs: [],
         }
 
     ,   Events:

@@ -37,7 +37,7 @@ export const loadOptions = async (NFTOpt : NFTOpt) : Promise<void> =>
     await Promise.all(promises);
 }
 
-export const loadOptionWithAsset = async (NFTOpt : NFTOpt, ID : number | string) : Promise<void> =>
+export const loadOptionWithAsset = async (NFTOpt : NFTOpt, ID : number) : Promise<void> =>
 {
     let option = await NFTOpt.options(ID) as any as Option;
 
@@ -151,26 +151,42 @@ const _loadFromLogs = async (NFTOpt : NFTOpt) : Promise<void> =>
     let withdrawn = [] as WithdrawnEvent[];
 
     await Promise.all
-([
+    ([
         NFTOpt.queryFilter(NFTOpt.filters.Published()).then( p => published = p )
-    ,   NFTOpt.queryFilter(NFTOpt.filters.Withdrawn()).then( w => withdrawn = w.reverse() )
+    ,   NFTOpt.queryFilter(NFTOpt.filters.Withdrawn()).then( w => withdrawn = w )
     ]);
 
     // Reset cache
     promises = [] as Promise<any>[];
 
-    let i        = -1;
-    const length = published.length
-    while (++i !== length)
+    const length_p = published.length;
+    let length_w   = withdrawn.length;
+
+    let i = -1;
+
+loop_root:
+    while (++i !== length_p)
     {
         const pev = published[i];
-        const ID = pev.args[0].toString();
 
-        const wev = withdrawn.find( (w : any) => w.args[0].toString() === ID );
+        let j = -1;
+        while (++j !== length_w)
+        {
+            const wev = withdrawn[j];
 
-        if (wev && wev.blockNumber >= pev.blockNumber) continue;
+            if (wev.blockNumber < pev.blockNumber) continue;
 
-        promises.push( loadOptionWithAsset(NFTOpt, ID) );
+            if (wev.args[0].eq(pev.args[0]))
+            {
+                // Remove from withdrawn list
+                withdrawn.splice(j, 1), --length_w;
+
+                // Check the next publish event
+                continue loop_root;
+            }
+        }
+
+        promises.push( loadOptionWithAsset(NFTOpt, pev.args[0].toNumber()) );
     }
 }
 
