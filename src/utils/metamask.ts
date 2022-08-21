@@ -18,7 +18,7 @@ export const hookMetamask =
 {
     if (!window.ethereum) { console.log("Install MetaMasK"); return; }
 
-    console.log("MetaMasK: init", window.ethereum);
+    console.log("MetaMasK: init");
 
     _setAccount = setAccount;
     _setChainID = setChainID;
@@ -33,6 +33,8 @@ export const hookMetamask =
 export const connectWallet = () =>
 {
     connecting = true;
+
+    _setAccount("");
 
     window.ethereum.request({ method: "eth_requestAccounts" })
     .then(_handleSignerChanged)
@@ -66,7 +68,6 @@ const _handleSignerChanged = () =>
 
 const _handleNetworkChanged = (ID : string) =>
 {
-    console.log(ID);
     let ID_ = parseInt(ID);
 
     if (ID_ === NaN)
@@ -78,7 +79,6 @@ const _handleNetworkChanged = (ID : string) =>
 
         return;
     }
-    console.log(window.ethereum.networkVersion);
 
     setProvider(new ethers.providers.Web3Provider(window.ethereum, "any"));
     setNetwork(ID_);

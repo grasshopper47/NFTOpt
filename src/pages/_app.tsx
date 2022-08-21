@@ -22,7 +22,7 @@ import { AccountContext, ChainIDContext, NFTCollectionsLoadCallback, OptionsLoad
 
 export default function App({ Component, pageProps }: AppProps)
 {
-    const [ account , setAccount ] = useState(" ");
+    const [ account , setAccount ] = useState("");
     const [ chainID , setChainID ] = useState(-1);
 
     useEffect
@@ -67,7 +67,7 @@ export default function App({ Component, pageProps }: AppProps)
     (
         () =>
         {
-            if (!network) return;
+            if (account === "") return;
 
             // Create an upgraded/downgraded instance with connected address as signer
             // OR with the default provider (readonly)
