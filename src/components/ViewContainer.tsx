@@ -46,6 +46,7 @@ const renderList = () =>
 {
     if (!hasItems) return <p className={classes.noOptions}>{ getStatusText(activeTabIndex) }</p>;
 
+    console.log(page.index, page.count);
     const startIndex = page.index * page.count;
     const props =
     {
@@ -138,7 +139,7 @@ function ViewContainer()
         {
             viewConfig = getViewConfigFromStorage();
 
-            page.count = (ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits)[getViewLimitIndexFromStorage()];
+            page.count = (viewConfig.type === ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits)[getViewLimitIndexFromStorage()];
 
             setActiveTabIndex( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
 
