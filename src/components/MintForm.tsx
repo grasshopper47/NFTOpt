@@ -17,7 +17,7 @@ import DropDown_MintForm from "../fragments/DropDown.Collections.MintForm";
 import { Avatar, Button, ListItem, ListItemAvatar, ListItemText, ListSubheader, SelectChangeEvent } from "@mui/material";
 import { List } from '@mui/material';
 
-let setAsset = (obj?: NFTAsset | null) =>
+const setAsset = (obj?: NFTAsset | null) =>
 {
     if (obj) asset = obj as NFTAsset;
     else resetAsset();
@@ -25,7 +25,7 @@ let setAsset = (obj?: NFTAsset | null) =>
     setImage(asset.image);
 };
 
-let handleMint = () => showToast
+const handleMint = () => showToast
 (
     getCachedContract(asset.key.nftContract)
     .connect(signer)
@@ -33,12 +33,12 @@ let handleMint = () => showToast
     .then( () => setAsset(null) )
 );
 
-let handleKey = (event: React.KeyboardEvent<HTMLInputElement>) =>
+const handleKey = (event: React.KeyboardEvent<HTMLInputElement>) =>
 {
     if (event.key === "Enter") if (asset.image) handleMint();
 }
 
-let resetAsset = () =>
+const resetAsset = () =>
 {
     asset =
     {
@@ -52,7 +52,11 @@ let resetAsset = () =>
     }
 }
 
-let doClean = () => { clearOptionsLoadCallback(), clearNFTCollectionsEventCallback(); }
+const cleanup = () =>
+{
+    clearOptionsLoadCallback();
+    clearNFTCollectionsEventCallback();
+}
 
 let chainID     : number;
 let account     : string;
@@ -69,7 +73,7 @@ resetAsset();
 
 function MintForm()
 {
-    let [         , setAssetsChanged ] = useState(0);
+    const [       , setAssetsChanged ] = useState(0);
     [ image       , setImage ]         = useState(asset.image);
     [ collections , setCollections ]   = useState<NFTAsset[]>(NFTOptCollections);
 
@@ -80,18 +84,11 @@ function MintForm()
 
     assets = assetsOf(account) ?? [];
 
-    setNFTCollectionsLoadCallback(setCollections);
-    setNFTCollectionsEventCallback(assetsChanged);
-
     useEffect
     (
         () =>
         {
-            // TODO: bugfix see ViewContainer.tsx in load useEffect
-            setNFTCollectionsLoadCallback(setCollections);
-            setNFTCollectionsEventCallback(assetsChanged);
-
-            return () => { doClean(); }
+            return () => cleanup();
         }
     ,   []
     );
@@ -100,7 +97,15 @@ function MintForm()
     (
         () =>
         {
-            if (!network) doClean();
+            if (!network)
+            {
+                cleanup();
+
+                return;
+            }
+
+            setNFTCollectionsLoadCallback(setCollections);
+            setNFTCollectionsEventCallback(assetsChanged);
         }
     ,   [chainID]
     );

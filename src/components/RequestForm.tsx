@@ -97,6 +97,8 @@ const resetRequest = () =>
 {
     assetKey = { nftId : "", nftContract: "" };
 
+    request = {} as Request_DISPLAY;
+
     request.interval    = "3";
     request.premium     = "0.1";
     request.strikePrice = "1";
@@ -105,21 +107,24 @@ const resetRequest = () =>
     areAmountsInvalid = false;
 }
 
-let areAmountsInvalid = false;
-let showAddContract   = false;
+const cleanup = () =>
+{
+    clearNFTCollectionsEventCallback();
+}
 
-let chainID : number;
-let account : string;
-let image   : string;
-let assets  : NFTAsset[];
+let areAmountsInvalid : boolean;
+let showAddContract   : boolean;
+let chainID           : number;
+let account           : string;
+let image             : string;
+let assets            : NFTAsset[];
+let assetKey          : AssetKey
+let request           : Request_DISPLAY;
 
 let setShowAddContract : (a : boolean) => void;
 let setImage           : (a : string)  => void;
 let requestChanged     : () => void;
 let assetsChanged      : () => void;
-
-let request  = {} as Request_DISPLAY;
-let assetKey = {} as AssetKey
 
 resetRequest();
 
@@ -147,7 +152,7 @@ function RequestForm()
             // TODO: bugfix see ViewContainer.tsx in load useEffect
             setNFTCollectionsEventCallback(assetsChanged);
 
-            return () => { clearNFTCollectionsEventCallback(); }
+            return () => cleanup();
         }
     ,   []
     );
@@ -156,7 +161,12 @@ function RequestForm()
     (
         () =>
         {
-            if (!network) clearNFTCollectionsEventCallback();
+            if (!network)
+            {
+                cleanup();
+
+                return;
+            }
         }
     ,   [chainID]
     );

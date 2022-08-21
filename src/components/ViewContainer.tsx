@@ -9,7 +9,7 @@ import { doFilter, optionsByStateFiltered, OptionStateViewed } from "../../datas
 import { OptionWithAsset } from "../../models/option";
 import { clearNFTOptUICallback, setNFTOptUICallback } from "../controllers/NFTOpt";
 import { clearOptionsLoadCallback, setOptionsLoadCallback, useChainID } from "../utils/contexts";
-import { ViewTypes, ViewPage, ViewConfig, getViewSettingsFromStorage, getViewLimitIndexFromStorage, ListViewLimits, TableViewLimits } from "../utils/view";
+import { ViewTypes, ViewPage, ViewConfig, getViewConfigFromStorage, getViewLimitIndexFromStorage, ListViewLimits, TableViewLimits } from "../utils/view";
 import TableView from "./TableView";
 import ListView from "./ListView";
 import FooterNavigation from "./FooterNavigation";
@@ -24,13 +24,13 @@ const setSelectedOption = (obj : OptionWithAsset | null) =>
     {
         document.body.onkeydown = handleKey;
 
-        if (view.type === ViewTypes.CARDLIST) view.type = ViewTypes.DETAIL;
+        if (viewConfig.type === ViewTypes.CARDLIST) viewConfig.type = ViewTypes.DETAIL;
     }
     else
     {
         document.body.onkeydown = null;
 
-        if (view.type === ViewTypes.DETAIL) view.type = ViewTypes.CARDLIST;
+        if (viewConfig.type === ViewTypes.DETAIL) viewConfig.type = ViewTypes.CARDLIST;
     }
 
     // Force-update the view even when the selectedOption is the same value; this is to cover the edge-case
@@ -40,7 +40,7 @@ const setSelectedOption = (obj : OptionWithAsset | null) =>
 
 const handleKey = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedOption(null); }
 
-const handleFiltered = () => doFilter(optionViewState).then(setViewedOptions);
+const handleFiltered = () => doFilter(activeTabIndex).then(setViewedOptions);
 
 const renderList = () =>
 {
@@ -50,13 +50,13 @@ const renderList = () =>
     const props =
     {
         list      : viewedOptions.slice(startIndex, startIndex + page.count)
-    ,   viewIndex : view.state
+    ,   viewIndex : viewConfig.state
     ,   onSelect  : setSelectedOption
     };
 
     if (selectedOption) props["selectedValue"] = selectedOption;
 
-    return view.type === ViewTypes.ROWLIST
+    return viewConfig.type === ViewTypes.ROWLIST
     ?   <TableView { ... props } onSort={ (list : OptionWithAsset[]) => setViewedOptions(list) } />
     :   <ListView  { ... props } />;
 }
@@ -67,7 +67,7 @@ const getStatusText = (activeTabIndex : number) =>
     {
         if (network)
         {
-            if (optionsByStateFiltered[optionViewState]?.length === 0) return "Filter matched no requests";
+            if (optionsByStateFiltered[activeTabIndex]?.length === 0) return "Filter matched no requests";
 
             return "Loading...";
         }
@@ -77,7 +77,7 @@ const getStatusText = (activeTabIndex : number) =>
 
     if (network)
     {
-        if (optionsByStateFiltered[optionViewState]?.length === 0) return "Filter matched no options";
+        if (optionsByStateFiltered[activeTabIndex]?.length === 0) return "Filter matched no options";
 
         return "Loading...";
     }
@@ -85,21 +85,22 @@ const getStatusText = (activeTabIndex : number) =>
     return "No Options";
 }
 
-const doClean = () => { clearOptionsLoadCallback(), clearNFTOptUICallback(); }
-
-let hasItems       : boolean;
-let chainID        : number;
-let activeTabIndex : number;
-let optionViewState = OptionStateViewed.REQUEST;
-let selectedOption  = null as OptionWithAsset | null;
-let viewedOptions   = [] as OptionWithAsset[];
-let view =
+const cleanup = () =>
 {
-    type  : ViewTypes.CARDLIST
-,   state : 0
-} as ViewConfig;
+    document.body.onkeydown = null;
+
+    clearOptionsLoadCallback();
+    clearNFTOptUICallback();
+}
 
 const tabIndexStorageKey = "ActiveTabIndex";
+
+const tabLabels =
+[
+    "Requests"
+,   "Open"
+,   "Closed"
+];
 
 const page =
 {
@@ -107,58 +108,41 @@ const page =
 ,   count: 0
 } as ViewPage;
 
-const tabs =
-[
-    {
-        name  : "Requests"
-    ,   value : OptionStateViewed.REQUEST
-    }
-,   {
-        name  : "Open"
-    ,   value : OptionStateViewed.OPEN
-    }
-,   {
-        name  : "Closed"
-    ,   value : OptionStateViewed.CLOSED
-    }
-];
+let hasItems       : boolean;
+let chainID        : number;
+let activeTabIndex : OptionStateViewed;
+let selectedOption : OptionWithAsset | null;
+let viewedOptions  : OptionWithAsset[];
+let viewConfig     : ViewConfig;
 
 let viewChanged       : () => void;
 let setActiveTabIndex : (a : number) => void;
 let setViewedOptions  : (a : OptionWithAsset[]) => void;
 
+viewConfig = {} as ViewConfig;
+
 function ViewContainer()
 {
-    const [          , setSelectedOptionChanged ] = useState(0);
-    [ activeTabIndex , setActiveTabIndex ]        = useState(0);
-    [ viewedOptions  , setViewedOptions ]         = useState<OptionWithAsset[]>([]);
+    const [          , selectedOptionChanged ] = useState(0);
+    [ activeTabIndex , setActiveTabIndex ]     = useState<OptionStateViewed>(OptionStateViewed.REQUEST);
+    [ viewedOptions  , setViewedOptions ]      = useState<OptionWithAsset[]>([]);
 
-    viewChanged = () => setSelectedOptionChanged(f => f ^ 1);
+    viewChanged = () => selectedOptionChanged(o => o ^ 1);
 
     chainID  = useChainID();
     hasItems = viewedOptions ? viewedOptions.length !== 0 : false;
-
-    setOptionsLoadCallback(handleFiltered);
-    setNFTOptUICallback(handleFiltered);
 
     useEffect
     (
         () =>
         {
-            // TODO: find the bug when changing one line (remove a comment, save) in datasources/options.ts
-            // and the page refreshes, because it runs doClean on unmount, for some reason the handlers
-            // are removed, even though they should be set again, per the lines above
-            setOptionsLoadCallback(handleFiltered);
-            setNFTOptUICallback(handleFiltered);
-
-            view = getViewSettingsFromStorage();
+            viewConfig = getViewConfigFromStorage();
 
             page.count = (ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits)[getViewLimitIndexFromStorage()];
 
             setActiveTabIndex( parseInt(localStorage[tabIndexStorageKey] ?? 0) );
 
-            // Cleanup on unmount
-            return () => { doClean(), document.body.onkeydown = null; }
+            return () => cleanup();
         }
     ,   []
     );
@@ -169,10 +153,15 @@ function ViewContainer()
         {
             if (!network)
             {
-                doClean();
+                cleanup();
 
                 setViewedOptions([]);
+
+                return;
             }
+
+            setOptionsLoadCallback(handleFiltered);
+            setNFTOptUICallback(handleFiltered);
         }
     ,   [chainID]
     );
@@ -181,13 +170,11 @@ function ViewContainer()
     (
         () =>
         {
-            if (!network) return;
-
             localStorage[tabIndexStorageKey] = activeTabIndex;
-
             selectedOption = null;
             page.index = 0;
-            optionViewState = tabs[activeTabIndex].value;
+
+            if (!network) return;
 
             if (requestsChanged.value)
             {
@@ -208,15 +195,20 @@ function ViewContainer()
                 }
             }
 
-            const options = optionsByStateFiltered[optionViewState];
+            // Re-use cache, when available
+            const options = optionsByStateFiltered[activeTabIndex];
             if (options)
             {
                 // Handle server-triggered refresh
                 if (options === viewedOptions) viewedOptions = [];
 
                 setViewedOptions(options);
+
+                return;
             }
-            else handleFiltered();
+
+            // Re-filter results
+            handleFiltered();
         }
     ,   [activeTabIndex]
     );
@@ -226,9 +218,9 @@ function ViewContainer()
 
         <div className={clsx(classes.root, hasItems && classes.withOptions)}>
             {
-                view.type !== ViewTypes.DETAIL &&
+                viewConfig.type !== ViewTypes.DETAIL &&
                 <ViewSettings
-                    view={view}
+                    view={viewConfig}
                     list={viewedOptions}
                     selectedValue={selectedOption}
                     onViewChanged={viewChanged}
@@ -241,17 +233,17 @@ function ViewContainer()
                 value={activeTabIndex}
                 onChange={ (e, index : number) => setActiveTabIndex(index) }
             >
-                { tabs.map( tab => <Tab key={`tab-filter-${tab.name}`} label={tab.name} /> ) }
+                { tabLabels.map( (t, i) => <Tab key={`tabs-${i}`} label={t} /> ) }
             </Tabs>
 
             { renderList() }
         </div>
         {
-            hasItems && view.type !== ViewTypes.DETAIL &&
+            hasItems && viewConfig.type !== ViewTypes.DETAIL &&
             <FooterNavigation
                 page={page}
                 list={viewedOptions}
-                recordLimits={view.type === ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits}
+                recordLimits={viewConfig.type === ViewTypes.ROWLIST ? TableViewLimits : ListViewLimits}
                 onNavigate={viewChanged}
             />
         }
