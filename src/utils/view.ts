@@ -21,7 +21,7 @@ export const storeViewType              = (type : ViewTypes) => localStorage[_vi
 export const storeViewState             = (state : number)   => localStorage[_viewStateStorageKey]         = state;
 export const storeViewRecordsLimitIndex = (index : number)   => localStorage[_viewRecordsLimitStorageKey]  = index;
 
-export const getViewSettingsFromStorage = () =>
+export const getViewConfigFromStorage = () =>
 {
     return {
         type  : parseInt(localStorage[_viewTypeStorageKey] ?? ViewTypes.CARDLIST)
