@@ -43,7 +43,7 @@
 {
     margin: 0;
     padding: 0;
-
+    align-self: center;
     &:nth-of-type(2)
     {
         transition: all 250ms ease;
@@ -87,9 +87,9 @@
 
 .detailWrapper
 {
-    margin-top: 10px;
-    margin-bottom: 40px;
-    zoom: 0.8;
+    margin-top: -10px;
+    margin-bottom: 20px;
+    transform: scale(0.86);
     justify-self: center;
     background-image: linear-gradient(to bottom, transparent, $background-secondary);
     box-shadow: 4px 4px 29px rgb(15 23 42 / 14%), 4px -2px 30px rgb(15 23 42 / 10%);

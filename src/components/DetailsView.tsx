@@ -217,14 +217,11 @@ function DetailsView(props : Props)
         <div>
             <img src={props.option.asset.image} alt="NFT Image" />
 
-            {
-                showTitle &&
-                <a
-                    target="_blank"
-                    href={txLink}
-                    className={clsx(classes.link, classes.state)}
-                >{eventLabels[props.option.state]}</a>
-            }
+            <a
+                target="_blank"
+                href={txLink}
+                className={clsx(classes.link, classes.state)}
+            >{eventLabels[props.option.state]}</a>
         </div>
 
         <div className={classes.detailsSub}>

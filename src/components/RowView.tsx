@@ -19,7 +19,7 @@ function RowView(props: RowView)
 {
     return <>
         <div className={classes.container} { ... props.onClick && { onClick : props.onClick } }>
-            <p className={classes.field}>{ !props.showDetails && (props.option.id + 1)}</p>
+            <p className={classes.field}>{props.option.id + 1}</p>
             <p
                 className=
                 {
