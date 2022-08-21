@@ -28,7 +28,7 @@ export function hookMetamask
 
     _handleNetworkChanged(window.ethereum.networkVersion);
 
-    connectWallet();
+    window.ethereum._metamask.isUnlocked().then( (y : boolean) => y && connectWallet() );
 }
 
 export async function connectWallet()
