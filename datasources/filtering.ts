@@ -28,7 +28,7 @@ export const optionsByStateFiltered = {} as any;
 
 export const doFilter = async(state : OptionStateViewed) =>
 {
-    console.log("filtered", filterParams);
+    console.log("filtered");
 
     let map = state === OptionStateViewed.REQUEST ? requests : options;
     const filterState = stateFilter[state];
