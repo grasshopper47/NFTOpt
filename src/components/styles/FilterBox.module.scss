@@ -1,9 +1,8 @@
-@import "src/styles/variables.scss";
+@import
+"src/styles/variables.scss",
+"src/styles/mixins.scss";
 
-@keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 0.98; }
-}
+
 
 .containerRoot
 {
@@ -24,7 +23,7 @@
     grid-auto-flow: row;
     background-color: $background-secondary;
     border-radius: 10px;
-    animation: fadeIn 333ms;
+    animation: $fadeIn-animation;
     filter: drop-shadow(0 0 0.25rem $color-secondary);
 }
 
@@ -67,7 +66,7 @@
 {
     justify-self: left;
     text-shadow: 1px 1px rgb(25 25 25 / 65%);
-    animation: fadeIn 333ms;
+    animation: $fadeIn-animation;
     margin-left: -4px;
     margin-top: -4px;
 

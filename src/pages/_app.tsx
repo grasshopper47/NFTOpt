@@ -1,10 +1,10 @@
 import "./styles/_app.scss";
+// import "../styles/main.scss";
 
 import React from 'react';
 import Head from "next/head";
 import { AppProps } from "next/app";
 import { useState, useEffect } from "react";
-
 import { network, provider } from "../../datasources/provider";
 import { clearContractsCache } from "../../datasources/ERC-721/contracts";
 import { clearImages } from "../../datasources/ERC-721/images";

@@ -1,0 +1,25 @@
+@mixin on-event($self: false) {
+    @if $self {
+      &,
+      &:hover,
+      &:active,
+      &:focus,
+      &:focus-within {
+        @content;
+      }
+    } @else {
+      &:hover,
+      &:active,
+      &:focus,
+      &:focus-within {
+        @content;
+      }
+    }
+  }
+  
+
+  @mixin when-inside($context) {
+    #{$context} & {
+      @content;
+    }
+  }
