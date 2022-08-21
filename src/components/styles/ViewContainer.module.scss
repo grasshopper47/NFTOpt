@@ -19,6 +19,7 @@ $c-gold: #bc994f;
     display: flex;
     flex-direction: column;
     margin: auto;
+    position: relative;
 }
 
 .withOptions {
@@ -28,7 +29,7 @@ $c-gold: #bc994f;
 .viewSettingsWrapper {
   z-index: 99;
   position: absolute;
-  right: calc((100% - 900px) / 2 - 10px);
+  right: 0;
   display: grid;
   grid-auto-flow: column;
   margin-top: 12px;
