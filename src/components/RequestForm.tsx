@@ -40,7 +40,10 @@ const setAsset = (asset : NFTAsset | undefined | null) =>
 
     assetKey = asset.key;
 
-    setImage(imageOf(assetKey));
+    const image = imageOf(assetKey);
+
+    if (image) setImage(image);
+    else       loadImage(assetKey).then( img => { asset.image = img; setImage(img); } );
 };
 
 const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>

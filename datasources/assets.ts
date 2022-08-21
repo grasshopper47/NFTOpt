@@ -1,8 +1,8 @@
 
 import addresses from "../addresses.json";
-import { AssetKey, stringOf } from "../models/assetKey";
+import { AssetKey } from "../models/assetKey";
 import { NFTAsset } from "../models/NFTAsset";
-import { images, loadImage } from "./ERC-721/images";
+import { loadImage } from "./ERC-721/images";
 import { getCachedContract } from "./ERC-721/contracts";
 import { fetchFromGraphNode } from "./graph";
 import { TransferEvent } from "../typechain-types/@openzeppelin/contracts/token/ERC721/IERC721";
@@ -27,16 +27,13 @@ export const getNFTAsset = async (key : AssetKey, contract? : any) =>
     ,   image : ""
     } as NFTAsset;
 
-    const promises = [ NFTContract.name().then( (r : string) => NFTAsset.name = `${r} - ${key.nftId}` ) ];
-
-    const key_str = stringOf(key);
-
-    // Trigger cache to load once per image
-    if (images[key_str] === undefined) promises.push( loadImage(key) );
+    const promises =
+    [
+        NFTContract.name().then( (r : string) => NFTAsset.name = `${r} - ${key.nftId}` )
+    ,   loadImage(key).then( (i : string) => NFTAsset.image = i )
+    ];
 
     await Promise.all(promises);
-
-    NFTAsset.image = images[key_str];
 
     return NFTAsset;
 }
