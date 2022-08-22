@@ -2,7 +2,7 @@ import { OptionFlavor, OptionState } from "../models/enums";
 import { Option, OptionWithAsset } from "../models/option";
 import { NFTOpt, PublishedEvent, WithdrawnEvent } from "../typechain-types/contracts/NFTOpt";
 import { ADDRESS0, SECONDS_IN_A_DAY } from "../utils/constants";
-import { getNFTAsset } from "./assets";
+import { getAsset } from "./assets";
 import { fetchFromGraphNode } from "./graph";
 
 export const requestsChanged = { value : false };
@@ -55,7 +55,7 @@ export const loadOptionWithAsset = async (NFTOpt : NFTOpt, ID : number) : Promis
     ,   startDate   : option.startDate
     ,   interval    : option.interval / SECONDS_IN_A_DAY
     ,   asset :
-        await getNFTAsset
+        await getAsset
         ({
             nftContract : option.nftContract
         ,   nftId       : option.nftId.toString()
