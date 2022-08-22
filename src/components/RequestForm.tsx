@@ -115,7 +115,7 @@ const cleanup = () =>
 }
 
 let areAmountsInvalid : boolean;
-let showAddContract   : boolean;
+let showCustom        : boolean;
 let chainID           : number;
 let account           : string;
 let image             : string;
@@ -123,19 +123,19 @@ let assets            : NFTAsset[];
 let assetKey          : AssetKey
 let request           : Request_DISPLAY;
 
-let setShowAddContract : (a : boolean) => void;
-let setImage           : (a : string)  => void;
-let requestChanged     : () => void;
-let assetsChanged      : () => void;
+let setShowCustom  : (a : boolean) => void;
+let setImage       : (a : string)  => void;
+let requestChanged : () => void;
+let assetsChanged  : () => void;
 
 resetRequest();
 
 function RequestForm()
 {
-    const [           , setAssetsChanged ]   = useState(0);
-    const [           , setRequestChanged ]  = useState(0);
-    [ image           , setImage ]           = useState(imageOf(assetKey));
-    [ showAddContract , setShowAddContract ] = useState(false);
+    const [      , setAssetsChanged ]  = useState(0);
+    const [      , setRequestChanged ] = useState(0);
+    [ image      , setImage ]          = useState(imageOf(assetKey));
+    [ showCustom , setShowCustom ]     = useState(false);
 
     account = useAccount();
     chainID = useChainID();
@@ -192,23 +192,23 @@ function RequestForm()
         <div className={classes.root}>
             <div className={classes.form}>
                 {
-                    showAddContract
+                    showCustom
                     ?   <CustomAssetForm
                             onSuccess=
                             {
                                 () =>
                                 {
                                     setAsset(assets[assets.length - 1]);
-                                    setShowAddContract(false);
+                                    setShowCustom(false);
                                 }
                             }
-                            onCancel={ () => setShowAddContract(false) }
+                            onCancel={ () => setShowCustom(false) }
                         />
                     :   <>
                             <DropDown_RequestForm
+                                list={assets}
                                 value={stringOf(assetKey)}
                                 onChange={setAsset}
-                                { ... assets && { list : assets } }
                             />
 
                             <Button
@@ -216,7 +216,7 @@ function RequestForm()
                                 size="small"
                                 onClick={ () =>
                                     {
-                                        setShowAddContract(true);
+                                        setShowCustom(true);
                                         // let contract = getCachedContract(assetKey.nftContract);
 
                                         // Revoke approval
