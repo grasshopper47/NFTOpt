@@ -57,7 +57,10 @@ const renderList = () =>
     if (selectedOption) props["selectedValue"] = selectedOption;
 
     return viewConfig.type === ViewTypes.ROWLIST
-    ?   <TableView { ... props } onSort={ (list : OptionWithAsset[]) => setViewedOptions(list) } />
+    ?   <TableView
+            { ... props }
+            onSort={ sorter => { viewedOptions.sort(sorter), viewChanged(); } }
+        />
     :   <ListView  { ... props } />;
 }
 

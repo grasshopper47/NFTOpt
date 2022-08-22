@@ -16,14 +16,14 @@ export const attachNFTOptHandlersToInstance = (NFTOpt : NFTOpt) =>
     for (const event of eventLabels) NFTOpt.on(event, _handleEvent);
 }
 
+let _UICallback = () => {};
+
 type BatchHandlerType =
 {
     keys      : number[]
 ,   isLoading : boolean
 ,   handler   : (... any : any[]) => Promise<any>
 }
-
-let _UICallback = () => { };
 
 const _createBatchHandler = ( handler : (... any : any[]) => Promise<any> ) =>
 {

@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import { network } from "../../datasources/provider";
 import { contracts } from "../../datasources/NFTOpt";
-import { assetsOf, loadAssetsFor } from "../../datasources/assets";
+import { assetsOf } from "../../datasources/assets";
 import { imageOf, loadImage } from "../../datasources/ERC-721/images";
 import { AssetKey, isValid, stringOf } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
@@ -21,7 +21,7 @@ import DropDown_Flavor_RequestForm from "../fragments/DropDown.Flavor.RequestFor
 import CustomAssetForm from "./CustomAssetForm";
 import { Button, SelectChangeEvent } from "@mui/material";
 import { clearNFTCollectionsEventCallback, setNFTCollectionsEventCallback } from "../controllers/NFTOptCollections";
-import { useAccount, useChainID } from "../utils/contexts";
+import { clearAssetsLoadCallback, setAssetsLoadCallback, useAccount, useChainID } from "../utils/contexts";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
 import { signer } from "../utils/metamask";
 
@@ -109,6 +109,8 @@ const resetRequest = () =>
 
 const cleanup = () =>
 {
+    clearAssetsLoadCallback();
+
     clearNFTCollectionsEventCallback();
 }
 
@@ -138,7 +140,7 @@ function RequestForm()
     account = useAccount();
     chainID = useChainID();
 
-    assets = assetsOf(account) ?? [];
+    assets = assetsOf(account);
 
     requestChanged = () => setRequestChanged(f => f ^ 1);
     assetsChanged  = () => setAssetsChanged(f => f ^ 1);
@@ -158,7 +160,7 @@ function RequestForm()
         {
             if (!network)
             {
-                cleanup();
+                clearNFTCollectionsEventCallback();
 
                 return;
             }
@@ -172,9 +174,14 @@ function RequestForm()
     (
         () =>
         {
-            if (!network) return;
+            if (account === "")
+            {
+                clearAssetsLoadCallback();
 
-            loadAssetsFor(account).then(assetsChanged);
+                return;
+            }
+
+            setAssetsLoadCallback(assetsChanged);
         }
     ,   [account]
     );
@@ -200,8 +207,8 @@ function RequestForm()
                     :   <>
                             <DropDown_RequestForm
                                 value={stringOf(assetKey)}
-                                list={assets}
                                 onChange={setAsset}
+                                { ... assets && { list : assets } }
                             />
 
                             <Button
