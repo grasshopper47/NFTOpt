@@ -161,7 +161,7 @@ function MintForm()
             <div className={classes.imageContainer}>
             {
                 image
-                ?   <Image src={image} alt="NFT image data" width="375" height="375" />
+                ?   <Image style={{borderRadius: "10px"}} src={image} alt="NFT image data" width="374" height="374" />
                 :   [0, 0, 0].map( (_, i) => <div key={`dot-${i}`} className={classes.dot} /> )
             }
             </div>

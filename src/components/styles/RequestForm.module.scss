@@ -20,6 +20,7 @@
     display: flex;
     flex-direction: column;
     width: 45%;
+    height:100%;
     margin-top: 16px;
     position: relative;
 
@@ -85,10 +86,8 @@
     display: flex;
     align-items: center;
     justify-content: space-around;
-    position: relative;
-    height: 375px;
-    width: 375px;
-    border-radius: 10px;
+    height: 374px;
+    width: 374px;
     box-shadow: 4px 4px 29px rgb(15 23 42 / 14%), 4px -2px 30px rgb(15 23 42 / 26%);
 }
 
@@ -144,6 +143,11 @@ button.btnCancel
     right: -98px;
 }
 
+button.btnAddContract
+{
+    right: -64px;
+}
+
 button.btnPublishRequest
 {
     background: $color-secondary;
@@ -152,16 +156,8 @@ button.btnPublishRequest
     {
         background: $color-tertiary;
     }
-}
 
-button.btnAddContract
-{
-    right: -64px;
-}
-
-button.btnPublishRequest
-{
-    margin-top: 40px;
+    margin-top: 66px;
     padding: 8px;
     font-size: 16px;
     font-weight: 500;
