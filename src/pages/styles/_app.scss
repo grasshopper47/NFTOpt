@@ -23,8 +23,7 @@ body,
 }
 
 .main-content-wrapper {
-  margin: 20px;
-  margin-bottom: 0px;
+  margin: 20px 20px 0 20px;
   height: calc(100% - 160px);
 }
 
@@ -44,7 +43,6 @@ button.MuiButton-root {
 
 .toast-container {
   margin-top: 60px;
-
   overflow-y: hidden;
   max-height: 264px;
 }
