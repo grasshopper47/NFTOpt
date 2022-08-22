@@ -16,8 +16,8 @@ body,
 #__next,
 .main-content-layout {
     max-height: 100%;
-    height: 100%;
     margin: 0;
+    height: 100vh;
     background: $background-primary;
     color: $text-primary;
 }
