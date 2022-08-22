@@ -2,8 +2,9 @@
 import classes from "./styles/CardView.module.scss";
 import clsx from "clsx";
 
-import React from "react";
 import { ethers } from "ethers";
+import React from "react";
+
 import { OptionWithAsset } from "../../models/option";
 import { requestChangingIDs, optionChangingIDs } from "../utils/contexts";
 import { ListViewStates } from "../utils/view";
