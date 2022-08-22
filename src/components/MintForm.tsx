@@ -9,7 +9,7 @@ import { network } from "../../datasources/provider";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
 import { NFTOptCollections } from "../../datasources/ERC-721/NFTOptCollections";
 import { assetsOf } from "../../datasources/assets";
-import { AssetKey } from "../../models/assetKey";
+import { AssetKey, stringOf } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
 import { clearNFTCollectionsEventCallback, setNFTCollectionsEventCallback } from "../controllers/NFTOptCollections";
 import { useAccount, useChainID, clearNFTCollectionsLoadCallback, setNFTCollectionsLoadCallback, clearAssetsLoadCallback, setAssetsLoadCallback } from "../utils/contexts";
@@ -141,7 +141,7 @@ function MintForm()
             <div className={classes.form}>
                 <DropDown_MintForm
                     list={collections}
-                    value={asset}
+                    value={ asset.key.nftContract !== "" ? stringOf(asset.key) : undefined }
                     onChange={setAsset}
                 />
 
@@ -161,7 +161,7 @@ function MintForm()
             <div className={classes.imageContainer}>
             {
                 image
-                ?   <Image src={image} alt="NFT image data" width="375px" height="375px" />
+                ?   <Image src={image} alt="NFT image data" width="375" height="375" />
                 :   [0, 0, 0].map( (_, i) => <div key={`dot-${i}`} className={classes.dot} /> )
             }
             </div>

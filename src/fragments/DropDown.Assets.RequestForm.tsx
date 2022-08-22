@@ -8,23 +8,25 @@ import { NFTAsset } from "../../models/NFTAsset";
 import { menuItemInfo } from "../utils/loading";
 import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
 
-let name : string | undefined | null = null;
+let name : string | undefined;
 
 type Props =
 {
-    value    : string
+    value   ?: string
 ,   list    ?: NFTAsset[]
-,   onChange : (asset: NFTAsset | undefined) => void
+,   onChange : (asset ?: NFTAsset) => void
 };
 
 export default function(props : Props)
 {
+    name = props.value ? name : undefined;
+
     return <FormControl className={classes.fieldWrapper}>
         <InputLabel id="select-label">NFT Item</InputLabel>
 
         <Select
             MenuProps={{ classes: { paper: classes.menuPaper } }}
-            value={props.value}
+            value={props.value ?? "_"}
             labelId="select-label"
             label="NFT Item"
             renderValue={ () => name ? name : <em>Select an NFT</em> }

@@ -208,8 +208,8 @@ function RequestForm()
                     :   <>
                             <DropDown_RequestForm
                                 list={assets}
-                                value={stringOf(assetKey)}
                                 onChange={setAsset}
+                                value={ assetKey.nftContract !== "" ? stringOf(assetKey) : undefined }
                             />
 
                             <Button
@@ -264,10 +264,10 @@ function RequestForm()
                 >Publish Request</Button>
             </div>
 
-<div className={classes.imageContainer}>
+            <div className={classes.imageContainer}>
             {
                 assetKey.nftContract
-                ?   <Image src={image} alt="NFT image data" width="375px" height="375px" />
+                ?   <Image src={image} alt="NFT image data" width="375" height="375" />
                 :   [0, 0, 0].map( (_, i) => <div key={`dot-${i}`} className={classes.dot} /> )
             }
             </div>
