@@ -176,7 +176,7 @@ function DetailsView(props : Props)
 
             if (props.option.state !== OptionState.OPEN) return;
 
-            contract = getCachedContract(props.option.asset.key.nftContract);
+            contract = getCachedContract(props.option.asset.key.nftContract) as Collection_BASE;
 
             contract.on("Transfer", checkAndSetIsOwner);
             contract.on("Approval", checkAndSetIsApproved);
@@ -216,19 +216,14 @@ function DetailsView(props : Props)
     >
         <div>
             <img src={props.option.asset.image} alt="NFT Image" />
-
-            <a
-                target="_blank"
-                href={txLink}
-                className={clsx(classes.link, classes.state)}
-            >{eventLabels[props.option.state]}</a>
         </div>
 
         <div className={classes.detailsSub}>
 
             { showTitle && <p className={classes.title}>#{props.option.id + 1} {props.option.asset.name}</p> }
 
-            <div>
+            <div style={{display:"flex", alignItems: showTitle ? "flex-start": "center"}}>
+
                 <div>
                     <FieldLink_DetailsView label="NFT contract" value={props.option.asset.key.nftContract} />
                     <Field_DetailsView     label="NFT token"    value={props.option.asset.key.nftId.toString()} />
@@ -245,10 +240,17 @@ function DetailsView(props : Props)
                     <Field_DetailsView label="Expiration"   value={`${props.option.interval} day${props.option.interval > 1 && "s"}`} />
                     <Field_DetailsView label="Style"        value={flavorLabels[props.option.flavor]} className="flavor"/>
                 </div>
+
             </div>
 
-            { connected && <div className={classes.buttonsContainer}>{ createButtonsFromOptionState() }</div> }
         </div>
+
+        <a  target="_blank"
+            href={txLink}
+            className={clsx(classes.link, classes.state)}
+        >{eventLabels[props.option.state]}</a>
+
+        { connected && <div className={classes.buttonsContainer}>{ createButtonsFromOptionState() }</div> }
     </div>;
 }
 
