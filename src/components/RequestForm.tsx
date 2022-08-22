@@ -1,9 +1,10 @@
 // @ts-ignore
 import classes from "./styles/RequestForm.module.scss";
-import clsx from "clsx";
 
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
+
 import { network } from "../../datasources/provider";
 import { contracts } from "../../datasources/NFTOpt";
 import { assetsOf } from "../../datasources/assets";
@@ -263,10 +264,10 @@ function RequestForm()
                 >Publish Request</Button>
             </div>
 
-            <div className={clsx(classes.imageContainer, !assetKey.nftContract && classes.dummyImageContainer)}>
+<div className={classes.imageContainer}>
             {
                 assetKey.nftContract
-                ?   <img src={image} alt="NFT image data"/>
+                ?   <Image src={image} alt="NFT image data" width="375px" height="375px" />
                 :   [0, 0, 0].map( (_, i) => <div key={`dot-${i}`} className={classes.dot} /> )
             }
             </div>

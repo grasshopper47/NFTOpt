@@ -1,8 +1,9 @@
 // @ts-ignore
 import classes from "./styles/MintForm.module.scss";
-import clsx from "clsx";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
+
 import { Collection_BASE } from "../../typechain-types";
 import { network } from "../../datasources/provider";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
@@ -157,10 +158,10 @@ function MintForm()
                 >Mint</Button>
             </div>
 
-            <div className={clsx(classes.imageContainer, !asset.key.nftContract && classes.dummyImageContainer)}>
+            <div className={classes.imageContainer}>
             {
                 image
-                ?   <img src={image} alt="NFT image data"/>
+                ?   <Image src={image} alt="NFT image data" width="375px" height="375px" />
                 :   [0, 0, 0].map( (_, i) => <div key={`dot-${i}`} className={classes.dot} /> )
             }
             </div>
