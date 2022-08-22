@@ -4,12 +4,12 @@ import clsx from "clsx";
 
 import React, { useState } from "react";
 import { TextField, Button } from "@mui/material";
-import { assetsOf, getNFTAsset } from "../../datasources/assets";
+import { assetsOf, getAsset } from "../../datasources/assets";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
 import { AssetKey, isValid, stringOf } from "../../models/assetKey";
 import { useAccount } from "../utils/contexts";
 
-let setContract = (event: React.ChangeEvent<HTMLInputElement>) =>
+const setContract = (event: React.ChangeEvent<HTMLInputElement>) =>
 {
     newAssetKey.nftContract = event.target.value;
 
@@ -17,7 +17,7 @@ let setContract = (event: React.ChangeEvent<HTMLInputElement>) =>
     assetKeyChanged();
 };
 
-let setID = (event: React.ChangeEvent<HTMLInputElement>) =>
+const setID = (event: React.ChangeEvent<HTMLInputElement>) =>
 {
     newAssetKey.nftId = event.target.value;
 
@@ -25,7 +25,7 @@ let setID = (event: React.ChangeEvent<HTMLInputElement>) =>
     assetKeyChanged();
 };
 
-let handleValidate = () =>
+const handleValidate = () =>
 {
     if(!isValid(newAssetKey))
     {
@@ -34,7 +34,7 @@ let handleValidate = () =>
         return;
     }
 
-    let contract = getCachedContract(newAssetKey.nftContract);
+    const contract = getCachedContract(newAssetKey.nftContract);
     contract.ownerOf(newAssetKey.nftId).then
     (
         owner =>
@@ -46,15 +46,15 @@ let handleValidate = () =>
                 return;
             }
 
-            let arr = assetsOf(account) ?? [];
+            const arr = assetsOf(account);
 
-            getNFTAsset(newAssetKey).then
+            getAsset(newAssetKey).then
             (
                 asset =>
                 {
-                    let assetKey = stringOf(asset.key);
+                    const assetKey = stringOf(asset.key);
 
-                    for (let a of arr)
+                    for (const a of arr)
                     {
                         if (assetKey === stringOf(a.key))
                         {
@@ -79,7 +79,7 @@ let handleValidate = () =>
     );
 }
 
-let resetKey = () =>
+const resetKey = () =>
 {
     newAssetKey.nftId =
     newAssetKey.nftContract = "";
