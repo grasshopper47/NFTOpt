@@ -152,7 +152,11 @@ function MintForm()
                         assets.map
                         (
                             (item, i) =>
-                            <ListItem key={i}>
+                            <ListItem
+                                key={i}
+                                sx={ { cursor: "pointer" } }
+                                onClick={ () => setImage(item.image) }
+                            >
                                 <ListItemAvatar>
                                     <Avatar>
                                         <img src={item.image} alt="NFT image data"/>
@@ -175,7 +179,7 @@ function MintForm()
 
             <div className={clsx(classes.imageContainer, !asset.key.nftContract && classes.dummyImageContainer)}>
             {
-                asset.key.nftContract
+                image
                 ?   <img src={image} alt="NFT image data"/>
                 :   [0, 0, 0].map( (_, i) => <div key={`dot-${i}`} className={classes.dot} /> )
             }
