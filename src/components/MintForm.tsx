@@ -3,14 +3,15 @@ import classes from "./styles/MintForm.module.scss";
 import clsx from "clsx";
 
 import React, { useEffect, useState } from "react";
+import { Collection_BASE } from "../../typechain-types";
 import { network } from "../../datasources/provider";
 import { getCachedContract } from "../../datasources/ERC-721/contracts";
 import { NFTOptCollections } from "../../datasources/ERC-721/NFTOptCollections";
-import { assetsOf, loadAssetsFor } from "../../datasources/assets";
+import { assetsOf } from "../../datasources/assets";
 import { AssetKey } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
 import { clearNFTCollectionsEventCallback, setNFTCollectionsEventCallback } from "../controllers/NFTOptCollections";
-import { clearOptionsLoadCallback, useAccount, useChainID, setNFTCollectionsLoadCallback } from "../utils/contexts";
+import { useAccount, useChainID, clearNFTCollectionsLoadCallback, setNFTCollectionsLoadCallback, clearAssetsLoadCallback, setAssetsLoadCallback } from "../utils/contexts";
 import { showToast } from "../utils/toasting";
 import { signer } from "../utils/metamask";
 import DropDown_MintForm from "../fragments/DropDown.Collections.MintForm";
@@ -27,7 +28,7 @@ const setAsset = (obj?: NFTAsset | null) =>
 
 const handleMint = () => showToast
 (
-    getCachedContract(asset.key.nftContract)
+    ( getCachedContract(asset.key.nftContract) as Collection_BASE )
     .connect(signer)
     .mint()
     .then( () => setAsset(null) )
@@ -47,14 +48,16 @@ const resetAsset = () =>
             nftId       : ""
         ,   nftContract : ""
         } as AssetKey
-    ,   name            : ""
-    ,   image           : ""
+    ,   name  : ""
+    ,   image : ""
     }
 }
 
 const cleanup = () =>
 {
-    clearOptionsLoadCallback();
+    clearAssetsLoadCallback();
+
+    clearNFTCollectionsLoadCallback();
     clearNFTCollectionsEventCallback();
 }
 
@@ -82,7 +85,7 @@ function MintForm()
     account = useAccount();
     chainID = useChainID();
 
-    assets = assetsOf(account) ?? [];
+    assets = assetsOf(account);
 
     useEffect
     (
@@ -99,7 +102,8 @@ function MintForm()
         {
             if (!network)
             {
-                cleanup();
+                clearNFTCollectionsLoadCallback();
+                clearNFTCollectionsEventCallback();
 
                 return;
             }
@@ -114,9 +118,14 @@ function MintForm()
     (
         () =>
         {
-            if (!network) return;
+            if (account === "")
+            {
+                clearAssetsLoadCallback();
 
-            loadAssetsFor(account).then(assetsChanged);
+                return;
+            }
+
+            setAssetsLoadCallback(assetsChanged);
         }
     ,   [account]
     );
