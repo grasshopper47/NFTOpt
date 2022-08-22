@@ -15,7 +15,7 @@ import { useAccount, useChainID, clearNFTCollectionsLoadCallback, setNFTCollecti
 import { showToast } from "../utils/toasting";
 import { signer } from "../utils/metamask";
 import DropDown_MintForm from "../fragments/DropDown.Collections.MintForm";
-import { Avatar, Button, ListItem, ListItemAvatar, ListItemText, ListSubheader, SelectChangeEvent } from "@mui/material";
+import { Avatar, Button, ListItem, ListItemAvatar, ListItemText, ListSubheader } from "@mui/material";
 import { List } from '@mui/material';
 
 const setAsset = (obj?: NFTAsset | null) =>
@@ -149,23 +149,27 @@ function MintForm()
                     subheader={<ListSubheader>My assets</ListSubheader>}
                 >
                     {
-                        assets.map
-                        (
-                            (item, i) =>
-                            <ListItem
-                                key={i}
-                                sx={ { cursor: "pointer" } }
-                                onClick={ () => setImage(item.image) }
-                            >
-                                <ListItemAvatar>
-                                    <Avatar>
-                                        <img src={item.image} alt="NFT image data"/>
-                                    </Avatar>
-                                </ListItemAvatar>
+                        assets
+                        ?   assets[0]
+                            ?   assets.map
+                                (
+                                    (item, i) =>
+                                    <ListItem
+                                        key={i}
+                                        sx={ { cursor: "pointer" } }
+                                        onClick={ () => setImage(item.image) }
+                                    >
+                                        <ListItemAvatar>
+                                            <Avatar>
+                                                <img src={item.image} alt="NFT image data"/>
+                                            </Avatar>
+                                        </ListItemAvatar>
 
-                                <ListItemText primary={item.name} />
-                            </ListItem>
-                        )
+                                        <ListItemText primary={item.name} />
+                                    </ListItem>
+                                )
+                            :   <ListItemText primary={"Assets missing"} sx={ { justifyContent : "center" , display : "flex" } }/>
+                        :   <ListItemText primary={"Loading assets..."} sx={ { justifyContent : "center" , display : "flex" } }/>
                     }
                 </List>
 

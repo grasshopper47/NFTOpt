@@ -207,8 +207,8 @@ function RequestForm()
                     :   <>
                             <DropDown_RequestForm
                                 value={stringOf(assetKey)}
-                                list={assets}
                                 onChange={setAsset}
+                                { ... assets && { list : assets } }
                             />
 
                             <Button

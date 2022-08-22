@@ -7,8 +7,8 @@ import { getCachedContract } from "./ERC-721/contracts";
 import { fetchFromGraphNode } from "./graph";
 import { TransferEvent } from "../typechain-types/@openzeppelin/contracts/token/ERC721/IERC721";
 
-export const clearAssets = () => assets = { account : [] as NFTAsset[] } as any;
-export const assetsOf    = (account : string) => assets[account] = assets[account] ?? [] as NFTAsset[];
+export const clearAssets = () => assets = {} as any;
+export const assetsOf    = (account : string) => assets[account] as NFTAsset[];
 
 export const getAsset = async (key : AssetKey, contract? : any) =>
 {
@@ -34,7 +34,8 @@ export const getAsset = async (key : AssetKey, contract? : any) =>
 
 export const loadAssetsFor = async (account : string) =>
 {
-    if (!account) return;
+    // Skip loading when missing account or when assets are already loaded
+    if (!account || assets[account]) return;
 
     const json = await fetchFromGraphNode
     (
@@ -46,8 +47,8 @@ export const loadAssetsFor = async (account : string) =>
 
     console.log("loadAssetsFor", account, isOK ? "graph" : "logs");
 
-    // Clear assets
-    assets[account] = [];
+    // Clear temp asset array
+    arr = [];
 
     // Reset and create promises to load asset data
     promises = [] as Promise<any>[];
@@ -56,6 +57,9 @@ export const loadAssetsFor = async (account : string) =>
     else      await _loadFromLogs(account);
 
     await Promise.all(promises);
+
+    // Store the reference, safe to re-assign temp array
+    assets[account] = arr
 
     return assets[account];
 }
@@ -138,9 +142,10 @@ const _loadAssetData = async(key : AssetKey, account : string) =>
     if (owner !== account) return;
 
     const asset = await getAsset(key, contract);
-    assets[account].push(asset);
+    arr.push(asset);
 }
 
 let promises = [] as Promise<any>[];
+let arr      = [] as NFTAsset[];
 
 let assets = {} as any;

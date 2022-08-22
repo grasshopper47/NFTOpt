@@ -11,12 +11,13 @@ let selectedAsset : NFTAsset | undefined | null = null;
 type Props =
 {
     value    : string
-,   list     : NFTAsset[]
+,   list    ?: NFTAsset[]
 ,   onChange : (asset: NFTAsset | undefined) => void
 };
 
 export default function(props : Props)
 {
+    console.log(1);
     return <FormControl className={classes.fieldWrapper}>
         <InputLabel id="select-label">NFT Item</InputLabel>
 
@@ -26,13 +27,24 @@ export default function(props : Props)
             labelId="select-label"
             label="NFT Item"
             renderValue={ (value) => { return value === "_" || !selectedAsset ? <em>Select an NFT</em> : selectedAsset.name; } }
-            onChange={ (event) => { selectedAsset = props.list.find(a => stringOf(a.key) === event.target.value); props.onChange(selectedAsset) } }
+            onChange=
+            {
+                (event) =>
+                {
+                    if (!props.list) return;
+
+                    selectedAsset = props.list.find(a => stringOf(a.key) === event.target.value);
+                    props.onChange(selectedAsset)
+                }
+            }
         >
             <MenuItem disabled value="_" />
             {
                 props.list
-                ?   props.list.map ( (asset, i) => <MenuItem key={i} value={stringOf(asset.key)}>{asset.name}</MenuItem> )
-                :   "Loading items..."
+                ?   props.list[0]
+                    ?   props.list.map ( (asset, i) => <MenuItem key={i} value={stringOf(asset.key)}>{asset.name}</MenuItem> )
+                    :   <MenuItem disabled sx={ { justifyContent : "center" , display : "flex" } } >Assets missing</MenuItem>
+                :   <MenuItem disabled sx={ { justifyContent : "center" , display : "flex" } } >Loading assets...</MenuItem>
             }
         </Select>
     </FormControl>;
