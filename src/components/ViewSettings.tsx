@@ -8,6 +8,13 @@ import { ListViewStates, storeViewState, storeViewType, ViewConfig, ViewTypes } 
 import FilterBox from "./FilterBox";
 import { Button, MenuItem, Select } from "@mui/material";
 
+const viewStatesItems =
+ListViewStates.map
+(
+    (state, i) =>
+    <MenuItem key={i} value={i}>{state}</MenuItem>
+);
+
 const handleViewStateChanged = (event : any) =>
 {
     const index = event.target.value;
@@ -53,24 +60,7 @@ type Props =
 ,   onFilter       : () => void
 };
 
-let _propsPtr = {} as Props;
-
-const viewStatesItems =
-ListViewStates.map
-(
-    (state, i) =>
-    <MenuItem key={i} value={i}>{state}</MenuItem>
-);
-
-const viewStatesSelect =
-<Select
-    MenuProps={{ classes: { paper: classes.dropDown } }}
-    className={clsx(classes.dropDown, classes.viewStateDropDown)}
-    onChange={handleViewStateChanged}
-    value={_propsPtr.view ? _propsPtr.view.state : 0}
->
-    {viewStatesItems}
-</Select>
+let _propsPtr : Props;
 
 function ViewSettings(props : Props)
 {
@@ -94,7 +84,12 @@ function ViewSettings(props : Props)
     return <div className={classes.viewSettingsWrapper}>
         {
             hasItems && props.view.type === ViewTypes.CARDLIST &&
-            viewStatesSelect
+            <Select
+                MenuProps={{ classes: { paper: classes.dropDown } }}
+                className={clsx(classes.dropDown, classes.viewStateDropDown)}
+                value={props.view.state}
+                onChange={handleViewStateChanged}
+            >{viewStatesItems}</Select>
         }
         {
             hasItems &&
