@@ -5,6 +5,9 @@
     display: flex;
     width: 100%;
     min-width: 500px;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
 
     > div
     {
@@ -69,9 +72,7 @@ a.link
     &.state
     {
         color: $color-primary;
-        margin-left:auto;
-        margin-right: auto;
-        margin-top:40px;
+        margin: 40px auto 10px auto;
         font-size: 24px;
 
         &:hover
@@ -87,8 +88,8 @@ a.link
     text-shadow: 2px 2px rgb(25 25 25 / 80%);
 
     font-weight: bold;
-    margin-top: 2px;
-    margin-bottom: 24px;
+    margin: 2px auto 24px auto;
+
     color: $text-secondary;
 
     overflow: hidden;
@@ -140,7 +141,6 @@ div.field
 
 span.state
 {
-    margin-top: 40px;
     font-size: 18px;
     font-weight: bold;
     color: $color-primary;
