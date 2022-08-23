@@ -1,6 +1,6 @@
 @import
 "src/styles/variables.scss",
-"src/styles/abstracts/mixins";
+"src/styles/mixins.scss";
 
 
 @keyframes fadeIn {
@@ -142,15 +142,6 @@ button.btnCancel
     right: -98px;
 }
 
-button.btnPublishRequest
-{
-    background: $color-secondary;
-
-    &:hover
-    {
-        background: $color-tertiary;
-    }
-}
 
 button.btnAddContract
 {
@@ -159,8 +150,14 @@ button.btnAddContract
 
 button.btnPublishRequest
 {
-    margin-top: 40px;
-    padding: 8px;
+    background: $color-secondary;
+
+    &:hover
+    {
+        background: $color-tertiary;
+    }
+
+    padding: 11px;
     font-size: 16px;
     font-weight: 500;
     border-radius: 10px;
@@ -210,5 +207,12 @@ div.menuPaper:global(.MuiPaper-root)
             color: white;
             text-shadow: 2px 1px rgba(10, 10, 10, 0.8);
         }
+    }
+}
+
+@media only screen and (max-width: 806px) {
+    .form {
+        width: 100%;
+        max-width: 374px;
     }
 }
