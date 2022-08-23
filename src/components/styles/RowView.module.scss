@@ -1,9 +1,5 @@
 @import "src/styles/variables.scss";
 
-@keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-}
 
 .root
 {
@@ -17,7 +13,7 @@
     grid-template-columns: 1fr 5fr 1fr 1fr 1fr;
     margin-bottom:20px;
     justify-items: center;
-    animation: fadeIn 333ms;
+    animation: $fadeIn-animation;
 
     cursor: pointer;
     color: $text-primary;
