@@ -2,7 +2,8 @@
 
 .detailsWrapper
 {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     width: 100%;
     min-width: 500px;
     flex-direction: row;
@@ -42,6 +43,7 @@
 .detailsSub
 {
     width: 374px;
+    display: grid;
 }
 
 a.link
@@ -53,9 +55,8 @@ a.link
     align-items: center;
     margin-top: 6px;
     font-size:17px;
-    padding:0;
+    padding: 0;
     text-shadow: 1px 2px rgb(25 25 25 / 60%);
-    margin-bottom: -6px;
 
     svg
     {
@@ -112,12 +113,14 @@ div.field
         &:first-of-type
         {
             font-size: 14px;
+            font-weight: bold;
             letter-spacing: 1px;
+            text-shadow: 2px 2px rgb(25 25 25 / 80%);
         }
 
         &:last-of-type
         {
-            text-shadow: 2px 1px rgb(25 25 25 / 60%);
+            text-shadow: 1px 1px rgb(25 25 25 / 60%);
             margin-top: 4px;
             letter-spacing: 0.4px;
             font-size: 18px;
@@ -150,7 +153,7 @@ span.state
 
 .buttonsContainer
 {
-    margin-top: 38px;
+    margin-top: 30px;
 }
 
 button.btnPrimary
@@ -190,6 +193,10 @@ button.btnSecondary
     {
         > span
         {
+            &:first-of-type
+            {
+                text-shadow: 1px 1px rgba(36, 36, 36, 0.6);
+            }
             &:last-of-type
             {
                 text-shadow: 1px 1px rgba(36, 36, 36, 0.6);

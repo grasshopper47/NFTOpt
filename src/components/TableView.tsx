@@ -5,66 +5,63 @@ import React from 'react';
 import { OptionWithAsset } from "../../models/option";
 import RowView from "./RowView";
 
+const sortList = (sorter : (a: OptionWithAsset, b: OptionWithAsset) => number) =>
+{
+    sortMode === SortMode.ASCENDING
+    ?   _propsPtr.onSort(sorter)
+    :   _propsPtr.onSort((a, b) => sorter(b, a));
+
+    sortMode ^= 1; // Flip between ASC and DESC
+}
+
 enum SortMode { ASCENDING, DESCENDING };
 let sortMode = SortMode.ASCENDING;
+
+const sortByID          = () =>  sortList( (a, b) => b.id - a.id );
+const sortByName        = () =>  sortList( (a, b) => b.asset.name.localeCompare(a.asset.name) );
+const sortByPremium     = () =>  sortList( (a, b) => parseFloat(b.premium.sub(a.premium).toString()) );
+const sortByStrikePrice = () =>  sortList( (a, b) => parseFloat(b.strikePrice.sub(a.strikePrice).toString()) );
+const sortByInterval    = () =>  sortList( (a, b) => b.interval - a.interval );
+
+const header =
+<div className={classes.listRowsHeader}>
+    <p onClick={sortByID}>#</p>
+    <p onClick={sortByName}>Name</p>
+    <p onClick={sortByPremium}>Premium</p>
+    <p onClick={sortByStrikePrice}>Strike Price</p>
+    <p onClick={sortByInterval}>Interval</p>
+</div>;
 
 type Props =
 {
     list           : OptionWithAsset[]
 ,   selectedValue ?: OptionWithAsset | null | undefined
-,   onSelect       : (obj: OptionWithAsset | null) => void
-,   onSorted       : (list: OptionWithAsset[]) => void
+,   onSelect       : (option: OptionWithAsset | null) => void
+,   onSort         : (sorter : (a: OptionWithAsset, b: OptionWithAsset) => number) => void
 };
 
-let sortList : (sorter : (a1: OptionWithAsset, a2: OptionWithAsset) => number) => void;
+let _propsPtr : Props;
 
-let header =
-(
-    <div className={classes.listRowsHeader}>
-        <p onClick={ () => sortList( (a, b) => b.id - a.id ) }
-        >#</p>
-
-        <p onClick={ () => sortList( (a, b) => b.asset.name.localeCompare(a.asset.name) ) }
-        >Name</p>
-
-        <p onClick={ () => sortList( (a, b) => parseFloat(b.premium.sub(a.premium).toString()) ) }
-        >Premium</p>
-
-        <p onClick={ () => sortList( (a, b) => parseFloat(b.strikePrice.sub(a.strikePrice).toString()) ) }
-        >Strike Price</p>
-
-        <p onClick={ () => sortList( (a, b) => b.interval - a.interval ) }
-        >Interval</p>
-    </div>
-);
-
-function TableView(props: Props)
+function TableView(props : Props)
 {
+    if (props.list.length === 0) return <></>;
+
+    _propsPtr = props;
+
     const selectedID = props.selectedValue ? props.selectedValue.id : -1;
-    const length = props.list ? props.list.length : 0;
 
-    sortList = (sorter : (a1: OptionWithAsset, a2: OptionWithAsset) => number) =>
-    {
-        if (sortMode === SortMode.ASCENDING) { props.list.sort(sorter); sortMode = SortMode.DESCENDING; }
-        else                                 { props.list.sort((a, b) => sorter(b, a)); sortMode = SortMode.ASCENDING; }
-
-        props.onSorted(props.list);
-    }
-
-    return <div className={classes.containerGrid}>
-        { length !== 0 && header }
-
+    return  <div className={classes.containerGrid}>
+        { header }
         {
-            length !== 0 &&
             props.list.map
             (
-                (option, index) =>
+                option =>
                 <RowView
-                    key={`option-row-${index}`}
+                    key={`row-${option.id}`}
                     option={option}
-                    showDetails={option.id === selectedID}
                     // If previously selected an option, and it is the same one, set it to null
                     onClick={ () => props.onSelect(option.id === selectedID ? null : option) }
+                    { ... option.id === selectedID && { showDetails : true } }
                 />
             )
         }

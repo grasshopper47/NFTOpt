@@ -29,7 +29,15 @@ type Route =
 ,   name: string
 };
 
-let routesReadOnly: Route[] =
+let hasProvider : boolean;
+
+let chainID : number;
+let account : string;
+
+let routes    : Route[];
+let routePrev : string = "";
+
+const routesReadOnly: Route[] =
 [
     {
         href: "/explore"
@@ -41,27 +49,19 @@ let routesReadOnly: Route[] =
     }
 ];
 
-let routesWithSigner : Route[] =
+const routesWithSigner : Route[] =
 [
     {
         href: "/mint"
     ,   name: "Mint"
     }
 ,   {
-        href: "/request"
+        href: "/publish"
     ,   name: "Publish"
     }
 ];
 
-let hasProvider : boolean;
-
-let chainID : number;
-let account : string;
-
-let routes    : Route[];
-let routePrev : string = "";
-
-let isRestrictable = (pathname: string) =>
+const isRestrictable = (pathname: string) =>
 {
     return !network
         ||  (!connected && !connecting)
@@ -77,7 +77,7 @@ function Header()
     chainID = useChainID();
     account = useAccount();
 
-    const router  = useRouter();
+    const router = useRouter();
 
     useEffect
     (
@@ -115,8 +115,6 @@ function Header()
 
                 return;
             }
-
-            if (router.pathname !== "/explore") document.body.onclick = null;
         }
     ,   [router.pathname]
     );

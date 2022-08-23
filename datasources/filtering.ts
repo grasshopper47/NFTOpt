@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { OptionState } from "../models/enums";
+import { OptionFlavor, OptionState } from "../models/enums";
 import { requests, options } from "./options";
 
 export type FilterParams =
@@ -8,9 +8,10 @@ export type FilterParams =
 ,   premium     : { min : string, max: string }
 ,   strikePrice : { min : string, max: string }
 ,   interval    : { min : string, max: string }
+,   flavor      : OptionFlavor | -1
 }
 
-export let filterParams = { } as FilterParams;
+export const filterParams = { } as FilterParams;
 
 export const resetFilterParams = () =>
 {
@@ -18,20 +19,24 @@ export const resetFilterParams = () =>
     filterParams.premium     = { min: "", max: "" };
     filterParams.strikePrice = { min: "", max: "" };
     filterParams.interval    = { min: "", max: "" };
+    filterParams.flavor      = -1;
 }
 
 export enum OptionStateViewed { REQUEST, OPEN, CLOSED };
 
-export let optionsByStateFiltered = {};
+export const optionsByStateFiltered = {} as any;
 
-export async function doFilter(state : OptionStateViewed, filterParams : FilterParams)
+export const doFilter = async(state : OptionStateViewed) =>
 {
+    console.log("filtered");
+
     let map = state === OptionStateViewed.REQUEST ? requests : options;
+    const filterState = stateFilter[state];
 
     map = map.filter
     (
         o =>
-        stateFilter[state](o.state)
+        filterState(o.state)
         && (filterParams.account === "" || (o.buyer === filterParams.account || o.seller === filterParams.account))
         && o.premium.gte(ethers.utils.parseEther(filterParams.premium.min === "" ? "0" : filterParams.premium.min))
         && o.premium.lte(ethers.utils.parseEther(filterParams.premium.max === "" ? MAX_INT_STRING : filterParams.premium.max))
@@ -39,6 +44,7 @@ export async function doFilter(state : OptionStateViewed, filterParams : FilterP
         && o.strikePrice.lte(ethers.utils.parseEther(filterParams.strikePrice.max === "" ? MAX_INT_STRING : filterParams.strikePrice.max))
         && o.interval >= (filterParams.interval.min === "" ? 0  : parseInt(filterParams.interval.min))
         && o.interval <= (filterParams.interval.max === "" ? 30 : parseInt(filterParams.interval.max))
+        && (filterParams.flavor === -1 ? true : o.flavor === filterParams.flavor)
     );
 
     optionsByStateFiltered[state] = map;
@@ -46,7 +52,7 @@ export async function doFilter(state : OptionStateViewed, filterParams : FilterP
     return map;
 }
 
-const MAX_INT_STRING = (Number.MAX_SAFE_INTEGER - 1).toString();
+const MAX_INT_STRING = Number.MAX_SAFE_INTEGER.toString();
 
 const stateFilter =
 {

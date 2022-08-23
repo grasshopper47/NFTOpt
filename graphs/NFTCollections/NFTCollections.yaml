@@ -13,7 +13,7 @@
         - NOT-USED
       abis:
         - name: ERC721Entity
-          file: {root}/node_modules/@openzeppelin/contracts/build/contracts/IERC721Metadata.json
+          file: {root}/artifacts/@openzeppelin/contracts/token/ERC721/IERC721.sol/IERC721.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer

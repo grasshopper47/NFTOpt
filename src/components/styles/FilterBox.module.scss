@@ -102,17 +102,17 @@
     margin:6px 8px;
 }
 
+.wrapperTextBox
+{
+    display:grid;
+    grid-auto-flow: column;
+}
+
 .label
 {
     align-self: center;
     margin-right: 20px;
     margin-top:-1px;
-}
-
-.wrapperTextBox
-{
-    display:grid;
-    grid-auto-flow: column;
 }
 
 .textBox
@@ -140,4 +140,13 @@
     text-align: center;
     width:40px;
     font-size: 10pt;
+}
+
+.select
+{
+    width: 130px;
+    height: 36px;
+    justify-self: right;
+    margin-right: 10px;
+    color: $color-primary;
 }

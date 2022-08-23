@@ -1,10 +1,9 @@
-import { ethers } from "ethers";
 import addresses from "../../addresses.json";
 import { NFTAsset } from "../../models/NFTAsset";
 import { ABIs } from "../../utils/constants";
 import { contracts } from "../NFTOpt";
-import { provider, network } from "../provider";
-import { addContractToCache } from "./contracts";
+import { network } from "../provider";
+import { getCachedContract } from "./contracts";
 
 export let NFTOptCollections = [] as NFTAsset[];
 
@@ -13,74 +12,58 @@ export const clearNFTOptCollections = () =>
     NFTOptCollections = [] as NFTAsset[];
 
     for (const k of Object.keys(contracts.Collections)) contracts.Collections[k].removeAllListeners();
-    contracts.Collections = { };
+    contracts.Collections = {};
 }
 
 export const createNFTOptCollectionsInstances = () =>
 {
-    let collections = { ... addresses[network ?? -1] };
+    const collections = { ... addresses[network ?? -1] };
     delete collections.NFTOpt;
 
-    let collectionKeys = Object.keys(collections);
+    const names = Object.keys(collections);
 
-    for (let k of collectionKeys)
-    {
-        const address = collections[k];
-
-        const NFTContract =
-        new ethers.Contract
-        (
-            address
-        ,   [
-                ABIs.ERC721.name
-            ,   ABIs.ERC721.ownerOf
-            ,   ABIs.ERC721.tokenURI
-            ,   ABIs.ERC721.getApproved
-            ,   ABIs.ERC721.approve
-            ,   ABIs.ERC721.mint
-            ,   ABIs.ERC721.Events.Approval
-            ,   ABIs.ERC721.Events.Transfer
-            ]
-        ,   provider
-        );
-
-        contracts.Collections[k] = NFTContract;
-        addContractToCache(address, NFTContract);
-    }
+    for (const n of names) contracts.Collections[n] = getCachedContract(collections[n], [ ABIs.ERC721.mint ]);
 }
 
 export const loadNFTOptCollectionsItems = async () =>
 {
     NFTOptCollections = [] as NFTAsset[];
 
-    let collections = { ... addresses[network ?? -1] };
+    const collections = { ... addresses[network ?? -1] };
     delete collections.NFTOpt;
 
-    let collectionKeys = Object.keys(collections);
+    const names = Object.keys(collections);
 
-    let promises : Promise<any>[] = [];
-    for (let k of collectionKeys) promises.push( _loadCollectionItem(k) );
-    await Promise.allSettled(promises);
+    const promises : Promise<any>[] = [];
+    for (const n of names) promises.push( _loadCollectionItem(n) );
+    await Promise.all(promises);
 
     return NFTOptCollections;
 }
 
-const _loadCollectionItem = async (name : string ) =>
+const _loadCollectionItem = async (name : string) =>
 {
-    let NFTContract = contracts.Collections[name];
+    // Get the contract's minted NFT (9999) token image
+    const NFTContract = contracts.Collections[name];
 
-    let promises =
+    const NFTAsset =
+    {
+        key   : { nftContract: NFTContract.address, nftId: "9999" }
+    ,   name  : ""
+    ,   image : ""
+    } as NFTAsset;
+
+    const promises =
     [
         NFTContract.name()
-    ,   NFTContract.tokenURI(9999).then(r => JSON.parse(r).image)
+        .then( (n : string) => NFTAsset.name = n )
+
+    ,   NFTContract.tokenURI(9999)
+        .then( (r : string) => JSON.parse(r) )
+        .then( (o : any)    => NFTAsset.image = o.image )
     ];
 
-    await Promise.allSettled(promises);
+    await Promise.all(promises);
 
-    NFTOptCollections.push
-    ({
-        key   : { nftContract: NFTContract.address, nftId: "9999" }
-    ,   name  : await promises[0]
-    ,   image : await promises[1]
-    });
+    NFTOptCollections.push(NFTAsset);
 }

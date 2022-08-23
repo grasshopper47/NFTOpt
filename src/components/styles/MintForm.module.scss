@@ -31,31 +31,15 @@
     }
 }
 
-.dummyImageContainer
+.imageContainer
 {
-    background: $color-primary;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: space-around;
-    position: relative;
-    height: 375px;
-    width: 375px;
-    border-radius: 10px;
+    height: 374px;
+    width: 374px;
     box-shadow: 4px 4px 29px rgb(15 23 42 / 14%), 4px -2px 30px rgb(15 23 42 / 26%);
-}
-
-.imageContainer
-{
-    &:not(.dummyImageContainer)
-    {
-        > *
-        {
-            height: 375px;
-            width: 375px;
-            border-radius: 10px;
-            box-shadow: 4px 4px 29px rgb(15 23 42 / 14%), 4px -2px 30px rgb(15 23 42 / 26%);
-        }
-    }
 }
 
 .dot

@@ -6,14 +6,14 @@ import { network } from "./provider";
 
 export let contracts =
 {
-    NFTOpt      : {} as unknown as NFTOpt
+    NFTOpt      : {} as NFTOpt
 ,   Collections : {}
 };
 
 export const clearNFTOpt = () =>
 {
     if (contracts.NFTOpt.removeAllListeners) contracts.NFTOpt.removeAllListeners();
-    contracts.NFTOpt = {} as unknown as NFTOpt;
+    contracts.NFTOpt = {} as NFTOpt;
 }
 
 export const createNFTOptInstance = (SignerOrProvider?: ethers.Signer | ethers.providers.Provider) =>

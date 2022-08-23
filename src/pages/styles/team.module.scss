@@ -4,46 +4,50 @@
     margin: auto;
     margin-top: 60px;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-    row-gap: 8%;
-    column-gap: 8%;
-    overflow: auto;
-    padding-right: 7px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    column-gap: 4rem;
+    min-width: 48rem;
+    justify-items: center;
 }
 
 .card {
     border-radius: 8px;
     border: 2px solid $text-tertiary;
-    user-select: none;
     transition: all 166ms ease-in-out;
-    position: relative;
     overflow: hidden;
-    min-height: max-content;
     background: $background-secondary;
+    min-width: 10rem;
+    max-width: 18rem;
+    padding: 6px;
+}
+
+.cardGithub {
+    min-width: 56rem;
+    margin-left: auto;
+    margin-right: auto;
+    grid-template-columns: 1fr;
+    column-gap: 0;
+    margin-top:8%;
+    margin-bottom:8%;
 }
 
 .title {
-    font-size: 14pt;
+    font-size: 1rem;
+    font-weight: bold;
     margin: 0;
-    font-weight: 600;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    margin-bottom: 4px;
 }
 
 .social {
     display: flex;
     align-items: center;
-    max-width: 100%;
     justify-content: center;
 
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font-size: 18px;
-
-    strong {
-        margin-right: 6px;
-        opacity: 0.7;
-    }
+    font-size: 1rem;
 
     a {
         text-decoration: underline;
@@ -56,6 +60,8 @@
     }
 }
 
-.content {
-    padding: 20px 12px 30px 12px;
+.content
+{
+    margin-top: 4px;
+    padding: 10px;
 }

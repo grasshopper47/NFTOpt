@@ -31,12 +31,6 @@ export const team: Person[] = [
     },
 
     {
-        // name: "..  ✨ NFT-OթͲ ✨ ..",
-        social: [{name: "Visit our repo", url: "https://github.com/grasshopper47/NFTOpt"}],
-        image: "github2.jpg",
-    },
-
-    {
         name: "Peter A",
         image: "peter.jpg",
     },

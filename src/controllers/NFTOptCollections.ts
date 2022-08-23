@@ -1,21 +1,21 @@
 import { BigNumber } from "ethers";
-import toast from "react-hot-toast";
-import { addAssetByKeyTo } from "../../datasources/assets";
+import { assetsOf, getAsset } from "../../datasources/assets";
 import { blockNumber, setBlockNumber } from "../../datasources/blockNumber";
 import { signer } from "../utils/metamask";
 import { dismissLastToast, TOAST_DURATION } from "../utils/toasting";
-
-let _UICallback : () => void;
+import toast from "react-hot-toast";
 
 export const setNFTCollectionsEventCallback   = (cb : () => void) => _UICallback = cb;
 export const clearNFTCollectionsEventCallback = () => _UICallback = () => {};
 
+let _UICallback = () => {};
+
 export const attachNFTCollectionsHandlersToInstances = (collections : {}) =>
 {
-    let collectionKeys = Object.keys(collections);
-    for (let k of collectionKeys)
+    const names = Object.keys(collections);
+    for (const n of names)
     {
-        collections[k].on
+        collections[n].on
         (
             "Transfer"
         ,   async (from: string, to: string, tokenID: BigNumber, transaction : any) =>
@@ -24,20 +24,20 @@ export const attachNFTCollectionsHandlersToInstances = (collections : {}) =>
                 if (blockNumber >= transaction.blockNumber || tokenID.toString() === "9999" ) return;
                 setBlockNumber(transaction.blockNumber);
 
-                let address = await signer.getAddress();
-
-                await addAssetByKeyTo
-                (
-                    address
-                ,   { nftContract : transaction.address, nftId : tokenID.toString() }
-                );
-
                 // Show toast of success only when called by the user actionLabel (already a toast in progress)
                 if (dismissLastToast()) toast.success("Successfully minted NFT", { duration: TOAST_DURATION });
+                console.log("NFT minted");
 
-                console.log("Minted NFT");
+                const promises =
+                [
+                    getAsset({ nftContract : transaction.address, nftId : tokenID.toString() })
+                    .then( asset => assetsOf(to).push(asset) )
+                ,   signer.getAddress()
+                ];
 
-                if (address === to) _UICallback();
+                await Promise.all(promises);
+
+                if (to === await promises[1]) _UICallback();
             }
         );
     }

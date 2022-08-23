@@ -6,6 +6,28 @@ import { OptionWithAsset } from "../../models/option";
 import { Button, MenuItem, Select } from "@mui/material";
 import { getViewLimitIndexFromStorage, storeViewRecordsLimitIndex, ViewPage } from "../utils/view";
 
+const setPageIndex = (a : number) =>
+{
+    _propsPtr.page.index = a;
+
+    _propsPtr.onNavigate();
+}
+
+const setPageCount = (event: any) =>
+{
+    const index = event.target.value;
+
+    storeViewRecordsLimitIndex(index);
+
+    _propsPtr.page.count = _propsPtr.recordLimits[index];
+
+    const maxPageCount = Math.floor(_propsPtr.list.length / _propsPtr.page.count);
+
+    if (_propsPtr.page.index > maxPageCount) _propsPtr.page.index = maxPageCount;
+
+    _propsPtr.onNavigate();
+}
+
 type Props =
 {
     page         : ViewPage
@@ -16,29 +38,7 @@ type Props =
 
 let _propsPtr : Props;
 
-let setPageIndex = (a : number) =>
-{
-    _propsPtr.page.index = a;
-
-    _propsPtr.onNavigate();
-}
-
-let setPageCount = (event: any) =>
-{
-    let index = event.target.value;
-
-    storeViewRecordsLimitIndex(index);
-
-    _propsPtr.page.count = _propsPtr.recordLimits[index];
-
-    let maxPageCount = Math.floor(_propsPtr.list.length / _propsPtr.page.count);
-
-    if (_propsPtr.page.index > maxPageCount) _propsPtr.page.index = maxPageCount;
-
-    _propsPtr.onNavigate();
-}
-
-function FooterNavigation(props: Props)
+function FooterNavigation(props : Props)
 {
     _propsPtr = props;
 

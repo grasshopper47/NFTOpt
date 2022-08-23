@@ -39,7 +39,7 @@
 {
     margin: 0;
     padding: 0;
-
+    align-self: center;
     &:nth-of-type(2)
     {
         transition: all 250ms ease;
@@ -83,13 +83,13 @@
 
 .detailWrapper
 {
-    margin-top: 10px;
-    margin-bottom: 40px;
-    zoom: 0.8;
+    margin-top: -30px;
+    margin-bottom: -10px;
+    transform: scale(0.88);
     justify-self: center;
     background-image: linear-gradient(to bottom, transparent, $background-secondary);
     box-shadow: 4px 4px 29px rgb(15 23 42 / 14%), 4px -2px 30px rgb(15 23 42 / 10%);
-    padding: 40px;
+    padding: 24px 30px;
     animation: open 333ms ease-in;
     border-radius: 20px;
 }
@@ -100,7 +100,6 @@
     80% { opacity: 0.8; }
     100% { opacity: 1; }
 }
-
 
 [data-theme="white"]
 {

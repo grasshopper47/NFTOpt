@@ -63,12 +63,13 @@
         &.S
         {
             height: 77%;
+            border-radius: 6px 6px 0 0;
         }
         background-position: center;
         background-size: cover;
         background-repeat: no-repeat;
         transition: height 500ms ease-out;
-        border-radius: 6px 6px 0 0;
+        border-radius: 10px 10px 0 0;
     }
 
     img:hover
@@ -96,17 +97,17 @@
 {
     &.S
     {
-        padding: 4px 4px;
+        padding: 2px 4px;
     }
 
     &.M
     {
-        padding: 6px 10px;
+        padding: 6px 8px;
     }
 
     &.L
     {
-        padding: 8px 12px;
+        padding: 4px 10px;
     }
 }
 
@@ -124,14 +125,18 @@
 
         &.S
         {
-            margin-top: -2px;
+            margin-top: px;
             font-size: 13px;
         }
 
         &.M
         {
-            margin-top: -1px;
             font-size: 14px;
+        }
+
+        &.L
+        {
+            font-size: 18px;
         }
 
     }
@@ -155,7 +160,7 @@
 
         &.M
         {
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         &.L

@@ -12,12 +12,12 @@ import { Button } from "@mui/material";
 type Props =
 {
     list           : OptionWithAsset[]
-,   onSelect       : (obj: OptionWithAsset | null) => void
 ,   selectedValue ?: OptionWithAsset
 ,   viewIndex     ?: number
+,   onSelect       : (obj: OptionWithAsset | null) => void
 }
 
-function ListView(props: Props)
+function ListView(props : Props)
 {
     if (props.selectedValue)
     {
@@ -30,11 +30,11 @@ function ListView(props: Props)
 
             <DetailsView
                 option={props.selectedValue}
-                onAction={() => props.onSelect(null)} />
+                onAction={ () => props.onSelect(null) } />
         </div>;
     }
 
-    let viewIndex = props.viewIndex ?? 0;
+    const viewIndex = props.viewIndex ?? 0;
     setViewClass(viewIndex);
 
     // Render list of items
@@ -44,7 +44,7 @@ function ListView(props: Props)
             (
                 option =>
                 <CardView
-                    key={`option-card-${option.id}`}
+                    key={`card-${option.id}`}
                     option={option}
                     { ... props.onSelect && {onViewDetails: props.onSelect}}
                 />

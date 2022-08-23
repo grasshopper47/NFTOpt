@@ -2,37 +2,52 @@
 import classes from "../components/styles/RequestForm.module.scss";
 
 import React from "react";
+
 import { stringOf } from "../../models/assetKey";
 import { NFTAsset } from "../../models/NFTAsset";
+import { menuItemInfo } from "../utils/loading";
 import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
+
+const renderValue = () => name ? name : <em>Select an NFT</em>;
+
+let name : string | undefined;
 
 type Props =
 {
-    value    : string
-,   list     : NFTAsset[]
-,   onChange : (asset: NFTAsset | undefined) => void
+    value   ?: string
+,   list    ?: NFTAsset[]
+,   onChange : (asset ?: NFTAsset) => void
 };
 
-let selectedAsset : NFTAsset | undefined | null = null;
-
-export default function(props: Props)
+export default function(props : Props)
 {
+    name = props.value ? name : undefined;
+
     return <FormControl className={classes.fieldWrapper}>
         <InputLabel id="select-label">NFT Item</InputLabel>
 
         <Select
             MenuProps={{ classes: { paper: classes.menuPaper } }}
-            value={props.value}
+            value={props.value ?? "_"}
             labelId="select-label"
             label="NFT Item"
-            renderValue={ (value) => { return value === "_" || !selectedAsset ? <em>Select an NFT</em> : selectedAsset.name; } }
-            onChange={ (event) => { selectedAsset = props.list.find(a => stringOf(a.key) === event.target.value); props.onChange(selectedAsset) } }
+            renderValue={renderValue}
         >
             <MenuItem disabled value="_" />
             {
                 props.list
-                ?   props.list.map ( (asset, i) => <MenuItem key={i} value={stringOf(asset.key)}>{asset.name}</MenuItem> )
-                :   "Loading items..."
+                ?   props.list[0]
+                    ?   props.list.map
+                        (
+                            (asset, i) =>
+                            <MenuItem
+                                key={i}
+                                value={stringOf(asset.key)}
+                                onClick={ () => { name = asset.name; props.onChange(asset); } }
+                            >{asset.name}</MenuItem>
+                        )
+                    :   menuItemInfo("Assets missing")
+                :   menuItemInfo("Loading assets...")
             }
         </Select>
     </FormControl>;

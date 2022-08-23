@@ -1,19 +1,32 @@
 import { getCachedContract } from "./contracts";
 import { AssetKey, stringOf } from "../../models/assetKey";
 
-export let images : any = {};
+export let images = {} as any;
+
 export const clearImages = () => images = {};
-export const imageOf = (obj : AssetKey) => images[stringOf(obj)] as string;
+export const imageOf     = (key : AssetKey) => images[stringOf(key)] as string;
 
-export async function loadImage(key : AssetKey)
+export const loadImage = async(key : AssetKey, contract = getCachedContract(key.nftContract)) =>
 {
+    const key_str = stringOf(key);
+
+    // Reuse from cache when loading or already loaded
+    if (images[key_str]) return await images[key_str];
+
     console.log("loadImage");
-    let contract = getCachedContract(key.nftContract);
 
-    let data = await contract.tokenURI(key.nftId);
-    let image = JSON.parse(data).image;
+    images[key_str] =
+    (
+        async () =>
+        {
+            const data  = await contract.tokenURI(key.nftId);
+            const image = await JSON.parse(data).image;
 
-    images[key.nftId + "_" + key.nftContract] = image;
+            images[key_str] = image;
 
-    return image;
+            return image;
+        }
+    )();
+
+    return await images[key_str];
 }

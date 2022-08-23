@@ -8,18 +8,18 @@ import { OptionWithAsset } from "../../models/option";
 import { requestChangingIDs, optionChangingIDs } from "../utils/contexts";
 import DetailsView from "./DetailsView";
 
-type RowView =
+type Props =
 {
     option       : OptionWithAsset
 ,   showDetails ?: boolean
 ,   onClick     ?: () => void
 };
 
-function RowView(props: RowView)
+function RowView(props : Props)
 {
     return <>
         <div className={classes.container} { ... props.onClick && { onClick : props.onClick } }>
-            <p className={classes.field}>{ !props.showDetails && props.option.id + 1}</p>
+            <p className={classes.field}>{props.option.id + 1}</p>
             <p
                 className=
                 {
@@ -38,7 +38,7 @@ function RowView(props: RowView)
         {
             props.showDetails &&
             <div className={classes.detailWrapper}>
-                <DetailsView showTitle={false} option={props.option} onAction={props.onClick} />
+                <DetailsView hideTitle option={props.option} onAction={props.onClick} />
             </div>
         }
     </>;

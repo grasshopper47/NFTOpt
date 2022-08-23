@@ -1,11 +1,12 @@
 import { OptionFlavor, OptionState } from "../models/enums";
 import { Option, OptionWithAsset } from "../models/option";
-import { NFTOpt } from "../typechain-types/contracts/NFTOpt";
+import { NFTOpt, PublishedEvent, WithdrawnEvent } from "../typechain-types/contracts/NFTOpt";
 import { ADDRESS0, SECONDS_IN_A_DAY } from "../utils/constants";
-import { getNFTAsset } from "./assets";
+import { getAsset } from "./assets";
+import { fetchFromGraphNode } from "./graph";
 
-export let requestsChanged = { value : false };
-export let optionsChanged  = { value : false };
+export const requestsChanged = { value : false };
+export const optionsChanged  = { value : false };
 
 export let requests : OptionWithAsset[] = [];
 export let options  : OptionWithAsset[] = [];
@@ -13,57 +14,67 @@ export let options  : OptionWithAsset[] = [];
 export const clearRequests = () => requests = [];
 export const clearOptions  = () => options  = [];
 
-export function isExpired(option : OptionWithAsset) : boolean
+export const loadOptions = async (NFTOpt : NFTOpt) : Promise<void> =>
 {
-    let timeNow = new Date().getTime() / 1000;
-    let timeOption = option.startDate.toNumber() + option.interval * SECONDS_IN_A_DAY;
-    let diff = timeOption - timeNow;
+    const json = await fetchFromGraphNode
+    (
+        "NFTOpt"
+    ,   "{ requests { id } options { id } }"
+    );
 
-    // Can exercise any time before & including the end day (AMERICAN)
-    if (option.flavor === OptionFlavor.AMERICAN) return diff < 0;
+    const isOK = json !== "" && (json.data.requests || json.data.options);
 
-    // Can exercise only on the end day (both EUROPEAN and AMERICAN)
-    if (diff > -1 && diff <= SECONDS_IN_A_DAY ) return false;
+    console.log("loadOptions", isOK ? "graph" : "logs");
 
-    return true;
-}
-
-export async function loadOne(NFTOpt : NFTOpt, ID : number) : Promise<void>
-{
-    await _getOptionWithAsset(NFTOpt, ID).then(_storeOption);
-}
-
-export async function loadAll(NFTOpt : NFTOpt) : Promise<void>
-{
-    let id     : number;
-    let length : number;
-
-    let promises : Promise<any>[] = [];
-
+    // Reset cache
     clearRequests();
     clearOptions();
+    promises = [] as Promise<any>[];
 
-    let IDPromise = await NFTOpt.optionID();
-    if (!IDPromise) return;
-
-    // TODO: handle optionsLength > 2^53
-    length = IDPromise.toNumber();
-
-    id = length;
-    while (--id !== -1) promises.push( _getOptionWithAsset(NFTOpt, id).then(_storeOption) );
+    if (isOK) _loadFromGraph(NFTOpt, json.data);
+    else      await _loadFromLogs(NFTOpt);
 
     await Promise.all(promises);
-
-    promises =
-    [
-        (async () => requests.sort(_sorter))()
-    ,   (async () => options.sort(_sorter))()
-    ];
-
-    await Promise.allSettled(promises);
 }
 
-export async function withdrawRequest(ID: number) : Promise<number>
+export const loadOptionWithAsset = async (NFTOpt : NFTOpt, ID : number) : Promise<void> =>
+{
+    let option = await NFTOpt.options(ID) as any as Option;
+
+    if (option.buyer === ADDRESS0) return; // withdrawn/deleted option
+
+    let optionWithAsset =
+    {
+        id          : ID
+    ,   buyer       : option.buyer
+    ,   seller      : option.seller
+    ,   state       : option.state
+    ,   premium     : option.premium
+    ,   strikePrice : option.strikePrice
+    ,   flavor      : option.flavor
+    ,   startDate   : option.startDate
+    ,   interval    : option.interval / SECONDS_IN_A_DAY
+    ,   asset :
+        await getAsset
+        ({
+            nftContract : option.nftContract
+        ,   nftId       : option.nftId.toString()
+        })
+    } as OptionWithAsset;
+
+    if (option.state === OptionState.PUBLISHED)
+    {
+        requests.push(optionWithAsset);
+        requestsChanged.value = true;
+
+        return;
+    }
+
+    options.push(optionWithAsset);
+    optionsChanged.value = true;
+}
+
+export const withdrawRequest = async (ID: number) : Promise<number> =>
 {
     let length = requests.length;
     let i = -1;
@@ -81,7 +92,7 @@ export async function withdrawRequest(ID: number) : Promise<number>
     return -1;
 }
 
-export async function createOptionFromRequest(ID : number) : Promise<number>
+export const createOptionFromRequest = async (ID: number) : Promise<number> =>
 {
     let length = requests.length;
     let i = -1;
@@ -97,7 +108,7 @@ export async function createOptionFromRequest(ID : number) : Promise<number>
         options.unshift(request);
         requests.splice(i, 1);
 
-        requestsChanged = optionsChanged = { value : true };
+        requestsChanged.value = optionsChanged.value = true;
 
         return ID;
     }
@@ -105,47 +116,78 @@ export async function createOptionFromRequest(ID : number) : Promise<number>
     return -1;
 }
 
-export async function exerciseOption(ID: number) : Promise<number> { _setOptionState(ID, OptionState.EXERCISED); return ID; }
-export async function cancelOption  (ID: number) : Promise<number> { _setOptionState(ID, OptionState.CANCELED); return ID; }
+export const exerciseOption = async (ID: number) : Promise<number> => { _setOptionState(ID, OptionState.EXERCISED); return ID; }
+export const cancelOption   = async (ID: number) : Promise<number> => { _setOptionState(ID, OptionState.CANCELED); return ID; }
 
-async function _getOptionWithAsset(NFTOpt : NFTOpt, id: number) : Promise<OptionWithAsset>
+export const isExpired = (option : OptionWithAsset) : boolean =>
 {
-    let option = await NFTOpt.options(id) as unknown as Option;
+    const timeNow    = new Date().getTime() * 0.001;
+    const timeExpiry = option.startDate.toNumber() + option.interval * SECONDS_IN_A_DAY;
+    const diff       = timeExpiry - timeNow;
 
-    if (option.buyer === ADDRESS0) throw "Option data is invalid.";
+    // Can exercise any time before & including the end day (AMERICAN)
+    if (option.flavor === OptionFlavor.AMERICAN) return diff < 0;
 
-    return {
-        id          : id
-    ,   buyer       : option.buyer
-    ,   seller      : option.seller
-    ,   state       : option.state
-    ,   premium     : option.premium
-    ,   strikePrice : option.strikePrice
-    ,   flavor      : option.flavor
-    ,   startDate   : option.startDate
-    ,   interval    : option.interval / SECONDS_IN_A_DAY
-    ,   asset :
-        await getNFTAsset
-        ({
-            nftContract : option.nftContract
-        ,   nftId       : option.nftId.toString()
-        })
-    } as OptionWithAsset;
+    // Can exercise only on the end day (both EUROPEAN and AMERICAN)
+    if (diff > -1 && diff <= SECONDS_IN_A_DAY ) return false;
+
+    return true;
 }
 
-const _sorter = (a : OptionWithAsset, b : OptionWithAsset) => b.id - a.id;
-
-const _storeOption = (option : OptionWithAsset) : void =>
+const _loadFromGraph = (NFTOpt : NFTOpt, data : { requests : { id : string }[], options : { id : string }[] }) =>
 {
-    if (option.state === OptionState.PUBLISHED)
-    {
-        requests.push(option);
-        requestsChanged.value = true;
-        return;
-    }
+    promises = [] as Promise<any>[];
 
-    options.push(option);
-    optionsChanged.value = true;
+    for (const r of data.requests) promises.push( loadOptionWithAsset(NFTOpt, parseInt(r.id)) );
+    for (const o of data.options)  promises.push( loadOptionWithAsset(NFTOpt, parseInt(o.id)) );
+}
+
+const _loadFromLogs = async (NFTOpt : NFTOpt) : Promise<void> =>
+{
+    // Even though there is valid data, this fails for some reason, to retrive it -- suspect duplication in ID (42)
+    // await NFTOpt.queryFilter(NFTOpt.filters["Withdrawn(uint256)"](42)));
+
+    let published = [] as PublishedEvent[];
+    let withdrawn = [] as WithdrawnEvent[];
+
+    await Promise.all
+    ([
+        NFTOpt.queryFilter(NFTOpt.filters.Published()).then( p => published = p )
+    ,   NFTOpt.queryFilter(NFTOpt.filters.Withdrawn()).then( w => withdrawn = w )
+    ]);
+
+    // Reset cache
+    promises = [] as Promise<any>[];
+
+    const length_p = published.length;
+    let length_w   = withdrawn.length;
+
+    let i = -1;
+
+loop_root:
+    while (++i !== length_p)
+    {
+        const pev = published[i];
+
+        let j = -1;
+        while (++j !== length_w)
+        {
+            const wev = withdrawn[j];
+
+            if (wev.blockNumber < pev.blockNumber) continue;
+
+            if (wev.args[0].eq(pev.args[0]))
+            {
+                // Remove from withdrawn list
+                withdrawn.splice(j, 1), --length_w;
+
+                // Check the next publish event
+                continue loop_root;
+            }
+        }
+
+        promises.push( loadOptionWithAsset(NFTOpt, pev.args[0].toNumber()) );
+    }
 }
 
 const _setOptionState = (ID: number, state : OptionState) : void =>
@@ -156,6 +198,9 @@ const _setOptionState = (ID: number, state : OptionState) : void =>
 
         o.state = state;
         optionsChanged.value = true;
+
         break;
     }
 }
+
+let promises = [] as Promise<any>[];
