@@ -1,51 +1,49 @@
-@import "src/styles/variables.scss", "./mixins";
+@import "src/styles/variables.scss", "src/styles/abstracts/mixins";
 
 .root {
-  @include root(grid, "", "", auto, "");
+  @include pagesRoot($display: grid);
   margin-top: 60px;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  row-gap: 8%;
-  column-gap: 8%;
-  overflow: auto;
-  padding-right: 7px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  column-gap: 4rem;
+  min-width: 48rem;
+  justify-items: center;
 }
 
 .card {
-    border-radius: 8px;
-    border: 2px solid $text-tertiary;
-    transition: all 166ms ease-in-out;
-    overflow: hidden;
-    background: $background-secondary;
-    min-width: 10rem;
-    max-width: 18rem;
-    padding: 6px;
+  border-radius: 8px;
+  border: 2px solid $text-tertiary;
+  transition: all 166ms ease-in-out;
+  overflow: hidden;
+  background: $background-secondary;
+  min-width: 10rem;
+  max-width: 18rem;
+  padding: 6px;
 }
 
 .cardGithub {
-    min-width: 56rem;
-    margin-left: auto;
-    margin-right: auto;
-    grid-template-columns: 1fr;
-    column-gap: 0;
-    margin-top:8%;
-    margin-bottom:8%;
+  min-width: 56rem;
+  margin-left: auto;
+  margin-right: auto;
+  grid-template-columns: 1fr;
+  column-gap: 0;
+  margin-top: 8%;
+  margin-bottom: 8%;
 }
 
 .title {
-    font-size: 1rem;
-    font-weight: bold;
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center;
-    margin-bottom: 4px;
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  margin-bottom: 4px;
 }
 
 .social {
   display: flex;
   align-items: center;
-  max-width: 100%;
   justify-content: center;
 
   overflow: hidden;

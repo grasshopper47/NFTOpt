@@ -31,7 +31,7 @@
     }
 }
 
-@mixin pagesRoot($display, $align-items, $justify-content, $margin, $flex-direction) {
+@mixin pagesRoot($display: flex, $align-items: "", $justify-content: center, $margin: auto, $flex-direction: row) {
   display: $display;
   align-items: $align-items;
   justify-content: $justify-content;

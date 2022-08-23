@@ -1,41 +1,42 @@
-@import
-    "src/styles/variables.scss",
-    "src/styles/abstracts/mixins";
+@import "src/styles/variables.scss", "src/styles/abstracts/mixins";
 
-.root {
-    @include pagesRoot(flex, "", center, auto, row);
+.root
+{
+  @include pagesRoot();
 }
 
-.card {
-    border-radius: 10px;
-    box-shadow: 1px 0px 3px rgb(15 23 42 / 14%), 4px 6px 6px rgb(15 23 42 / 10%);
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    user-select: none;
-    text-align: center;
-    margin-right: 4px;
-    margin-bottom: 5px;
+.card
+{
+  border-radius: 10px;
+  box-shadow: 1px 0px 3px rgb(15 23 42 / 14%), 4px 6px 6px rgb(15 23 42 / 10%);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  user-select: none;
+  text-align: center;
+  margin-right: 4px;
+  margin-bottom: 5px;
 }
 
-.gridContainer {
-    @include card(
-        $border-radius: 10px,
-        $border: "",
-        $box-shadow: (
-          1px 0px 3px rgb(15 23 42 / 14%),
-          4px 6px 6px rgb(15 23 42 / 10%),
-        ),
-        $display: flex,
-        $align-items: center,
-        $flex-direction: column,
-        $user-select: none,
-        $text-align: center,
-        $margin-right: 4px,
-        $margin-bottom: 5px,
-        $position: ""
-      );
-    }
+.gridContainer
+{
+  @include card(
+    $border-radius: 10px,
+    $border: "",
+    $box-shadow: (
+      1px 0px 3px rgb(15 23 42 / 14%),
+      4px 6px 6px rgb(15 23 42 / 10%),
+    ),
+    $display: flex,
+    $align-items: center,
+    $flex-direction: column,
+    $user-select: none,
+    $text-align: center,
+    $margin-right: 4px,
+    $margin-bottom: 5px,
+    $position: ""
+  );
+}
 
 .cardImage {
   margin: auto;
