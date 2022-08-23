@@ -1,136 +1,225 @@
 @import "src/styles/variables.scss";
 
+$c-gray-dark: #252627;
+$c-gold: #bc994f;
+
 @keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
-.root
-{
-    max-width: 900px;
-    max-height: calc(100% - 200px);
-    display: flex;
-    flex-direction: column;
-    margin: auto;
+.root {
+  max-width: 900px;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
 }
 
-.withOptions
-{
-    border-bottom: 1px solid $color-primary;
++ .withOptions {
+  border-bottom: 1px solid $color-primary;
 }
 
-.viewSettingsWrapper
-{
-    z-index: 99;
-    position: absolute;
-    right: calc((100% - 900px) / 2 - 10px);
-    display: grid;
-    grid-auto-flow: column;
-    margin-top: 12px;
+.viewSettingsWrapper {
+  z-index: 99;
+  position: absolute;
+  right: calc((100% - 900px) / 2 - 10px);
+  display: grid;
+  grid-auto-flow: column;
+  margin-top: 12px;
 
-    button
-    {
-        margin-top: 14px;
-        padding:0;
-        max-width: 0;
-        max-height: 0;
-        cursor: pointer;
-        font-size: 16pt;
-        font-family: $emoji-font;
-        transition: filter 250ms ease-out;
+  button {
+    margin-top: 14px;
+    padding: 0;
+    max-width: 0;
+    max-height: 0;
+    cursor: pointer;
+    font-size: 16pt;
+    font-family: $emoji-font;
+    transition: filter 250ms ease-out;
 
-        &:hover
-        {
-            filter: drop-shadow(0 0 0.25rem $color-secondary);
-        }
+    &:hover {
+      filter: drop-shadow(0 0 0.25rem $color-secondary);
     }
+  }
 }
 
-.dropDown
-{
-    justify-content: center;
-    animation: fadeIn 333ms;
-    height:27px;
-    width: fit-content;
-    margin-right: 20px;
-    margin-top: 12px;
-    color: $text-primary;
+.dropDown {
+  justify-content: center;
+  animation: fadeIn 333ms;
+  height: 27px;
+  width: fit-content;
+  margin-right: 20px;
+  margin-top: 12px;
+  color: $text-primary;
 }
 
-.viewStateDropDown
-{
-    margin-top: 2px;
+.viewStateDropDown {
+  margin-top: 2px;
 }
 
-div.dropDown:global(.MuiPaper-root)
-{
-    height: fit-content;
-    border-radius: 8px;
-    margin-top:-10px;
-    background-color: azure;
-    li
-    {
-        color: #334155;
+div.dropDown:global(.MuiPaper-root) {
+  height: fit-content;
+  border-radius: 8px;
+  margin-top: -10px;
+  background-color: azure;
+  li {
+    color: #334155;
+  }
+}
+
+[data-theme="dark"] {
+  div.dropDown:global(.MuiPaper-root) {
+    background-color: #334155;
+    li {
+      color: #f1f5f9;
     }
+  }
+
+  .button {
+    text-shadow: 2px 1px rgb(25, 25, 25, 0.8);
+  }
 }
 
-[data-theme="dark"]
-{
-    div.dropDown:global(.MuiPaper-root)
-    {
-        background-color: #334155;
-        li
-        {
-            color: #f1f5f9;
-        }
-    }
-
-    .button
-    {
-        text-shadow: 2px 1px rgb(25, 25, 25, 0.8);
-    }
+.btnListView {
+  margin-right: 0px;
 }
 
-.btnListView
-{
-    margin-right: 0px;
+.btnShow {
+  margin-right: 0px;
 }
 
-.btnShow
-{
-    margin-right: 0px;
-}
+.tabs {
+  border-bottom: 1px solid $color-primary;
+  animation: fadeIn 333ms;
 
-.tabs
-{
-    border-bottom: 1px solid $color-primary;
-    animation: fadeIn 333ms;
-
-    button
-    {
-        text-transform: none;
-        letter-spacing: 1px;
-        font-size: 18px;
-        font-weight: bold;
-        text-shadow: 1px 1px rgba(25, 40, 60, 0.8);
-        color: $color-primary;
-    }
-
-    :global(.Mui-selected)
-    {
-        color: $color-secondary;
-    }
-
-    :global(.MuiTabs-indicator)
-    {
-        background-color: $color-tertiary;
-    }
-}
-
-.noOptions
-{
-    animation: fadeIn 333ms;
+  button {
+    text-transform: none;
+    letter-spacing: 1px;
+    font-size: 18px;
     font-weight: bold;
-    font-size: 16px;
-    margin: 40px auto 0px auto;
+    text-shadow: 1px 1px rgba(25, 40, 60, 0.8);
+    color: $color-primary;
+  }
+
+  :global(.Mui-selected) {
+    color: $color-secondary;
+  }
+
+  :global(.MuiTabs-indicator) {
+    background-color: $color-tertiary;
+  }
+}
+
+.noOptions {
+  animation: fadeIn 333ms;
+  font-weight: bold;
+  font-size: 16px;
+  margin: 40px auto 0px auto;
+}
+
+@media (max-width: 59.99em) {
+  .thead {
+    display: none;
+  }
+
+  .tbody {
+    display: flex;
+    flex-wrap: wrap; // grid multiline
+
+    .tr {
+      flex-basis: calc(50% - 3rem); // 50% = 2 cols, 3rem depending on margins
+      display: flex;
+      flex-wrap: wrap; // horizontal flow, multiline
+
+      // Start size variant (second card with small image size)
+      align-content: space-between;
+
+      &:nth-child(2) {
+        .td:nth-child(2) {
+          width: 100%;
+        }
+
+        .img {
+          display: block;
+          margin: 0 auto;
+          width: 50%;
+        }
+      }
+      // End size variant
+    }
+
+    .td {
+      &:last-child {
+        margin-left: auto; // push price on the right side
+
+        &::before {
+          content: attr(aria-label) " : ";
+        }
+      }
+    }
+  }
+}
+
+// End live code
+
+.table {
+  width: 100%;
+  @media (min-width: 60em) {
+    border-collapse: collapse;
+  }
+}
+.thead {
+  color: $c-gold;
+  text-align: left;
+}
+.tbody {
+  .tr {
+    @media (min-width: 60em) {
+      border-bottom: 1px solid $c-gold;
+    }
+  }
+  .td {
+    @media (min-width: 60em) {
+      padding: 0.5em 2rem 0.5em 0;
+
+      .img {
+        width: 48px;
+        height: auto;
+      }
+    }
+  }
+}
+
+@media (max-width: 59.99em) {
+  .tbody {
+    color: $c-gray-dark;
+    .tr {
+      margin: 0.5rem;
+      padding: 1rem;
+      background-color: white;
+    }
+    .td {
+      &:first-child {
+        width: 100%;
+        padding-bottom: 0.5em;
+        font-size: 1.5em;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      &:last-child {
+        font-weight: bold;
+      }
+
+      .img {
+        display: block;
+        width: 100%;
+      }
+    }
+  }
 }
