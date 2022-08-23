@@ -17,7 +17,6 @@ import { dismissLastToast, showToast } from "../utils/toasting";
 import { optionChangingIDs, requestChangingIDs, useAccount } from "../utils/contexts";
 import Button_DetailsView from "../fragments/Button.DetailsView";
 import Field_DetailsView from "../fragments/Field.DetailsView";
-import FieldLink_DetailsView from "../fragments/FieldLink.DetailsView";
 import toast from "react-hot-toast";
 import { scanner } from "../../datasources/provider";
 
@@ -225,12 +224,12 @@ function DetailsView(props : Props)
             <div style={{display:"flex", alignItems: hideTitle ? "center" : "flex-start"}}>
 
                 <div>
-                    <FieldLink_DetailsView label="NFT contract" value={props.option.asset.key.nftContract} />
-                    <Field_DetailsView     label="NFT token"    value={props.option.asset.key.nftId.toString()} />
-                    <FieldLink_DetailsView label="Buyer"        value={props.option.buyer} />
+                    <Field_DetailsView label="NFT contract" value={props.option.asset.key.nftContract}      isLink />
+                    <Field_DetailsView label="NFT token"    value={props.option.asset.key.nftId.toString()} />
+                    <Field_DetailsView label="Buyer"        value={props.option.buyer}                      isLink />
                     {
                         props.option.seller !== ADDRESS0 &&
-                        <FieldLink_DetailsView label="Seller"   value={props.option.seller} />
+                        <Field_DetailsView label="Seller"   value={props.option.seller}                     isLink/>
                     }
                 </div>
 
