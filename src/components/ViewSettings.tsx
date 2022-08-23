@@ -8,15 +8,35 @@ import { ListViewStates, storeViewState, storeViewType, ViewConfig, ViewTypes } 
 import FilterBox from "./FilterBox";
 import { Button, MenuItem, Select } from "@mui/material";
 
-let handleViewStateChanged = (event : any) =>
+const handleViewStateChanged = (event : any) =>
 {
-    let index = event.target.value;
+    const index = event.target.value;
 
     storeViewState(index);
 
     _propsPtr.view.state = index;
 
     _propsPtr.onViewChanged();
+}
+
+const handleViewTypeChanged = () =>
+{
+    if (_propsPtr.selectedValue) _propsPtr.view.type = ViewTypes.DETAIL;
+
+    // Switch between ROW and CARD views
+    if (_propsPtr.view.type < ViewTypes.DETAIL)
+    {
+        _propsPtr.view.type ^= 1;
+
+        storeViewType(_propsPtr.view.type);
+    }
+
+    _propsPtr.onViewChanged();
+}
+
+const cleanup = () =>
+{
+    document.body.onclick = null;
 }
 
 let hasItems           : boolean;
@@ -33,7 +53,24 @@ type Props =
 ,   onFilter       : () => void
 };
 
-let _propsPtr : Props;
+let _propsPtr = {} as Props;
+
+const viewStatesItems =
+ListViewStates.map
+(
+    (state, i) =>
+    <MenuItem key={i} value={i}>{state}</MenuItem>
+);
+
+const viewStatesSelect =
+<Select
+    MenuProps={{ classes: { paper: classes.dropDown } }}
+    className={clsx(classes.dropDown, classes.viewStateDropDown)}
+    onChange={handleViewStateChanged}
+    value={_propsPtr.view ? _propsPtr.view.state : 0}
+>
+    {viewStatesItems}
+</Select>
 
 function ViewSettings(props : Props)
 {
@@ -49,8 +86,7 @@ function ViewSettings(props : Props)
         {
             document.body.onclick = () => setFilterBoxVisibile(false);
 
-            // Cleanup on unmount
-            return () => { document.body.onclick = null; }
+            return () => cleanup();
         }
     ,   []
     );
@@ -58,43 +94,14 @@ function ViewSettings(props : Props)
     return <div className={classes.viewSettingsWrapper}>
         {
             hasItems && props.view.type === ViewTypes.CARDLIST &&
-            <Select
-                MenuProps={{ classes: { paper: classes.dropDown } }}
-                className={clsx(classes.dropDown, classes.viewStateDropDown)}
-                value={props.view.state}
-                onChange={handleViewStateChanged}
-            >
-                {
-                    ListViewStates.map
-                    (
-                        (state, index) =>
-                        <MenuItem key={`tab-view-states-${state}`} value={index}>{state}</MenuItem>
-                    )
-                }
-            </Select>
+            viewStatesSelect
         }
         {
             hasItems &&
             <Button
                 className={classes.btnListView}
-                onClick=
-                {
-                    () =>
-                    {
-                        if (props.selectedValue) props.view.type = ViewTypes.DETAIL;
-
-                        // Switch between ROW and CARD views
-                        if (props.view.type < ViewTypes.DETAIL)
-                        {
-                            props.view.type ^= 1;
-
-                            storeViewType(props.view.type);
-                        }
-
-                        props.onViewChanged();
-                    }
-                }
-            >{ props.view.type === ViewTypes.CARDLIST ? "🧾" : "🎴" }</Button>
+                onClick={handleViewTypeChanged}
+            >{ props.view.type === ViewTypes.CARDLIST ? "📋" : "🎴" }</Button>
         }
 
         <Button
