@@ -1,0 +1,86 @@
+$text-font-stack: 'Open Sans', 'Helvetica Neue Light', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif !default;
+
+$code-font-stack: 'Courier New', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Monaco', monospace !default;
+
+$text-color: rgb(34, 34, 34) !default;
+
+$brand-color: rgb(229, 0, 80) !default;
+
+$light-grey: rgb(237, 237, 237) !default;
+
+$mid-grey: rgb(153, 153, 153) !default;
+
+$dark-grey: rgb(68, 68, 68) !default;
+
+$max-width: 1180px !default;
+
+
+$breakpoints: (
+  'small': 320px,
+  'medium': 768px,
+  'large': 1024px,
+) !default;
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+$breakpoints-values-xs: 0;
+$breakpoints-values-sm: 767;
+$breakpoints-values-md: 1024;
+$breakpoints-values-lg: 1920;
+
+// Palette
+#__next
+{
+    --color-primary: #81ad9a;
+    // --color-secondary: rgb(192, 167, 24);
+    --color-secondary: rgb(216, 193, 60);
+    --color-tertiary: rgb(41, 117, 84);
+
+    --text-primary: #334155;
+    --text-secondary: #657489;
+    --text-tertiary: #a8b8cb;
+
+    --background-primary: azure;
+    --background-secondary: #e2e8f0;
+    --background-tertiary: #f8fafc;
+}
+
+// Dark theme palette
+[data-theme="dark"]
+{
+    #__next
+    {
+        --color-primary: rgba(126, 168, 150, 0.8);
+        --color-secondary: rgb(205, 135, 70);
+        --color-tertiary: #28a770;
+
+        --text-primary: #cbd5e1;
+        --text-secondary: #f1f5f9;
+        --text-tertiary: #94a3b8;
+
+        --background-primary: #334155;
+        --background-secondary: #2b323f;
+        --background-tertiary: rgba(59, 70, 85, 0.95);
+    }
+}
+
+$color-primary: var(--color-primary);
+$color-secondary: var(--color-secondary);
+$color-tertiary: var(--color-tertiary);
+
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
+$text-tertiary: var(--text-tertiary);
+$text-quarty: var(--text-quarty);
+
+$background-primary: var(--background-primary);
+$background-secondary: var(--background-secondary);
+$background-tertiary: var(--background-tertiary);
+
+
+$fadeIn-animation: fadeIn 333ms;
+
+$emoji-font: "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", Times, Symbola, Aegyptus, Code2000, Code2001, Code2002, Musica, serif, LastResort;

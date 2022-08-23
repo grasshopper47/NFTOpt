@@ -1,0 +1,40 @@
+@mixin root () {
+    max-width: 900px;
+    display: flex;
+    margin: auto;
+    margin-top: 60px;
+    -webkit-animation: MintForm_fadeIn__aN76x 333ms;
+    animation: MintForm_fadeIn__aN76x 333ms;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: space-evenly;
+}
+
+@mixin form($margin-top) {
+    display: flex;
+    flex-direction: column;
+    width: 45%;
+    margin: 14px auto 14px auto;
+    position: relative;
+    z-index: 1;
+    justify-content: space-between;
+
+
+    :global(.MuiInputBase-root)
+    {
+        color: $text-primary;
+
+        svg
+        {
+            color: $text-primary;
+        }
+    }
+}
+
+@mixin animation($opacity:100) {
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: $opacity; }
+    }
+  }
