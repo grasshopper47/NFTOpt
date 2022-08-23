@@ -1,9 +1,16 @@
-@mixin root($display, $align-items, $justify-content, $margin, $flex-direction) {
-  display: $display;
-  align-items: $align-items;
-  justify-content: $justify-content;
-  margin: $margin;
-  flex-direction: $flex-direction;
+@import 'src/styles/variables.scss';
+
+@mixin root () {
+    max-width: 900px;
+    display: flex;
+    margin: auto;
+    margin-top: 60px;
+    -webkit-animation: MintForm_fadeIn__aN76x 333ms;
+    animation: MintForm_fadeIn__aN76x 333ms;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: space-evenly;
 }
 
 @mixin card(

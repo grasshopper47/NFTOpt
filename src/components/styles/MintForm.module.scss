@@ -1,12 +1,7 @@
 @import
-"src/styles/variables.scss",
-"src/styles/abstracts/mixins";
+    "src/styles/variables.scss",
+    "src/styles/abstracts/mixins";
 
-
-@keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-}
 
 .root
 {

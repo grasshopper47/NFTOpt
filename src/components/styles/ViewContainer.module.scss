@@ -51,7 +51,7 @@ $c-gold: #bc994f;
 
 .dropDown {
   justify-content: center;
-  animation: fadeIn 333ms;
+  animation: $fadeIn-animationeIn;
   height: 27px;
   width: fit-content;
   margin-right: 20px;
@@ -96,7 +96,7 @@ div.dropDown:global(.MuiPaper-root) {
 
 .tabs {
   border-bottom: 1px solid $color-primary;
-  animation: fadeIn 333ms;
+  animation: $fadeIn-animation;
 
   button {
     text-transform: none;
@@ -117,7 +117,7 @@ div.dropDown:global(.MuiPaper-root) {
 }
 
 .noOptions {
-  animation: fadeIn 333ms;
+  animation: $fadeIn-animation;
   font-weight: bold;
   font-size: 16px;
   margin: 40px auto 0px auto;
