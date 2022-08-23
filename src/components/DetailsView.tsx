@@ -137,7 +137,7 @@ const cleanup = () =>
 let isBuyer    : boolean;
 let isOwner    : boolean;
 let isApproved : boolean;
-let showTitle  : boolean;
+let hideTitle  : boolean;
 let txLink     : string;
 let account    : string;
 let contract   : Collection_BASE;
@@ -149,7 +149,7 @@ let setTransactionLink : (a : string)  => void;
 type Props =
 {
     option     : OptionWithAsset
-,   showTitle ?: true | boolean
+,   hideTitle ?: boolean
 ,   onAction  ?: () => void
 };
 
@@ -166,7 +166,7 @@ function DetailsView(props : Props)
     account = useAccount();
 
     isBuyer   = _propsPtr.option.buyer === account;
-    showTitle = props.showTitle === undefined ? true : props.showTitle;
+    hideTitle = props.hideTitle ?? false;
 
     useEffect
     (
@@ -220,9 +220,9 @@ function DetailsView(props : Props)
 
         <div className={classes.detailsSub}>
 
-            { showTitle && <p className={classes.title}>#{props.option.id + 1} {props.option.asset.name}</p> }
+            { !hideTitle && <p className={classes.title}>#{props.option.id + 1} {props.option.asset.name}</p> }
 
-            <div style={{display:"flex", alignItems: showTitle ? "flex-start": "center"}}>
+            <div style={{display:"flex", alignItems: hideTitle ? "center" : "flex-start"}}>
 
                 <div>
                     <FieldLink_DetailsView label="NFT contract" value={props.option.asset.key.nftContract} />

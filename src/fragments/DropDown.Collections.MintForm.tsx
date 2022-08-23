@@ -8,6 +8,8 @@ import { NFTAsset } from "../../models/NFTAsset";
 import { menuItemInfo } from "../utils/loading";
 import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
 
+const renderValue = () => name ? name : <em>Select a collection</em>;
+
 let name : string | undefined;
 
 type Props =
@@ -29,7 +31,7 @@ export default function(props : Props)
             value={props.value ?? "_"}
             labelId="select-label"
             label="Collection"
-            renderValue={ () => name ? name : <em>Select a collection</em> }
+            renderValue={renderValue}
         >
             <MenuItem disabled value="_" />
             {

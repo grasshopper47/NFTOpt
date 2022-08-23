@@ -14,17 +14,17 @@ type Props =
 
 export default function(props : Props)
 {
-    let [ showPlaceholders, setPlaceholders] = useState(false);
-    let show = () => setPlaceholders(true);
-    let hide = () => setPlaceholders(false);
+    const [ showPlaceholders, setPlaceholders] = useState(false);
+    const show = () => setPlaceholders(true);
+    const hide = () => setPlaceholders(false);
 
-    let onChangeMin = (event: React.ChangeEvent<HTMLInputElement>) =>
+    const onChangeMin = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
         props.value.min = props.onValidate(event.target.value);
         props.onFilter();
     };
 
-    let onChangeMax = (event: React.ChangeEvent<HTMLInputElement>) =>
+    const onChangeMax = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
         props.value.max = props.onValidate(event.target.value);
         props.onFilter();

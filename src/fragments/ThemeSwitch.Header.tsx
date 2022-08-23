@@ -6,16 +6,16 @@ import { IconButton } from "@mui/material";
 
 type ThemeType = "white" | "dark";
 
-let updateTheme = (theme : ThemeType) =>
+const updateTheme = (theme : ThemeType) =>
 {
     document.documentElement.setAttribute("data-theme", theme);
 
     setTheme(theme);
 }
 
-let handleThemeChanged = () =>
+const handleThemeChanged = () =>
 {
-    let themeNew = (theme === "white" ? "dark" : "white") as ThemeType;
+    const themeNew = (theme === "white" ? "dark" : "white") as ThemeType;
 
     localStorage.theme = themeNew;
 
@@ -38,9 +38,9 @@ function ThemeSwitch()
     return <IconButton
         onClick={handleThemeChanged}
         className={classes.button}
-        >
-            { theme[0] === "w" ? "☀" : "🌒" }
-        </IconButton>;
+    >
+        { theme[0] === "w" ? "☀" : "🌒" }
+    </IconButton>;
 }
 
 export default ThemeSwitch;

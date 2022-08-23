@@ -29,7 +29,7 @@ const handleValidate = () =>
 {
     if(!isValid(newAssetKey))
     {
-        setErrorText("Invalid address");
+        setErrorText("Invalid address and token ID combination");
 
         return;
     }
@@ -48,21 +48,24 @@ const handleValidate = () =>
 
             const arr = assetsOf(account);
 
+            for (const a of arr)
+            {
+                const isKnown =
+                a.key.nftId === newAssetKey.nftId
+                &&  a.key.nftContract === newAssetKey.nftContract;
+
+                if (isKnown)
+                {
+                    setErrorText("NFT already known");
+
+                    return;
+                }
+            }
+
             getAsset(newAssetKey).then
             (
                 asset =>
                 {
-                    const assetKey = stringOf(asset.key);
-
-                    for (const a of arr)
-                    {
-                        if (assetKey === stringOf(a.key))
-                        {
-                            setErrorText("NFT already known");
-                            return;
-                        }
-                    }
-
                     arr.push(asset);
 
                     _propsPtr.onSuccess();
@@ -70,7 +73,7 @@ const handleValidate = () =>
                     resetKey();
                     setErrorText("");
                 }
-            )
+            );
         }
     )
     .catch

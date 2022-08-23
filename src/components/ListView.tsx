@@ -34,7 +34,7 @@ function ListView(props : Props)
         </div>;
     }
 
-    let viewIndex = props.viewIndex ?? 0;
+    const viewIndex = props.viewIndex ?? 0;
     setViewClass(viewIndex);
 
     // Render list of items
@@ -44,7 +44,7 @@ function ListView(props : Props)
             (
                 option =>
                 <CardView
-                    key={`option-card-${option.id}`}
+                    key={`card-${option.id}`}
                     option={option}
                     { ... props.onSelect && {onViewDetails: props.onSelect}}
                 />

@@ -6,22 +6,22 @@ import { OptionWithAsset } from "../../models/option";
 import { Button, MenuItem, Select } from "@mui/material";
 import { getViewLimitIndexFromStorage, storeViewRecordsLimitIndex, ViewPage } from "../utils/view";
 
-let setPageIndex = (a : number) =>
+const setPageIndex = (a : number) =>
 {
     _propsPtr.page.index = a;
 
     _propsPtr.onNavigate();
 }
 
-let setPageCount = (event: any) =>
+const setPageCount = (event: any) =>
 {
-    let index = event.target.value;
+    const index = event.target.value;
 
     storeViewRecordsLimitIndex(index);
 
     _propsPtr.page.count = _propsPtr.recordLimits[index];
 
-    let maxPageCount = Math.floor(_propsPtr.list.length / _propsPtr.page.count);
+    const maxPageCount = Math.floor(_propsPtr.list.length / _propsPtr.page.count);
 
     if (_propsPtr.page.index > maxPageCount) _propsPtr.page.index = maxPageCount;
 

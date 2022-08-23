@@ -3,6 +3,7 @@ import classes from "../components/styles/RequestForm.module.scss";
 
 import React from "react";
 import { OptionFlavor } from "../../models/enums";
+import { flavorLabels } from "../utils/labels";
 import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 
 type Props =
@@ -11,7 +12,7 @@ type Props =
 ,   onChange : (event : SelectChangeEvent<OptionFlavor>) => void
 };
 
-const handleRenderRequest = (selected) =>
+const renderValue = (selected) =>
 {
     if (selected || selected === 0) return OptionFlavor[selected];
 
@@ -28,16 +29,15 @@ export default function DropDown_Flavor_RequestForm(props : Props)
             value={props.value}
             labelId="flavor-label"
             label="Flavor"
-            renderValue={handleRenderRequest}
+            renderValue={renderValue}
             onChange={props.onChange}
         >
-            <MenuItem disabled value="" />
+            <MenuItem disabled value=""/>
             {
-                Object.keys(OptionFlavor).map
+                flavorLabels.map
                 (
-                    (k, index) =>
-                    k === index.toString() &&
-                    <MenuItem key={index} value={index}>{OptionFlavor[index]}</MenuItem>
+                    (flavor, i) =>
+                    <MenuItem key={i} value={i}>{flavor}</MenuItem>
                 )
             }
         </Select>

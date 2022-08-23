@@ -9,7 +9,7 @@ import { OptionWithAsset } from "../../models/option";
 import { requestChangingIDs, optionChangingIDs } from "../utils/contexts";
 import { ListViewStates } from "../utils/view";
 
-export let setViewClass = (index : number) => viewClass = classes[ListViewStates[index]];
+export const setViewClass = (index : number) => viewClass = classes[ListViewStates[index]];
 
 let viewClass : string;
 
