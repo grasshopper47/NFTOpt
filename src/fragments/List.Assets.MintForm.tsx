@@ -26,8 +26,10 @@ export default function(props : Props)
                         (item, i) =>
                         <ListItem
                             key={i}
-                            sx={ { cursor: "pointer" } }
-                            onClick={ () => props.onChange(item.image) }
+                            sx={ { cursor: "pointer", "&:hover":{backgroundColor:"#2a3749"}, "&:active":{backgroundColor:"#202b38"} } }
+                            onClick={ () => {
+                                props.onChange(item.image)
+                            } }
                         >
                             <ListItemAvatar>
                                 <Avatar>

@@ -90,7 +90,10 @@ export default function App({ Component, pageProps }: AppProps)
         <AccountContext.Provider value={account}>
 
             <Layout>
-            { provider && <Component {...pageProps} /> }
+                {
+                    provider &&
+                    <Component {...pageProps} />
+                }
             </Layout>
 
         </AccountContext.Provider>
