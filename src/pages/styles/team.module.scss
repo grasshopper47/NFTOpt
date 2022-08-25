@@ -1,4 +1,6 @@
-@import "src/styles/variables.scss", "src/styles/abstracts/mixins";
+@import
+    "src/styles/abstracts/variables",
+    "src/styles/abstracts/mixins";
 
 .root {
   @include pagesRoot($display: grid);

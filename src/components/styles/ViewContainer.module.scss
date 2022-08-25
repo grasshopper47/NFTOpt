@@ -1,4 +1,4 @@
-@import "src/styles/variables.scss";
+@import "src/styles/abstracts/variables";
 
 $c-gray-dark: #252627;
 $c-gold: #bc994f;
@@ -51,7 +51,7 @@ $c-gold: #bc994f;
 
 .dropDown {
   justify-content: center;
-  animation: $fadeIn-animationeIn;
+  animation: $fadeIn-animation;
   height: 27px;
   width: fit-content;
   margin-right: 20px;

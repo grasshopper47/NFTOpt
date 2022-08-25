@@ -1,8 +1,8 @@
 import "./styles/_app.scss";
-// import "../styles/main.scss";
 
 import React from 'react';
 import Head from "next/head";
+import Layout from "../layout";
 import { AppProps } from "next/app";
 import { useState, useEffect } from "react";
 import { network, provider } from "../../datasources/provider";
@@ -91,7 +91,9 @@ export default function App({ Component, pageProps }: AppProps)
         <AccountContext.Provider value={account}>
 
             <Header/>
+            <Layout>
             { provider && <Component {...pageProps} /> }
+            </Layout>
 
         </AccountContext.Provider>
         </ChainIDContext.Provider>
