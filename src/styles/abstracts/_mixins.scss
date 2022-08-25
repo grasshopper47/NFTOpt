@@ -1,35 +1,33 @@
 @import './variables';
 
-@mixin root () {
-    max-width: 900px;
-    display: flex;
-    margin: 60px auto auto auto;
-    -webkit-animation: $fadeIn-animation;
-    animation: $fadeIn-animation;
-    flex-wrap: wrap;
-    flex-direction: row;
-    gap: 20px;
-    justify-content: space-evenly;
+@mixin root() {
+  max-width: 900px;
+  display: flex;
+  margin: 60px auto auto auto;
+  -webkit-animation: $fadeIn-animation;
+  animation: $fadeIn-animation;
+  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 20px;
+  justify-content: space-evenly;
 }
 
 @mixin form($margin-top) {
-    display: flex;
-    flex-direction: column;
-    width: 45%;
-    margin: 14px auto 14px auto;
-    position: relative;
-    z-index: 1;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  width: 45%;
+  margin: 14px auto 14px auto;
+  position: relative;
+  z-index: 1;
+  justify-content: space-between;
 
-    :global(.MuiInputBase-root)
-    {
-        color: $text-primary;
+  :global(.MuiInputBase-root) {
+    color: $text-primary;
 
-        svg
-        {
-            color: $text-primary;
-        }
+    svg {
+      color: $text-primary;
     }
+  }
 }
 
 @mixin pagesRoot($display: flex, $align-items: "", $justify-content: center, $margin: auto, $flex-direction: row) {
@@ -54,7 +52,7 @@
   $position
 ) {
   border-radius: $border-radius;
-    border: $border;
+  border: $border;
   box-shadow: $box-shadow;
   display: $display;
   align-items: $align-items;

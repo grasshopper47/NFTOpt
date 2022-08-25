@@ -3,7 +3,6 @@ import classes from "../styles/pages/index.module.scss";
 
 import React from "react";
 import Image from "next/image";
-import Layout from "../fragments/Layout";
 
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
@@ -40,7 +39,6 @@ const presentationCards : PresentationCard[] =
 
 function LandingPage() {
     return (
-        <Layout>
             <Box sx={{ flexGrow: 1}}>
                 <Grid container columns={{ xs: 4, sm: 8, md:16 }} className={classes.root} >
                     {presentationCards.map((card) => (
@@ -54,7 +52,6 @@ function LandingPage() {
                     ))}
                 </Grid>
             </Box>
-        </Layout>
     );
 }
 

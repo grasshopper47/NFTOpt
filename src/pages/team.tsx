@@ -4,11 +4,10 @@ import classes from "../styles/pages/team.module.scss";
 import React from 'react';
 import Image from "next/image";
 import {team} from "../../datasources/team";
-import Layout from "../fragments/Layout";
 import { clsx } from "clsx";
 
 function TeamPage() {
-    return <Layout>
+    return <>
         <div className={classes.root}>
             {team.slice(0,4).map((member, i) => (
                 <div key={`member-card-${i}`} className={classes.card}>
@@ -77,7 +76,7 @@ function TeamPage() {
                 </div>
             ))}
         </div>
-    </Layout>;
+    </>;
 }
 
 export default TeamPage;

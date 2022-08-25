@@ -1,5 +1,6 @@
 // @ts-ignore
 import classes from "../styles/components/RequestForm.module.scss";
+// @ts-ignore
 import mintButtonClass from "../styles/components/MintForm.module.scss";
 
 import clsx from "clsx";
@@ -27,7 +28,6 @@ import TextBox_RequestForm from "../fragments/TextBox.Request";
 import DropDown_RequestForm from "../fragments/DropDown.Assets.RequestForm";
 import DropDown_Flavor_RequestForm from "../fragments/DropDown.Flavor.RequestForm";
 import CustomAssetForm from "../components/CustomAssetForm"
-import Layout from "../fragments/Layout";
 import { Button, SelectChangeEvent } from "@mui/material";
 
 const setAsset = (asset : NFTAsset | undefined | null) =>
@@ -53,6 +53,7 @@ const setAsset = (asset : NFTAsset | undefined | null) =>
 
 const setAmount = (event: React.ChangeEvent<HTMLInputElement>) =>
 {
+    // @ts-ignore
     request[event.target.id] = getFloatString(event.target.value);
     areAmountsInvalid = parseFloat(request.premium) >= parseFloat(request.strikePrice);
     requestChanged();
@@ -191,7 +192,7 @@ function RequestForm()
     ,   [account]
     );
 
-    return <Layout>
+    return <>
         <p className="page-title">Publish a Request for PUT Option</p>
 
         <div className={classes.root}>
@@ -279,7 +280,7 @@ function RequestForm()
             }
             </div>
         </div>
-    </Layout>;
+    </>;
 }
 
 export default RequestForm;

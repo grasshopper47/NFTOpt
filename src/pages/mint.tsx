@@ -15,7 +15,6 @@ import { clearNFTCollectionsEventCallback, setNFTCollectionsEventCallback } from
 import { useAccount, useChainID, clearNFTCollectionsLoadCallback, setNFTCollectionsLoadCallback, clearAssetsLoadCallback, setAssetsLoadCallback } from "../utils/contexts";
 import { showToast } from "../utils/toasting";
 import { signer } from "../utils/metamask";
-import Layout from "../fragments/Layout";
 import DropDown_MintForm from "../fragments/DropDown.Collections.MintForm";
 import List_MintForm from "../fragments/List.Assets.MintForm";
 import { Button } from "@mui/material";
@@ -132,7 +131,7 @@ function MintForm()
     ,   [account]
     );
 
-    return <Layout>
+    return <>
         <p className="page-title">Mint an NFT frosm our collections</p>
 
         <div
@@ -167,7 +166,7 @@ function MintForm()
             }
             </div>
         </div>
-    </Layout>;
+    </>;
 }
 
 export default MintForm;

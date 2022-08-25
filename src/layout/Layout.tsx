@@ -2,11 +2,11 @@ import React from "react";
 import Header from "../components/Header";
 
 // @ts-ignore
-export default function Layout({children}) {
+export default function Layout(props : { children : JSX.Element | JSX.Element[] }) {
     return (
-        <>
+        <div key="main-content-layout" className="main-content-layout">
             <Header/>
-            <main>{children}</main>
-        </>
+            <div className="main-content-wrapper">{props.children}</div>
+        </div>
     );
 }

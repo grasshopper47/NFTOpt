@@ -14,7 +14,6 @@ import TableView from "../components/TableView";
 import ListView from "../components/ListView";
 import FooterNavigation from "../components/FooterNavigation";
 import ViewSettings from "../components/ViewSettings";
-import Layout from "../fragments/Layout";
 import { Tab, Tabs } from "@mui/material";
 
 const setSelectedOption = (obj : OptionWithAsset | null) =>
@@ -55,7 +54,9 @@ const renderList = () =>
     ,   onSelect  : setSelectedOption
     };
 
-    if (selectedOption) props["selectedValue"] = selectedOption;
+    if (selectedOption) { // @ts-ignore
+        props["selectedValue"] = selectedOption;
+    }
 
     return viewConfig.type === ViewTypes.ROWLIST
     ?   <TableView
@@ -217,7 +218,7 @@ function ViewContainer()
     ,   [activeTabIndex]
     );
 
-    return <Layout>
+    return <>
         <p className="page-title">Explore NFT Options</p>
 
         <div className={clsx(classes.root, hasItems && classes.withOptions)}>
@@ -253,7 +254,7 @@ function ViewContainer()
             />
         }
         </>
-    </Layout>;
+    </>;
 }
 
 export default ViewContainer;
