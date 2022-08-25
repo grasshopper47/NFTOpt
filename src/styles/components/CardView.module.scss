@@ -1,9 +1,5 @@
 @import "../abstracts/variables";
 
-@keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-}
 
 @keyframes change {
     0% { opacity: 1; }
@@ -19,10 +15,10 @@
     cursor: pointer;
     box-shadow: 4px 3px 10px rgb(15 23 42 / 30%);
     padding : 4px;
-    margin: 0px 20px 40px 20px;
+    margin: 0 20px 40px 20px;
     background-color: $background-tertiary;
     overflow:hidden;
-    animation: fadeIn 333ms;
+    animation: $fadeIn-animation;
 
     &.changing
     {
@@ -52,7 +48,7 @@
     {
         border-color: rgb(107 144 128 / 70%);
         background-color: rgb(107 144 128 / 15%);
-        box-shadow: 1px 0px 3px rgb(107 144 128 / 14%), 4px 6px 6px rgb(107 144 128 / 10%);
+        box-shadow: 1px 0 3px rgb(107 144 128 / 14%), 4px 6px 6px rgb(107 144 128 / 10%);
     }
 
     img
@@ -88,7 +84,7 @@
         {
             border-color: rgb(41 117 84 / 30%);
             background-color:  rgba(104 90 13 / 10%);
-            box-shadow: 1px 0px 3px rgb(107 144 128 / 14%), 4px 6px 6px rgb(107 144 128 / 10%);
+            box-shadow: 1px 0 3px rgb(107 144 128 / 14%), 4px 6px 6px rgb(107 144 128 / 10%);
         }
     }
 }
@@ -119,13 +115,13 @@
     {
         color: $text-tertiary;
         margin-top: 0;
-        margin-bottom: 0px;
+        margin-bottom: 0;
         letter-spacing: 2px;
         font-size: 16px;
 
         &.S
         {
-            margin-top: px;
+            margin-top: auto;
             font-size: 13px;
         }
 

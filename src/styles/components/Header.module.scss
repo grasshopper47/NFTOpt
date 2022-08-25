@@ -1,10 +1,9 @@
-@import "../abstracts/variables";
+@import "../abstracts/variables",
+"../abstracts/mixins";
 
 .root
 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    @include pagesRoot($align-items: center, $justify-content: space-between);
     height: 100px;
     font-size: 16pt;
     color: $text-primary;
@@ -43,7 +42,7 @@ button.connectBtn
     font-size: 10pt;
     font-weight: 500;
 
-    background: red;
+    background: $color-secondary;
 
     &:hover
     {
