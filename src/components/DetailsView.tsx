@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/DetailsView.module.scss";
+import classes from "../styles/components/DetailsView.module.scss";
 import clsx from "clsx";
 
 import { Collection_BASE } from "../../typechain-types";

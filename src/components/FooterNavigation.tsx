@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/FooterNavigation.module.scss";
+import classes from "../styles/components/FooterNavigation.module.scss";
 
 import React from "react";
 import { OptionWithAsset } from "../../models/option";

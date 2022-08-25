@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/Header.module.scss";
+import classes from "../styles/components/Header.module.scss";
 import clsx from "clsx";
 
 import React, { useEffect } from "react";

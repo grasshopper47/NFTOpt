@@ -1,4 +1,4 @@
-import "./styles/_app.scss";
+import "../styles/base/_app.scss";
 
 import React from 'react';
 import Head from "next/head";
@@ -16,7 +16,6 @@ import { attachNFTCollectionsHandlersToInstances } from "../controllers/NFTOptCo
 import { attachNFTOptHandlersToInstance } from "../controllers/NFTOpt";
 import { connected, hookMetamask, signer } from "../utils/metamask";
 
-import Header from "../components/Header";
 import { Toaster } from "react-hot-toast";
 import { AccountContext, AssetsLoadCallback, ChainIDContext, NFTCollectionsLoadCallback, OptionsLoadCallback } from "../utils/contexts";
 
@@ -90,7 +89,6 @@ export default function App({ Component, pageProps }: AppProps)
         <ChainIDContext.Provider value={chainID}>
         <AccountContext.Provider value={account}>
 
-            <Header/>
             <Layout>
             { provider && <Component {...pageProps} /> }
             </Layout>

@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "../components/styles/DetailsView.module.scss";
+import classes from "../styles/components/DetailsView.module.scss";
 
 import React from "react";
 import { Button } from "@mui/material";

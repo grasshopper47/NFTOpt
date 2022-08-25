@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/ViewContainer.module.scss";
+import classes from "../styles/components/ViewContainer.module.scss";
 import clsx from "clsx";
 
 import React, { useEffect, useState } from "react";

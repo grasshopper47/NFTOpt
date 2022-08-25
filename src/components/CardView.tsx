@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/CardView.module.scss";
+import classes from "../styles/components/CardView.module.scss";
 import clsx from "clsx";
 
 import { ethers } from "ethers";

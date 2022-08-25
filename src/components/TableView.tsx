@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/TableView.module.scss";
+import classes from "../styles/components/TableView.module.scss";
 
 import React from 'react';
 import { OptionWithAsset } from "../../models/option";

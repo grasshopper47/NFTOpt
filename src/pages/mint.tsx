@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "../components/styles/MintForm.module.scss";
+import classes from "../styles/components/MintForm.module.scss";
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";

@@ -1,6 +1,6 @@
 // @ts-ignore
-import classes from "../components/styles/RequestForm.module.scss";
-import mintButtonClass from "../components/styles/MintForm.module.scss";
+import classes from "../styles/components/RequestForm.module.scss";
+import mintButtonClass from "../styles/components/MintForm.module.scss";
 
 import clsx from "clsx";
 

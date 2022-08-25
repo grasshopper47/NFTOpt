@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/RequestForm.module.scss";
+import classes from "../styles/components/RequestForm.module.scss";
 import clsx from "clsx";
 
 import React, { useState } from "react";

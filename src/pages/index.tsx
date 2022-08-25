@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/index.module.scss";
+import classes from "../styles/pages/index.module.scss";
 
 import React from "react";
 import Image from "next/image";

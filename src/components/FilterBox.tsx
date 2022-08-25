@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/FilterBox.module.scss";
+import classes from "../styles/components/FilterBox.module.scss";
 import clsx from "clsx";
 
 import React, { useState } from "react";

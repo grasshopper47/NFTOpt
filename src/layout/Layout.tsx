@@ -1,9 +1,12 @@
 import React from "react";
+import Header from "../components/Header";
 
-export default function Layout({ children }) {
-  return (
-    <>
-      <main>{children}</main>
-    </>
-  );
+// @ts-ignore
+export default function Layout({children}) {
+    return (
+        <>
+            <Header/>
+            <main>{children}</main>
+        </>
+    );
 }

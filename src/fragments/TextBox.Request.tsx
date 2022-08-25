@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "../components/styles/RequestForm.module.scss";
+import classes from "../styles/components/RequestForm.module.scss";
 
 import React from "react";
 import { TextField } from "@mui/material";

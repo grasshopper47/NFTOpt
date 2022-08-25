@@ -1,8 +1,7 @@
-@import
-    "src/styles/abstracts/variables",
-    "src/styles/abstracts/mixins";
+@import "../abstracts/variables",
+"../abstracts/mixins";
 
-    
+
 .root {
     @include pagesRoot($align-items: center, $margin: '', $flex-direction: column);
     font-size: 26px;

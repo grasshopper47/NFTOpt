@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/ListView.module.scss";
+import classes from "../styles/components/ListView.module.scss";
 import clsx from "clsx";
 
 import React from 'react';

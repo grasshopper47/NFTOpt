@@ -1,5 +1,5 @@
 // @ts-ignore
-import classes from "./styles/RowView.module.scss";
+import classes from "../styles/components/RowView.module.scss";
 import clsx from "clsx";
 
 import React from "react";
