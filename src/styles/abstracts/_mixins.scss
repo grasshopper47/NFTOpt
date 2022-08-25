@@ -1,10 +1,11 @@
+@import './variables';
+
 @mixin root () {
     max-width: 900px;
     display: flex;
-    margin: auto;
-    margin-top: 60px;
-    -webkit-animation: MintForm_fadeIn__aN76x 333ms;
-    animation: MintForm_fadeIn__aN76x 333ms;
+    margin: 60px auto auto auto;
+    -webkit-animation: $fadeIn-animation;
+    animation: $fadeIn-animation;
     flex-wrap: wrap;
     flex-direction: row;
     gap: 20px;
