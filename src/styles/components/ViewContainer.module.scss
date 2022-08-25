@@ -3,14 +3,6 @@
 $c-gray-dark: #252627;
 $c-gold: #bc994f;
 
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
 
 .root {
   max-width: 900px;
@@ -87,11 +79,11 @@ div.dropDown:global(.MuiPaper-root) {
 }
 
 .btnListView {
-  margin-right: 0px;
+  margin-right: 0;
 }
 
 .btnShow {
-  margin-right: 0px;
+  margin-right: 0;
 }
 
 .tabs {
@@ -120,7 +112,7 @@ div.dropDown:global(.MuiPaper-root) {
   animation: $fadeIn-animation;
   font-weight: bold;
   font-size: 16px;
-  margin: 40px auto 0px auto;
+  margin: 40px auto 0 auto;
 }
 
 @media (max-width: 59.99em) {
